@@ -23,6 +23,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     Glue.queryset(request, 'subdomains', subdomains, Glue.Access.CHANGE, fields='__all__')
 
     nav = DomainNavigation()
+    nav.page_title = str(domain)
     nav.breadcrumbs.add(str(domain), None)
     context = nav.as_context()
     context['domain'] = domain

@@ -8,11 +8,14 @@
 
 {% block scroll_header %}
     <div class="row pb-3 align-items-center">
-        <div class="col-6">
+        <div class="col-auto fs-5 col-sm-auto">
+            {{ domain.sub_domain_name }}
+        </div>
+        <div class="col col-sm-6">
             <input class="form-control" placeholder="Search ..." type="search"
                    x-model.debounce="searchQuery">
         </div>
-        <div class="col text-end">
+        <div class="col-3 col-sm-auto text-end">
             Sort by
         </div>
         <div class="col">
@@ -22,6 +25,15 @@
                 <option value="description">Description</option>
             </select>
         </div>
+        <div class="col-auto">
+            {% if perms.django_spire_metric_domain.add_subdomain %}
+                {% url 'django_spire:metric:domain:form:subdomain_form' domain_pk=domain.pk pk=0 as new_subdomain_url %}
+                <a class="btn btn-sm btn-primary text-white" href="{{ new_subdomain_url }}">
+                    <i class="bi bi-plus"></i>
+                    <span class="d-none d-sm-inline">Add</span>
+                </a>
+            {% endif %}
+        </div>
     </div>
     <div class="card--bordered"></div>
 {% endblock %}
@@ -30,7 +42,8 @@
     <div class="row border-bottom py-2">
         <div class="col-4">
             <div class="attribute-label">Name</div>
-            <a class='text-decoration-none' :href="{% js_url 'django_spire:metric:domain:page:subdomain_detail' domain_pk='item.domain_id' pk='item.id' %}">
+            <a class='text-decoration-none'
+               :href="{% js_url 'django_spire:metric:domain:page:subdomain_detail' domain_pk='item.domain_id' pk='item.id' %}">
                 <span x-text="item.name"></span>
             </a>
         </div>

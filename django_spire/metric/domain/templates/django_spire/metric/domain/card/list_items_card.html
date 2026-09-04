@@ -1,22 +1,4 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% load django_spire_pagination %}
-
-{% block card_title %}
-    Domains
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_metric_domain.add_domain %}
-        {% url 'django_spire:metric:domain:form:form' pk=0 as new_domain_url %}
-        <a class="btn btn-sm btn-primary" href="{{ new_domain_url }}">
-            <i class="bi bi-plus"></i>
-            Add
-        </a>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body">
         {% if domains %}
             {% include 'django_spire/metric/domain/scroll/scroll.html' %}
@@ -24,4 +6,4 @@
             {% include 'django_spire/item/no_data_item.html' %}
         {% endif %}
     </div>
-{% endblock %}
+</div>

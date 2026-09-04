@@ -21,6 +21,15 @@
                 <option value="sub_domain_name">Sub Domain Name</option>
             </select>
         </div>
+        <div class="col-auto">
+            {% if perms.django_spire_metric_domain.add_domain %}
+            {% url 'django_spire:metric:domain:form:form' pk=0 as new_domain_url %}
+            <a class="btn btn-sm btn-primary text-white" href="{{ new_domain_url }}">
+                <i class="bi bi-plus"></i>
+                <span class="d-none d-sm-inline">Add</span>
+            </a>
+            {% endif %}
+        </div>
     </div>
     <div class="card--bordered"></div>
 {% endblock %}
@@ -29,7 +38,8 @@
     <div class="row border-bottom py-2">
         <div class="col-3">
             <div class="attribute-label">Domain</div>
-            <a class='text-decoration-none' :href="`{% url 'django_spire:metric:domain:page:detail' pk=0 %}`.replace('0', item.id)">
+            <a class='text-decoration-none'
+               :href="`{% url 'django_spire:metric:domain:page:detail' pk=0 %}`.replace('0', item.id)">
                 <span x-text="item.name"></span>
             </a>
         </div>

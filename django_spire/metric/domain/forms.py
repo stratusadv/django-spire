@@ -39,7 +39,7 @@ class DomainForm(ModelForm):
 
 class SubDomainForm(ModelForm):
     key = forms.SlugField(
-        required=False, help_text='Leave blank to automatically generate a slug from the name.'
+        required=False, label='Key', help_text='Leave blank to automatically generate a slug from the name.'
     )
 
     def clean_key(self) -> str:
