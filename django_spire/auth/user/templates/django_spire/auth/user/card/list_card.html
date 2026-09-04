@@ -1,13 +1,9 @@
-{% extends 'django_spire/page/page.html' %}
-
-{% block page_content %}
-    <div class="card">
-        <div class="card-body">
-            {% if active_users or inactive_users %}
-                {% include 'django_spire/auth/user/scroll/scroll.html' %}
-            {% else %}
-                {% include 'django_spire/item/no_data_item.html' %}
-            {% endif %}
-        </div>
+<div class="card">
+    <div class="card-body">
+        {% if active_users or inactive_users %}
+            {% include 'django_spire/auth/user/scroll/scroll.html' %}
+        {% else %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endif %}
     </div>
-{% endblock %}
+</div>

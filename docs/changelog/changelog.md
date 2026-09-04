@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.1 - September 3, 2026
+
+### Fixes
+
+- Updated API security logic to match forms & display.
+- Fixed Auth User page from displaying 2 dispatch modals.
+
 ## v1.0.0 - September 2, 2026
 
 ### Overview
