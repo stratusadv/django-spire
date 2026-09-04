@@ -6,6 +6,8 @@
 
 - Updated API security logic to match forms & display.
 - Fixed Auth User page from displaying 2 dispatch modals.
+- A required `select_widget.html` field with no placeholder no longer looks filled in while actually submitting empty.
+- Glue scroll lists (`glue/scroll/scroll.html`) now bust their cached query results on reset, so a row removed or filtered out elsewhere (e.g. by a delete, or an edit that changes which list it belongs in) no longer reappears from stale cached data.
 
 ## v1.0.0 - September 2, 2026
 

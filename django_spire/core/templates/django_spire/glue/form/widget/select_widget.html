@@ -3,6 +3,18 @@
 
 {% block widget_content %}
     <select
+        x-data="{
+            init() {
+                const applyDefaultChoice = () => {
+                    if (value == null && !{% if include_empty %}true{% else %}false{% endif %} && (field?.choices || []).length) {
+                        value = field.choices[0].value
+                    }
+                };
+
+                applyDefaultChoice();
+                $watch(() => (field?.choices || []).length, applyDefaultChoice)
+            }
+        }"
         {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' with form_class_type='select' %}
     >
         {% if include_empty %}<option value="">{{ empty_label|default:"Select ..." }}</option>{% endif %}

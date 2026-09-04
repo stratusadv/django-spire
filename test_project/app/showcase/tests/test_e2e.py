@@ -45,6 +45,7 @@ FIELD_LABELS = [
     'Checkbox tags',
     'Search tags',
     'Category',
+    'Primary category',
     'Assigned user',
     'Watchers',
     'Date field',
@@ -250,7 +251,7 @@ class TestWidgetShowcaseRoundTrip:
         demo.title(
             'Filling And Saving Every Widget',
             kicker='django-spire',
-            subtitle='One save_model_obj() call round-trips all 29 field types.',
+            subtitle='One save_model_obj() call round-trips all 30 field types.',
         )
 
         open_showcase_form(demo, page)
@@ -342,6 +343,12 @@ class TestWidgetShowcaseRoundTrip:
         assert list(showcase.checkbox_tags.values_list('pk', flat=True)) == [tag_alpha.pk]
         assert set(showcase.search_tags.values_list('pk', flat=True)) == {tag_alpha.pk, tag_beta.pk}
         assert showcase.category_id == category.pk
+        # Never explicitly touched above -- it's a required select_widget.html
+        # field with exactly one available choice, so the default-value fix
+        # (select_widget.html's applyDefaultChoice()) is what puts a real value
+        # here at all; see test_default_choice_value_e2e.py for the focused
+        # regression test.
+        assert showcase.primary_category_id == category.pk
         assert showcase.assigned_user_id == assignee.pk
         assert set(showcase.watchers.values_list('pk', flat=True)) == {
             watcher_one.pk,
@@ -383,6 +390,7 @@ class TestWidgetShowcaseRoundTrip:
             select_choice=PriorityChoices.LOW,
             radio_choice=PriorityChoices.HIGH,
             category=category,
+            primary_category=category,
             assigned_user=assignee,
             integer_field=123,
         )
@@ -408,6 +416,9 @@ class TestWidgetShowcaseRoundTrip:
             field_widget(page, 'Checkbox tags').locator('button.form-control .badge')
         ).to_have_text('Existing Tag')
         expect(single_select_trigger(page, 'Category')).to_have_value('Operations')
+        expect(field_widget(page, 'Primary category').locator('select')).to_have_value(
+            str(category.pk)
+        )
         expect(single_select_trigger(page, 'Assigned user')).to_have_value('existing-assignee')
         demo.spotlight(field_widget(page, 'Category'), label='FK hydrated')
 
@@ -426,7 +437,13 @@ class TestWidgetShowcaseRoundTrip:
         """
         del transactional_db
 
-        showcase = create_test_widget_showcase(char_field='Before Edit', integer_field=1)
+        # primary_category is a required field (see models.py); set directly
+        # here since this test isn't exercising that field itself, unlike the
+        # fill-and-save test above where selecting it is part of the point.
+        category = create_test_showcase_category()
+        showcase = create_test_widget_showcase(
+            char_field='Before Edit', integer_field=1, primary_category=category
+        )
 
         demo = demo_start()
 
