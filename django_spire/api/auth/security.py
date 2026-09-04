@@ -12,9 +12,9 @@ class ApiKeySecurity(APIKeyBase):
     openapi_in = 'query'
 
     def __init__(
-        self,
-        api_permission_required: ApiPermissionChoices | None = None,
-        user_permission_required: str | None = None,
+            self,
+            api_permission_required: ApiPermissionChoices | None = None,
+            user_permission_required: str | None = None,
     ) -> None:
         self.api_permission_required = api_permission_required
         self.user_permission_required = user_permission_required
@@ -29,17 +29,16 @@ class ApiKeySecurity(APIKeyBase):
         if api_access is None:
             return False
 
-        if api_access.has_super_access:
-            return self._authorize_request(request, api_access)
-
         if (
-            self.api_permission_required is not None
-            and api_access.permission < self.api_permission_required
+                self.api_permission_required is not None
+                and api_access.permission < self.api_permission_required
         ):
             return False
 
-        if self.user_permission_required is not None and (
-            api_access.user is None or not api_access.user.has_perm(self.user_permission_required)
+        if (
+                self.user_permission_required is not None
+                and (api_access.user is None
+                     or not api_access.user.has_perm(self.user_permission_required))
         ):
             return False
 

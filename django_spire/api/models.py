@@ -28,7 +28,7 @@ class ApiAccess(ActivityMixin, HistoryModelMixin):
         verbose_name='User Access'
     )
 
-    has_super_access = models.BooleanField(default=False, verbose_name='Super Access (Overrides Base Permission & User Access)')
+    has_super_access = models.BooleanField(default=False, verbose_name='Super Access (Overrides User Access)')
 
     objects = ApiAccessQuerySet.as_manager()  # ty:ignore[missing-argument]
 

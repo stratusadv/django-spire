@@ -6,14 +6,7 @@
     <a class="col-12 col-sm-4 mb-2 mb-sm-0">
         {{ api_access.name }}
     </a>
-    <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        <div class="attribute-label">Base Permission</div>
-        {% if api_access.has_super_access %}
-            <span class="text-warning">Super</span>
-        {% else %}
-            <div>{{ api_access.get_permission_display }}</div>
-        {% endif %}
-    </div>
+
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
         <div class="attribute-label">User Access</div>
         {% if api_access.has_super_access %}
@@ -24,10 +17,25 @@
             <div>No User</div>
         {% endif %}
     </div>
+
+    <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
+        <div class="attribute-label">Base Permission</div>
+        {% if api_access.has_super_access %}
+            <span class="text-warning">
+        {% endif %}
+
+        {{ api_access.get_permission_display }}
+
+        {% if api_access.has_super_access %}
+            </span>
+        {% endif %}
+    </div>
+
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
         <div class="attribute-label">Key Hint</div>
         <div>{{ api_access.key_hint }}</div>
     </div>
+
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
         <div class="attribute-label">Created On</div>
         <div>{{ api_access.created_datetime|date:'M d, Y' }}</div>
