@@ -55,6 +55,10 @@ class WidgetShowcaseForm(ModelForm):
         )
         self.fields['assigned_user'].queryset = _user_choice_queryset()
         self.fields['watchers'].queryset = _user_choice_queryset()
+        # Deliberately not wrapped in Glue.choices(search_fields=...), unlike
+        # 'category' above -- this is what makes choices_searchable False and
+        # routes it to select_widget.html instead of search_and_select_widget.html.
+        self.fields['primary_category'].queryset = ShowcaseCategory.objects.order_by('name')
 
     class Meta:
         model = WidgetShowcase
@@ -77,6 +81,7 @@ class WidgetShowcaseForm(ModelForm):
             'category',
             'watchers',
             'assigned_user',
+            'primary_category',
             'date_field',
             'datetime_field',
             'time_field',

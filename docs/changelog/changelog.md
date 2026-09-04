@@ -6,6 +6,7 @@
 
 - Updated API security logic to match forms & display.
 - Fixed Auth User page from displaying 2 dispatch modals.
+- A required `select_widget.html` field with no placeholder no longer looks filled in while actually submitting empty.
 
 ## v1.0.0 - September 2, 2026
 

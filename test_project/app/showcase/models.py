@@ -77,6 +77,21 @@ class WidgetShowcase(ActivityMixin, HistoryModelMixin):
     assigned_user = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_showcases'
     )
+    # A single relation FK *without* Glue.choices() search config (see
+    # forms.py) -- adaptive_field.html routes a non-searchable single choice
+    # to select_widget.html, unlike category/assigned_user above which go
+    # through search_and_select_widget.html. null=True keeps existing
+    # factory-created rows (which don't set this) valid at the DB level;
+    # blank=False still makes the ModelForm field required, so a form
+    # submitted without a real selection is rejected -- exercising the
+    # select_widget.html default-value regression this field exists for.
+    primary_category = models.ForeignKey(
+        ShowcaseCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        related_name='primary_showcases',
+    )
 
     # datetime/*
     date_field = models.DateField(null=True, blank=True)
@@ -124,6 +139,10 @@ class WidgetShowcase(ActivityMixin, HistoryModelMixin):
     @Glue.property
     def assigned_user_display(self) -> str:
         return self.assigned_user.username if self.assigned_user_id else '—'
+
+    @Glue.property
+    def primary_category_display(self) -> str:
+        return self.primary_category.name if self.primary_category_id else '—'
 
     @Glue.property
     def watchers_display(self) -> str:
