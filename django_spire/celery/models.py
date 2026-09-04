@@ -34,7 +34,7 @@ class CeleryTask(models.Model):
     completed_datetime = models.DateTimeField(null=True, blank=True)
 
     _result = models.BinaryField(default=set_pickled_no_result)
-    _result_capture_attempts = models.PositiveSmallIntegerField(default=0)
+    result_capture_attempts = models.PositiveSmallIntegerField(default=0)
 
     objects = CeleryTaskQuerySet.as_manager()
 
@@ -83,7 +83,6 @@ class CeleryTask(models.Model):
 
     @property
     def is_estimated_complete_soon(self) -> bool:
-        print(f'{self.meta.estimated_remaining_seconds=}')
         if self.meta.estimated_remaining_seconds:
             return 10 > self.meta.estimated_remaining_seconds >= 0
         return False
@@ -115,8 +114,16 @@ class CeleryTask(models.Model):
         return CeleryTaskMeta()
 
     @meta.setter
-    def meta(self, value: Any) -> None:
-        self._task_meta = value
+    def meta(self, task_meta: CeleryTaskMeta) -> None:
+        self._task_meta = task_meta.model_dump()
+
+    @property
+    def meta_as_dict(self) -> CeleryTaskMeta:
+        return self._task_meta
+
+    @meta_as_dict.setter
+    def meta_as_dict(self, task_meta_dict: dict) -> None:
+        self._task_meta = task_meta_dict
 
     @property
     def queue_time_seconds(self) -> int:
@@ -166,6 +173,7 @@ class CeleryTask(models.Model):
         if self.send_failed:
             result_data = pickle.loads(self._result)
             return result_data.get('message')
+
         return None
 
     @property
@@ -178,6 +186,7 @@ class CeleryTask(models.Model):
                 'kwargs': result_data.get('kwargs'),
                 'message': result_data.get('message'),
             }
+
         return None
 
     class Meta:

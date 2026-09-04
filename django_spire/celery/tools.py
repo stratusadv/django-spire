@@ -3,9 +3,6 @@ from celery.signals import celeryd_after_setup
 
 @celeryd_after_setup.connect
 def discover_celery_tasks(sender, instance, **kwargs):
-    """
-    Custom task discovery to look for specific patterns or avoid errors.
-    """
     from django.apps import apps
     import importlib
 

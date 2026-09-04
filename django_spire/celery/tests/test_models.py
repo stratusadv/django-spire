@@ -48,7 +48,7 @@ class CeleryTaskModelTestCase(TestCase):
         assert self.celery_task.completed_datetime is None
 
     def test_result_capture_attempts_zero_by_default(self) -> None:
-        assert self.celery_task._result_capture_attempts == 0
+        assert self.celery_task.result_capture_attempts == 0
 
     def test_async_result_property(self) -> None:
         result = self.celery_task.async_result

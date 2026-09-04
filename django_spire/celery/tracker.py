@@ -26,13 +26,13 @@ class CeleryTaskTracker:
             message = f'{self.__class__.__name__}: Update Interval must be at least 5 seconds'
             raise ValueError(message)
 
+        self.meta = CeleryTaskMeta()
+
         self._celery_task = celery_task
         self._update_interval_seconds = update_interval_seconds
         self._start_time_seconds = time.time()
         self._last_update_time_seconds = 0
         self._state = states.PENDING
-        self._meta = CeleryTaskMeta()
-        self._additional_meta = None
         self._cumulative_progress = 0
         self._pending_future: Future | None = None
         self._cumulative_target_value: int | None = None
@@ -71,8 +71,6 @@ class CeleryTaskTracker:
         self._cumulative_target_value = value
 
     def _update_celery_task_state(self) -> None:
-        meta_payload = {**self._meta.model_dump(), **(self._additional_meta or {})}
-
         if self._celery_task.request.id:
             self._cancel_pending_future()
 
@@ -81,12 +79,11 @@ class CeleryTaskTracker:
                 self._celery_task.backend,
                 self._celery_task.request.id,
                 self._state,
-                meta_payload,
+                **self.meta.model_dump(),
             )
 
-    def update_state(self, state: str = states.PENDING, meta: dict | None = None) -> None:
+    def update_state(self, state: str = states.PENDING) -> None:
         self._state = state.upper()
-        self._additional_meta = meta
 
         self._process_overdue_update()
 
@@ -97,7 +94,7 @@ class CeleryTaskTracker:
             message = 'Progress range is invalid'
             raise ValueError(message)
 
-        self._meta.progress = range_min + (range_max - range_min) * (current_count / target_count)
+        self.meta.progress = range_min + (range_max - range_min) * (current_count / target_count)
         self._process_overdue_update()
 
     def update_cumulative_progress(self, added_value: int) -> None:
@@ -107,17 +104,17 @@ class CeleryTaskTracker:
             message = f'{self.__class__.__name__}: Cumulative Progress Target Value is None'
             raise ValueError(message)
 
-        self._meta.progress = self._cumulative_progress / self._cumulative_target_value
+        self.meta.progress = self._cumulative_progress / self._cumulative_target_value
         self._process_overdue_update()
 
     def set_completed(self):
-        self._meta.set_completed()
+        self.meta.set_completed()
         self._flush_futures()
 
     def set_started(self):
-        self._meta.set_started()
+        self.meta.set_started()
         self.update_state(states.STARTED)
 
     def set_started_and_completing_soon(self):
-        self._meta.set_started_and_completing_soon()
+        self.meta.set_started_and_completing_soon()
         self.update_state(states.STARTED)

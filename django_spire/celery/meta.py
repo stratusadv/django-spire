@@ -2,7 +2,7 @@ import time
 from datetime import datetime, UTC
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 _ESTIMATED_TIME_BUFFER = 0.10
 
@@ -10,6 +10,7 @@ _ESTIMATED_TIME_BUFFER = 0.10
 class CeleryTaskMeta(BaseModel):
     model_config = ConfigDict(extra='allow')
 
+    data: dict = Field(default_factory=dict)
     progress: float | None = None
     started_time: float | None = None
     last_update_time: float | None = None
@@ -42,7 +43,7 @@ class CeleryTaskMeta(BaseModel):
         return 0.001
 
     @property
-    def estimated_remaining_seconds(self) -> float | None:
+    def estimated_remaining_seconds(self) -> float | int | None:
         if self.estimated_completed_time:
             return max(self.estimated_completed_time - time.time(), 0.0)
 
