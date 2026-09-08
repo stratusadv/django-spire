@@ -49,14 +49,18 @@
                             </td>
                             <td class="align-middle">{{ condition }}</td>
                             <td class="text-end align-middle">
-                                <a class="btn btn-sm btn-outline-secondary"
-                                   href="{% url 'django_spire:metric:visual:form:update_condition' pk=condition.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a class="btn btn-sm btn-outline-danger"
-                                   href="{% url 'django_spire:metric:visual:form:delete_condition' pk=condition.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                {% if perms.django_spire_metric_visual.change_visual %}
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{% url 'django_spire:metric:visual:form:update_condition' pk=condition.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                {% endif %}
+                                {% if perms.django_spire_metric_visual.delete_visual %}
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       href="{% url 'django_spire:metric:visual:form:delete_condition' pk=condition.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}

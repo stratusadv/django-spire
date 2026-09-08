@@ -107,7 +107,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = StatisticNavigation()
     nav.page_title = 'Statistic'
-    nav.page_description = 'List View'
     context = nav.as_context()
     context['statistics'] = statistics
     return TemplateResponse(

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django_glue import Glue
 
@@ -35,13 +36,22 @@ def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
 @permission_required('django_spire_metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(
-        models.Visual.objects.with_statistic().with_conditions().with_references(), pk=pk
+        models.Visual.objects.with_statistic().prefetch_related(
+            Prefetch('conditions', queryset=models.VisualCondition.objects.not_deleted()),
+            Prefetch('references', queryset=models.VisualReference.objects.not_deleted()),
+        ),
+        pk=pk,
     )
 
     nav = VisualNavigation()
     nav.page_title = str(visual)
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
-    nav.breadcrumbs.add(str(visual))
+    nav.breadcrumbs.add(
+        name=str(visual),
+        view_name='django_spire:metric:visual:page:detail',
+        view_kwargs={'pk': pk}
+    )
+
     context = nav.as_context()
     context.update(_visual_context(request, visual))
     context['period_start'], context['period_end'] = visual.services.transformation.date_range()
@@ -53,16 +63,14 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('django_spire_metric_visual.view_visual')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    visuals = models.Visual.objects.with_statistic()
+    visuals = models.Visual.objects.with_statistic().not_deleted()
 
     Glue.queryset(request, 'visuals', visuals, Glue.Access.CHANGE, fields='__all__')
 
     nav = VisualNavigation()
     nav.page_title = 'Visuals'
-    nav.breadcrumbs.add('Visuals')
+    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     context = nav.as_context()
-    context['visuals'] = visuals
-    context['visual_count'] = visuals.count()
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/visual/page/list_page.html'

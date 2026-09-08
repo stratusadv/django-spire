@@ -10,6 +10,7 @@ from django.urls import reverse
 from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
+from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.metric.visual import forms, models
 from django_spire.metric.visual.navigation import VisualNavigation
@@ -21,14 +22,15 @@ if TYPE_CHECKING:
 @permission_required('django_spire_metric_visual.delete_visual')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     visual = get_object_or_404(models.Visual, pk=pk)
-    return_url = request.GET.get('return_url', reverse('django_spire:metric:visual:page:list'))
+    return_url = safe_redirect_url(
+        request, fallback=reverse('django_spire:metric:visual:page:list')
+    )
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(data=request.POST, obj=visual)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=visual.set_deleted)
+            form.save(user=request.user, delete_func=visual.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -38,7 +40,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
     nav.page_title = 'Delete Visual'
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(
-        name=(visual),
+        name=str(visual),
         view_name='django_spire:metric:visual:page:detail',
         view_kwargs={'pk': visual.pk},
     )
@@ -46,11 +48,12 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
     context = nav.as_context()
     context['form'] = form
+    context['return_url'] = return_url
     context['form_title'] = f'Delete {visual}'
     context['form_description'] = f'Are you sure you would like to delete visual "{visual}"?'
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request, 'django_spire/metric/visual/form/delete_confirmation_form_page.html', context
     )
 
 
@@ -130,10 +133,23 @@ def _condition_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
     Glue.form(request, 'visual_condition_form', form, Glue.Access.DELETE)
 
     nav = VisualNavigation()
-    nav.page_title = 'Edit Condition' if condition.pk else 'Add Condition'
+    nav.set_page_title_to_form_action_from_model_instance(condition)
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
-    nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
-    nav.breadcrumbs.add('Edit Condition' if condition.pk else 'Add Condition')
+    nav.breadcrumbs.add(
+        name=str(visual),
+        view_name='django_spire:metric:visual:page:detail',
+        view_kwargs={'pk': visual.pk}
+    )
+
+    if condition.pk:
+        nav.breadcrumbs.add(
+            name=str(condition),
+            view_name='django_spire:metric:visual:page:detail',
+            view_kwargs={'pk': visual.pk},
+        )
+
+    nav.breadcrumbs.add('Edit' if condition.pk else 'New Condition')
+
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = nav.page_title
@@ -150,16 +166,14 @@ def _condition_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
 def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     condition = get_object_or_404(models.VisualCondition.objects.select_related('visual'), pk=pk)
     visual = condition.visual
-    return_url = request.GET.get(
-        'return_url', reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
-    )
+    detail_url = reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
+    return_url = safe_redirect_url(request, fallback=detail_url)
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(data=request.POST, obj=condition)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=condition.set_deleted)
+            form.save(user=request.user, delete_func=condition.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -168,15 +182,26 @@ def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
     nav = VisualNavigation()
     nav.page_title = 'Delete Condition'
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
-    nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
-    nav.breadcrumbs.add('Delete Condition')
+    nav.breadcrumbs.add(
+        name=str(visual),
+        view_name='django_spire:metric:visual:page:detail',
+        view_kwargs={'pk': visual.pk}
+    )
+    nav.breadcrumbs.add(
+        name=str(condition),
+        view_name='django_spire:metric:visual:page:detail',
+        view_kwargs={'pk': visual.pk},
+    )
+    nav.breadcrumbs.add('Delete')
+
     context = nav.as_context()
     context['form'] = form
+    context['return_url'] = return_url
     context['form_title'] = f'Delete {condition}'
     context['form_description'] = f'Are you sure you would like to delete condition "{condition}"?'
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request, 'django_spire/metric/visual/form/delete_confirmation_form_page.html', context
     )
 
 
@@ -220,10 +245,18 @@ def _reference_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
 
     nav = VisualNavigation()
 
-    nav.page_title = 'Edit Reference' if reference_obj.pk else 'Add Reference'
+    nav.set_page_title_to_form_action_from_model_instance(reference_obj)
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
-    nav.breadcrumbs.add(nav.page_title)
+
+    if reference_obj.pk:
+        nav.breadcrumbs.add(
+            name=str(reference_obj),
+            view_name='django_spire:metric:visual:page:detail',
+            view_kwargs={'pk': visual.pk},
+        )
+
+    nav.breadcrumbs.add('Edit' if reference_obj.pk else 'New Reference')
 
     context = nav.as_context()
     context['form'] = form
@@ -244,16 +277,14 @@ def delete_reference_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
         models.VisualReference.objects.select_related('visual'), pk=pk
     )
     visual = reference_obj.visual
-    return_url = request.GET.get(
-        'return_url', reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
-    )
+    detail_url = reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
+    return_url = safe_redirect_url(request, fallback=detail_url)
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(data=request.POST, obj=reference_obj)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=reference_obj.set_deleted)
+            form.save(user=request.user, delete_func=reference_obj.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -262,15 +293,25 @@ def delete_reference_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
     nav = VisualNavigation()
     nav.page_title = 'Delete Reference'
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
-    nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
-    nav.breadcrumbs.add('Delete Reference')
+    nav.breadcrumbs.add(
+        name=str(visual),
+        view_name='django_spire:metric:visual:page:detail',
+        view_kwargs={'pk': visual.pk})
+    nav.breadcrumbs.add(
+        name=str(reference_obj),
+        view_name='django_spire:metric:visual:page:detail',
+        view_kwargs={'pk': visual.pk},
+    )
+
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
+    context['return_url'] = return_url
     context['form_title'] = f'Delete {reference_obj}'
     context['form_description'] = (
         f'Are you sure you would like to delete reference "{reference_obj}"?'
     )
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request, 'django_spire/metric/visual/form/delete_confirmation_form_page.html', context
     )
