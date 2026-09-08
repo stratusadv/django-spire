@@ -135,7 +135,7 @@ def _form_view(request: WSGIRequest, group_pk: int = 0, pk: int = 0) -> Template
     nav.set_page_title_to_form_action_from_model_instance(statistic)
     nav.page_description = 'Edit' if statistic.pk else 'New Statistic'
     nav.breadcrumbs.add(
-        name=str(get_object_or_404(models.StatisticGroup, pk=group_pk if group_pk else statistic.pk)),
+        name=str(get_object_or_404(models.StatisticGroup, pk=group_pk if group_pk else statistic.group.pk)),
         view_name='django_spire:metric:domain:statistic:page:group_detail',
         view_kwargs={'pk': group_pk if group_pk else statistic.group.pk}
     )
