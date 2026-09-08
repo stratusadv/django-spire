@@ -31,7 +31,7 @@ class StatisticGroupPageViewTestCase(BaseTestCase):
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/statistic/page/group_list_page.html'
         )
-        assert self.group in response.context['groups']
+        assert 'Glue.querySet.groups' in response.content.decode()
 
     def test_group_list_view_uses_glue_groups_scroll(self):
         response = self.client.get(
@@ -138,7 +138,7 @@ class StatisticPageViewTestCase(BaseTestCase):
             )
         )
         content = response.content.decode()
-        assert '<th class="text-end">Value</th>' in content
+        assert '<th class="text-end fw-medium">Value</th>' in content
         assert 'text-end' in content
 
     def test_detail_view_links_sub_domains_to_subdomain_detail(self):
