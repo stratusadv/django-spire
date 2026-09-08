@@ -1,9 +1,5 @@
 <div class="card">
     <div class="card-body">
-        {% if domains %}
-            {% include 'django_spire/metric/domain/scroll/scroll.html' %}
-        {% else %}
-            {% include 'django_spire/item/no_data_item.html' %}
-        {% endif %}
+        {% include 'django_spire/metric/domain/scroll/scroll.html' %}
     </div>
 </div>
