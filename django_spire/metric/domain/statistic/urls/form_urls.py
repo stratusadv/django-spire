@@ -7,7 +7,7 @@ from django_spire.metric.domain.statistic.views import form_views
 app_name = 'form'
 
 urlpatterns = [
-    path('create/', form_views.create_view, name='create'),
+    path('<int:group_pk>create/', form_views.create_view, name='create'),
     path('<int:pk>/update/', form_views.update_view, name='update'),
     path('<int:pk>/delete/', form_views.delete_form_view, name='delete'),
     path('group/create/', form_views.group_create_view, name='group_create'),
