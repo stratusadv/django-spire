@@ -39,7 +39,9 @@
                 </table>
             </div>
         {% else %}
-            {% include 'django_spire/item/no_data_item.html' %}
+            <div class="ps-2">
+                {% include 'django_spire/item/no_data_item.html' %}
+            </div>
         {% endif %}
     </div>
 </div>

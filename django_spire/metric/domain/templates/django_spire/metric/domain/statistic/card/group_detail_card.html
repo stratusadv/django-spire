@@ -10,7 +10,7 @@
                     {% url 'django_spire:metric:domain:statistic:form:group_update' pk=group.pk as group_edit_url %}
                     <a class="btn btn-sm btn-primary text-white" href="{{ group_edit_url }}">
                         <i class="bi bi-pencil"></i>
-                        <span class="d-none d-sm-inline">Edit</span>
+                        <span class="d-none d-md-inline">Edit</span>
                     </a>
                 {% endif %}
 
@@ -19,7 +19,7 @@
                     <a class="btn btn-sm btn-primary text-white"
                        href="{{ group_delete_url }}?return_url={% url 'django_spire:metric:domain:statistic:page:group_list' %}">
                         <i class="bi bi-eraser"></i>
-                        <span class="d-none d-sm-inline">Delete</span>
+                        <span class="d-none d-md-inline">Delete</span>
                     </a>
                 {% endif %}
             </div>
