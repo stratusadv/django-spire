@@ -28,7 +28,7 @@ def group_list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = StatisticGroupNavigation()
     context = nav.as_context()
-    context['groups'] = groups
+
     return TemplateResponse(
         request,
         context=context,
