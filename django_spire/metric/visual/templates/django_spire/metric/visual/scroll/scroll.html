@@ -19,6 +19,15 @@
                 <option value="created_datetime">Created</option>
             </select>
         </div>
+        {% if perms.django_spire_metric_visual.add_visual %}
+            <div class="col-auto">
+                {% url 'django_spire:metric:visual:form:create' as new_visual_url %}
+                <a class="btn btn-sm btn-primary text-white" href="{{ new_visual_url }}">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-md-inline">Add</span>
+                </a>
+            </div>
+        {% endif %}
     </div>
     <div class="card--bordered"></div>
 {% endblock %}
