@@ -96,8 +96,13 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         view_name='django_spire:metric:domain:statistic:page:group_detail',
         view_kwargs={'pk': statistic.group.pk},
     )
-    nav.breadcrumbs.add(str(statistic))
+    nav.breadcrumbs.add(
+        name=str(statistic),
+        view_name='django_spire:metric:domain:statistic:page:detail',
+        view_kwargs={'pk': statistic.pk},
+    )
     nav.breadcrumbs.add('Delete')
+
     context = nav.as_context()
     context['form_title'] = f'Delete {statistic}'
     context['form_description'] = f'Are you sure you would like to delete statistic "{statistic}"?'
@@ -114,6 +119,14 @@ def _group_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     nav = StatisticGroupNavigation()
     nav.set_page_title_to_form_action_from_model_instance(group)
+
+    if group.pk:
+        nav.breadcrumbs.add(
+            name=str(group),
+            view_name='django_spire:metric:domain:statistic:page:group_detail',
+            view_kwargs={'pk': group.pk},
+        )
+
     nav.page_description = 'Edit' if group.pk else 'New Statistic Group'
     nav.breadcrumbs.add('Edit' if group.pk else 'New Statistic Group')
 
