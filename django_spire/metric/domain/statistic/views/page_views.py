@@ -42,7 +42,12 @@ def group_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = StatisticGroupNavigation()
     nav.page_title = str(group)
-    nav.breadcrumbs.add(str(group))
+    nav.breadcrumbs.add(
+        name=str(group),
+        view_name='django_spire:metric:domain:statistic:page:group_detail',
+        view_kwargs={'pk': group.pk},
+    )
+
     context = nav.as_context()
     context['group'] = group
     context['statistics'] = group.statistics.active().not_deleted()
@@ -64,7 +69,12 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         view_name='django_spire:metric:domain:statistic:page:group_detail',
         view_kwargs={'pk': statistic.group.pk},
     )
-    nav.breadcrumbs.add(str(statistic))
+    nav.breadcrumbs.add(
+        name=str(statistic),
+        view_name='django_spire:metric:domain:statistic:page:detail',
+        view_kwargs={'pk': statistic.pk},
+    )
+
     record_path = reverse(
         f'{BASE_URL_NAME}:api_v1:record_value', kwargs={'statistic_key': str(statistic.key)}
     )

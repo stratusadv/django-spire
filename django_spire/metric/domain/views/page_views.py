@@ -24,7 +24,12 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = str(domain)
-    nav.breadcrumbs.add(str(domain), None)
+    nav.breadcrumbs.add(
+        name=str(domain),
+        view_name='django_spire:metric:domain:page:detail',
+        view_kwargs={'pk': domain.pk}
+    )
+
     context = nav.as_context()
     context['domain'] = domain
 
@@ -56,9 +61,14 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     nav.breadcrumbs.add(
         name=str(subdomain.domain),
         view_name='django_spire:metric:domain:page:detail',
-        view_kwargs={'pk': subdomain.domain.pk},
+        view_kwargs={'pk': domain_pk},
     )
-    nav.breadcrumbs.add(str(subdomain), None)
+    nav.breadcrumbs.add(
+        name=str(subdomain),
+        view_name='django_spire:metric:domain:page:subdomain_detail',
+        view_kwargs={'pk': pk, 'domain_pk': domain_pk},
+    )
+
     context = nav.as_context()
     context['subdomain'] = subdomain
     context['domain_pk'] = domain_pk

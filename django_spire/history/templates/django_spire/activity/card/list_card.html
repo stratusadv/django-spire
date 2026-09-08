@@ -1,11 +1,6 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    Recent Activity
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;">
+        <span class="fs-5">Recent Activity</span>
         {% if activity_log %}
             {% for activity in activity_log %}
                 {% include 'django_spire/activity/item/activity_item.html' %}
@@ -14,4 +9,4 @@
             {% include 'django_spire/item/no_data_item.html' %}
         {% endif %}
     </div>
-{% endblock %}
+</div>
