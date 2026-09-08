@@ -11,7 +11,6 @@ from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-
 from django_spire.metric.visual import forms, models
 from django_spire.metric.visual.navigation import VisualNavigation
 
@@ -38,8 +37,13 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
     nav = VisualNavigation()
     nav.page_title = 'Delete Visual'
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
-    nav.breadcrumbs.add(str(visual))
+    nav.breadcrumbs.add(
+        name=(visual),
+        view_name='django_spire:metric:visual:page:detail',
+        view_kwargs={'pk': visual.pk},
+    )
     nav.breadcrumbs.add('Delete')
+
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {visual}'
@@ -68,14 +72,19 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     Glue.form(request, 'visual_form', form, Glue.Access.DELETE)
 
     nav = VisualNavigation()
-    nav.page_title = str(visual._meta.verbose_name.title())
+    nav.set_page_title_to_form_action_from_model_instance(visual)
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
-    nav.breadcrumbs.add('Edit' if visual.pk else 'Create')
+
+    if visual.pk:
+        nav.breadcrumbs.add(
+            name=(visual),
+            view_name='django_spire:metric:visual:page:detail',
+            view_kwargs={'pk': visual.pk},
+        )
+
+    nav.breadcrumbs.add('Edit' if visual.pk else 'New Visual')
+
     context = nav.as_context()
-    context['form'] = form
-    context['form_title'] = str(visual._meta.verbose_name.title())
-    context['form_description'] = 'Edit' if visual.pk else 'Create'
-    context['visual'] = visual
 
     return TemplateResponse(request, 'django_spire/metric/visual/page/form_page.html', context)
 
