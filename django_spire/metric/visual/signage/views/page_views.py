@@ -22,7 +22,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = SignageNavigation()
     nav.page_title = str(signage)
     nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
-    nav.breadcrumbs.add(str(signage))
+    nav.breadcrumbs.add(str(signage), view_name='django_spire:metric:visual:signage:page:detail', view_kwargs={'pk': pk})
 
     context = nav.as_context()
     context['signage'] = signage
@@ -37,16 +37,14 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('django_spire_metric_visual_signage.view_signage')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    signages = models.Signage.objects.all()
+    signages = models.Signage.objects.not_deleted()
 
     Glue.queryset(request, 'signages', signages, Glue.Access.CHANGE, fields='__all__')
 
     nav = SignageNavigation()
     nav.page_title = 'Signages'
-    nav.breadcrumbs.add('Signages')
+    nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
     context = nav.as_context()
-    context['signages'] = signages
-    context['signage_count'] = signages.count()
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/visual/signage/page/list_page.html'

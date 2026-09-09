@@ -1,52 +1,54 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    Presentations
-{% endblock %}
-
 {% block card_button %}
-    {% if perms.django_spire_metric_visual_signage.add_signagepresentation %}
-        {% url 'django_spire:metric:visual:signage:form:create_link' signage_pk=signage.pk as add_link_url %}
-        <a class="btn btn-sm btn-primary" href="{{ add_link_url }}">
-            <i class="bi bi-plus"></i>
-            Add
-        </a>
-    {% endif %}
+
 {% endblock %}
 
-{% block card_title_content %}
-    <div class="card-body p-2">
+<div class="card">
+    <div class="card-body">
+        <div class="row pb-2">
+            <div class="col fs-5">
+                Presentations
+            </div>
+            {% if perms.django_spire_metric_visual_signage.add_signagepresentation %}
+                <div class="col-auto">
+                    {% url 'django_spire:metric:visual:signage:form:create_link' signage_pk=signage.pk as add_link_url %}
+                    <a class="btn btn-sm btn-primary text-white" href="{{ add_link_url }}">
+                        <i class="bi bi-plus-lg"></i>
+                        Add
+                    </a>
+                </div>
+            {% endif %}
+        </div>
         {% if presentation_links %}
             <div class="table-responsive">
                 <table class="table table-light table-hover">
                     <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Presentation</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
+                    <tr>
+                        <th>Order</th>
+                        <th>Presentation</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for link in presentation_links %}
-                            <tr>
-                                <td class="align-middle">{{ link.order }}</td>
-                                <td class="align-middle">
-                                    <a href="{% url 'django_spire:metric:visual:presentation:page:detail' pk=link.presentation.pk %}">
-                                        {{ link.presentation }}
-                                    </a>
-                                </td>
-                                <td class="text-end align-middle">
-                                    <a class="btn btn-sm btn-outline-secondary"
-                                       href="{% url 'django_spire:metric:visual:signage:form:update_link' pk=link.pk %}">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-danger"
-                                       href="{% url 'django_spire:metric:visual:signage:form:delete_link' pk=link.pk %}">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                    {% for link in presentation_links %}
+                        <tr>
+                            <td class="align-middle">{{ link.order }}</td>
+                            <td class="align-middle">
+                                <a href="{% url 'django_spire:metric:visual:presentation:page:detail' pk=link.presentation.pk %}">
+                                    {{ link.presentation }}
+                                </a>
+                            </td>
+                            <td class="text-end align-middle">
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{% url 'django_spire:metric:visual:signage:form:update_link' pk=link.pk %}">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a class="btn btn-sm btn-outline-danger"
+                                   href="{% url 'django_spire:metric:visual:signage:form:delete_link' pk=link.pk %}">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -54,4 +56,4 @@
             {% include 'django_spire/item/no_data_item.html' %}
         {% endif %}
     </div>
-{% endblock %}
+</div>
