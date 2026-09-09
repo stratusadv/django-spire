@@ -32,3 +32,13 @@ class CollectionFormUrlsTests(BaseTestCase):
             )
         )
         assert response.status_code == 200
+
+    def test_update_form_view_registers_glue_form(self):
+        response = self.client.get(
+            reverse(
+                'django_spire:knowledge:collection:form:update', kwargs={'pk': self.collection.pk}
+            )
+        )
+
+        assert response.status_code == 200
+        assert 'collection_form' in response.content.decode()

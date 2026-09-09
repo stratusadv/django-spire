@@ -1,10 +1,12 @@
 import pytest
+from pathlib import PurePath
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeding.field.seed.file_seed import FileFieldSeed
+from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 
@@ -17,6 +19,24 @@ class TestSeederStaticMethods(TestCase):
     def test_file_returns_file_field_seed(self):
         seed = Seeder.file()
         assert isinstance(seed, FileFieldSeed)
+
+    def test_file_with_upload_to_nests_seeding_directory(self):
+        seed = Seeder.file(upload_to='uploads/docs')
+        assert isinstance(seed, FileFieldSeed)
+        assert seed.generate_value(0) == str(PurePath('uploads/docs/.seeding/seeded_file.txt'))
+
+    def test_index_returns_index_field_seed(self):
+        seed = Seeder.index()
+        assert isinstance(seed, IndexFieldSeed)
+        assert seed.index_start == 0
+        assert seed.index_step == 1
+
+    def test_index_with_custom_start_and_step(self):
+        seed = Seeder.index(index_start=100, index_step=5)
+        assert seed.index_start == 100
+        assert seed.index_step == 5
+        assert seed.generate_value(0) == 100
+        assert seed.generate_value(3) == 115
 
     def test_static_with_string_value(self):
         seed = Seeder.static('hello')
