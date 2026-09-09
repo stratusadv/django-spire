@@ -19,7 +19,8 @@
                     <tr>
                         <th class="fw-medium">Name</th>
                         <th class="fw-medium">Interval</th>
-                        <th class="fw-medium">Action</th>
+                        <th class="fw-medium">Value Type</th>
+                        <th class="fw-medium">Key</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -32,7 +33,10 @@
                                 </a>
                             </td>
                             <td>{{ statistic.get_interval_display }}</td>
-                            <td></td>
+                            <td>{{ statistic.get_value_type_display }}</td>
+                            <td><code>{{ statistic.key }}</code>
+                                {% include 'django_spire/element/copy_to_clipboard_element.html' with value=statistic.key %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
