@@ -51,6 +51,20 @@ class VisualConditionFactoryService(BaseDjangoModelService['VisualCondition']):
 class VisualRegionFactoryService(BaseDjangoModelService['VisualRegion']):
     obj: VisualRegion
 
+    def connect(self, visual: Visual) -> VisualRegion:
+        self.obj.visual = visual
+        self.obj.save(update_fields=['visual'])
+
+        user = get_current_user()
+        if user is not None:
+            visual.add_activity(
+                user,
+                'connected',
+                f'{actor_name(user)} connected region "{self.obj}" to "{visual}".',
+            )
+
+        return self.obj
+
     def disconnect(self) -> VisualRegion:
         visual = self.obj.visual
         self.obj.visual = None

@@ -72,7 +72,8 @@ def connect_view(request: WSGIRequest, visual_pk: int) -> HttpResponseRedirect:
     if key not in settings.DJANGO_SPIRE_METRIC_VISUAL_REGIONS:
         return redirect(reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}))
 
-    models.VisualRegion.objects.assign(key, visual)
+    region, _ = models.VisualRegion.objects.get_or_create(key=key)
+    region.services.factory.connect(visual)
 
     return redirect(reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}))
 

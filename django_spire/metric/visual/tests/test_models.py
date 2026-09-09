@@ -269,14 +269,16 @@ class VisualRegionModelTestCase(BaseTestCase):
     def test_services_is_region_service(self):
         assert type(self.region.services).__name__ == 'VisualRegionService'
 
-    def test_assign_creates(self):
-        region = VisualRegion.objects.assign('dashboard:new', self.visual)
+    def test_connect_creates(self):
+        region, _ = VisualRegion.objects.get_or_create(key='dashboard:new')
+        region.services.factory.connect(self.visual)
         assert region.visual == self.visual
         assert VisualRegion.objects.filter(key='dashboard:new').count() == 1
 
-    def test_assign_updates_existing(self):
-        VisualRegion.objects.assign('home:dashboard:hero', None)
-        region = VisualRegion.objects.assign('home:dashboard:hero', self.visual)
+    def test_connect_updates_existing(self):
+        region, _ = VisualRegion.objects.get_or_create(key='home:dashboard:hero')
+        region.services.factory.disconnect()
+        region.services.factory.connect(self.visual)
         assert region.visual == self.visual
         assert VisualRegion.objects.filter(key='home:dashboard:hero').count() == 1
 
