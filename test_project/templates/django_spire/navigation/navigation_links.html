@@ -9,13 +9,8 @@
 
 {% include 'django_spire/knowledge/navigation/navigation_links.html' with include_ai_chat=True %}
 
-{% include 'django_spire/navigation/divider.html' with divider_text='Artificial Intelligence' %}
-
 {% url 'ai:home' as ai_home_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Ai Home' link_icon='bi bi-robot' link_url=ai_home_url %}
-
-{% url 'django_spire:ai:chat:page:home' as ai_chat_url %}
-{% include 'django_spire/navigation/link.html' with link_text='Ai Chat' link_icon='bi bi-chat-heart' link_url=ai_chat_url %}
 
 {% include 'django_spire/navigation/divider.html' with divider_text='Examples' %}
 

@@ -1,0 +1,27 @@
+{% extends 'django_spire/glue/form/form.html' %}
+
+{% block glue_form_unique_name %}collection_form{% endblock %}
+
+{% block glue_form_content %}
+    <div class="row">
+        <div class="col-12 mb-3">
+            {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.name' %}
+        </div>
+
+        <div class="col-12 mb-3">
+            {% include 'django_spire/glue/form/field/text/field.html' with glue_field='glue_form.description' %}
+        </div>
+
+        {% if request.GET.top_level != 'True' %}
+            <div class="col-12 mb-3">
+                {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.parent' include_empty=True empty_label='None' %}
+            </div>
+        {% endif %}
+
+        {% if perms.django_spire_knowledge.can_change_collection_groups %}
+            <div class="col-12 mb-3">
+                {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.groups' %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
