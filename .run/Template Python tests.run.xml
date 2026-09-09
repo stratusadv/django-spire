@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Tests" type="tests" factoryName="py.test">
+  <configuration default="true" type="tests" factoryName="py.test">
     <module name="django-spire" />
     <option name="ENV_FILES" value="$PROJECT_DIR$/development.env" />
     <option name="INTERPRETER_OPTIONS" value="" />
