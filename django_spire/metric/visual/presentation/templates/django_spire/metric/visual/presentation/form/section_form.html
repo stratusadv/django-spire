@@ -17,15 +17,11 @@
         {{ occupied_cells|json_script:'section-occupied-cells' }}
 
         <div class="row g-3">
-            <div class="col-md-6">
-                {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.slide' %}
-            </div>
-
-            <div class="col-md-6">
+            <div class="col-md-4">
                 {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.visual' %}
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label" for="section-row">Row</label>
                 <select id="section-row" class="form-select" x-model="glue_form.row"
                         :class="{'is-invalid': glue_form.$fields.row.hasErrors}">
@@ -39,7 +35,7 @@
                 </select>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label" for="section-col">Column</label>
                 <select id="section-col" class="form-select" x-model="glue_form.col"
                         :class="{'is-invalid': glue_form.$fields.col.hasErrors}">

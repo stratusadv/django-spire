@@ -48,7 +48,12 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = PresentationNavigation()
     nav.page_title = str(presentation)
     nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
-    nav.breadcrumbs.add(str(presentation))
+    nav.breadcrumbs.add(
+        name=str(presentation),
+        view_name='django_spire:metric:visual:presentation:page:detail',
+        view_kwargs={'pk': pk}
+    )
+
     context = nav.as_context()
     context['presentation'] = presentation
     context['slides'] = [_slide_data(request, slide) for slide in presentation.slides.all()]
@@ -68,10 +73,9 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = PresentationNavigation()
     nav.page_title = 'Presentations'
-    nav.breadcrumbs.add('Presentations')
+    nav.breadcrumbs.add('Presentations', view_name='django_spire:metric:visual:presentation:page:list')
+
     context = nav.as_context()
-    context['presentations'] = presentations
-    context['presentation_count'] = presentations.count()
 
     return TemplateResponse(
         request,
