@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import re
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -7,7 +10,11 @@ from django.urls import reverse
 from django_spire.auth.user.tests.factories import create_user
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.collection.tests.factories import create_test_collection
+from django_spire.knowledge.collection.tests.factories import (
+    create_test_auth_group,
+    create_test_collection,
+    create_test_collection_group,
+)
 
 
 class CollectionFormViewTests(BaseTestCase):
@@ -37,6 +44,31 @@ class CollectionFormViewTests(BaseTestCase):
 
     def _update_url(self, pk: int) -> str:
         return reverse('django_spire:knowledge:collection:form:update', kwargs={'pk': pk})
+
+    @staticmethod
+    def _glue_manifest(response) -> dict:
+        match = re.search(
+            r'<script id="django-glue-context" type="application/json">(.*?)</script>',
+            response.content.decode(),
+            re.DOTALL,
+        )
+
+        return json.loads(match.group(1))['manifest_list'][0]
+
+    def _call_glue_attribute(self, manifest: dict, attribute: str, **kwargs) -> dict:
+        response = self.client.post(
+            f'/__dg__/callable_attribute/collection_form/{attribute}/',
+            data={
+                'policy_token': manifest['policy_token'],
+                'state': '{}',
+                'attribute': attribute,
+                'kwargs': json.dumps(kwargs),
+            },
+        )
+
+        assert response.status_code == 200
+
+        return response.json()
 
     def test_create_view_uses_form_page_template(self):
         response = self.client.get(self._create_url())
@@ -90,6 +122,38 @@ class CollectionFormViewTests(BaseTestCase):
         response = self.client.get(self._update_url(self.collection.pk))
 
         assert 'collection_form' in response.content.decode()
+
+    def test_groups_field_choices_are_not_search_gated(self):
+        response = self.client.get(self._update_url(self.collection.pk))
+
+        groups_metadata = self._glue_manifest(response)['metadata']['attributes']['groups']
+
+        assert groups_metadata['choices_searchable'] is False
+
+    def test_groups_field_choices_load_without_a_search_query(self):
+        create_test_auth_group(name='Alpha Group')
+        create_test_auth_group(name='Beta Group')
+
+        response = self.client.get(self._update_url(self.collection.pk))
+
+        payload = self._call_glue_attribute(
+            self._glue_manifest(response), 'foreign_key_choices', field_name='groups'
+        )
+
+        assert [choice['label'] for choice in payload['result']['results']] == [
+            'Alpha Group',
+            'Beta Group',
+        ]
+
+    def test_groups_field_state_holds_assigned_group_pks(self):
+        auth_group = create_test_auth_group(name='Alpha Group')
+        create_test_collection_group(collection=self.collection, auth_group=auth_group)
+
+        response = self.client.get(self._update_url(self.collection.pk))
+
+        payload = self._call_glue_attribute(self._glue_manifest(response), 'load_state')
+
+        assert payload['state']['groups']['value'] == [auth_group.pk]
 
     def test_view_renders_none_option_for_parent_field(self):
         response = self.client.get(self._create_url())

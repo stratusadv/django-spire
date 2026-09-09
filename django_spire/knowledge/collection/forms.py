@@ -51,7 +51,7 @@ class CollectionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['groups'].queryset = Glue.choices(
-            AuthGroup.objects.all().order_by('name'), search_fields=['name'], fields=['name']
+            AuthGroup.objects.all().order_by('name'), fields=['name']
         )
 
         if self.instance.pk:
