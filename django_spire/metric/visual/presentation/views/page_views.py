@@ -67,7 +67,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('django_spire_metric_visual_presentation.view_presentation')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    presentations = models.Presentation.objects.with_slide_count()
+    presentations = models.Presentation.objects.with_slide_count().not_deleted()
 
     Glue.queryset(request, 'presentations', presentations, Glue.Access.CHANGE, fields='__all__')
 
