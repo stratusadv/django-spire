@@ -50,11 +50,15 @@ def _visual_activity_log(visual: models.Visual) -> QuerySet:
     )
     region_pks = models.VisualRegion.objects.filter(visual=visual).values_list('pk', flat=True)
 
-    return Activity.objects.prefetch_user().filter(
-        Q(content_type=ContentType.objects.get_for_model(models.Visual), object_id=visual.pk)
-        | Q(content_type=condition_ct, object_id__in=condition_pks)
-        | Q(content_type=reference_ct, object_id__in=reference_pks)
-        | Q(content_type=region_ct, object_id__in=region_pks)
+    return (
+        Activity.objects.prefetch_user()
+        .filter(
+            Q(content_type=ContentType.objects.get_for_model(models.Visual), object_id=visual.pk)
+            | Q(content_type=condition_ct, object_id__in=condition_pks)
+            | Q(content_type=reference_ct, object_id__in=reference_pks)
+            | Q(content_type=region_ct, object_id__in=region_pks)
+        )
+        .order_by('-created_datetime')[:10]
     )
 
 
