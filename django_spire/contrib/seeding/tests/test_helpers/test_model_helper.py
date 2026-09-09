@@ -5,7 +5,10 @@ from django.test import TestCase
 
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.seeding import Seeder
-from django_spire.contrib.seeding.field.seed.model_seed import OrderedForeignKeyModelFieldSeed
+from django_spire.contrib.seeding.field.seed.model_seed import (
+    OrderedForeignKeyModelFieldSeed,
+    RandomForeignKeyModelFieldSeed,
+)
 from django_spire.contrib.seeding.field.seed.ordered_seed import OrderedSequenceFieldSeed
 from django_spire.contrib.seeding.field.seed.random_seed import RandomEnumFieldSeed
 
@@ -99,3 +102,14 @@ class TestModelFieldSeedHelper(TestCase):
         seed = Seeder.model.ordered_queryset_foreign_key(AuthUser.objects.all(), wrap=True)
         assert isinstance(seed, OrderedForeignKeyModelFieldSeed)
         assert seed.wrap is True
+
+    def test_random_foreign_key_returns_random_foreign_key_field_seed(self):
+        seed = Seeder.model.random_foreign_key(AuthUser)
+        assert isinstance(seed, RandomForeignKeyModelFieldSeed)
+        assert seed.queryset.model is AuthUser
+
+    def test_random_queryset_foreign_key_returns_random_foreign_key_field_seed(self):
+        queryset = AuthUser.objects.all()
+        seed = Seeder.model.random_queryset_foreign_key(queryset)
+        assert isinstance(seed, RandomForeignKeyModelFieldSeed)
+        assert seed.queryset is queryset

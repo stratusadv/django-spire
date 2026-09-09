@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding.field.seed.mutate.corrupt_seed import CorruptMutateFieldSeed
+from django_spire.contrib.seeding.field.seed.mutate.exclude_seed import ExcludeMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate.choices import MutateSeverity
 from django_spire.contrib.seeding.field.seed.mutate.nullable_seed import NullableMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate.transform_seed import TransformMutateFieldSeed
@@ -48,6 +49,23 @@ class TestMutateFieldSeedHelper(TestCase):
         seed = Seeder.static('value')
         result = Seeder.mutate.corrupt(seed)
         assert result.severity == MutateSeverity.MILD
+
+    def test_exclude_returns_exclude_mutate_field_seed(self):
+        seed = Seeder.mutate.exclude(Seeder.static('value'))
+        assert isinstance(seed, ExcludeMutateFieldSeed)
+
+    def test_exclude_stores_field_seed(self):
+        inner = Seeder.static('value')
+        seed = Seeder.mutate.exclude(inner)
+        assert seed.field_seed is inner
+
+    def test_exclude_stores_exclude_chance(self):
+        seed = Seeder.mutate.exclude(Seeder.static('value'), exclude_chance=0.25)
+        assert seed.exclude_chance == 0.25
+
+    def test_exclude_default_chance(self):
+        seed = Seeder.mutate.exclude(Seeder.static('value'))
+        assert seed.exclude_chance == 0.5
 
     def test_nullable_returns_nullable_field_seed(self):
         seed = Seeder.static('hello')

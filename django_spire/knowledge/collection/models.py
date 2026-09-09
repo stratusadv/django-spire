@@ -70,5 +70,5 @@ class CollectionGroup(models.Model):
 
     services = CollectionGroupService()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.collection.name} - {self.auth_group.name}'

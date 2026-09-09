@@ -1,3 +1,6 @@
+import uuid
+from datetime import date, datetime
+
 from django.test import TestCase
 from django.utils import timezone
 
@@ -36,7 +39,7 @@ class TestFakeFieldSeedHelper(TestCase):
         seed = Seeder.fake.date_between()
         assert isinstance(seed, CallableFieldSeed)
         assert seed.callable.__name__ == 'date_between'
-        assert seed.wrapper is timezone.make_aware
+        assert seed.wrapper is None
 
     def test_date_time_between_returns_callable_with_make_aware(self):
         seed = Seeder.fake.date_time_between()
@@ -129,3 +132,29 @@ class TestFakeFieldSeedHelper(TestCase):
         seed = Seeder.fake.provider('date_object', wrapper=timezone.make_aware)
         assert isinstance(seed, CallableFieldSeed)
         assert seed.wrapper is timezone.make_aware
+
+    def test_file_name_returns_callable_field_seed(self):
+        seed = Seeder.fake.file_name()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable.__name__ == 'file_name'
+        assert seed.kwargs == {'category': None, 'extension': None}
+
+    def test_file_name_passes_category_and_extension(self):
+        seed = Seeder.fake.file_name(category='image', extension='png')
+        assert seed.kwargs == {'category': 'image', 'extension': 'png'}
+
+    def test_file_name_generates_value_with_extension(self):
+        seed = Seeder.fake.file_name(extension='png')
+        value = seed.generate_value(0)
+        assert isinstance(value, str)
+        assert value.endswith('.png')
+
+    def test_uuid4_generates_parsable_uuid(self):
+        seed = Seeder.fake.uuid4()
+        assert uuid.UUID(seed.generate_value(0))
+
+    def test_date_between_generates_naive_date(self):
+        seed = Seeder.fake.date_between()
+        value = seed.generate_value(0)
+        assert isinstance(value, date)
+        assert not isinstance(value, datetime)
