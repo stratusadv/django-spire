@@ -74,7 +74,7 @@ class VisualConditionModelForm(forms.ModelForm):
 
     class Meta:
         model = models.VisualCondition
-        fields = ['state', 'operator', 'target', 'tolerance', 'order']
+        fields = ['visual', 'state', 'operator', 'target', 'tolerance', 'order']
         exclude: ClassVar = []
         widgets = {
             'target': forms.NumberInput(attrs={'step': '0.0001'}),
@@ -121,7 +121,7 @@ class VisualReferenceModelForm(forms.ModelForm):
 
     class Meta:
         model = models.VisualReference
-        fields = ['reference', 'label', 'order']
+        fields = ['visual', 'reference', 'label', 'order']
         exclude: ClassVar = []
 
 

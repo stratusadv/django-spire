@@ -87,10 +87,10 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     Glue.form(request, 'visual_region_form', form, Glue.Access.DELETE)
 
     nav = VisualNavigation()
-    nav.page_title = 'Edit Region'
+    nav.set_page_title_to_form_action_from_model_instance(region)
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
-    nav.breadcrumbs.add(str(region))
+    nav.breadcrumbs.add(str(region), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
     nav.breadcrumbs.add('Edit')
     context = nav.as_context()
     context['form'] = form
