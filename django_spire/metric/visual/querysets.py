@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.core.querysets import SearchQuerySetMixin
+from django_spire.history.activity.context import get_current_user
+from django_spire.history.activity.utils import actor_name
 from django_spire.history.querysets import HistoryQuerySet
 
 from django_spire.metric.visual.choices import VisualKindChoices
@@ -61,4 +63,11 @@ class VisualRegionQuerySet(HistoryQuerySet):
 
     def assign(self, key: str, visual: Visual) -> VisualRegion:
         region, _ = self.update_or_create(key=key, defaults={'visual': visual})
+
+        user = get_current_user()
+        if user is not None:
+            visual.add_activity(
+                user, 'connected', f'{actor_name(user)} connected region {region} to "{visual}".'
+            )
+
         return region

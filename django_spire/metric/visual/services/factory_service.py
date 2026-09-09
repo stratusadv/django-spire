@@ -4,6 +4,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
+from django_spire.history.activity.context import get_current_user
+from django_spire.history.activity.utils import actor_name
 from django_spire.metric.visual.choices import (
     VisualConditionOperatorChoices,
     VisualConditionStateChoices,
@@ -50,6 +52,16 @@ class VisualRegionFactoryService(BaseDjangoModelService['VisualRegion']):
     obj: VisualRegion
 
     def disconnect(self) -> VisualRegion:
+        visual = self.obj.visual
         self.obj.visual = None
         self.obj.save(update_fields=['visual'])
+
+        user = get_current_user()
+        if user is not None and visual is not None:
+            visual.add_activity(
+                user,
+                'disconnected',
+                f'{actor_name(user)} disconnected region "{self.obj}" from "{visual}".',
+            )
+
         return self.obj
