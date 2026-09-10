@@ -27,7 +27,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.breadcrumbs.add(
         name=str(domain),
         view_name='django_spire:metric:domain:page:detail',
-        view_kwargs={'pk': domain.pk}
+        view_kwargs={'pk': domain.pk},
     )
 
     context = nav.as_context()
@@ -73,6 +73,9 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     context['subdomain'] = subdomain
     context['domain_pk'] = domain_pk
     context['show_group_prefix'] = True
+    context['group'] = (
+        models.StatisticGroup.objects.active().not_deleted().filter(domain=subdomain.domain).first()
+    )
     context['statistics'] = (
         models.Statistic.objects.select_related('group')
         .active()
