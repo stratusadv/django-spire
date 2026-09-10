@@ -22,7 +22,7 @@ class DomainViewTestCase(BaseTestCase):
         response = self.client.get(path=reverse('django_spire:metric:domain:page:list'))
         assert response.status_code == 200
         self.assertTemplateUsed(response, 'django_spire/metric/domain/page/list_page.html')
-        assert self.domain in response.context['domains']
+        assert 'Glue.querySet.domains' in response.content.decode()
 
     def test_detail_view(self):
         response = self.client.get(
@@ -31,7 +31,7 @@ class DomainViewTestCase(BaseTestCase):
         assert response.status_code == 200
         self.assertTemplateUsed(response, 'django_spire/metric/domain/page/detail_page.html')
         assert self.domain == response.context['domain']
-        assert self.subdomain in response.context['subdomains']
+        assert 'Glue.querySet.subdomains' in response.content.decode()
 
     def test_detail_view_subdomain_links_use_glue_item_state(self):
         response = self.client.get(

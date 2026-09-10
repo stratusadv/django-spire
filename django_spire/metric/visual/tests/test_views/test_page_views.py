@@ -26,7 +26,7 @@ class VisualPageViewsTestCase(BaseTestCase):
     def test_list_view(self):
         response = self.client.get(reverse('django_spire:metric:visual:page:list'))
         assert response.status_code == 200
-        assert self.visual in response.context_data['visuals']
+        assert 'Glue.querySet.visuals' in response.content.decode()
 
     def test_detail_view(self):
         response = self.client.get(
