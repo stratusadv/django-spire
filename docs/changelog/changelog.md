@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fixed API keys with `has_super_access` being rejected by the base and user permission checks in `ApiKeySecurity.authenticate`.
+
 ## v1.0.2 - September 9, 2026
 
 ### Fixes

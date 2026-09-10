@@ -29,6 +29,9 @@ class ApiKeySecurity(APIKeyBase):
         if api_access is None:
             return False
 
+        if api_access.has_super_access:
+            return self._authorize_request(request, api_access)
+
         if (
                 self.api_permission_required is not None
                 and api_access.permission < self.api_permission_required
