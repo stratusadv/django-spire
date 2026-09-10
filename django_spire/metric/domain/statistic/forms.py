@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.metric.domain import models as domain_models
 from django_spire.metric.domain.statistic import models
 
 if TYPE_CHECKING:
@@ -15,6 +16,11 @@ if TYPE_CHECKING:
 
 
 class StatisticGroupForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields['domain'].queryset = domain_models.Domain.objects.not_deleted()
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -41,7 +47,9 @@ class StatisticGroupForm(forms.ModelForm):
 
 class StatisticForm(forms.ModelForm):
     key = forms.SlugField(
-        required=False, label='Key', help_text='Leave blank to automatically generate a slug from the name.'
+        required=False,
+        label='Key',
+        help_text='Leave blank to automatically generate a slug from the name.',
     )
 
     def clean_key(self) -> str:
