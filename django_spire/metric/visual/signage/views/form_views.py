@@ -40,8 +40,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
         form = DeleteConfirmationForm(data=request.POST, obj=signage)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=signage.set_deleted)
+            form.save(user=request.user, delete_func=signage.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -50,17 +49,22 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
     nav = SignageNavigation()
     nav.page_title = 'Delete Signage'
     nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
-    nav.breadcrumbs.add(str(signage), view_name='django_spire:metric:visual:signage:page:detail',
-                        view_kwargs={'pk': pk})
+    nav.breadcrumbs.add(
+        str(signage),
+        view_name='django_spire:metric:visual:signage:page:detail',
+        view_kwargs={'pk': pk},
+    )
     nav.breadcrumbs.add('Delete')
 
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {signage}'
-    context['form_description'] = f'Are you sure you would like to delete signage "{signage}"?'
+    context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request,
+        'django_spire/metric/visual/signage/form/delete_confirmation_form_page.html',
+        context,
     )
 
 
@@ -89,7 +93,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
         nav.breadcrumbs.add(
             name=str(signage),
             view_name='django_spire:metric:visual:signage:page:detail',
-            view_kwargs={'pk': pk}
+            view_kwargs={'pk': pk},
         )
 
     nav.breadcrumbs.add('Edit' if signage.pk else 'New Signage')
@@ -137,7 +141,7 @@ def _link_form_view(
         nav.breadcrumbs.add(
             name=str(link.presentation),
             view_name='django_spire:metric:visual:signage:page:detail',
-            view_kwargs={'pk': pk}
+            view_kwargs={'pk': pk},
         )
 
     nav.breadcrumbs.add('Edit' if link.pk else 'New Presentation')
@@ -167,8 +171,7 @@ def delete_link_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRe
         form = DeleteConfirmationForm(data=request.POST, obj=link)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=link.set_deleted)
+            form.save(user=request.user, delete_func=link.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -181,11 +184,10 @@ def delete_link_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRe
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {link}'
-    context['form_description'] = (
-        f'Are you sure you would like to remove presentation "{link.presentation}" from '
-        f'signage "{signage}"?'
-    )
+    context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request,
+        'django_spire/metric/visual/signage/form/delete_confirmation_form_page.html',
+        context,
     )
