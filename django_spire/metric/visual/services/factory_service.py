@@ -52,11 +52,19 @@ class VisualRegionFactoryService(BaseDjangoModelService['VisualRegion']):
     obj: VisualRegion
 
     def connect(self, visual: Visual) -> VisualRegion:
+        old_visual = self.obj.visual
         self.obj.visual = visual
         self.obj.save(update_fields=['visual'])
 
         user = get_current_user()
         if user is not None:
+            if old_visual is not None and old_visual.pk != visual.pk:
+                old_visual.add_activity(
+                    user,
+                    'disconnected',
+                    f'{actor_name(user)} disconnected region "{self.obj}" from "{old_visual}".',
+                )
+
             visual.add_activity(
                 user,
                 'connected',
