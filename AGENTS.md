@@ -328,10 +328,19 @@ api_v1 = NinjaAPI(
     title='API',
     version='1.0',
     urls_namespace='django_spire:api_v1',
-    auth=[ApiKeySecurity(permission_required=ApiPermissionChoices.DELETE)],
+    auth=[ApiKeySecurity(api_permission_required=ApiPermissionChoices.DELETE)],
     throttle=[AnonRateThrottle('1/s'), AuthRateThrottle('150/s')],
 )
 ```
+
+`ApiKeySecurity` accepts `api_permission_required` (an `ApiPermissionChoices` level) and
+`user_permission_required` (a Django permission codename checked against the key's linked
+user). An `ApiAccess` with `has_super_access = True` bypasses both checks and, when a user
+is linked, is set as `request.user`. Paginated list endpoints use ninja's `@paginate`
+(default `LimitOffsetPagination` returns `{'items': [...], 'count': n}` and accepts
+`limit`/`offset`). A full per-endpoint integration (separate `view_auth`/`add_auth`/
+`change_auth`/`delete_auth` auth objects, membership gating via `request.auth`, and
+`@paginate`) is in `test_project/app/task/api_v1.py`.
 
 ## Choices
 
@@ -721,6 +730,7 @@ constellation history [--symbols]        # ingest git history (used by history/s
 | Views (page/form/modal) | `test_project/app/task/views/` |
 | Seeding | `test_project/app/task/seeding/seeder.py` |
 | API core | `django_spire/api/api_v1.py` |
+| API example (auth + pagination) | `test_project/app/task/api_v1.py` |
 | URLs | `django_spire/urls.py` |
 | Choices | `django_spire/help_desk/choices.py` |
 | Auth controller | `django_spire/help_desk/auth/controller.py` |

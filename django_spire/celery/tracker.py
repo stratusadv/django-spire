@@ -85,6 +85,9 @@ class CeleryTaskTracker:
     def update_state(self, state: str = states.PENDING) -> None:
         self._state = state.upper()
 
+        if len(self._state) > 32:
+            self._state = self._state[:28] + ' ...'
+
         self._process_overdue_update()
 
     def update_count_progress(
