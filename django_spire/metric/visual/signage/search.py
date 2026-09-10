@@ -12,7 +12,7 @@ from django_spire.metric.visual.signage import models
 
 class SignageSearch(Search):
     model_class = models.Signage
-    searchable_fields = ['name', 'title', 'description', 'key', 'presentation_names']
+    searchable_fields = ['name', 'title', 'description', 'presentation_names']
     name = 'Signages'
     icon = 'bi-tv'
     permission_required = 'django_spire_metric_visual_signage.view_signage'

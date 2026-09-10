@@ -44,7 +44,7 @@ class DomainSearch(Search):
 
 class SubDomainSearch(Search):
     model_class = models.SubDomain
-    searchable_fields = ['name', 'key', 'description', 'domain__sub_domain_name']
+    searchable_fields = ['name', 'description', 'domain__sub_domain_name']
     name = 'Sub Domains'
     icon = 'bi-collection'
     permission_required = 'django_spire_metric_domain.view_subdomain'

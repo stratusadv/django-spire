@@ -10,7 +10,7 @@ from django_spire.metric.domain.statistic import models
 
 class StatisticSearch(Search):
     model_class = models.Statistic
-    searchable_fields = ['name', 'key', 'interval', 'value_type', 'group__name', 'group__domain__name']
+    searchable_fields = ['name', 'interval', 'value_type', 'group__name', 'group__domain__name']
     name = 'Statistics'
     icon = 'bi-bar-chart'
     permission_required = 'django_spire_metric_domain.view_statistic'
