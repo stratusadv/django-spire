@@ -147,22 +147,26 @@ def _form_view(request: WSGIRequest, group_pk: int = 0, pk: int = 0) -> Template
     nav = StatisticNavigation()
     nav.set_page_title_to_form_action_from_model_instance(statistic)
     nav.page_description = 'Edit' if statistic.pk else 'New Statistic'
-    nav.breadcrumbs.add(
-        name=str(get_object_or_404(models.StatisticGroup, pk=group_pk if group_pk else statistic.group.pk)),
-        view_name='django_spire:metric:domain:statistic:page:group_detail',
-        view_kwargs={'pk': group_pk if group_pk else statistic.group.pk}
-    )
+
+    target_group_pk = group_pk or statistic.group_id
+    if target_group_pk:
+        group = get_object_or_404(models.StatisticGroup, pk=target_group_pk)
+        nav.breadcrumbs.add(
+            name=str(group),
+            view_name='django_spire:metric:domain:statistic:page:group_detail',
+            view_kwargs={'pk': target_group_pk},
+        )
 
     if statistic.pk:
         nav.breadcrumbs.add(
             name=statistic,
             view_name='django_spire:metric:domain:statistic:page:detail',
-            view_kwargs={'pk': statistic.pk}
+            view_kwargs={'pk': statistic.pk},
         )
 
     nav.breadcrumbs.add('Edit' if statistic.pk else 'New Statistic')
 
-    statistic.group_id = group_pk if group_pk else statistic.group_id
+    statistic.group_id = group_pk or statistic.group_id
 
     form = forms.StatisticForm(request.POST or None, instance=statistic)
 

@@ -98,7 +98,7 @@ class SubDomainViewTestCase(BaseTestCase):
         )
         assert response.status_code == 200
         assert statistic in response.context['statistics']
-        assert response.context['group'] == group
+        assert response.context['group'].pk == 0
 
         href = reverse(
             'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': statistic.pk}
@@ -106,7 +106,7 @@ class SubDomainViewTestCase(BaseTestCase):
         assert f'href="{href}"' in response.content.decode()
         assert f'{group.name} / {statistic.name}' in response.content.decode()
 
-    def test_subdomain_detail_view_group_is_none_without_group(self):
+    def test_subdomain_detail_view_group_uses_create_url(self):
         response = self.client.get(
             path=reverse(
                 'django_spire:metric:domain:page:subdomain_detail',
@@ -114,4 +114,9 @@ class SubDomainViewTestCase(BaseTestCase):
             )
         )
         assert response.status_code == 200
-        assert response.context['group'] is None
+        assert response.context['group'].pk == 0
+
+        create_href = reverse(
+            'django_spire:metric:domain:statistic:form:create', kwargs={'group_pk': 0}
+        )
+        assert f'href="{create_href}"' in response.content.decode()

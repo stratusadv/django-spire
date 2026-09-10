@@ -73,9 +73,7 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     context['subdomain'] = subdomain
     context['domain_pk'] = domain_pk
     context['show_group_prefix'] = True
-    context['group'] = (
-        models.StatisticGroup.objects.active().not_deleted().filter(domain=subdomain.domain).first()
-    )
+    context['group'] = models.StatisticGroup(pk=0)
     context['statistics'] = (
         models.Statistic.objects.select_related('group')
         .active()
