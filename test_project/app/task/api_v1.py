@@ -110,7 +110,7 @@ def _require_user_can_affect_task(request: HttpRequest, task: Task) -> None:
         raise AuthorizationError(message='You can only change tasks you belong to.')
 
 
-@router.get('', auth=view_auth, response=TaskListOut, by_alias=True)
+@router.get('', auth=view_auth, response=list[TaskOut], by_alias=True)
 @paginate
 def list_tasks(
     request: HttpRequest,
