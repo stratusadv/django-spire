@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.2 - September 9, 2026
+
+### Fixes
+
+- Fixed broken permission guarding for navigation links to knowledge base
+- Fixed missing permission group allocation for knowledge base collections
+- Fixed collections unable to be assigned no parent upon edit
+- Fixed issue causing `Seeder.fake.date_between` to attemtp to make the date timezone aware 
+
 ## v1.0.1 - September 3, 2026
 
 ### Fixes

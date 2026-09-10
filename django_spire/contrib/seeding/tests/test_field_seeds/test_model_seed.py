@@ -2,6 +2,7 @@ import pytest
 from django.test import TestCase
 
 from django_spire.auth.user.models import AuthUser
+from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
 from django_spire.contrib.seeding.field.seed.model_seed import (
     BaseForeignKeyModelFieldSeed,
@@ -72,3 +73,43 @@ class TestRandomForeignKeyModelFieldSeed(TestCase):
         seed = RandomForeignKeyModelFieldSeed(queryset=self.queryset)
         for seed_index in range(10):
             assert seed.generate_value(seed_index) in [self.user_one.pk, self.user_two.pk]
+
+    def test_generate_value_produces_varied_ids(self):
+        seed = RandomForeignKeyModelFieldSeed(queryset=self.queryset)
+        results = {seed.generate_value(1) for _ in range(50)}
+        assert len(results) > 1
+
+    def test_model_foreign_keys_caches_ids_by_queryset_key(self):
+        seed = RandomForeignKeyModelFieldSeed(queryset=self.queryset)
+        assert seed.model_foreign_keys(0) == [self.user_one.pk, self.user_two.pk]
+        cache = BaseForeignKeyModelFieldSeed._model_foreign_keys
+        assert cache[seed.queryset_key] == [self.user_one.pk, self.user_two.pk]
+
+
+class TestModelFieldSeedHelperForeignKeys(TestCase):
+    def setUp(self):
+        BaseForeignKeyModelFieldSeed._model_foreign_keys.clear()
+        self.user_one = AuthUser.objects.create(username='user_one')
+        self.user_two = AuthUser.objects.create(username='user_two')
+
+    def test_random_foreign_key_generates_id_from_model(self):
+        seed = Seeder.model.random_foreign_key(AuthUser)
+        for seed_index in range(10):
+            assert seed.generate_value(seed_index) in [self.user_one.pk, self.user_two.pk]
+
+    def test_random_queryset_foreign_key_respects_queryset_filter(self):
+        queryset = AuthUser.objects.filter(username='user_one')
+        seed = Seeder.model.random_queryset_foreign_key(queryset)
+        for seed_index in range(10):
+            assert seed.generate_value(seed_index) == self.user_one.pk
+
+    def test_ordered_foreign_key_generates_ids_in_order(self):
+        seed = Seeder.model.ordered_foreign_key(AuthUser)
+        assert seed.generate_value(0) == self.user_one.pk
+        assert seed.generate_value(1) == self.user_two.pk
+
+    def test_ordered_queryset_foreign_key_respects_queryset_filter(self):
+        queryset = AuthUser.objects.filter(username='user_two')
+        seed = Seeder.model.ordered_queryset_foreign_key(queryset, wrap=True)
+        assert seed.generate_value(0) == self.user_two.pk
+        assert seed.generate_value(1) == self.user_two.pk

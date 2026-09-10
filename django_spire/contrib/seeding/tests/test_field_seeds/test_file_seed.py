@@ -82,3 +82,26 @@ class TestFileFieldSeed(SimpleTestCase):
             seed.generate_value(-1)
 
             self._assert_seeding_file_exists('Existing Content')
+
+    def test_upload_to_nests_seeding_directory(self) -> None:
+        seed = FileFieldSeed(upload_to='uploads/docs')
+        assert seed.generate_value(0) == str(Path('uploads/docs/.seeding/seeded_file.txt'))
+
+    def test_upload_to_cache_key_matches_path(self) -> None:
+        seed = FileFieldSeed(upload_to='uploads/docs')
+        assert seed.generate_cache_key() == str(Path('uploads/docs/.seeding/seeded_file.txt'))
+
+    def test_upload_to_cache_key_differs_from_default(self) -> None:
+        assert FileFieldSeed().generate_cache_key() != FileFieldSeed(
+            upload_to='uploads'
+        ).generate_cache_key()
+
+    def test_upload_to_creates_file_on_init_seed_index(self) -> None:
+        seed = FileFieldSeed(upload_to='uploads/docs')
+        with self._override():
+            seed.generate_value(-1)
+            assert default_storage.exists('uploads/docs/.seeding/seeded_file.txt')
+
+    def test_empty_upload_to_falls_back_to_default(self) -> None:
+        seed = FileFieldSeed(upload_to='')
+        assert seed.generate_value(0) == str(Path('.seeding/seeded_file.txt'))

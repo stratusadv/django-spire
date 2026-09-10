@@ -41,28 +41,28 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 self.obj.state = states.SUCCESS
 
             except (OperationalError, DatabaseError):
-                if self.obj._result_capture_attempts > 3:
+                if self.obj.result_capture_attempts > 3:
                     self.obj.state = states.FAILURE
                 else:
-                    self.obj._result_capture_attempts = F('_result_capture_attempts') + 1
+                    self.obj.result_capture_attempts = F('result_capture_attempts') + 1
 
     def update_from_async_result_and_save_if_change(self) -> None:
         has_changed = False
 
         async_result = self.obj.async_result
 
-        new_meta = async_result.info  # This is to prevent race based mutations
+        new_meta_dict = async_result.info  # This is to prevent race based mutations
 
-        if self.obj._task_meta != new_meta:
+        if self.obj.meta_as_dict != new_meta_dict:
             if async_result.ready():
                 completed_meta = self.obj.meta
                 completed_meta.set_completed()
-                self.obj.meta = completed_meta.model_dump()
+                self.obj.meta = completed_meta
             else:
-                self.obj._task_meta = new_meta
+                self.obj.meta_as_dict = new_meta_dict
 
             if self.obj.started_datetime is None and self.obj.meta.started_datetime:
-                self.obj.started_datetime = self.obj.started_datetime
+                self.obj.started_datetime = self.obj.meta.started_datetime
 
             has_changed = True
 

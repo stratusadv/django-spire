@@ -1,0 +1,8 @@
+{% if perms.django_spire_ai_chat.delete_chat %}
+    {% if not from_knowledge_link %}
+        {% include 'django_spire/navigation/divider.html' with divider_text='AI' %}
+    {% endif %}
+
+    {% url 'django_spire:ai:chat:page:home' as ai_chat_url %}
+    {% include 'django_spire/navigation/link.html' with link_text='Chat' link_icon='bi bi-chat-dots' link_url=ai_chat_url %}
+{% endif %}
