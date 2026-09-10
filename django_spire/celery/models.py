@@ -25,7 +25,7 @@ class CeleryTask(models.Model):
     reference_key = models.CharField(max_length=128)
     model_key = models.CharField(max_length=128, null=True, blank=True)
 
-    state = models.CharField(max_length=16, choices=_celery_state_choices, default=states.PENDING)
+    state = models.CharField(max_length=32, choices=_celery_state_choices, default=states.PENDING)
 
     _task_meta = models.JSONField(default=dict, null=True, blank=True)
 

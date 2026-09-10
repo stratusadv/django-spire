@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.http import Http404, HttpRequest
 from ninja import ModelSchema, Query, Router, Schema
 from ninja.errors import AuthorizationError
+from ninja.pagination import paginate
 
 from django_spire.api.auth.security import ApiKeySecurity
 from django_spire.api.choices import ApiPermissionChoices
@@ -110,29 +111,25 @@ def _require_user_can_affect_task(request: HttpRequest, task: Task) -> None:
 
 
 @router.get('', auth=view_auth, response=TaskListOut, by_alias=True)
+@paginate
 def list_tasks(
     request: HttpRequest,
     search: str | None = None,
     status: TaskStatusChoices | None = None,
     parent_id: int | None = None,
-    limit: int = Query(50, ge=1, le=100),
-    offset: int = Query(0, ge=0),
 ) -> TaskListOut:
-    queryset = Task.objects.filter(is_deleted=False)
+    tasks = Task.objects.filter(is_deleted=False)
 
     if search:
-        queryset = queryset.search(search)
+        tasks = tasks.search(search)
 
     if status:
-        queryset = queryset.filter(status=status)
+        tasks = tasks.filter(status=status)
 
     if parent_id is not None:
-        queryset = queryset.filter(parent_id=parent_id)
+        tasks = tasks.filter(parent_id=parent_id)
 
-    count = queryset.count()
-    results = list(queryset[offset : offset + limit])
-
-    return TaskListOut(count=count, results=results)
+    return tasks
 
 
 @router.post('', auth=add_auth, response=TaskOut, by_alias=True)
