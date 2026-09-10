@@ -44,7 +44,7 @@ class DomainSearch(Search):
 
 class SubDomainSearch(Search):
     model_class = models.SubDomain
-    searchable_fields = ['name', 'description', 'domain__sub_domain_name']
+    searchable_fields = ['name', 'key', 'description', 'domain__sub_domain_name']
     name = 'Sub Domains'
     icon = 'bi-collection'
     permission_required = 'django_spire_metric_domain.view_subdomain'
@@ -52,8 +52,8 @@ class SubDomainSearch(Search):
     def base_queryset(self, request: HttpRequest) -> QuerySet:
         return self.model_class.objects.not_deleted()
 
-    def generate_list_url(self, obj: models.SubDomain) -> str:
-        return reverse('django_spire:metric:domain:page:detail', kwargs={'pk': obj.domain.pk})
+    def generate_list_url(self) -> str:
+        return reverse('django_spire:metric:domain:page:list')
 
     def generate_detail_url(self, obj: models.SubDomain) -> str:
         return reverse('django_spire:metric:domain:page:subdomain_detail',
