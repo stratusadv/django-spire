@@ -40,13 +40,6 @@ class VisualSearch(Search):
         return obj.name
 
     def result_description(self, obj: models.Visual) -> str:
-        statistic = (
-            f'{obj.statistic.group.domain.name} / {obj.statistic.name}'
-            if obj.statistic_id
-            else 'No statistic'
-        )
-
         kind = obj.get_kind_display()
-
 
         return f'{kind} - {obj.statistic.group.name} - {obj.statistic.name} - {obj.description}'

@@ -53,7 +53,7 @@ class SubDomainSearch(Search):
         return self.model_class.objects.not_deleted()
 
     def generate_list_url(self) -> str:
-        return reverse('django_spire:metric:domain:page:list')
+        return None
 
     def generate_detail_url(self, obj: models.SubDomain) -> str:
         return reverse('django_spire:metric:domain:page:subdomain_detail',
