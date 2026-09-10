@@ -4,7 +4,9 @@ from django.test import TestCase
 
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
+from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
+from django_spire.contrib.seeding.field.seed.mutate.exclude_seed import ExcludeMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeding.intelligence.bots.field_seeding_bot import FieldSeedingBot
 from django_spire.contrib.seeding.seed.seed import Seed
@@ -200,3 +202,43 @@ class TestFieldSeedingBotProcess(TestCase):
         )
         assert 'static' in result
         assert 'excluded' not in result
+
+    def test_process_non_llm_fields_keeps_mutate_exclude_when_not_excluded(self):
+        result = FieldSeedingBot._process_non_llm_fields(
+            fields_seeds={
+                'static': StaticFieldSeed('value'),
+                'maybe': ExcludeMutateFieldSeed(
+                    field_seed=StaticFieldSeed('kept'),
+                    exclude_chance=0.0,
+                ),
+            },
+            seed_index=0,
+        )
+        assert result['static'] == 'value'
+        assert result['maybe'] == 'kept'
+
+    def test_process_non_llm_fields_drops_mutate_exclude_when_excluded(self):
+        result = FieldSeedingBot._process_non_llm_fields(
+            fields_seeds={
+                'static': StaticFieldSeed('value'),
+                'maybe': ExcludeMutateFieldSeed(
+                    field_seed=StaticFieldSeed('dropped'),
+                    exclude_chance=1.0,
+                ),
+            },
+            seed_index=0,
+        )
+        assert result['static'] == 'value'
+        assert 'maybe' not in result
+
+    def test_process_non_llm_fields_passes_seed_index_to_mutate_exclude(self):
+        result = FieldSeedingBot._process_non_llm_fields(
+            fields_seeds={
+                'maybe': ExcludeMutateFieldSeed(
+                    field_seed=IndexFieldSeed(index_start=10, index_step=5),
+                    exclude_chance=0.0,
+                ),
+            },
+            seed_index=3,
+        )
+        assert result['maybe'] == 25

@@ -19,7 +19,6 @@ class FakeFieldSeedHelper(FieldSeedHelper):
     def date_between(self, start_date: str = '-30d', end_date: str = '+30d') -> CallableFieldSeed:
         return CallableFieldSeed(
             callable_=self.faker.date_between,
-            wrapper=timezone.make_aware,
             start_date=start_date,
             end_date=end_date,
         )

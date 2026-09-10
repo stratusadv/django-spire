@@ -1,0 +1,14 @@
+{% if include_ai_chat %}
+    {% if perms.django_spire_ai_chat.delete_chat or perms.django_spire_knowledge.view_collection %}
+        {% include 'django_spire/navigation/divider.html' with divider_text='AI' %}
+    {% endif %}
+
+    {% include 'django_spire/ai/navigation/navigation_links.html' with from_knowledge_link=True %}
+{% elif perms.django_spire_knowledge.view_collection %}
+    {% include 'django_spire/navigation/divider.html' with divider_text='Knowledge' %}
+{% endif %}
+
+{% if perms.django_spire_knowledge.view_collection %}
+    {% url 'django_spire:knowledge:page:home' as knowledge_home_url %}
+    {% include 'django_spire/navigation/link.html' with link_text='Knowledge Base' link_icon='bi bi-book' link_url=knowledge_home_url %}
+{% endif %}
