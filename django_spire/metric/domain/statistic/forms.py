@@ -46,6 +46,11 @@ class StatisticGroupForm(forms.ModelForm):
 
 
 class StatisticForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields['group'].queryset = domain_models.StatisticGroup.objects.not_deleted()
+
     key = forms.SlugField(
         required=False,
         label='Key',
