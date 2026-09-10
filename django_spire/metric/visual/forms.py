@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.metric.domain import models as domain_models
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
 
@@ -16,6 +17,11 @@ if TYPE_CHECKING:
 
 
 class VisualModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields['statistic'].queryset = domain_models.Statistic.objects.not_deleted()
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():

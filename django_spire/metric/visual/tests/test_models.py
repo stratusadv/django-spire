@@ -18,6 +18,11 @@ from django_spire.metric.visual.models import (
     VisualReference,
     VisualRegion,
 )
+from django_spire.metric.visual.presentation.models import SlideSection
+from django_spire.metric.visual.presentation.tests.factories import (
+    create_test_presentation,
+    create_test_slide,
+)
 from django_spire.metric.visual.tests.factories import (
     create_test_statistic,
     create_test_statistic_group,
@@ -78,6 +83,39 @@ class VisualModelTestCase(BaseTestCase):
         assert line_visual.pk != other.pk
         assert other.kind == 'indicator'
         assert GaugeChartVisual.objects.count() == 0
+
+    def test_set_deleted_soft_deletes_conditions_and_references(self):
+        visual = create_test_visual(
+            statistic=self.visual.statistic, references=['/home/', '/dashboard/']
+        )
+        conditions = list(visual.conditions.all())
+        references = list(visual.references.all())
+
+        visual.set_deleted()
+
+        visual.refresh_from_db()
+        for condition in conditions:
+            condition.refresh_from_db()
+            assert condition.is_deleted is True
+        for reference in references:
+            reference.refresh_from_db()
+            assert reference.is_deleted is True
+
+    def test_set_deleted_detaches_regions_and_slide_sections(self):
+        region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+        presentation = create_test_presentation()
+        slide = create_test_slide(presentation)
+        section = SlideSection.objects.create(slide=slide, visual=self.visual, row=1, col=1)
+
+        self.visual.set_deleted()
+
+        region.refresh_from_db()
+        section.refresh_from_db()
+
+        assert region.visual_id is None
+        assert section.visual_id is None
+        assert region.is_deleted is False
+        assert section.is_deleted is False
 
 
 class VisualKindModelTestCase(BaseTestCase):
