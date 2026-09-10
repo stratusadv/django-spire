@@ -227,6 +227,8 @@ DJANGO_SPIRE_REPORT_REGISTRIES = [
 DJANGO_SPIRE_SEARCH_REGISTRY = {
     'TASK': 'test_project.app.task.search.TaskSearch',
     'ENTRY': 'django_spire.knowledge.entry.search.EntrySearch',
+    'DOMAIN': 'django_spire.metric.domain.search.DomainSearch',
+    'SUBDOMAIN': 'django_spire.metric.domain.search.SubDomainSearch',
 }
 
 # Storages - We are using Digital Ocean, which uses AWS S3 service
