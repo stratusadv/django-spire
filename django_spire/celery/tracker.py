@@ -63,6 +63,9 @@ class CeleryTaskTracker:
             finally:
                 self._pending_future = None
 
+    def force_celery_task_state_update(self) -> None:
+        self._update_celery_task_state()
+
     def _process_overdue_update(self) -> None:
         if self._is_overdue_for_update():
             self._update_celery_task_state()
