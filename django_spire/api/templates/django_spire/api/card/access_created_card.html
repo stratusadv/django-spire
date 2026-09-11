@@ -1,27 +1,18 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    API Access Created
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_api.add_apiaccess %}
-        <div class="col text-end mb-1">
-            {% url 'django_spire:api:page:list' as list_url %}
-            <a class="btn btn-sm btn-danger" href="{{ list_url }}">
-                <i class="bi bi-check"></i>
-                Done
-            </a>
-        </div>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body">
         <div class="row">
             <div class="col mb-3">
                 "{{ api_access.name }}" API Key
             </div>
+            {% if perms.django_spire_api.add_apiaccess %}
+                <div class="col-auto text-end mb-1">
+                    {% url 'django_spire:api:page:list' as list_url %}
+                    <a class="btn btn-sm btn-danger" href="{{ list_url }}">
+                        <i class="bi bi-check"></i>
+                        Done
+                    </a>
+                </div>
+            {% endif %}
         </div>
         <div class="row">
             <div class="col">
@@ -38,4 +29,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
+</div>

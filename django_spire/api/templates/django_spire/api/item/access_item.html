@@ -3,7 +3,7 @@
 {% block item_title_col %}{% endblock %}
 
 {% block item_row_content %}
-    <a class="col-12 col-sm-4 mb-2 mb-sm-0">
+    <a class="col-12 col-sm-4 mb-2 mb-sm-0 text-decoration-none">
         {{ api_access.name }}
     </a>
 
@@ -44,7 +44,7 @@
 
 {% block item_button %}
     {% if perms.django_spire_api.delete_apiaccess %}
-        {% url 'django_spire:api:page:delete' pk=api_access.pk as delete_url %}
+        {% url 'django_spire:api:form:delete' pk=api_access.pk as delete_url %}
     {% endif %}
     {% include 'django_spire/dropdown/ellipsis_dropdown.html' with delete_url=delete_url %}
 {% endblock %}
