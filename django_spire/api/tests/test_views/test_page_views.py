@@ -24,18 +24,3 @@ class ApiPageViewsTestCase(BaseTestCase):
 
         assert str(linked_access.user) in html
         assert 'No User' in html
-
-    def test_access_delete_view_get(self):
-        response = self.client.get(
-            path=reverse('django_spire:api:page:delete', kwargs={'pk': self.test_access.pk})
-        )
-        assert response.status_code == 200
-
-    def test_access_delete_view_post(self):
-        response = self.client.post(
-            path=reverse('django_spire:api:page:delete', kwargs={'pk': self.test_access.pk}),
-            data={'should_delete': True},
-        )
-        assert response.status_code == 302
-        assert not ApiAccess.objects.filter(pk=self.test_access.pk, is_deleted=False).exists()
-        assert ApiAccess.objects.get(pk=self.test_access.pk).is_deleted

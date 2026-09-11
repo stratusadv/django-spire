@@ -10,6 +10,11 @@ from django_spire.core.tests.test_cases import BaseTestCase
 
 
 class ApiFormViewsTestCase(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.test_access = ApiAccess.objects.create(name='Test Access')
+
     def test_access_create_form_view_get(self):
         response = self.client.get(path=reverse('django_spire:api:form:create'))
         assert response.status_code == 200
@@ -67,3 +72,18 @@ class ApiFormViewsTestCase(BaseTestCase):
         )
         assert response.status_code == 200
         assert not ApiAccess.objects.get(name='Rebel Key').has_super_access
+
+    def test_access_delete_view_get(self):
+        response = self.client.get(
+            path=reverse('django_spire:api:form:delete', kwargs={'pk': self.test_access.pk})
+        )
+        assert response.status_code == 200
+
+    def test_access_delete_view_post(self):
+        response = self.client.post(
+            path=reverse('django_spire:api:form:delete', kwargs={'pk': self.test_access.pk}),
+            data={'should_delete': True},
+        )
+        assert response.status_code == 302
+        assert not ApiAccess.objects.filter(pk=self.test_access.pk, is_deleted=False).exists()
+        assert ApiAccess.objects.get(pk=self.test_access.pk).is_deleted
