@@ -42,7 +42,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = SignageNavigation()
     nav.page_title = str(signage)
-    nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
     nav.breadcrumbs.add(
         name=str(signage),
         view_name='django_spire:metric:visual:signage:page:detail',
@@ -68,8 +67,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     Glue.queryset(request, 'signages', signages, Glue.Access.CHANGE, fields='__all__')
 
     nav = SignageNavigation()
-    nav.page_title = 'Signages'
-    nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
+
     context = nav.as_context()
 
     return TemplateResponse(

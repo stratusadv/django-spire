@@ -25,7 +25,6 @@ def _signage_detail_url(signage_pk: int) -> str:
 
 
 def _signage_breadcrumbs(nav: SignageNavigation, signage: models.Signage) -> None:
-    nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
     nav.breadcrumbs.add(str(signage), SIGNAGE_DETAIL_URL, {'pk': signage.pk})
 
 
@@ -48,7 +47,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
     nav = SignageNavigation()
     nav.page_title = 'Delete Signage'
-    nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
     nav.breadcrumbs.add(
         str(signage),
         view_name='django_spire:metric:visual:signage:page:detail',
@@ -87,7 +85,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     nav = SignageNavigation()
     nav.set_page_title_to_form_action_from_model_instance(signage)
-    nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
 
     if signage.pk:
         nav.breadcrumbs.add(
@@ -181,6 +178,7 @@ def delete_link_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRe
     nav.page_title = 'Delete Presentation'
     _signage_breadcrumbs(nav, signage)
     nav.breadcrumbs.add('Delete')
+
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {link}'

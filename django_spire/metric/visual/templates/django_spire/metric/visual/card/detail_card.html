@@ -49,7 +49,7 @@
                         <div class="attribute-label">Statistic</div>
                         {% if visual.statistic %}
                             <div>
-                                <a href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=visual.statistic.pk %}">
+                                <a class="text-decoration-none" href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=visual.statistic.pk %}">
                                     {{ visual.statistic.group }} - {{ visual.statistic }}
                                 </a>
                             </div>

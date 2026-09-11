@@ -73,8 +73,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
     nav = VisualNavigation()
-    nav.page_title = str(visual)
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(
         name=str(visual), view_name='django_spire:metric:visual:page:detail', view_kwargs={'pk': pk}
     )
@@ -96,8 +94,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     Glue.queryset(request, 'visuals', visuals, Glue.Access.CHANGE, fields='__all__')
 
     nav = VisualNavigation()
-    nav.page_title = 'Visuals'
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
+
     context = nav.as_context()
 
     return TemplateResponse(

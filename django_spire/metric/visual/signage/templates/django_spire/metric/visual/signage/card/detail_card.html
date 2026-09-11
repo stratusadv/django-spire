@@ -18,7 +18,7 @@
                     <div class="col-6 col-lg-4">
                         <div class="attribute-label">Regular Scale (720p or Lower)</div>
                         {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url as display_url %}
-                            <a class="me-2" href="{{ display_url }}" target="_blank">
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
                                 Playback Link
                             </a>
                             {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
@@ -28,7 +28,7 @@
                     <div class="col-6 col-lg-4">
                         <div class="attribute-label">Medium Scale (1080p to 1440p)</div>
                         {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=medium" as display_url %}
-                            <a class="me-2" href="{{ display_url }}" target="_blank">
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
                                 Playback Link
                             </a>
                             {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
@@ -38,7 +38,7 @@
                     <div class="col-6 col-lg-4">
                         <div class="attribute-label">High Scale (2160p or Higher)</div>
                         {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=high" as display_url %}
-                            <a class="me-2" href="{{ display_url }}" target="_blank">
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
                                 Playback Link
                             </a>
                             {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}

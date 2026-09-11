@@ -51,7 +51,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
     nav = PresentationNavigation()
     nav.page_title = 'Delete Presentation'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(
         name=presentation,
         view_name='django_spire:metric:visual:presentation:page:detail',
@@ -88,7 +87,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     nav = PresentationNavigation()
     nav.set_page_title_to_form_action_from_model_instance(presentation)
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
 
     if presentation.pk:
         nav.breadcrumbs.add(
@@ -136,7 +134,6 @@ def _slide_form_view(
 
     nav = PresentationNavigation()
     nav.set_page_title_to_form_action_from_model_instance(slide)
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
 
     if slide.pk:
@@ -172,7 +169,6 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
 
     nav = PresentationNavigation()
     nav.page_title = 'Delete Slide'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
     nav.breadcrumbs.add(slide, PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
     nav.breadcrumbs.add('Delete')
@@ -215,7 +211,6 @@ def _section_form_view(
 
     nav = PresentationNavigation()
     nav.set_page_title_to_form_action_from_model_instance(section)
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
     nav.breadcrumbs.add(str(slide), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
 
@@ -258,7 +253,6 @@ def delete_section_view(request: WSGIRequest, pk: int) -> TemplateResponse | Htt
 
     nav = PresentationNavigation()
     nav.page_title = 'Delete Section'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
     nav.breadcrumbs.add(str(slide), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
     nav.breadcrumbs.add(str(section.pk), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})

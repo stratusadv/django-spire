@@ -38,7 +38,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
     nav = VisualNavigation()
     nav.page_title = 'Delete Visual'
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(
         name=str(visual),
         view_name='django_spire:metric:visual:page:detail',
@@ -76,7 +75,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     nav = VisualNavigation()
     nav.set_page_title_to_form_action_from_model_instance(visual)
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
 
     if visual.pk:
         nav.breadcrumbs.add(
@@ -134,7 +132,6 @@ def _condition_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
 
     nav = VisualNavigation()
     nav.set_page_title_to_form_action_from_model_instance(condition)
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(
         name=str(visual),
         view_name='django_spire:metric:visual:page:detail',
@@ -181,7 +178,6 @@ def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
 
     nav = VisualNavigation()
     nav.page_title = 'Delete Condition'
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(
         name=str(visual),
         view_name='django_spire:metric:visual:page:detail',
@@ -246,7 +242,6 @@ def _reference_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
     nav = VisualNavigation()
 
     nav.set_page_title_to_form_action_from_model_instance(reference_obj)
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
 
     if reference_obj.pk:
@@ -292,7 +287,6 @@ def delete_reference_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
 
     nav = VisualNavigation()
     nav.page_title = 'Delete Reference'
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(
         name=str(visual),
         view_name='django_spire:metric:visual:page:detail',

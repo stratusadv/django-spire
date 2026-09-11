@@ -51,7 +51,6 @@ def connect_region_view(
 
     nav = VisualNavigation()
     nav.page_title = 'Connect to Region'
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
     nav.breadcrumbs.add('Connect to Region')
     context = nav.as_context()
@@ -89,7 +88,6 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = VisualNavigation()
     nav.set_page_title_to_form_action_from_model_instance(region)
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
     nav.breadcrumbs.add(str(region), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
     nav.breadcrumbs.add('Edit')
