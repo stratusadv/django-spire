@@ -138,7 +138,7 @@ def _link_form_view(
         nav.breadcrumbs.add(
             name=str(link.presentation),
             view_name='django_spire:metric:visual:signage:page:detail',
-            view_kwargs={'pk': pk},
+            view_kwargs={'pk': signage.pk},
         )
 
     nav.breadcrumbs.add('Edit' if link.pk else 'New Presentation')
