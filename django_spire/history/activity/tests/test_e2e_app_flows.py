@@ -154,7 +154,7 @@ class TestApiAccessFlowActivity(ActivityFlowTestCase):
         super().setUp()
 
         self.access = ApiAccess.objects.create(name='Test Access')
-        self.url = reverse('django_spire:api:page:delete', kwargs={'pk': self.access.pk})
+        self.url = reverse('django_spire:api:form:delete', kwargs={'pk': self.access.pk})
 
     def test_delete_view_logs_deleted(self) -> None:
         response = self.client.post(self.url, data={'should_delete': True})
