@@ -19,6 +19,15 @@
                 <option value="created_datetime">Created</option>
             </select>
         </div>
+        {% if perms.django_spire_metric_visual_presentation.add_presentation %}
+            <div class="col-auto">
+                {% url 'django_spire:metric:visual:presentation:form:create' as new_presentation_url %}
+                <a class="btn btn-sm btn-primary text-white" href="{{ new_presentation_url }}">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-md-inline">Add</span>
+                </a>
+            </div>
+        {% endif %}
     </div>
     <div class="card--bordered"></div>
 {% endblock %}
@@ -26,7 +35,7 @@
 {% block scroll_template_item %}
     <div class="row border-bottom py-2 align-items-center">
         <div class="col">
-            <a :href="`{% url 'django_spire:metric:visual:presentation:page:detail' pk=0 %}`.replace('0', item.id)">
+            <a class="text-decoration-none" :href="`{% url 'django_spire:metric:visual:presentation:page:detail' pk=0 %}`.replace('0', item.id)">
                 <span x-text="item.name"></span>
             </a>
             <div class="small text-muted" x-text="item.description"></div>

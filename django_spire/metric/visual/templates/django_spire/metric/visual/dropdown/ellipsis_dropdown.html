@@ -15,7 +15,7 @@
     </li>
     <li>
         <a class="dropdown-item d-flex align-items-center gap-2 text-danger"
-           :href="`{% url 'django_spire:metric:visual:form:delete' pk=0 %}`.replace('0', item.id)">
+           :href="`{% url 'django_spire:metric:visual:form:delete' pk=0 %}?return_url={% url 'django_spire:metric:visual:page:list' %}`.replace('0', item.id)">
             <i class="bi bi-trash"></i>Delete
         </a>
     </li>

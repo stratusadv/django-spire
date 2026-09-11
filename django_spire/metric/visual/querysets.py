@@ -58,7 +58,3 @@ class VisualRegionQuerySet(HistoryQuerySet):
 
     def for_visual(self, visual: Visual) -> QuerySet[VisualRegion]:
         return self.filter(visual=visual)
-
-    def assign(self, key: str, visual: Visual) -> VisualRegion:
-        region, _ = self.update_or_create(key=key, defaults={'visual': visual})
-        return region

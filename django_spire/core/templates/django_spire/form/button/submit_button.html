@@ -18,7 +18,7 @@
 >
     <button
         type="submit"
-        class="btn btn-primary {{ button_class }}"
+        class="btn btn-primary text-white {{ button_class }}"
         x-show="!loading"
         @click.prevent="submit_form($el.form)"
     >
@@ -30,7 +30,7 @@
     </button>
     <button
         type="button"
-        class="btn btn-primary {{ button_class }}"
+        class="btn btn-primary text-white {{ button_class }}"
         x-show="loading"
         disabled
     >

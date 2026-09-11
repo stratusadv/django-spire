@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.metric.visual.presentation.models import Presentation
 from django_spire.metric.visual.signage import models
 
 if TYPE_CHECKING:
@@ -36,6 +37,11 @@ class SignageModelForm(forms.ModelForm):
 
 
 class SignagePresentationModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields['presentation'].queryset = Presentation.objects.not_deleted()
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():

@@ -36,6 +36,7 @@ class PresentationModelTestCase(BaseTestCase):
     def test_set_deleted_cascades_to_sections(self):
         slide = create_test_slide(self.presentation)
         section = create_test_section(slide)
+        visual = section.visual
 
         self.presentation.set_deleted()
 
@@ -44,6 +45,21 @@ class PresentationModelTestCase(BaseTestCase):
 
         assert slide.is_deleted is True
         assert section.is_deleted is True
+        assert section.visual_id is None
+        assert visual.is_deleted is False
+
+    def test_set_deleted_detaches_section_visuals(self):
+        slide = create_test_slide(self.presentation)
+        section = create_test_section(slide)
+        visual = section.visual
+
+        self.presentation.set_deleted()
+
+        section.refresh_from_db()
+        visual.refresh_from_db()
+
+        assert section.visual_id is None
+        assert visual.is_deleted is False
 
     def test_set_deleted_backfills_history_events(self):
         slide = create_test_slide(self.presentation)
@@ -83,6 +99,18 @@ class SlideModelTestCase(BaseTestCase):
 
         assert self.slide.is_deleted is True
         assert section.is_deleted is True
+
+    def test_set_deleted_detaches_section_visuals(self):
+        section = create_test_section(self.slide)
+        visual = section.visual
+
+        self.slide.set_deleted()
+
+        section.refresh_from_db()
+        visual.refresh_from_db()
+
+        assert section.visual_id is None
+        assert visual.is_deleted is False
 
 
 class SlideSectionModelTestCase(BaseTestCase):

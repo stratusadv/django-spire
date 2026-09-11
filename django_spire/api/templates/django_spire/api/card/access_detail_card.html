@@ -1,0 +1,39 @@
+<div class="card">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-6 text-start">
+                <div class="attribute-label">User Access</div>
+                {% if api_access.has_super_access %}
+                    <span class="text-warning">Super</span>
+                {% elif api_access.user %}
+                    <div>{{ api_access.user.get_full_name|title|default:api_access.user.username }}</div>
+                {% else %}
+                    <div>No User</div>
+                {% endif %}
+            </div>
+
+            <div class="col-6 text-start">
+                <div class="attribute-label">Bass Permission</div>
+                {% if api_access.has_super_access %}
+                    <span class="text-warning">
+                {% endif %}
+
+                {{ api_access.get_permission_display }}
+
+                {% if api_access.has_super_access %}
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="col-6 text-start">
+                <div class="attribute-label">Key Hint</div>
+                <div>{{ api_access.key_hint }}</div>
+            </div>
+
+            <div class="col-6 text-start">
+                <div class="attribute-label">Created On</div>
+                <div>{{ api_access.created_datetime|date:'M d, Y' }}</div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -51,7 +51,12 @@ class StatisticFormUrlTestCase(BaseTestCase):
         self.statistic = create_test_statistic(group=self.group)
 
     def test_create_view_url_path(self):
-        response = self.client.get(path=reverse('django_spire:metric:domain:statistic:form:create'))
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:form:create',
+                kwargs={'group_pk': self.group.pk},
+            )
+        )
         assert response.status_code == 200
 
     def test_update_view_url_path(self):

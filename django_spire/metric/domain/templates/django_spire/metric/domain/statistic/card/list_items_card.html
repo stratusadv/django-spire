@@ -4,6 +4,7 @@
     Statistics
 {% endblock %}
 
+{# This file is not used.#}
 {% block card_button %}
     {% if perms.django_spire_metric_domain.add_statistic %}
         {% url 'django_spire:metric:domain:statistic:form:create' as new_statistic_url %}

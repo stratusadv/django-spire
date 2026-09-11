@@ -22,7 +22,7 @@ class DomainViewTestCase(BaseTestCase):
         response = self.client.get(path=reverse('django_spire:metric:domain:page:list'))
         assert response.status_code == 200
         self.assertTemplateUsed(response, 'django_spire/metric/domain/page/list_page.html')
-        assert self.domain in response.context['domains']
+        assert 'Glue.querySet.domains' in response.content.decode()
 
     def test_detail_view(self):
         response = self.client.get(
@@ -31,7 +31,7 @@ class DomainViewTestCase(BaseTestCase):
         assert response.status_code == 200
         self.assertTemplateUsed(response, 'django_spire/metric/domain/page/detail_page.html')
         assert self.domain == response.context['domain']
-        assert self.subdomain in response.context['subdomains']
+        assert 'Glue.querySet.subdomains' in response.content.decode()
 
     def test_detail_view_subdomain_links_use_glue_item_state(self):
         response = self.client.get(
@@ -98,9 +98,25 @@ class SubDomainViewTestCase(BaseTestCase):
         )
         assert response.status_code == 200
         assert statistic in response.context['statistics']
+        assert response.context['group'].pk == 0
 
         href = reverse(
             'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': statistic.pk}
         )
         assert f'href="{href}"' in response.content.decode()
         assert f'{group.name} / {statistic.name}' in response.content.decode()
+
+    def test_subdomain_detail_view_group_uses_create_url(self):
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:page:subdomain_detail',
+                kwargs={'pk': self.subdomain.pk, 'domain_pk': self.domain.pk},
+            )
+        )
+        assert response.status_code == 200
+        assert response.context['group'].pk == 0
+
+        create_href = reverse(
+            'django_spire:metric:domain:statistic:form:create', kwargs={'group_pk': 0}
+        )
+        assert f'href="{create_href}"' in response.content.decode()

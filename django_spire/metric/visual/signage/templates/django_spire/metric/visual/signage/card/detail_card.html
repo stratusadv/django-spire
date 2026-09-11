@@ -1,78 +1,73 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    Signage
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_metric_visual_signage.change_signage %}
-        {% url 'django_spire:metric:visual:signage:form:update' pk=signage.pk as signage_edit_url %}
-        <a class="btn btn-sm btn-primary" href="{{ signage_edit_url }}">
-            <i class="bi bi-pencil"></i>
-            Edit
-        </a>
-    {% endif %}
-
-    {% if perms.django_spire_metric_visual_signage.delete_signage %}
-        {% url 'django_spire:metric:visual:signage:form:delete' pk=signage.pk as signage_delete_url %}
-        <a class="btn btn-sm btn-outline-danger" href="{{ signage_delete_url }}">
-            <i class="bi bi-eraser"></i>
-            Delete
-        </a>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body">
-        <div class="row g-3">
-            <div class="col-12 col-md-8">
-                <div class="attribute-label">Display Title</div>
-                <div>{{ signage.services.transformation.display_title }}</div>
+        <div class="row">
+            <div class="col">
+                <div class="row g-3">
+                    <div class="col-12 col-md-8">
+                        <div class="attribute-label">Display Title</div>
+                        <div>{{ signage.services.transformation.display_title }}</div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="attribute-label">Slide Display Seconds</div>
+                        <div>{{ signage.slide_display_seconds }} seconds</div>
+                    </div>
+
+                    {% url 'django_spire:metric:visual:signage:page:display' key=signage.key as signage_display_url %}
+
+                    <div class="col-6 col-lg-4">
+                        <div class="attribute-label">Regular Scale (720p or Lower)</div>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url as display_url %}
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
+                                Playback Link
+                            </a>
+                            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="col-6 col-lg-4">
+                        <div class="attribute-label">Medium Scale (1080p to 1440p)</div>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=medium" as display_url %}
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
+                                Playback Link
+                            </a>
+                            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="col-6 col-lg-4">
+                        <div class="attribute-label">High Scale (2160p or Higher)</div>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=high" as display_url %}
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
+                                Playback Link
+                            </a>
+                            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="col-12">
+                        <div class="attribute-label">Description</div>
+                        <div>{{ signage.description|linebreaksbr }}</div>
+                    </div>
+                </div>
             </div>
-
-            <div class="col-12 col-md-4">
-                <div class="attribute-label">Slide Display Seconds</div>
-                <div>{{ signage.slide_display_seconds }} seconds</div>
-            </div>
-
-            {% url 'django_spire:metric:visual:signage:page:display' key=signage.key as signage_display_url %}
-
-            <div class="col-6 col-lg-4">
-                <div class="attribute-label">Regular Scale (720p or Lower)</div>
-                {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url as display_url %}
-                    <a class="me-2" href="{{ display_url }}" target="_blank">
-                        Playback Link
+            <div class="col-auto">
+                {% if perms.django_spire_metric_visual_signage.change_signage %}
+                    {% url 'django_spire:metric:visual:signage:form:update' pk=signage.pk as signage_edit_url %}
+                    <a class="btn btn-sm btn-primary text-white" href="{{ signage_edit_url }}">
+                        <i class="bi bi-pencil"></i>
+                        <span class="d-none d-md-inline">Edit</span>
                     </a>
-                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
-                {% endwith %}
-            </div>
+                {% endif %}
 
-            <div class="col-6 col-lg-4">
-                <div class="attribute-label">Medium Scale (1080p to 1440p)</div>
-                {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=medium" as display_url %}
-                    <a class="me-2" href="{{ display_url }}" target="_blank">
-                        Playback Link
+                {% if perms.django_spire_metric_visual_signage.delete_signage %}
+                    {% url 'django_spire:metric:visual:signage:form:delete' pk=signage.pk as signage_delete_url %}
+                    <a class="btn btn-sm btn-outline-danger" href="{{ signage_delete_url }}">
+                        <i class="bi bi-eraser"></i>
+                        <span class="d-none d-md-inline">Delete</span>
                     </a>
-                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
-                {% endwith %}
+                {% endif %}
             </div>
-
-            <div class="col-6 col-lg-4">
-                <div class="attribute-label">High Scale (2160p or Higher)</div>
-                {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=high" as display_url %}
-                    <a class="me-2" href="{{ display_url }}" target="_blank">
-                        Playback Link
-                    </a>
-                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
-                {% endwith %}
-            </div>
-
-            <div class="col-12">
-                <div class="attribute-label">Description</div>
-                <div>{{ signage.description|linebreaksbr }}</div>
-            </div>
-
-
         </div>
     </div>
-{% endblock %}
+</div>

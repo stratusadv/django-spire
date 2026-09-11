@@ -23,10 +23,15 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     Glue.queryset(request, 'subdomains', subdomains, Glue.Access.CHANGE, fields='__all__')
 
     nav = DomainNavigation()
-    nav.breadcrumbs.add(str(domain), None)
+    nav.page_title = str(domain)
+    nav.breadcrumbs.add(
+        name=str(domain),
+        view_name='django_spire:metric:domain:page:detail',
+        view_kwargs={'pk': domain.pk},
+    )
+
     context = nav.as_context()
     context['domain'] = domain
-    context['subdomains'] = subdomains
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/domain/page/detail_page.html'
@@ -41,7 +46,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = DomainNavigation()
     context = nav.as_context()
-    context['domains'] = domains
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/domain/page/list_page.html'
@@ -57,13 +61,19 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     nav.breadcrumbs.add(
         name=str(subdomain.domain),
         view_name='django_spire:metric:domain:page:detail',
-        view_kwargs={'pk': subdomain.domain.pk},
+        view_kwargs={'pk': domain_pk},
     )
-    nav.breadcrumbs.add(str(subdomain), None)
+    nav.breadcrumbs.add(
+        name=str(subdomain),
+        view_name='django_spire:metric:domain:page:subdomain_detail',
+        view_kwargs={'pk': pk, 'domain_pk': domain_pk},
+    )
+
     context = nav.as_context()
     context['subdomain'] = subdomain
     context['domain_pk'] = domain_pk
     context['show_group_prefix'] = True
+    context['group'] = models.StatisticGroup(pk=0)
     context['statistics'] = (
         models.Statistic.objects.select_related('group')
         .active()

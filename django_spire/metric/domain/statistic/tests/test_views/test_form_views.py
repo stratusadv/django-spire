@@ -101,13 +101,29 @@ class StatisticFormViewTestCase(BaseTestCase):
         self.statistic = create_test_statistic(group=self.group)
 
     def test_create_view(self):
-        response = self.client.get(path=reverse('django_spire:metric:domain:statistic:form:create'))
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:form:create',
+                kwargs={'group_pk': self.group.pk},
+            )
+        )
         assert response.status_code == 200
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/statistic/page/statistic_form_page.html'
         )
         html = response.content.decode()
         assert 'glue_form.$fields.value_type' in html
+
+    def test_create_view_without_group(self):
+        response = self.client.get(
+            path=reverse('django_spire:metric:domain:statistic:form:create', kwargs={'group_pk': 0})
+        )
+        assert response.status_code == 200
+        self.assertTemplateUsed(
+            response, 'django_spire/metric/domain/statistic/page/statistic_form_page.html'
+        )
+        html = response.content.decode()
+        assert 'glue_form.group' in html
 
     def test_create_save_model_obj(self):
         form = forms.StatisticForm(

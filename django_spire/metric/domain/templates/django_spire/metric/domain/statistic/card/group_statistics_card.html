@@ -1,48 +1,51 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    Statistics
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_metric_domain.add_statistic %}
-        {% url 'django_spire:metric:domain:statistic:form:create' as new_statistic_url %}
-        <a class="btn btn-sm btn-primary" href="{{ new_statistic_url }}">
-            <i class="bi bi-plus"></i>
-            Add
-        </a>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body p-2">
+        <div class="row p-2 align-items-center">
+            <div class="col fs-5">Statistics</div>
+            {% if perms.django_spire_metric_domain.add_statistic %}
+                <div class="col-auto">
+                    {% url 'django_spire:metric:domain:statistic:form:create' group_pk=group.pk as new_statistic_url %}
+                    <a class="btn btn-sm btn-primary text-white" href="{{ new_statistic_url }}">
+                        <i class="bi bi-plus-lg"></i>
+                        Add
+                    </a>
+                </div>
+            {% endif %}
+        </div>
         {% if statistics %}
             <div class="table-responsive">
                 <table class="table table-light table-hover">
                     <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Interval</th>
-                            <th>Action</th>
-                        </tr>
+                    <tr>
+                        <th class="fw-medium">Name</th>
+                        <th class="fw-medium">Interval</th>
+                        <th class="fw-medium">Value Type</th>
+                        <th class="fw-medium">Key</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for statistic in statistics %}
-                            <tr>
-                                <td>
-                                    <a class='text-decoration-none' href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
-                                        {% if show_group_prefix %}{{ statistic.group }} / {% endif %}{{ statistic.name }}
-                                    </a>
-                                </td>
-                                <td>{{ statistic.get_interval_display }}</td>
-                                <td></td>
-                            </tr>
-                        {% endfor %}
+                    {% for statistic in statistics %}
+                        <tr>
+                            <td>
+                                <a class='text-decoration-none'
+                                   href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
+                                    {% if show_group_prefix %}{{ statistic.group }} / {% endif %}{{ statistic.name }}
+                                </a>
+                            </td>
+                            <td>{{ statistic.get_interval_display }}</td>
+                            <td>{{ statistic.get_value_type_display }}</td>
+                            <td><code>{{ statistic.key }}</code>
+                                {% include 'django_spire/element/copy_to_clipboard_element.html' with value=statistic.key %}
+                            </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         {% else %}
-            {% include 'django_spire/item/no_data_item.html' %}
+            <div class="ps-2">
+                {% include 'django_spire/item/no_data_item.html' %}
+            </div>
         {% endif %}
     </div>
-{% endblock %}
+</div>

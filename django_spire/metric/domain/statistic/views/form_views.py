@@ -67,13 +67,13 @@ def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 @permission_required('django_spire_metric_domain.add_statistic')
-def create_view(request: WSGIRequest) -> TemplateResponse:
-    return _form_view(request)
+def create_view(request: WSGIRequest, group_pk: int) -> TemplateResponse:
+    return _form_view(request, group_pk=group_pk)
 
 
 @permission_required('django_spire_metric_domain.change_statistic')
 def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    return _form_view(request, pk)
+    return _form_view(request, pk=pk)
 
 
 @permission_required('django_spire_metric_domain.delete_statistic')
@@ -96,8 +96,13 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         view_name='django_spire:metric:domain:statistic:page:group_detail',
         view_kwargs={'pk': statistic.group.pk},
     )
-    nav.breadcrumbs.add(str(statistic))
+    nav.breadcrumbs.add(
+        name=str(statistic),
+        view_name='django_spire:metric:domain:statistic:page:detail',
+        view_kwargs={'pk': statistic.pk},
+    )
     nav.breadcrumbs.add('Delete')
+
     context = nav.as_context()
     context['form_title'] = f'Delete {statistic}'
     context['form_description'] = f'Are you sure you would like to delete statistic "{statistic}"?'
@@ -113,9 +118,17 @@ def _group_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     group = get_object_or_null_obj(models.StatisticGroup, pk=pk)
 
     nav = StatisticGroupNavigation()
-    nav.page_title = str(group._meta.verbose_name.title())
-    nav.page_description = 'Edit' if group.pk else 'Create'
-    nav.breadcrumbs.add('Edit' if group.pk else 'Create')
+    nav.set_page_title_to_form_action_from_model_instance(group)
+
+    if group.pk:
+        nav.breadcrumbs.add(
+            name=str(group),
+            view_name='django_spire:metric:domain:statistic:page:group_detail',
+            view_kwargs={'pk': group.pk},
+        )
+
+    nav.page_description = 'Edit' if group.pk else 'New Statistic Group'
+    nav.breadcrumbs.add('Edit' if group.pk else 'New Statistic Group')
 
     form = forms.StatisticGroupForm(request.POST or None, instance=group)
 
@@ -128,13 +141,32 @@ def _group_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     )
 
 
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
+def _form_view(request: WSGIRequest, group_pk: int = 0, pk: int = 0) -> TemplateResponse:
     statistic = get_object_or_null_obj(models.Statistic, pk=pk)
 
     nav = StatisticNavigation()
-    nav.page_title = str(statistic._meta.verbose_name.title())
-    nav.page_description = 'Edit' if statistic.pk else 'Create'
-    nav.breadcrumbs.add('Edit' if statistic.pk else 'Create')
+    nav.set_page_title_to_form_action_from_model_instance(statistic)
+    nav.page_description = 'Edit' if statistic.pk else 'New Statistic'
+
+    target_group_pk = group_pk or statistic.group_id
+    if target_group_pk:
+        group = get_object_or_404(models.StatisticGroup, pk=target_group_pk)
+        nav.breadcrumbs.add(
+            name=str(group),
+            view_name='django_spire:metric:domain:statistic:page:group_detail',
+            view_kwargs={'pk': target_group_pk},
+        )
+
+    if statistic.pk:
+        nav.breadcrumbs.add(
+            name=statistic,
+            view_name='django_spire:metric:domain:statistic:page:detail',
+            view_kwargs={'pk': statistic.pk},
+        )
+
+    nav.breadcrumbs.add('Edit' if statistic.pk else 'New Statistic')
+
+    statistic.group_id = group_pk or statistic.group_id
 
     form = forms.StatisticForm(request.POST or None, instance=statistic)
 

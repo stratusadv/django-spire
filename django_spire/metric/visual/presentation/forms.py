@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.metric.visual import models as visual_models
 from django_spire.metric.visual.presentation import models
 
 if TYPE_CHECKING:
@@ -74,6 +75,20 @@ class SlideModelForm(forms.ModelForm):
 
 
 class SlideSectionModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields['visual'].queryset = visual_models.Visual.objects.not_deleted()
+
+        for name, context in (('row', 'Row'), ('col', 'Column')):
+            value = getattr(self.instance, name, 0)
+            choices = [(str(index), f'{context} {index + 1}') for index in range(3)]
+
+            if value not in range(3):
+                choices.append((str(value), f'{context} {value + 1}'))
+
+            self.fields[name] = forms.ChoiceField(choices=choices)
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -86,18 +101,6 @@ class SlideSectionModelForm(forms.ModelForm):
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-        for name, context in (('row', 'Row'), ('col', 'Column')):
-            value = getattr(self.instance, name, 0)
-            choices = [(str(index), f'{context} {index + 1}') for index in range(3)]
-
-            if value not in range(3):
-                choices.append((str(value), f'{context} {value + 1}'))
-
-            self.fields[name] = forms.ChoiceField(choices=choices)
 
     def clean(self) -> dict:
         cleaned_data = super().clean()
