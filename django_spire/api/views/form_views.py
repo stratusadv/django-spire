@@ -36,7 +36,7 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
 
             nav = ApiNavigation()
             nav.page_title = 'API Access Created'
-            nav.breadcrumbs.add(api_access.name)
+            nav.breadcrumbs.add(api_access.name, view_name='django_spire:api:page:list')
             nav.breadcrumbs.add('Created')
             context = nav.as_context()
             context['api_access'] = api_access
@@ -78,7 +78,7 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
 
     nav = ApiNavigation()
     nav.page_title = 'Delete API Access'
-    nav.breadcrumbs.add(str(api_access))
+    nav.breadcrumbs.add(str(api_access), view_name='django_spire:api:page:list')
     nav.breadcrumbs.add('Delete')
 
     context = nav.as_context()
