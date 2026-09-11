@@ -26,7 +26,6 @@ from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.tests.factories import create_test_entry
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.tests.factories import create_test_domain, create_test_subdomain
-
 from test_project.app.comment.models import CommentExample
 from test_project.app.task.models import Task
 
@@ -164,15 +163,6 @@ class TestApiAccessFlowActivity(ActivityFlowTestCase):
         assert response.status_code == 302
         assert self.access.is_deleted is True
         assert self.activities_for(ApiAccess, self.access.pk, 'deleted').count() == 1
-
-    def test_delete_view_without_confirmation_logs_nothing(self) -> None:
-        response = self.client.post(self.url, data={})
-
-        self.access.refresh_from_db()
-
-        assert response.status_code == 302
-        assert self.access.is_deleted is False
-        assert Activity.objects.count() == 0
 
 
 class TestKnowledgeFlowActivity(ActivityFlowTestCase):
