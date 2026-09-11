@@ -51,7 +51,7 @@
                  aria-valuemax="100"></div>
         </div>
     {% elif celery_task.is_processing %}
-        {{ celery_task.state|title }}
+        {{ celery_task.state_verbose }}
         {% if celery_task.is_estimated_complete_soon %}
             • Completing Soon
         {% elif celery_task.is_remaining_time_unknown %}
