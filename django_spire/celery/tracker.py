@@ -19,8 +19,6 @@ def _async_update_state(backend, task_id: str, state: str, meta: dict) -> None:
 
 
 class CeleryTaskTracker:
-    """Used for tracking the state of a celery task inside the running task function"""
-
     def __init__(self, celery_task: Task, update_interval_seconds: int = 5) -> None:
         if update_interval_seconds < 5:
             message = f'{self.__class__.__name__}: Update Interval must be at least 5 seconds'
@@ -63,17 +61,14 @@ class CeleryTaskTracker:
             finally:
                 self._pending_future = None
 
-    def force_celery_task_state_update(self) -> None:
-        self._update_celery_task_state()
-
     def _process_overdue_update(self) -> None:
         if self._is_overdue_for_update():
-            self._update_celery_task_state()
+            self.force_update_celery_task_state()
 
     def set_cumulative_progress_target_value(self, value: int) -> None:
         self._cumulative_target_value = value
 
-    def _update_celery_task_state(self) -> None:
+    def force_update_celery_task_state(self) -> None:
         if self._celery_task.request.id:
             self._cancel_pending_future()
 
