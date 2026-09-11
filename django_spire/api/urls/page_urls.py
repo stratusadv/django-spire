@@ -9,4 +9,5 @@ app_name = 'page'
 
 urlpatterns = [
     path('', page_views.access_list_view, name='list'),
+    path('<int:pk>/detail/', page_views.access_detail_view, name='detail'),
 ]

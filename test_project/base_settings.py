@@ -225,6 +225,7 @@ DJANGO_SPIRE_REPORT_REGISTRIES = [
 
 # Search Registry
 DJANGO_SPIRE_SEARCH_REGISTRY = {
+    'API_ACCESS': 'django_spire.api.search.ApiAccessSearch',
     'TASK': 'test_project.app.task.search.TaskSearch',
     'ENTRY': 'django_spire.knowledge.entry.search.EntrySearch',
     'DOMAIN': 'django_spire.metric.domain.search.DomainSearch',
