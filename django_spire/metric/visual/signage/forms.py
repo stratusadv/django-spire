@@ -20,6 +20,10 @@ def _signage_detail_url(kwargs_pk: int) -> str:
 
 
 class SignageModelForm(forms.ModelForm):
+    def clean_slide_display_seconds(self) -> int:
+        value = self.cleaned_data.get('slide_display_seconds')
+        return max(value, 1) if value is not None else value
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():

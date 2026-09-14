@@ -141,7 +141,7 @@ def _link_form_view(
             view_kwargs={'pk': signage.pk},
         )
 
-    nav.breadcrumbs.add('Edit' if link.pk else 'New Presentation')
+    nav.breadcrumbs.add('Edit' if link.pk else 'New Signage Presentation')
 
     context = nav.as_context()
     context['form'] = form
