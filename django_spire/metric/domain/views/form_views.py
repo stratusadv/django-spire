@@ -68,7 +68,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
-    context['form_title'] = f'Delete Domain "{domain}"'
+    context['form_title'] = f'Delete Domain {domain}'
     context['form_description'] = f'Are you sure you would like to delete domain "{domain}"?'
 
     return TemplateResponse(
@@ -145,12 +145,12 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
     nav.breadcrumbs.add('Delete', None)
     context = nav.as_context()
     context['form'] = form
-    context['form_title'] = f'Delete Sub Domain "{subdomain}"'
+    context['form_title'] = f'Delete Sub Domain {subdomain}'
     context['form_description'] = f'Are you sure you would like to delete sub domain "{subdomain}"?'
     context['domain_pk'] = domain_pk
 
     return TemplateResponse(
         request,
-        'django_spire/metric/domain/form/subdomain_delete_confirmation_form_page.html',
+        'django_spire/metric/domain/form/delete_confirmation_form_page.html',
         context,
     )

@@ -62,7 +62,7 @@ def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context,
-        template='django_spire/metric/domain/statistic/form/group_delete_confirmation_form_page.html',
+        template='django_spire/metric/domain/statistic/form/delete_confirmation_form_page.html',
     )
 
 
@@ -110,7 +110,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context,
-        template='django_spire/metric/domain/statistic/form/statistic_delete_confirmation_form_page.html',
+        template='django_spire/metric/domain/statistic/form/delete_confirmation_form_page.html',
     )
 
 
