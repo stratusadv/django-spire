@@ -36,7 +36,7 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
 
             nav = ApiNavigation()
             nav.page_title = 'API Access Created'
-            nav.breadcrumbs.add(api_access.name, view_name='django_spire:api:page:list')
+            nav.breadcrumbs.add(api_access.name, view_name='django_spire:api:page:detail', view_kwargs={'pk': api_access.pk})
             nav.breadcrumbs.add('Created')
             context = nav.as_context()
             context['api_access'] = api_access
