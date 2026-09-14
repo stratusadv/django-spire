@@ -113,6 +113,7 @@ class StatisticFormViewTestCase(BaseTestCase):
         )
         html = response.content.decode()
         assert 'glue_form.$fields.value_type' in html
+        assert response.context['original_key'] == ''
 
     def test_create_view_without_group(self):
         response = self.client.get(
@@ -151,6 +152,9 @@ class StatisticFormViewTestCase(BaseTestCase):
         )
         html = response.content.decode()
         assert 'glue_form.$fields.value_type' in html
+        assert response.context['original_key'] == self.statistic.key
+        assert 'may break existing references' in html
+        assert 'x-show="key_changed"' in html
 
     def test_update_save_model_obj(self):
         form = forms.StatisticForm(

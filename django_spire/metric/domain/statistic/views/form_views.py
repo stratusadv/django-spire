@@ -172,8 +172,11 @@ def _form_view(request: WSGIRequest, group_pk: int = 0, pk: int = 0) -> Template
 
     Glue.form(request, 'statistic_form', form, Glue.Access.DELETE)
 
+    context = nav.as_context()
+    context['original_key'] = statistic.key if statistic.pk else ''
+
     return TemplateResponse(
         request,
-        context=nav.as_context(),
+        context=context,
         template='django_spire/metric/domain/statistic/page/statistic_form_page.html',
     )

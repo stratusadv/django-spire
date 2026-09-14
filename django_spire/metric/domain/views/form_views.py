@@ -106,6 +106,7 @@ def subdomain_form_view(
     Glue.form(request, 'subdomain_form', form, Glue.Access.DELETE)
 
     context = {**nav.as_context()}
+    context['original_key'] = subdomain.key if subdomain.pk else ''
 
     return TemplateResponse(
         request=request,
