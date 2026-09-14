@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Seeding now scales requested seed counts by the `SEEDING_MULTIPLIER` environment variable (default `1.0`, configured in `django_spire.contrib.seeding.seeding_settings`), with an `ignore_multiplier` flag on `Seeder` to opt a seeder out and always seed at the exact requested count.
+
 ### Fixes
 
 - Fixed API keys with `has_super_access` being rejected by the base and user permission checks in `ApiKeySecurity.authenticate`.

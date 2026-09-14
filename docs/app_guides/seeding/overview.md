@@ -44,6 +44,19 @@ Perfect for:
 
 ---
 
+## Scaling Seed Counts
+
+Seed counts can be scaled globally with the `SEEDING_MULTIPLIER` environment variable (defaults to `1.0`); every requested count is multiplied by it, so a multiplier of `2.0` doubles the objects each seeder produces. Per-seeder opt-out is available with the `ignore_multiplier` class variable, which forces the multiplier to `1.0`:
+
+```python
+class TaskModelSeeder(Seeder):
+    model_class = Task
+    cache_enabled = True
+    ignore_multiplier = True
+```
+
+---
+
 ## Output Options
 
 A seeder can produce data several ways:
