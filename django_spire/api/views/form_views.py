@@ -78,7 +78,7 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
 
     nav = ApiNavigation()
     nav.page_title = 'Delete API Access'
-    nav.breadcrumbs.add(str(api_access), view_name='django_spire:api:page:list')
+    nav.breadcrumbs.add(str(api_access.name), view_name='django_spire:api:page:detail', view_kwargs={'pk': api_access.pk})
     nav.breadcrumbs.add('Delete')
 
     context = nav.as_context()
