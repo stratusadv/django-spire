@@ -96,7 +96,7 @@ SUB_DOMAIN_KEYS = [
     'opportunities',
     'quotes',
     'campaigns',
-    'website-traffic',
+    'website-traffic', # This key is used as the test key
     'social-media',
     'revenue',
     'invoices',
@@ -109,7 +109,7 @@ SUB_DOMAIN_KEYS = [
 
 STATISTIC_KEYS = [
     'new-leads',
-    'clicks',
+    'clicks',  # This key is used as the test key
     'revenue',
     'headcount',
     'tickets-resolved',
