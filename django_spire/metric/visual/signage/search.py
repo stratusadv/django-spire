@@ -39,6 +39,9 @@ class SignageSearch(Search):
         return obj.name
 
     def result_description(self, obj: models.Signage) -> str:
-        presentations = ' - '.join(link.presentation.name for link in obj.services.transformation.presentation_links())
+        presentations = ' - '.join(
+            link.presentation.name for link in obj.services.transformation.presentation_links()
+        )
+        title = f'{obj.title} - ' if obj.title else ''
 
-        return f"{f'{obj.title} - ' if obj.title else ''}{presentations} - {obj.description}"
+        return f'{title}{presentations} - {obj.description}'

@@ -56,8 +56,10 @@ class SubDomainSearch(Search):
         return None
 
     def generate_detail_url(self, obj: models.SubDomain) -> str:
-        return reverse('django_spire:metric:domain:page:subdomain_detail',
-                       kwargs={'domain_pk': obj.domain.pk, 'pk': obj.pk})
+        return reverse(
+            'django_spire:metric:domain:page:subdomain_detail',
+            kwargs={'domain_pk': obj.domain.pk, 'pk': obj.pk},
+        )
 
     def result_name(self, obj: models.SubDomain) -> str:
         return obj.name
