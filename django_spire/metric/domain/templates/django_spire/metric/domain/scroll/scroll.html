@@ -25,7 +25,7 @@
             {% if perms.django_spire_metric_domain.add_domain %}
             {% url 'django_spire:metric:domain:form:form' pk=0 as new_domain_url %}
             <a class="btn btn-sm btn-primary text-white" href="{{ new_domain_url }}">
-                <i class="bi bi-plus"></i>
+                <i class="bi bi-plus-lg"></i>
                 <span class="d-none d-md-inline">Add</span>
             </a>
             {% endif %}

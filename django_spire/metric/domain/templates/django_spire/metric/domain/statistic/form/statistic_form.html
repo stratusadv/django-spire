@@ -4,8 +4,18 @@
 
 {% block glue_form_content %}
     <div class="row">
-        <div class="col-12 mb-3 mb-sm-0">
+        <div
+            class="col-12 mb-3 mb-sm-0"
+            x-data="{
+                original_key: '{{ original_key }}',
+                key_changed: false,
+            }"
+            @input="key_changed = original_key !== '' && glue_form.$fields.key.value !== original_key"
+        >
             {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.key' %}
+            <div class="alert alert-danger mt-2 mb-0" x-show="key_changed" x-cloak>
+                You changed the "Key". Changing it may break existing references.
+            </div>
         </div>
 
         <div class="col-12 col-sm mb-3 mb-sm-0 pt-3">

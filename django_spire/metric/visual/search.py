@@ -41,5 +41,6 @@ class VisualSearch(Search):
 
     def result_description(self, obj: models.Visual) -> str:
         kind = obj.get_kind_display()
+        statistic_name = f'{obj.statistic.name} - ' if obj.statistic is not None else ''
 
-        return f'{kind} - {obj.statistic.group.name} - {obj.statistic.name} - {obj.description}'
+        return f'{kind} - {statistic_name}{obj.description}'

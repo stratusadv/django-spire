@@ -103,6 +103,7 @@ class SubDomainFormViewTestCase(BaseTestCase):
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/page/subdomain_form_page.html'
         )
+        assert response.context['original_key'] == ''
 
     def test_create_save_model_obj(self):
         request = RequestFactory().get('/')
@@ -138,6 +139,9 @@ class SubDomainFormViewTestCase(BaseTestCase):
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/page/subdomain_form_page.html'
         )
+        assert response.context['original_key'] == subdomain.key
+        assert 'may break existing references' in response.content.decode()
+        assert 'x-show="key_changed"' in response.content.decode()
 
     def test_update_save_model_obj(self):
         subdomain = create_test_subdomain(domain=self.domain)

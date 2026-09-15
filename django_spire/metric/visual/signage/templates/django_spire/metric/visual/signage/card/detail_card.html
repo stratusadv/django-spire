@@ -10,7 +10,7 @@
 
                     <div class="col-12 col-md-4">
                         <div class="attribute-label">Slide Display Seconds</div>
-                        <div>{{ signage.slide_display_seconds }} seconds</div>
+                        <div>{{ signage.slide_display_seconds }} second{{ signage.slide_display_seconds|pluralize }}</div>
                     </div>
 
                     {% url 'django_spire:metric:visual:signage:page:display' key=signage.key as signage_display_url %}

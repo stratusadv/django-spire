@@ -40,6 +40,10 @@ class ApiAccessSearch(Search):
 
     def result_description(self, obj: models.ApiAccess) -> str:
         permission = obj.get_permission_display()
+
+        if obj.user is None:
+            return f'{permission} - {obj.name}'
+
         full_name = obj.user.get_full_name()
 
         return f'{permission} - {full_name} - {obj.user.email}'

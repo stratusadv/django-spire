@@ -62,7 +62,7 @@ def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context,
-        template='django_spire/metric/domain/statistic/form/group_delete_confirmation_form_page.html',
+        template='django_spire/metric/domain/statistic/form/delete_confirmation_form_page.html',
     )
 
 
@@ -110,7 +110,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context,
-        template='django_spire/metric/domain/statistic/form/statistic_delete_confirmation_form_page.html',
+        template='django_spire/metric/domain/statistic/form/delete_confirmation_form_page.html',
     )
 
 
@@ -172,8 +172,11 @@ def _form_view(request: WSGIRequest, group_pk: int = 0, pk: int = 0) -> Template
 
     Glue.form(request, 'statistic_form', form, Glue.Access.DELETE)
 
+    context = nav.as_context()
+    context['original_key'] = statistic.key if statistic.pk else ''
+
     return TemplateResponse(
         request,
-        context=nav.as_context(),
+        context=context,
         template='django_spire/metric/domain/statistic/page/statistic_form_page.html',
     )
