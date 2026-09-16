@@ -19,8 +19,7 @@ if TYPE_CHECKING:
 class VisualModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-        self.fields['statistic'].queryset = domain_models.Statistic.objects.not_deleted()
+        self.fields['statistic'].queryset = domain_models.Statistic.objects.not_deleted().select_related('group')
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
@@ -38,6 +37,15 @@ class VisualModelForm(forms.ModelForm):
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+    @Glue.attr(required_access=Glue.Access.CHANGE, takes_client_state=True)
+    def statistic_choices(self) -> list[dict]:
+        statistics = domain_models.Statistic.objects.not_deleted().select_related('group').order_by('group__name')
+
+        return [
+            {'value': statistic.id, 'label': f"{statistic.group.name} > {statistic.name}"}
+            for statistic in statistics
+        ]
 
     class Meta:
         model = models.Visual
@@ -72,7 +80,7 @@ class VisualConditionModelForm(forms.ModelForm):
         tolerance = cleaned_data.get('tolerance')
 
         if operator == VisualConditionOperatorChoices.BETWEEN and (
-            tolerance is None or tolerance == 0
+                tolerance is None or tolerance == 0
         ):
             self.add_error('tolerance', 'Tolerance is required for "At or Near Target".')
 
@@ -114,9 +122,9 @@ class VisualReferenceModelForm(forms.ModelForm):
         statistic = self.instance.visual.statistic if self.instance.visual_id else None
 
         if (
-            statistic
-            and statistic.values.exists()
-            and not statistic.values.for_reference_pattern(pattern).exists()
+                statistic
+                and statistic.values.exists()
+                and not statistic.values.for_reference_pattern(pattern).exists()
         ):
             self.add_error(
                 'reference',
