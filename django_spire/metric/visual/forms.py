@@ -17,10 +17,6 @@ if TYPE_CHECKING:
 
 
 class VisualModelForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.fields['statistic'].queryset = domain_models.Statistic.objects.not_deleted().select_related('group')
-
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
