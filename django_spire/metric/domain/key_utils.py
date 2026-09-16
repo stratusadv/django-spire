@@ -11,7 +11,10 @@ KEY_MAX_LENGTH = 64
 
 
 def unique_key_from_name(instance: Model) -> str:
-    base = slugify(str(instance.name))[:KEY_MAX_LENGTH] or 'unnamed'
+    parent = getattr(instance, 'domain', None) or getattr(instance, 'group', None)
+    temp_key = f'{parent.name}-{instance.name}' if parent else instance.name
+    base = slugify(temp_key)[:KEY_MAX_LENGTH] or 'unnamed'
+    
     queryset = instance.__class__._default_manager.filter(key=base)
     if instance.pk:
         queryset = queryset.exclude(pk=instance.pk)
