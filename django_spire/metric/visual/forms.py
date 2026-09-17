@@ -76,7 +76,7 @@ class VisualConditionModelForm(forms.ModelForm):
         tolerance = cleaned_data.get('tolerance')
 
         if operator == VisualConditionOperatorChoices.BETWEEN and (
-                tolerance is None or tolerance == 0
+            tolerance is None or tolerance == 0
         ):
             self.add_error('tolerance', 'Tolerance is required for "At or Near Target".')
 
@@ -118,9 +118,9 @@ class VisualReferenceModelForm(forms.ModelForm):
         statistic = self.instance.visual.statistic if self.instance.visual_id else None
 
         if (
-                statistic
-                and statistic.values.exists()
-                and not statistic.values.for_reference_pattern(pattern).exists()
+            statistic
+            and statistic.values.exists()
+            and not statistic.values.for_reference_pattern(pattern).exists()
         ):
             self.add_error(
                 'reference',
