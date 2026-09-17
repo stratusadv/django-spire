@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django_glue import Glue
 
 from django_spire.history.activity.models import Activity
@@ -74,7 +75,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request, context=context, template='django_spire/metric/visual/signage/page/list_page.html'
     )
 
-
+@xframe_options_exempt
 def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
     signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
 
