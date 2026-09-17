@@ -5,6 +5,9 @@
         body {
             overflow: hidden;
             height: 1076px;
+            {% if request.GET.padding %}
+                padding: {{ request.GET.padding }};
+            {% endif %}
         }
 
         .kiosk-grid {
