@@ -130,3 +130,15 @@ class SignagePageViewsTestCase(BaseTestCase):
         content = response.content.decode()
         assert 'data-chart-update-interval="15"' in content
         assert '_update_interval: 15' in content
+
+    def test_display_view_allows_framing(self):
+        create_test_signage_links(self.signage, count=1)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:page:display', kwargs={'key': self.signage.key}
+            )
+        )
+
+        assert response.status_code == 200
+        assert 'X-Frame-Options' not in response
