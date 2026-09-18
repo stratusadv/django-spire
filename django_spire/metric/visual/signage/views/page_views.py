@@ -109,11 +109,15 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
     )
 
 @xframe_options_exempt
-def test_display_resolution_view(request: WSGIRequest, key: str) -> TemplateResponse:
+def test_display_resolution_view(request: WSGIRequest, key: str, width: int=1280, height: int=720) -> TemplateResponse:
     signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
+
+    context = {'signage': signage}
+    context['width'] = width
+    context['height'] = height
 
     return TemplateResponse(
         request,
-        context={'signage': signage},
+        context=context,
         template='django_spire/metric/visual/signage/page/test_display_resolution_page.html',
     )
