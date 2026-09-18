@@ -31,7 +31,7 @@ class SignagePageViewsTestCase(BaseTestCase):
         response = self.client.get(reverse('django_spire:metric:visual:signage:page:list'))
 
         assert response.status_code == 200
-        assert self.signage in response.context_data['signages']
+        assert 'Glue.querySet.signages' in response.content.decode()
 
     def test_detail_view(self):
         create_test_signage_links(self.signage, count=1)

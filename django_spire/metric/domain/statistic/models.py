@@ -19,6 +19,7 @@ from django_spire.metric.domain.statistic.services.service import (
     StatisticService,
     StatisticValueService,
 )
+from django_spire.metric.domain.statistic.utils import detach_visuals_from_statistics
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -53,8 +54,12 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
     def set_deleted(self) -> None:
         with transaction.atomic():
+            statistic_ids = list(
+                self.statistics.filter(is_deleted=False).values_list('pk', flat=True)
+            )
             super().set_deleted()
             soft_delete_queryset(self.statistics.all())
+            detach_visuals_from_statistics(statistic_ids)
 
     def __str__(self) -> str:
         return self.name
@@ -90,6 +95,11 @@ class Statistic(HistoryModelMixin, ActivityMixin):
         if self.pk is None and not self.key:
             self.key = unique_key_from_name(self)
         super().save(*args, **kwargs)
+
+    def set_deleted(self) -> None:
+        with transaction.atomic():
+            super().set_deleted()
+            detach_visuals_from_statistics([self.pk])
 
     @classmethod
     def record(

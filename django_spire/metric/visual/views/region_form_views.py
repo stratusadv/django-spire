@@ -51,7 +51,6 @@ def connect_region_view(
 
     nav = VisualNavigation()
     nav.page_title = 'Connect to Region'
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
     nav.breadcrumbs.add('Connect to Region')
     context = nav.as_context()
@@ -72,7 +71,8 @@ def connect_view(request: WSGIRequest, visual_pk: int) -> HttpResponseRedirect:
     if key not in settings.DJANGO_SPIRE_METRIC_VISUAL_REGIONS:
         return redirect(reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}))
 
-    models.VisualRegion.objects.assign(key, visual)
+    region, _ = models.VisualRegion.objects.get_or_create(key=key)
+    region.services.factory.connect(visual)
 
     return redirect(reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}))
 
@@ -87,10 +87,9 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     Glue.form(request, 'visual_region_form', form, Glue.Access.DELETE)
 
     nav = VisualNavigation()
-    nav.page_title = 'Edit Region'
-    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
+    nav.set_page_title_to_form_action_from_model_instance(region)
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
-    nav.breadcrumbs.add(str(region))
+    nav.breadcrumbs.add(str(region), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
     nav.breadcrumbs.add('Edit')
     context = nav.as_context()
     context['form'] = form

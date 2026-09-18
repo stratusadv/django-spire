@@ -8,6 +8,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import QuerySet
 
+from django_spire.contrib.seeding import settings
 from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
@@ -42,6 +43,8 @@ class Seeder:
 
     cache_enabled = True
 
+    ignore_multiplier = False
+
     model_class: type[models.Model] | None = None
 
     fields_seeds: dict[str, BaseFieldSeed]
@@ -74,6 +77,13 @@ class Seeder:
     @property
     def name_verbose(self) -> str:
         return re.sub(r'(?<!^)(?=[A-Z])', ' ', self.__class__.__name__)
+
+    @property
+    def seeding_multiplier(self) -> float:
+        if self.ignore_multiplier:
+            return 1.0
+
+        return settings.SEEDING_MULTIPLIER
 
     @property
     def queryset(self) -> QuerySet[models.Model]:
@@ -115,6 +125,7 @@ class Seeder:
 
     def seed(self, count: int | None = None) -> None:
         seed_count = self._count if count is None else count
+        seed_count = int(seed_count * self.seeding_multiplier)
 
         if not self.seeds:
             start_time = time.perf_counter()

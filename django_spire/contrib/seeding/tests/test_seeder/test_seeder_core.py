@@ -3,6 +3,7 @@ from pathlib import PurePath
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
+from django_spire.contrib.seeding import settings
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeding.field.seed.file_seed import FileFieldSeed
@@ -294,3 +295,68 @@ class TestSeederReset(TestCase):
         seeder.reset()
         seeder.reset()
         assert len(seeder.seeds) == 0
+
+
+class TestSeederSeedingMultiplier:
+    def test_seeding_multiplier_default(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(settings, 'SEEDING_MULTIPLIER', 1.0)
+
+        class TestSeeder(Seeder):
+            model_class = None
+            cache_enabled = False
+            fields_seeds = {'name': StaticFieldSeed('Test')}
+
+        seeder = TestSeeder(count=5, verbose=False)
+        assert seeder.seeding_multiplier == 1.0
+        seeder.seed()
+        assert len(seeder.seeds) == 5
+
+    def test_seed_count_scaled_by_multiplier(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(settings, 'SEEDING_MULTIPLIER', 2.0)
+
+        class TestSeeder(Seeder):
+            model_class = None
+            cache_enabled = False
+            fields_seeds = {'name': StaticFieldSeed('Test')}
+
+        seeder = TestSeeder(count=3, verbose=False)
+        seeder.seed()
+        assert len(seeder.seeds) == 6
+
+    def test_seed_override_count_scaled_by_multiplier(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(settings, 'SEEDING_MULTIPLIER', 3.0)
+
+        class TestSeeder(Seeder):
+            model_class = None
+            cache_enabled = False
+            fields_seeds = {'name': StaticFieldSeed('Test')}
+
+        seeder = TestSeeder(count=1, verbose=False)
+        seeder.seed(count=5)
+        assert len(seeder.seeds) == 15
+
+    def test_ignore_multiplier_forces_one(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(settings, 'SEEDING_MULTIPLIER', 10.0)
+
+        class TestSeeder(Seeder):
+            model_class = None
+            cache_enabled = False
+            ignore_multiplier = True
+            fields_seeds = {'name': StaticFieldSeed('Test')}
+
+        seeder = TestSeeder(count=3, verbose=False)
+        assert seeder.seeding_multiplier == 1.0
+        seeder.seed()
+        assert len(seeder.seeds) == 3
+
+    def test_output_methods_respect_multiplier(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(settings, 'SEEDING_MULTIPLIER', 2.0)
+
+        class TestSeeder(Seeder):
+            model_class = None
+            cache_enabled = False
+            fields_seeds = {'name': StaticFieldSeed('Test')}
+
+        seeder = TestSeeder(count=2, verbose=False)
+        assert len(seeder.to_list_of_dicts()) == 4
+        assert len(seeder.to_json()) > 0

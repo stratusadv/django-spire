@@ -28,6 +28,9 @@ class Presentation(HistoryModelMixin, ActivityMixin):
         with transaction.atomic():
             super().set_deleted()
             slide_pks = soft_delete_queryset(self.slides.all())
+            SlideSection.objects.filter(slide_id__in=slide_pks, is_deleted=False).update(
+                visual_id=None
+            )
             soft_delete_queryset(SlideSection.objects.filter(slide_id__in=slide_pks))
 
     class Meta:
@@ -52,6 +55,7 @@ class Slide(HistoryModelMixin, ActivityMixin):
     def set_deleted(self) -> None:
         with transaction.atomic():
             super().set_deleted()
+            SlideSection.objects.filter(slide_id=self.pk, is_deleted=False).update(visual_id=None)
             soft_delete_queryset(self.sections.all())
 
     class Meta:

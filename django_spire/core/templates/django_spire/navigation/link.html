@@ -25,7 +25,7 @@
                 Spire.ui.toggleLoadingSpinner();
             }, SPINNER_DELAY);
 
-            fetch(url, { method: 'GET' })
+            fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(() => {
                     clearTimeout(spinnerTimer);
                     window.location = url;

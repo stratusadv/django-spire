@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from django.urls import reverse
 
-from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.api.models import ApiAccess
+from django_spire.core.tests.test_cases import BaseTestCase
 
 
 class ApiPageViewsTestCase(BaseTestCase):
@@ -25,17 +25,21 @@ class ApiPageViewsTestCase(BaseTestCase):
         assert str(linked_access.user) in html
         assert 'No User' in html
 
-    def test_access_delete_view_get(self):
-        response = self.client.get(
-            path=reverse('django_spire:api:page:delete', kwargs={'pk': self.test_access.pk})
-        )
+    def test_detail_view_returns_200(self) -> None:
+        url = reverse('django_spire:api:page:detail', kwargs={'pk': self.test_access.pk})
+        response = self.client.get(url)
+
         assert response.status_code == 200
 
-    def test_access_delete_view_post(self):
-        response = self.client.post(
-            path=reverse('django_spire:api:page:delete', kwargs={'pk': self.test_access.pk}),
-            data={'should_delete': True},
-        )
-        assert response.status_code == 302
-        assert not ApiAccess.objects.filter(pk=self.test_access.pk, is_deleted=False).exists()
-        assert ApiAccess.objects.get(pk=self.test_access.pk).is_deleted
+    def test_detail_view_contains_environment(self) -> None:
+        url = reverse('django_spire:api:page:detail', kwargs={'pk': self.test_access.pk})
+        response = self.client.get(url)
+
+        assert 'api_access' in response.context
+        assert response.context['api_access'].pk == self.test_access.pk
+
+    def test_detail_view_returns_404_for_nonexistent_environment(self) -> None:
+        url = reverse('django_spire:api:page:detail', kwargs={'pk': 99999})
+        response = self.client.get(url)
+
+        assert response.status_code == 404

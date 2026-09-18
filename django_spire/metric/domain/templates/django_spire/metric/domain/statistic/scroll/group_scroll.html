@@ -20,6 +20,15 @@
                 <option value="description">Description</option>
             </select>
         </div>
+        {% if perms.django_spire_metric_domain.add_statisticgroup %}
+            <div class="col-auto">
+                {% url 'django_spire:metric:domain:statistic:form:group_create' as new_group_url %}
+                <a class="btn btn-sm btn-primary text-white" href="{{ new_group_url }}">
+                    <i class="bi bi-plus-lg"></i>
+                    Add
+                </a>
+            </div>
+        {% endif %}
     </div>
     <div class="card--bordered"></div>
 {% endblock %}

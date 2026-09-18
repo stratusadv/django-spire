@@ -3,9 +3,13 @@
 {% block item_title_col %}{% endblock %}
 
 {% block item_row_content %}
-    <a class="col-12 col-sm-4 mb-2 mb-sm-0">
-        {{ api_access.name }}
-    </a>
+    <div class="col-6 col-sm-4 mb-4 mb-sm-0 text-start">
+        <div class="attribute-label">Name</div>
+        <a class="text-decoration-none"
+           href="{% url 'django_spire:api:page:detail' pk=api_access.pk %}">
+            {{ api_access.name }}
+        </a>
+    </div>
 
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
         <div class="attribute-label">User Access</div>
@@ -43,8 +47,11 @@
 {% endblock %}
 
 {% block item_button %}
-    {% if perms.django_spire_api.delete_apiaccess %}
-        {% url 'django_spire:api:page:delete' pk=api_access.pk as delete_url %}
+    {% if perms.django_spire_api.view_apiaccess %}
+        {% url 'django_spire:api:page:detail' pk=api_access.pk as view_url%}
     {% endif %}
-    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with delete_url=delete_url %}
+    {% if perms.django_spire_api.delete_apiaccess %}
+        {% url 'django_spire:api:form:delete' pk=api_access.pk as delete_url %}
+    {% endif %}
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with delete_url=delete_url view_url=view_url%}
 {% endblock %}

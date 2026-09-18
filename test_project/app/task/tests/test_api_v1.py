@@ -169,7 +169,7 @@ class ListTasksApiTestCase(TaskApiTestCase):
         assert response.status_code == 200
         body = response.json()
         assert body['count'] == 3
-        names = [result['name'] for result in body['results']]
+        names = [result['name'] for result in body['items']]
         assert names == ['Parent Task', 'Child Task', 'Done Task']
 
     def test_list_tasks_excludes_deleted(self) -> None:
@@ -186,7 +186,7 @@ class ListTasksApiTestCase(TaskApiTestCase):
         assert response.status_code == 200
         body = response.json()
         assert body['count'] == 1
-        assert body['results'][0]['name'] == 'Child Task'
+        assert body['items'][0]['name'] == 'Child Task'
 
     def test_list_tasks_status_filter(self) -> None:
         response = self.client.get(
@@ -196,7 +196,7 @@ class ListTasksApiTestCase(TaskApiTestCase):
         assert response.status_code == 200
         body = response.json()
         assert body['count'] == 1
-        assert body['results'][0]['name'] == 'Done Task'
+        assert body['items'][0]['name'] == 'Done Task'
 
     def test_list_tasks_parent_id_filter(self) -> None:
         response = self.client.get(
@@ -206,7 +206,7 @@ class ListTasksApiTestCase(TaskApiTestCase):
         assert response.status_code == 200
         body = response.json()
         assert body['count'] == 1
-        assert body['results'][0]['id'] == self.child_task.id
+        assert body['items'][0]['id'] == self.child_task.id
 
     def test_list_tasks_pagination(self) -> None:
         response = self.client.get(self.list_url(), {'limit': 2, 'offset': 1}, **self.api_extra())
@@ -214,8 +214,8 @@ class ListTasksApiTestCase(TaskApiTestCase):
         assert response.status_code == 200
         body = response.json()
         assert body['count'] == 3
-        assert len(body['results']) == 2
-        assert body['results'][0]['id'] == self.child_task.id
+        assert len(body['items']) == 2
+        assert body['items'][0]['id'] == self.child_task.id
 
 
 class CreateTaskApiTestCase(TaskApiTestCase):

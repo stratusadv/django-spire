@@ -3,11 +3,12 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.activity.mixins import ActivityMixin
+from django_spire.history.utils import soft_delete_queryset
 
 from django_spire.metric.visual import querysets
 from django_spire.metric.visual.choices import (
@@ -83,6 +84,16 @@ class Visual(HistoryModelMixin, ActivityMixin):
 
     def __str__(self) -> str:
         return self.name
+
+    def set_deleted(self) -> None:
+        from django_spire.metric.visual.presentation.models import SlideSection  # noqa: PLC0415
+
+        with transaction.atomic():
+            super().set_deleted()
+            soft_delete_queryset(self.conditions.all())
+            soft_delete_queryset(self.references.all())
+            VisualRegion.objects.filter(visual_id=self.pk, is_deleted=False).update(visual_id=None)
+            SlideSection.objects.filter(visual_id=self.pk, is_deleted=False).update(visual_id=None)
 
     class Meta:
         verbose_name = 'Visual'

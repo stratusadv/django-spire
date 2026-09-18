@@ -1,25 +1,22 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    {{ statistic.group.domain.sub_domain_name }}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body p-2">
+        <span class="fs-5 p-2">{{ statistic.group.domain.sub_domain_name }}</span>
+
         {% if sub_domains %}
             <div class="table-responsive">
                 <table class="table table-light table-hover">
                     <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Key</th>
+                        <th class="fw-medium">Name</th>
+                        <th class="fw-medium">Key</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for sub_domain in sub_domains %}
                         <tr>
                             <td>
-                                <a class='text-decoration-none' href="{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=sub_domain.domain.pk pk=sub_domain.pk %}">
+                                <a class='text-decoration-none'
+                                   href="{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=sub_domain.domain.pk pk=sub_domain.pk %}">
                                     {{ sub_domain.name }}
                                 </a>
                             </td>
@@ -36,4 +33,4 @@
             {% include 'django_spire/item/no_data_item.html' %}
         {% endif %}
     </div>
-{% endblock %}
+</div>

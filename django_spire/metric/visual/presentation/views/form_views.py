@@ -11,13 +11,11 @@ from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-
 from django_spire.metric.visual.presentation import forms, models
 from django_spire.metric.visual.presentation.navigation import PresentationNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-
 
 PRESENTATION_DETAIL_URL = 'django_spire:metric:visual:presentation:page:detail'
 
@@ -45,8 +43,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
         form = DeleteConfirmationForm(data=request.POST, obj=presentation)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=presentation.set_deleted)
+            form.save(user=request.user, delete_func=presentation.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -54,18 +51,20 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
     nav = PresentationNavigation()
     nav.page_title = 'Delete Presentation'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
-    nav.breadcrumbs.add(str(presentation))
+    nav.breadcrumbs.add(
+        name=presentation,
+        view_name='django_spire:metric:visual:presentation:page:detail',
+        view_kwargs={'pk': presentation.pk},
+    )
     nav.breadcrumbs.add('Delete')
+
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {presentation}'
-    context['form_description'] = (
-        f'Are you sure you would like to delete presentation "{presentation}"?'
-    )
+    context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request, 'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html', context
     )
 
 
@@ -87,14 +86,21 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     Glue.form(request, 'presentation_form', form, Glue.Access.DELETE)
 
     nav = PresentationNavigation()
-    nav.page_title = str(presentation._meta.verbose_name.title())
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
-    nav.breadcrumbs.add('Edit' if presentation.pk else 'Create')
+    nav.set_page_title_to_form_action_from_model_instance(presentation)
+
+    if presentation.pk:
+        nav.breadcrumbs.add(
+            name=presentation,
+            view_name='django_spire:metric:visual:presentation:page:detail',
+            view_kwargs={'pk': presentation.pk},
+        )
+
+    nav.breadcrumbs.add('Edit' if presentation.pk else 'New Presentation')
+
     context = nav.as_context()
     context['form'] = form
     context['form_template'] = 'django_spire/metric/visual/presentation/form/form.html'
     context['form_title'] = nav.page_title
-    context['form_description'] = 'Edit' if presentation.pk else 'Create'
 
     return TemplateResponse(
         request, 'django_spire/metric/visual/presentation/page/form_page.html', context
@@ -112,7 +118,7 @@ def update_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def _slide_form_view(
-    request: WSGIRequest, pk: int = 0, presentation_pk: int = 0
+        request: WSGIRequest, pk: int = 0, presentation_pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     slide = get_object_or_null_obj(models.Slide, pk=pk)
 
@@ -127,17 +133,18 @@ def _slide_form_view(
     Glue.form(request, 'slide_form', form, Glue.Access.DELETE)
 
     nav = PresentationNavigation()
-    nav.page_title = 'Edit Slide' if slide.pk else 'Add Slide'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
+    nav.set_page_title_to_form_action_from_model_instance(slide)
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
-    nav.breadcrumbs.add('Edit Slide' if slide.pk else 'Add Slide')
+
+    if slide.pk:
+        nav.breadcrumbs.add(slide, PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
+
+    nav.breadcrumbs.add('Edit' if slide.pk else 'New Slide')
+
     context = nav.as_context()
     context['form'] = form
     context['form_template'] = 'django_spire/metric/visual/presentation/form/slide_form.html'
     context['form_title'] = nav.page_title
-    context['form_description'] = f'Slide for presentation "{presentation}".'
-    context['presentation'] = presentation
-    context['slide'] = slide
 
     return TemplateResponse(
         request, 'django_spire/metric/visual/presentation/page/form_page.html', context
@@ -154,8 +161,7 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
         form = DeleteConfirmationForm(data=request.POST, obj=slide)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=slide.set_deleted)
+            form.save(user=request.user, delete_func=slide.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -163,17 +169,16 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
 
     nav = PresentationNavigation()
     nav.page_title = 'Delete Slide'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
-    nav.breadcrumbs.add(str(slide))
+    nav.breadcrumbs.add(slide, PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {slide}'
-    context['form_description'] = f'Are you sure you would like to delete slide "{slide}"?'
+    context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request, 'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html', context
     )
 
 
@@ -188,7 +193,7 @@ def update_section_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def _section_form_view(
-    request: WSGIRequest, pk: int = 0, slide_pk: int = 0
+        request: WSGIRequest, pk: int = 0, slide_pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     section = get_object_or_null_obj(models.SlideSection, pk=pk)
 
@@ -205,19 +210,19 @@ def _section_form_view(
     Glue.form(request, 'section_form', form, Glue.Access.DELETE)
 
     nav = PresentationNavigation()
-    nav.page_title = 'Edit Section' if section.pk else 'Add Section'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
+    nav.set_page_title_to_form_action_from_model_instance(section)
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
-    nav.breadcrumbs.add(str(slide))
-    nav.breadcrumbs.add('Edit Section' if section.pk else 'Add Section')
+    nav.breadcrumbs.add(str(slide), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
+
+    if section.pk:
+        nav.breadcrumbs.add(str(section.pk), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
+
+    nav.breadcrumbs.add('Edit' if section.pk else 'New Slide Section')
+
     context = nav.as_context()
     context['form'] = form
     context['form_template'] = 'django_spire/metric/visual/presentation/form/section_form.html'
     context['form_title'] = nav.page_title
-    context['form_description'] = f'Section for slide "{slide}".'
-    context['presentation'] = presentation
-    context['slide'] = slide
-    context['section'] = section
     context['row_choices'] = form.fields['row'].choices
     context['col_choices'] = form.fields['col'].choices
     context['occupied_cells'] = _occupied_cells(slide, exclude_pk=section.pk)
@@ -240,8 +245,7 @@ def delete_section_view(request: WSGIRequest, pk: int) -> TemplateResponse | Htt
         form = DeleteConfirmationForm(data=request.POST, obj=section)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                form.save(user=request.user, delete_func=section.set_deleted)
+            form.save(user=request.user, delete_func=section.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -249,15 +253,16 @@ def delete_section_view(request: WSGIRequest, pk: int) -> TemplateResponse | Htt
 
     nav = PresentationNavigation()
     nav.page_title = 'Delete Section'
-    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
-    nav.breadcrumbs.add(str(slide))
+    nav.breadcrumbs.add(str(slide), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
+    nav.breadcrumbs.add(str(section.pk), PRESENTATION_DETAIL_URL, {'pk': presentation.pk})
     nav.breadcrumbs.add('Delete')
+
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {section}'
-    context['form_description'] = f'Are you sure you would like to delete section "{section}"?'
+    context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context
+        request, 'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html', context
     )

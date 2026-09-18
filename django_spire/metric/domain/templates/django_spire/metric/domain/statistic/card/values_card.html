@@ -1,21 +1,17 @@
-{% extends 'django_spire/card/title_card.html' %}
 {% load django_spire_metric_statistic %}
 
-{% block card_title %}
-    {{ statistic.get_interval_display }} Values
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body p-2">
+        <span class="fs-5 p-2">{{ statistic.get_interval_display }} Values</span>
         {% if values %}
             <div class="table-responsive">
                 <table class="table table-light table-hover">
                     <thead>
                     <tr>
-                        <th>Reference</th>
-                        <th>{{ statistic.group.domain.sub_domain_name }}</th>
-                        <th>Timestamp</th>
-                        <th class="text-end">Value</th>
+                        <th class="fw-medium">Reference</th>
+                        <th class="fw-medium">{{ statistic.group.domain.sub_domain_name }}</th>
+                        <th class="fw-medium">Timestamp</th>
+                        <th class="text-end fw-medium">Value</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -32,7 +28,9 @@
                 </table>
             </div>
         {% else %}
-            {% include 'django_spire/item/no_data_item.html' %}
+            <div class="ps-2">
+                {% include 'django_spire/item/no_data_item.html' %}
+            </div>
         {% endif %}
     </div>
-{% endblock %}
+</div>

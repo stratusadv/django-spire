@@ -9,6 +9,7 @@ from django_spire.metric.domain import querysets
 from django_spire.metric.domain.key_utils import unique_key_from_name
 from django_spire.metric.domain.services.service import DomainService, SubDomainService
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
+from django_spire.metric.domain.statistic.utils import detach_visuals_from_statistics
 
 __all__ = ['Domain', 'Statistic', 'StatisticGroup', 'StatisticValue', 'SubDomain']
 
@@ -31,8 +32,14 @@ class Domain(HistoryModelMixin, ActivityMixin):
             for subdomain in self.subdomains.all():
                 subdomain.set_deleted()
 
+            statistic_ids = list(
+                Statistic.objects.filter(group__domain_id=self.pk, is_deleted=False).values_list(
+                    'pk', flat=True
+                )
+            )
             soft_delete_queryset(self.statistic_groups.all())
             soft_delete_queryset(Statistic.objects.filter(group__domain_id=self.pk))
+            detach_visuals_from_statistics(statistic_ids)
 
     class Meta:
         verbose_name = 'Domain'

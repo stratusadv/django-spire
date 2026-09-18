@@ -189,6 +189,10 @@ class CeleryTask(models.Model):
 
         return None
 
+    @property
+    def state_verbose(self) -> str:
+        return self.state.replace('_', ' ').title()
+
     class Meta:
         verbose_name = 'Celery Task'
         verbose_name_plural = 'Celery Tasks'

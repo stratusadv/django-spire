@@ -1,31 +1,29 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    Slides (2 Rows Max is Recommended)
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_metric_visual_presentation.add_slide %}
-        {% url 'django_spire:metric:visual:presentation:form:create_slide' presentation_pk=presentation.pk as add_slide_url %}
-        <a class="btn btn-sm btn-primary" href="{{ add_slide_url }}">
-            <i class="bi bi-plus"></i>
-            Add Slide
-        </a>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body">
-        {% if slides %}
-            <div class="row g-3">
-                {% for item in slides %}
-                    <div class="col-12">
-                        {% include 'django_spire/metric/visual/presentation/render/slide.html' with slide=item.slide sections=item.sections grid_columns=item.grid_columns %}
-                    </div>
-                {% endfor %}
+        <div class="row">
+            <div class="col fs-5">
+                Slides (2 Rows Max is Recommended)
             </div>
-        {% else %}
-            {% include 'django_spire/item/no_data_item.html' %}
-        {% endif %}
+            {% if perms.django_spire_metric_visual_presentation.add_slide %}
+                <div class="col-auto">
+                    {% url 'django_spire:metric:visual:presentation:form:create_slide' presentation_pk=presentation.pk as add_slide_url %}
+                    <a class="btn btn-sm btn-primary text-white" href="{{ add_slide_url }}">
+                        <i class="bi bi-plus-lg"></i>
+                        <span class="d-none d-md-inline">Add Slide</span>
+                    </a>
+                </div>
+            {% endif %}
+            {% if slides %}
+                <div class="row g-2 ps-2">
+                    {% for item in slides %}
+                        <div class="col-12">
+                            {% include 'django_spire/metric/visual/presentation/render/slide.html' with slide=item.slide sections=item.sections grid_columns=item.grid_columns %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {% include 'django_spire/item/no_data_item.html' %}
+            {% endif %}
+        </div>
     </div>
-{% endblock %}
+</div>

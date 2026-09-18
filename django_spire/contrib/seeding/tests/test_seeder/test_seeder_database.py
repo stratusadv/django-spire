@@ -1,10 +1,13 @@
 import json
+from unittest.mock import patch
+
 import pytest
 from django.db import models
 from django.test import TestCase
 
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.seeding import Seeder
+from django_spire.contrib.seeding import settings
 from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeding.seed.seed import Seed
@@ -131,6 +134,23 @@ class TestSeederSeedDatabase(TestCase):
     def test_seed_database_with_override_count(self):
         seeder = self._auth_user_seeder(2)
         assert seeder.seed_database(count=4).count() == 4
+
+    def test_seed_database_count_scaled_by_multiplier(self):
+        with patch.object(settings, 'SEEDING_MULTIPLIER', 2.0):
+            seeder = self._auth_user_seeder(2)
+            assert seeder.seed_database().count() == 4
+
+    def test_seed_database_ignore_multiplier_keeps_count(self):
+        with patch.object(settings, 'SEEDING_MULTIPLIER', 5.0):
+
+            class AuthUserSeeder(Seeder):
+                model_class = AuthUser
+                cache_enabled = False
+                ignore_multiplier = True
+                fields_seeds = {'username': Seeder.fake.uuid4()}
+
+            seeder = AuthUserSeeder(count=2, verbose=False)
+            assert seeder.seed_database().count() == 2
 
     def test_seed_database_does_not_regenerate_existing_seeds(self):
         seeder = self._auth_user_seeder(2)

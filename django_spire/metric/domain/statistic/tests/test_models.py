@@ -20,6 +20,7 @@ from django_spire.metric.domain.statistic.tests.factories import (
     create_test_statistic_group,
     create_test_subdomain,
 )
+from django_spire.metric.visual.tests.factories import create_test_visual
 
 
 class StatisticGroupModelTestCase(BaseTestCase):
@@ -63,6 +64,20 @@ class StatisticGroupModelTestCase(BaseTestCase):
         assert statistic.is_deleted is True
         assert statistic.history_events.filter(event=HistoryEventChoices.DELETED).exists()
 
+    def test_set_deleted_detaches_visuals_from_statistics(self):
+        statistic = create_test_statistic(group=self.group, name='cascade_visual_statistic')
+        visual = create_test_visual(statistic=statistic)
+
+        self.group.set_deleted()
+
+        self.group.refresh_from_db()
+        statistic.refresh_from_db()
+        visual.refresh_from_db()
+
+        assert self.group.is_deleted is True
+        assert statistic.is_deleted is True
+        assert visual.statistic_id is None
+
 
 class StatisticModelTestCase(BaseTestCase):
     def setUp(self) -> None:
@@ -105,6 +120,21 @@ class StatisticModelTestCase(BaseTestCase):
     def test_values_relation(self):
         self.statistic.services.processor.add_value(reference='/home/', sub_domain=self.sub_domain)
         assert self.statistic.values.count() == 1
+
+    def test_set_deleted_detaches_visuals(self):
+        visual = create_test_visual(statistic=self.statistic)
+        other_statistic = create_test_statistic(group=self.group, name='other_statistic')
+        other_visual = create_test_visual(statistic=other_statistic, name='other_visual')
+
+        self.statistic.set_deleted()
+
+        self.statistic.refresh_from_db()
+        visual.refresh_from_db()
+        other_visual.refresh_from_db()
+
+        assert self.statistic.is_deleted is True
+        assert visual.statistic_id is None
+        assert other_visual.statistic_id == other_statistic.pk
 
 
 class StatisticValueModelTestCase(BaseTestCase):

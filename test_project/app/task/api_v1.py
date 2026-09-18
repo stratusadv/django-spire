@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 from django.http import Http404, HttpRequest
-from ninja import ModelSchema, Query, Router, Schema
+from ninja import ModelSchema, Router, Schema
 from ninja.errors import AuthorizationError
 from ninja.pagination import paginate
 
@@ -61,11 +60,6 @@ class TaskOut(ModelSchema):
         ]
 
 
-class TaskListOut(Schema):
-    count: int
-    results: list[TaskOut]
-
-
 class TaskUserIn(Schema):
     user_id: int
     role: TaskUserRoleChoices = TaskUserRoleChoices.LEADER
@@ -117,19 +111,19 @@ def list_tasks(
     search: str | None = None,
     status: TaskStatusChoices | None = None,
     parent_id: int | None = None,
-) -> TaskListOut:
-    tasks = Task.objects.filter(is_deleted=False)
+) -> QuerySet:
+    queryset = Task.objects.filter(is_deleted=False)
 
     if search:
-        tasks = tasks.search(search)
+        queryset = queryset.search(search)
 
     if status:
-        tasks = tasks.filter(status=status)
+        queryset = queryset.filter(status=status)
 
     if parent_id is not None:
-        tasks = tasks.filter(parent_id=parent_id)
+        queryset = queryset.filter(parent_id=parent_id)
 
-    return tasks
+    return queryset.order_by('id')
 
 
 @router.post('', auth=add_auth, response=TaskOut, by_alias=True)

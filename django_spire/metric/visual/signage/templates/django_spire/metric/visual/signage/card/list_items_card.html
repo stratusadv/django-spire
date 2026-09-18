@@ -1,21 +1,5 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    Signages
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_metric_visual_signage.add_signage %}
-        {% url 'django_spire:metric:visual:signage:form:create' as new_signage_url %}
-        <a class="btn btn-sm btn-primary" href="{{ new_signage_url }}">
-            <i class="bi bi-plus"></i>
-            Add
-        </a>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body">
         {% include 'django_spire/metric/visual/signage/scroll/scroll.html' %}
     </div>
-{% endblock %}
+</div>

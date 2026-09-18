@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.0.3 - September 16, 2026
+
+### Changes
+
+- The search palette (Ctrl/Cmd-K) now covers the metric and API apps: domains, sub-domains, statistic groups, statistics, visuals, presentations, signages, and API access keys, each with permission-gated create commands.
+- API access keys now have a detail page (user access, base permission, key hint, and created date) and the API access list page includes a recent activity log.
+- Seeding now scales requested seed counts by the `SEEDING_MULTIPLIER` environment variable (default `1.0`, configured in `django_spire.contrib.seeding.seeding_settings`), with an `ignore_multiplier` flag on `Seeder` to opt a seeder out and always seed at the exact requested count.
+
+### Fixes
+
+- Fixed API keys with `has_super_access` being rejected by the base and user permission checks in `ApiKeySecurity.authenticate`.
+- Widened the Celery task `state` field to 32 characters (previously 16) so longer states such as `RECEIVED` save correctly, with over-long states truncated with an ellipsis and states rendered as human-readable labels on the task page.
+- Fixed the navigation-link click prefetch not sending the `X-Requested-With` header, which broke the click-tracking feature.
+- Fixed submit button labels becoming unreadable on the primary color in dark mode (buttons now force white text).
+- Deleting a domain, statistic group, or statistic now detaches its visuals (their statistic reference is cleared) instead of leaving them pointing at deleted statistics; deleting a visual now soft-deletes its conditions and references and detaches its regions and slide sections.
+- Fixed visual and slide-section forms listing soft-deleted statistics/visuals as selectable options.
+- Fixed the signage form allowing a slide display duration of zero seconds.
+
 ## v1.0.2 - September 9, 2026
 
 ### Fixes

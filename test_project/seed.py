@@ -9,6 +9,8 @@ os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
 
 application = get_wsgi_application()
 
+# Seeding goes below
+
 from django_spire.auth.user.tests.factories import create_super_user  # noqa
 
 create_super_user()

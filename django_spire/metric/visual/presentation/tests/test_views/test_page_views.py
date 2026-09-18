@@ -20,7 +20,7 @@ class PresentationPageViewsTestCase(BaseTestCase):
         response = self.client.get(reverse('django_spire:metric:visual:presentation:page:list'))
 
         assert response.status_code == 200
-        assert self.presentation in response.context_data['presentations']
+        assert 'Glue.querySet.presentations' in response.content.decode()
 
     def test_detail_view(self):
         slide = create_test_slide(self.presentation)

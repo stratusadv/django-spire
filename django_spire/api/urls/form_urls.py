@@ -4,7 +4,9 @@ from django.urls import path
 
 from django_spire.api.views import form_views
 
-
 app_name = 'form'
 
-urlpatterns = [path('create/', form_views.access_create_form_view, name='create')]
+urlpatterns = [
+    path('create/', form_views.access_create_form_view, name='create'),
+    path('<int:pk>/delete/', form_views.access_delete_view, name='delete'),
+]

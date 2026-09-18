@@ -1,32 +1,30 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}
-    Keys
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_api.add_apiaccess %}
-        <div class="col text-end mb-1">
-            {% url 'django_spire:api_v1:openapi-view' as api_docs_url %}
-            <a class="btn btn-sm btn-primary" href="{{ api_docs_url }}" target="_blank">
-                <i class="bi bi-share-fill"></i>
-                Api Docs
-            </a>
-            {% url 'django_spire:api:form:create' as create_url %}
-            <a class="btn btn-sm btn-primary" href="{{ create_url }}">
-                <i class="bi bi-plus"></i>
-                Add Key
-            </a>
-        </div>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
+<div class="card">
     <div class="card-body">
+        <div class="row">
+            <div class="col fs-5">
+                Keys
+            </div>
+            {% if perms.django_spire_api.add_apiaccess %}
+                <div class="col-auto text-end mb-1">
+                    {% url 'django_spire:api_v1:openapi-view' as api_docs_url %}
+                    <a class="btn btn-sm btn-primary text-white" href="{{ api_docs_url }}" target="_blank">
+                        <i class="bi bi-share-fill"></i>
+                        <span class="d-none d-md-inline">Add Docs</span>
+                    </a>
+                    {% url 'django_spire:api:form:create' as create_url %}
+                    <a class="btn btn-sm btn-primary text-white" href="{{ create_url }}">
+                        <i class="bi bi-plus-lg"></i>
+                        <span class="d-none d-md-inline">Add Key</span>
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+
         {% for api_access in api_accesses %}
             {% include 'django_spire/api/item/access_item.html' %}
-        {% empty %}
+            {% empty %}
             {% include 'django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
-{% endblock %}
+</div>
