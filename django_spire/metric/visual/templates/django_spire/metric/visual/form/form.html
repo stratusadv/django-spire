@@ -3,7 +3,14 @@
 {% block glue_form_unique_name %}visual_form{% endblock %}
 
 {% block glue_form_content %}
-    <div class="row g-3">
+    <div class="row g-3"
+        x-data="{
+            async init() {
+                const statistic_choices = await glue_form.statistic_choices()
+                glue_form.$fields.statistic.overrideChoices(statistic_choices)
+            }
+        }"
+    >
         <div class="col-12">
             {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.name' %}
         </div>

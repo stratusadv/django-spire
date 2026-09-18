@@ -222,7 +222,7 @@ class SubDomainFormViewTestCase(BaseTestCase):
         form.save_model_obj(request)
 
         subdomain = SubDomain.objects.get(name='new subdomain')
-        assert subdomain.key == 'new-subdomain'
+        assert subdomain.key == 'test_domain-new-subdomain'
 
     def test_create_save_model_obj_duplicate_key_is_invalid(self):
         existing = SubDomain.objects.create(
