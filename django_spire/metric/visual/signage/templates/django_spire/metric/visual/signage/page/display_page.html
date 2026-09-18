@@ -2,9 +2,12 @@
 
 {% block base_head_additional_css %}
     <style>
+        html {
+            font-size: calc(100vh / 55);
+        }
         body {
             overflow: hidden;
-            height: 1076px;
+            height: 95vh;
             {% if request.GET.padding %}
                 padding: {{ request.GET.padding }};
             {% endif %}
@@ -15,7 +18,7 @@
             grid-template-columns: repeat({{ grid_columns }}, 1fr);
             grid-auto-rows: minmax(0, 1fr);
             gap: 1rem;
-            height: 900px;
+            height: calc(98vh - 5.25rem);
         }
 
         .kiosk-section {

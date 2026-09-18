@@ -13,5 +13,5 @@ urlpatterns = [
     path('test_display_resolution/<uuid:key>/', page_views.test_display_resolution_view,
          name='test_display_resolution'),
     path('test_display_resolution/<uuid:key>/<int:width>/<int:height>/', page_views.test_display_resolution_view,
-         name='test_display_resolution'),
+         name='test_display_resolution_with_size'),
 ]

@@ -10,21 +10,28 @@
 
                     <div class="col-12 col-md-4">
                         <div class="attribute-label">Test Display Resolution</div>
-                        {% url 'django_spire:metric:visual:signage:page:test_display_resolution' key=signage.key as test_display_resolution_url %}
-                        <a class="me-2 text-decoration-none" href="{{ test_display_resolution_url }}?width=640&height=480" target="_blank">
+
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="640" height="480" %}"
+                            target="_blank">
                             480p
                         </a>
 
-                        {% url 'django_spire:metric:visual:signage:page:test_display_resolution' key=signage.key as test_display_resolution_url %}
-                        <a class="me-2 text-decoration-none" href="{{ test_display_resolution_url }}?width=1280&height=720" target="_blank">
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="1280" height="720" %}"
+                            target="_blank">
                             720p
                         </a>
 
-                        <a class="me-2 text-decoration-none" href="{{ test_display_resolution_url }}?width=1920&height=1080" target="_blank">
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="1920" height="1080" %}"
+                            target="_blank">
                             1080p
                         </a>
 
-                        <a class="me-2 text-decoration-none" href="{{ test_display_resolution_url }}?width=3840&height=2160" target="_blank">
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="3840" height="2160" %}"
+                            target="_blank">
                             2160p
                         </a>
                     </div>

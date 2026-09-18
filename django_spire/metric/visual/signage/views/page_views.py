@@ -75,6 +75,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request, context=context, template='django_spire/metric/visual/signage/page/list_page.html'
     )
 
+
 @xframe_options_exempt
 def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
     signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
@@ -96,8 +97,8 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
         'slide_count': len(slides),
         'slide_timer_seconds': signage.slide_display_seconds,
         'grid_columns': SLIDE_GRID_COLUMNS,
-        'indicator_size': '60cqh',
-        'indicator_icon_size': '33cqh',
+        'indicator_size': '55vh',
+        'indicator_icon_size': '35vh',
         'chart_update_interval': 15,
         **nav.as_context(),
     }
@@ -108,13 +109,16 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
         template='django_spire/metric/visual/signage/page/display_page.html',
     )
 
+
 @xframe_options_exempt
-def test_display_resolution_view(request: WSGIRequest, key: str, width: int=1280, height: int=720) -> TemplateResponse:
+def test_display_resolution_view(request: WSGIRequest, key: str, width: int = 1280, height: int = 720) -> TemplateResponse:
     signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
 
-    context = {'signage': signage}
-    context['width'] = width
-    context['height'] = height
+    context = {
+        'signage': signage,
+        'width': width,
+        'height': height
+    }
 
     return TemplateResponse(
         request,
