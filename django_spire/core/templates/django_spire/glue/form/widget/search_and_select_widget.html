@@ -89,7 +89,7 @@
                 type="text"
                 class="form-control"
                 :class="{'is-invalid': field.hasErrors}"
-                :value="field.selectedChoice?.label || ''"
+                :value="field.selectedChoice ? field.choiceLabelText(field.selectedChoice) : ''"
                 @focus="openDropdown()"
                 @click="openDropdown()"
                 readonly
@@ -125,7 +125,7 @@
                         class="py-2 px-3 list-group-item cursor-pointer"
                         @click="selectItem(choice)"
                     >
-                        <div x-text="choice.label"></div>
+                        <div x-html="field.choiceLabelHtml(choice)"></div>
                     </div>
                 </template>
                 <template x-if="!field.isSearchingChoices && filteredChoices.length === 0 && searchQuery.length > 0">
