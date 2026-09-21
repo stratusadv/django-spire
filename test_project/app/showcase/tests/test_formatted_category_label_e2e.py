@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from playwright.sync_api import Page
 
 
-pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
+pytestmark = [pytest.mark.e2e, pytest.mark.demo, pytest.mark.playwright]
 
 
 def test_formatted_category_label_html_demo(
