@@ -65,7 +65,7 @@ class SubDomainModelTestCase(BaseTestCase):
 
     def test_key_slugs_from_name_on_create(self):
         subdomain = create_test_subdomain(domain=self.domain, name='Website Traffic')
-        assert subdomain.key == 'test_domain-website-traffic'
+        assert subdomain.key == 'test-domain-website-traffic'
 
     def test_key_not_regenerated_on_update(self):
         key = self.subdomain.key
@@ -78,7 +78,7 @@ class SubDomainModelTestCase(BaseTestCase):
     def test_key_collision_appends_suffix(self):
         create_test_subdomain(domain=self.domain, name='Clients')
         second = create_test_subdomain(domain=self.domain, name='Clients')
-        assert second.key == 'test_domain-clients-2'
+        assert second.key == 'test-domain-clients-2'
 
     def test_key_is_unique(self):
         duplicate = SubDomain(domain=self.domain, name='duplicate', key=self.subdomain.key)

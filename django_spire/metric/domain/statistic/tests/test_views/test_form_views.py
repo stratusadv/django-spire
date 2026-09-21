@@ -209,7 +209,7 @@ class StatisticFormViewTestCase(BaseTestCase):
         form.save_model_obj(RequestFactory().get('/'))
 
         statistic = Statistic.objects.get(name='new statistic')
-        assert statistic.key == 'test_statistic_group-new-statistic'
+        assert statistic.key == 'test-statistic-group-new-statistic'
 
     def test_create_save_model_obj_duplicate_key_is_invalid(self):
         existing = Statistic.objects.create(
