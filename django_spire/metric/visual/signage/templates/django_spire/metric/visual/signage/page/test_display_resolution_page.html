@@ -8,16 +8,16 @@
     <div class="p-4 text-center w-100">
         <h1 class="mb-4 text-primary">"{{ signage.name }}" Signage Testing</h1>
 
-        <h3>No Scale ({{ width }} x {{ height }})</h3>
+        <h3>No Zoom ({{ width }} x {{ height }})</h3>
         <iframe class="border border-2 border-dark mb-5 shadow" src="{% url 'django_spire:metric:visual:signage:page:display' key=signage.key %}"
                 width="{{ width }}" height="{{ height }}"></iframe>
 
-        <h3>Medium Scale ({{ width }} x {{ height }})</h3>
-        <iframe class="border border-2 border-dark mb-5 shadow" src="{% url 'django_spire:metric:visual:signage:page:display' key=signage.key %}?scale=medium"
+        <h3>Medium Zoom ({{ width }} x {{ height }})</h3>
+        <iframe class="border border-2 border-dark mb-5 shadow" src="{% url 'django_spire:metric:visual:signage:page:display' key=signage.key %}?zoom=medium"
                 width="{{ width }}" height="{{ height }}"></iframe>
 
-        <h3>High Scale ({{ width }} x {{ height }})</h3>
-        <iframe class="border border-2 border-dark mb-5 shadow" src="{% url 'django_spire:metric:visual:signage:page:display' key=signage.key %}?scale=high"
+        <h3>High Zoom ({{ width }} x {{ height }})</h3>
+        <iframe class="border border-2 border-dark mb-5 shadow" src="{% url 'django_spire:metric:visual:signage:page:display' key=signage.key %}?zoom=high"
                 width="{{ width }}" height="{{ height }}"></iframe>
     </div>
 {% endblock %}

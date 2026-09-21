@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.4 - September 21, 2026
+
+### Fixes
+
+- Fixed the `Signage` displays to be more compatible with a wider variety of physical displays.
+
+### Changes
+
+- `Statistic` now includes the `StatisticGroup` when being referenced or generating a key for accessing via internal 
+  and external API's.
+
 ## v1.0.3 - September 16, 2026
 
 ### Changes
