@@ -2,15 +2,24 @@
 
 {% block base_head_additional_css %}
     <style>
+        {% if request.GET.scale == 'high' %}
+            :root { --kiosk-scale: 2; }
+        {% elif request.GET.scale == 'medium' %}
+            :root { --kiosk-scale: 1.5; }
+        {% else %}
+            :root { --kiosk-scale: 1; }
+        {% endif %}
+
         html {
-            font-size: calc(100vh / 55);
+            font-size: calc(100vh / (55 * var(--kiosk-scale)));
         }
+
         body {
+            --kiosk-padding: {{ request.GET.padding|default:'0px' }};
             overflow: hidden;
-            height: 95vh;
-            {% if request.GET.padding %}
-                padding: {{ request.GET.padding }};
-            {% endif %}
+            height: 100vh;
+            box-sizing: border-box;
+            padding: var(--kiosk-padding);
         }
 
         .kiosk-grid {
@@ -18,33 +27,105 @@
             grid-template-columns: repeat({{ grid_columns }}, 1fr);
             grid-auto-rows: minmax(0, 1fr);
             gap: 1rem;
-            height: calc(98vh - 5.25rem);
+            height: calc(100vh / var(--kiosk-scale) - 8rem - var(--kiosk-padding) * 2);
         }
 
         .kiosk-section {
             container-type: size;
         }
+
+        .kiosk-section .card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kiosk-section .card [data-chart-glue-name] {
+            min-height: 0 !important;
+        }
     </style>
+{% endblock %}
+
+{% block base_head_additional_js %}
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const scale = parseFloat(getComputedStyle(root).getPropertyValue('--kiosk-scale')) || 1;
+            if (window.innerHeight / scale < 240) {
+                root.style.setProperty('--kiosk-scale', '1');
+            }
+
+            const attach = () => {
+                if (!window.echarts || echarts._kioskThemePatched) return;
+                echarts._kioskThemePatched = true;
+                const fontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+                const theme = {
+                    textStyle: { fontSize: fontSize },
+                    legend: { textStyle: { fontSize: fontSize } },
+                    xAxis: { axisLabel: { fontSize: fontSize } },
+                    yAxis: { axisLabel: { fontSize: fontSize } },
+                    tooltip: { textStyle: { fontSize: fontSize } },
+                };
+                const originalInit = echarts.init;
+                echarts.init = (el, themeOverride, opts) => {
+                    const chart = originalInit(el, themeOverride || theme, opts);
+                    const originalSetOption = chart.setOption.bind(chart);
+                    chart.setOption = (option, setOpts) => {
+                        const fontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+                        option = { ...(option || {}) };
+
+                        option.textStyle = { ...(option.textStyle || {}), fontSize: fontSize };
+
+                        if (option.legend) {
+                            option.legend = {
+                                ...option.legend,
+                                bottom: 8,
+                                formatter: (name) => (name.length > 28 ? '…' + name.slice(-27) : name),
+                                textStyle: { ...(option.legend.textStyle || {}), fontSize: fontSize },
+                            };
+                        }
+                        for (const axis of [option.xAxis, option.yAxis]) {
+                            if (Array.isArray(axis)) {
+                                axis.forEach((a) => (a.axisLabel = { ...(a.axisLabel || {}), fontSize: fontSize }));
+                            } else if (axis) {
+                                axis.axisLabel = { ...(axis.axisLabel || {}), fontSize: fontSize };
+                            }
+                        }
+                        if (option.xAxis || option.yAxis) {
+                            option.grid = {
+                                ...(option.grid || {}),
+                                left: fontSize * 2 + 10,
+                                right: fontSize,
+                                top: fontSize,
+                                bottom: fontSize * 3 + 16,
+                            };
+                        }
+                        for (const series of option.series || []) {
+                            if (series.type === 'pie') {
+                                series.label = { ...(series.label || {}), show: false };
+                            }
+                        }
+
+                        return originalSetOption(option, setOpts);
+                    };
+                    return chart;
+                };
+            };
+            const echartsTag = document.querySelector('script[src*="echarts"]');
+            if (window.echarts) {
+                attach();
+            } else if (echartsTag) {
+                echartsTag.addEventListener('load', attach);
+            }
+        })();
+    </script>
 {% endblock %}
 
 {% block base_body_class %}bg-primary{% endblock %}
 
 {% block base_body %}
-    {% if request.GET.scale == 'high' %}
-        <div style=" transform-origin: top left; transform: scale(1.98, 1.93); width: 50%; height: 50%; ">
-            <div class="row">
-                <div class="col m-0 mt-1 ms-2 ps-3">
-                    {{ block.super }}
-                </div>
-            </div>
-        </div>
-    {% elif request.GET.scale == 'medium' %}
-        <div style=" transform-origin: top left; transform: scale(1.5, 1.43); width: 66.4%; height: 66.4%; ">
-            <div class="row">
-                <div class="col m-0 ps-3">
-                    {{ block.super }}
-                </div>
-            </div>
+    {% if request.GET.scale %}
+        <div style="transform-origin: top left; transform: scale(var(--kiosk-scale), var(--kiosk-scale)); width: calc(100% / var(--kiosk-scale));">
+            {{ block.super }}
         </div>
     {% else %}
         {{ block.super }}
@@ -53,46 +134,46 @@
 
 {% block page_content %}
     <div
-            class="container-fluid py-3"
-            x-data="{
-                index: 0,
-                count: {{ slide_count }},
-                delay: {{ slide_timer_seconds }} * 1000,
-                init() {
-                    if (this.count > 1) {
-                        this.rotation = setInterval(() => {
-                            this.next_slide()
-                        }, this.delay);
-                    }
-                    document.addEventListener('keydown', (event) => {
-                        if (event.key === 'ArrowLeft') {
-                            this.previous_slide()
-                            this.reset_timer()
-                        }
-                        if (event.key === 'ArrowRight') {
-                            this.next_slide()
-                            this.reset_timer()
-                        }
-                    })
-                },
-                reset_timer() {
-                    clearInterval(this.rotation)
-                    if (this.count > 1) {
-                        this.rotation = setInterval(() => {
-                            this.next_slide()
-                        }, this.delay)
-                    }
-                },
-                next_slide() {
-                    this.index = (this.index + 1) % this.count
-                },
-                previous_slide() {
-                    this.index = (this.index - 1)
-                    if (this.index < 0) {
-                        this.index = this.count - 1
-                    }
+        class="container-fluid py-3"
+        x-data="{
+            index: 0,
+            count: {{ slide_count }},
+            delay: {{ slide_timer_seconds }} * 1000,
+            init() {
+                if (this.count > 1) {
+                    this.rotation = setInterval(() => {
+                        this.next_slide()
+                    }, this.delay);
                 }
-            }"
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'ArrowLeft') {
+                        this.previous_slide()
+                        this.reset_timer()
+                    }
+                    if (event.key === 'ArrowRight') {
+                        this.next_slide()
+                        this.reset_timer()
+                    }
+                })
+            },
+            reset_timer() {
+                clearInterval(this.rotation)
+                if (this.count > 1) {
+                    this.rotation = setInterval(() => {
+                        this.next_slide()
+                    }, this.delay)
+                }
+            },
+            next_slide() {
+                this.index = (this.index + 1) % this.count
+            },
+            previous_slide() {
+                this.index = (this.index - 1)
+                if (this.index < 0) {
+                    this.index = this.count - 1
+                }
+            }
+        }"
     >
 
         {% if slides %}

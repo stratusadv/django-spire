@@ -97,8 +97,8 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
         'slide_count': len(slides),
         'slide_timer_seconds': signage.slide_display_seconds,
         'grid_columns': SLIDE_GRID_COLUMNS,
-        'indicator_size': '55vh',
-        'indicator_icon_size': '35vh',
+        'indicator_size': '60cqh',
+        'indicator_icon_size': '33cqh',
         'chart_update_interval': 15,
         **nav.as_context(),
     }
