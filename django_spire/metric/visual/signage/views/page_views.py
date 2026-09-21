@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django_glue import Glue
 
 from django_spire.history.activity.models import Activity
@@ -75,6 +76,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
+@xframe_options_exempt
 def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
     signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
 
@@ -105,4 +107,21 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
         request,
         context=context,
         template='django_spire/metric/visual/signage/page/display_page.html',
+    )
+
+
+@xframe_options_exempt
+def test_display_resolution_view(request: WSGIRequest, key: str, width: int = 1280, height: int = 720) -> TemplateResponse:
+    signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
+
+    context = {
+        'signage': signage,
+        'width': width,
+        'height': height
+    }
+
+    return TemplateResponse(
+        request,
+        context=context,
+        template='django_spire/metric/visual/signage/page/test_display_resolution_page.html',
     )

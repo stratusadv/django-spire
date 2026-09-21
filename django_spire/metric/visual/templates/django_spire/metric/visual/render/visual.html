@@ -82,16 +82,14 @@
             </div>
 
             {% if visual.statistic %}
-                <div class="mt-5 text-center">
+                <div class="mt-6 text-center">
                     <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
                           style="width: {{ indicator_size|default:'13.0rem' }}; height: {{ indicator_size|default:'13.0rem' }}; background-color: {{ current_condition.color }};">
                         <i class="bi {{ current_condition.icon }} text-white"
                            style="font-size: {{ indicator_icon_size|default:'7rem' }};"></i>
                     </span>
                 </div>
-                <div class="mt-6 text-center">
-
-
+                <div class="mt-5 text-center">
                     {% if current_condition %}
                         <span class="badge" style="background-color: {{ current_condition.color }};">
                             {{ current_condition.get_state_display }}

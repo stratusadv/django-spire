@@ -17,11 +17,6 @@ if TYPE_CHECKING:
 
 
 class VisualModelForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.fields['statistic'].queryset = domain_models.Statistic.objects.not_deleted()
-
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -38,6 +33,15 @@ class VisualModelForm(forms.ModelForm):
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+    @Glue.attr(required_access=Glue.Access.CHANGE, takes_client_state=True)
+    def statistic_choices(self) -> list[dict]:
+        statistics = domain_models.Statistic.objects.not_deleted().select_related('group').order_by('group__name')
+
+        return [
+            {'value': statistic.id, 'label': f"{statistic.group.name} > {statistic.name}"}
+            for statistic in statistics
+        ]
 
     class Meta:
         model = models.Visual

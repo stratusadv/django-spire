@@ -76,8 +76,10 @@ class SignagePageViewsTestCase(BaseTestCase):
         assert response.context_data['slide_timer_seconds'] == 30
         content = response.content.decode()
         assert self.signage.name in content
+        assert ':root { --kiosk-scale: 1; }' in content
+        assert 'font-size: calc(100vh / (55 * var(--kiosk-scale)))' in content
         assert 'grid-auto-rows: minmax(0, 1fr)' in content
-        assert 'height: 900px' in content
+        assert 'height: calc(100vh / var(--kiosk-scale)' in content
         assert 'container-type: size' in content
         assert '60cqh' in content
 
@@ -130,3 +132,15 @@ class SignagePageViewsTestCase(BaseTestCase):
         content = response.content.decode()
         assert 'data-chart-update-interval="15"' in content
         assert '_update_interval: 15' in content
+
+    def test_display_view_allows_framing(self):
+        create_test_signage_links(self.signage, count=1)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:page:display', kwargs={'key': self.signage.key}
+            )
+        )
+
+        assert response.status_code == 200
+        assert 'X-Frame-Options' not in response
