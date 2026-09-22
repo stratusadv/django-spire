@@ -3,43 +3,93 @@
         <div class="row">
             <div class="col">
                 <div class="row g-3">
-                    <div class="col-12 col-md-8">
+                    <div class="col-12 col-md-4">
                         <div class="attribute-label">Display Title</div>
                         <div>{{ signage.services.transformation.display_title }}</div>
                     </div>
 
                     <div class="col-12 col-md-4">
+                        <div class="attribute-label">Test Display Resolution</div>
+
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="640" height="480" %}"
+                            target="_blank">
+                            480p
+                        </a>
+
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="1280" height="720" %}"
+                            target="_blank">
+                            720p
+                        </a>
+
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="1920" height="1080" %}"
+                            target="_blank">
+                            1080p
+                        </a>
+
+                        <a class="me-2 text-decoration-none"
+                            href="{% url 'django_spire:metric:visual:signage:page:test_display_resolution_with_size' key=signage.key width="3840" height="2160" %}"
+                            target="_blank">
+                            2160p
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-4">
                         <div class="attribute-label">Slide Display Seconds</div>
-                        <div>{{ signage.slide_display_seconds }} second{{ signage.slide_display_seconds|pluralize }}</div>
+                        <div>{{ signage.slide_display_seconds }}
+                            second{{ signage.slide_display_seconds|pluralize }}</div>
                     </div>
 
                     {% url 'django_spire:metric:visual:signage:page:display' key=signage.key as signage_display_url %}
 
                     <div class="col-6 col-lg-4">
-                        <div class="attribute-label">Regular Scale (720p or Lower)</div>
+                        <div class="attribute-label">Regular Zoom (720p or Lower)</div>
                         {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url as display_url %}
                             <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
                                 Playback Link
                             </a>
                             {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
                         {% endwith %}
-                    </div>
-
-                    <div class="col-6 col-lg-4">
-                        <div class="attribute-label">Medium Scale (1080p to 1440p)</div>
-                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=medium" as display_url %}
+                        <br>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?padding=2rem" as display_url %}
                             <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
-                                Playback Link
+                                Padded Playback Link
                             </a>
                             {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
                         {% endwith %}
                     </div>
 
                     <div class="col-6 col-lg-4">
-                        <div class="attribute-label">High Scale (2160p or Higher)</div>
-                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=high" as display_url %}
+                        <div class="attribute-label">Medium Zoom (1080p to 1440p)</div>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?zoom=medium" as display_url %}
                             <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
                                 Playback Link
+                            </a>
+                            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                        {% endwith %}
+                        <br>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?zoom=medium&padding=2rem" as display_url %}
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
+                                Padded Playback Link
+                            </a>
+                            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="col-6 col-lg-4">
+                        <div class="attribute-label">High Zoom (2160p or Higher)</div>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?zoom=high" as display_url %}
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
+                                Playback Link
+                            </a>
+                            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                        {% endwith %}
+                        <br>
+                        {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?zoom=high&padding=2rem" as display_url %}
+                            <a class="me-2 text-decoration-none" href="{{ display_url }}" target="_blank">
+                                Padded Playback Link
                             </a>
                             {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
                         {% endwith %}
