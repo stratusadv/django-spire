@@ -32,7 +32,8 @@ not necessarily now.
 
 - **Period** = the statistic's interval around `visual.date`
   (`domain/statistic/interval.py`)
-  - daily → that day, weekly → Mon–Sun, monthly → calendar month
+  - daily → that day, weekly → Sun–Sat, monthly → calendar
+    month
 - **Current value** (big header number)
   - no statistic / soft-deleted statistic → `0`
   - percentage statistics → moving-window **average of daily
@@ -160,9 +161,9 @@ not bugs:
 - **"Current value" is a period total.**
   - weekly = week-to-date sum; monthly = month-to-date sum — not
     a rate
-  - example: "New Customers" (weekly, bar) on a Wednesday shows
-    Mon+Tue+Wed in the big number, one bar per day of that same
-    week
+   - example: "New Customers" (weekly, bar) on a Wednesday
+     shows Sun+Mon+Tue+Wed in the big number, one bar per day
+     of that same week
 - **Percentages are moving-window averages**, not sums.
   - window = 2 / 7 / 30 days (daily / weekly / monthly interval)
   - example: "Conversion Rate" (daily percentage) shows the
@@ -200,8 +201,24 @@ not bugs:
   - example: "Revenue" (currency) gauge with references `online`
     and `store` → two dials scaled 0→ceiling (ceiling =
     `max(target + tolerance)` across conditions)
-  - center text "12400" and "800" — no `$`; the $800 dial reads
-    nearly empty on the shared scale
+   - center text "12400" and "800" — no `$`; the $800 dial reads
+     nearly empty on the shared scale
+- **Pie slices show the raw `reference` string when no
+  reference pattern matches.** → A4
+  - slices are the values grouped by
+    `StatisticValue.reference` (querysets.py:137-149)
+  - the pattern → label map comes from the visual's
+    references; an unmatched reference falls back to the raw
+    key (transformation_service.py:255-266)
+  - the demo seed is exactly that case:
+    - `VALUE_REFERENCES` seeds four **URL names** as the
+      reference values (statistic/seeding/seeder.py:56-61)
+    - seeded pie visuals get **no** references
+      (visual/seeding/seeder.py:96-100) → empty label map →
+      URL names in the slices and legend
+  - the fallback is correct for real data (references are
+    free-form — click tracking records actual view names,
+    middleware.py:57); the demo data just collides with it
 - **Duplication: `VisualCondition.matches()` is implemented
   twice.** → A3
   - identical logic on the model and in
@@ -327,7 +344,87 @@ ARM) and Raspberry Pi boxes running Chromium, displaying the page
     - keep the model method as the single implementation — it
       sits next to `color`/`icon`, and the existing model tests
       target it
-  - outcome: no behavior change; ~15 dead lines removed
+   - outcome: no behavior change; ~15 dead lines removed
+
+### A4 — Pie chart: demo labels + rendering
+
+- **Labels (the real fix — seed data, no logic change):**
+  - replace the URL names in `VALUE_REFERENCES`
+    (statistic/seeding/seeder.py:56-61) with neutral demo
+    values — e.g. `web`, `mobile`, `email`, `store`
+  - seed pie visuals with references + labels covering all
+    four (visual/seeding/seeder.py:96-100), so the designed
+    pattern → label path is what shows
+  - only visible after `just seed` / `spire_flush` — existing
+    DBs keep the URL-name values
+- **Rendering (options in `VisualPieChart.build_option_body`,
+  charts.py:60-69):**
+  - donut: `radius: ['45%', '70%']`, `center: ['50%', '45%']`
+  - `label: {'show': False}` — drops the outside
+    leader-line labels that collide with the card header
+  - `legend: {'type': 'scroll', 'bottom': 0}`
+  - tooltip `'{b}: {c} ({d}%)'` — value + percent on hover
+
+### A5 — Chart period semantics (better drawings)
+
+- the date + period pair gives charts three drawing assets
+  that are unused today:
+  - **anchor** — the evaluation date
+  - **frame** — the full interval around it
+  - **comparison** — the previous interval, same length
+    (`interval_range(interval, date - 1 interval)`)
+- improvements, in order of value:
+  - **previous-period comparison series** (the biggest win)
+    - bar: paired bars per day — this week solid, last week
+      light
+    - line/area: last month as a thin light line under this
+      month's
+    - pie: two rings — outer previous, inner current (share
+      shifts become visible)
+    - gauge: sparkline of the last N period totals behind
+      the dial
+  - **full frame, unelapsed part dimmed**
+    - monthly bar on Sep 18 → all 31 days drawn, days after
+      the anchor ghosted → the chart shows why the number is
+      month-to-date
+    - weekly → always the full Sun–Sat frame, comparable
+      mid-week
+  - **daily trailing window** (fixes the one-point chart
+    above)
+    - the number keeps period semantics (that day's total)
+    - the chart draws the last ~14 days ending at the
+      anchor, anchor day emphasized
+  - **anchor marker** — ECharts `markLine` at the evaluation
+    date on time-axis charts (matters once `visual.date` ≠
+    today)
+- cost: one extra `series_points` / `breakdown` call per
+  chart on the shifted range — fits the 120s cache pattern;
+  keep comparison series thin (signage canvas budget, §3)
+
+### A6 — Unify Evaluation Date + Period display
+
+- today they read as two independent facts
+  (detail_card.html:61-71), but the period is derived from
+  the date + the statistic's interval:
+  - two date formats side by side ("Sept. 18, 2026" vs
+    "Sep 13, 2026") — a third in the chart header
+    (period_range.html, no year)
+  - daily → the same date appears twice
+  - monthly → the date looks like a random point inside the
+    shown range
+- options, best first:
+  - **one "Period" attribute, human-named per interval**
+    - `Week of Sep 13, 2026` / `September 2026` /
+      `Sep 18, 2026`
+    - date demoted to a sub-line (stays the edit entry
+      point)
+  - **keep both, align them**
+    - one date format page-wide (including period_range.html)
+    - interval prefix: `Week:` / `Month:` / `Day:`
+    - suppress Period when daily (pure duplication)
+  - **live preview in the edit form** — the date picker
+    shows the resulting period as you pick (complements the
+    other two)
 
 ## 5. Key files
 
@@ -337,9 +434,16 @@ ARM) and Raspberry Pi boxes running Chromium, displaying the page
 | Computation | `django_spire/metric/visual/services/transformation_service.py` |
 | Charts | `django_spire/metric/visual/charts.py`, `django_spire/contrib/chart/charts.py` |
 | Render template | `django_spire/metric/visual/templates/django_spire/metric/visual/render/visual.html` |
+| Period label | `django_spire/metric/visual/templates/django_spire/metric/visual/render/period_range.html` |
 | Chart client | `django_spire/core/templates/django_spire/chart/chart.html` |
 | Region tag | `django_spire/metric/templatetags/django_spire_metric_region.py` |
+| Poll constants | `django_spire/metric/visual/constants.py` |
 | Detail view | `django_spire/metric/visual/views/page_views.py` |
+| Detail card | `django_spire/metric/visual/templates/django_spire/metric/visual/card/detail_card.html`, `.../card/regions_card.html` |
 | Signage display | `django_spire/metric/visual/signage/views/page_views.py`, `.../signage/page/display_page.html` |
 | Interval math | `django_spire/metric/domain/statistic/interval.py`, `.../statistic/constants.py` |
+| Value formatting | `django_spire/metric/domain/statistic/format.py` |
 | Value querysets | `django_spire/metric/domain/statistic/querysets.py` |
+| Record (domain rules) | `django_spire/metric/domain/statistic/services/service.py` |
+| Click tracking | `django_spire/metric/domain/statistic/middleware.py` |
+| Seeding | `django_spire/metric/domain/statistic/seeding/seeder.py` (`VALUE_REFERENCES`), `django_spire/metric/visual/seeding/seeder.py` (references) |
