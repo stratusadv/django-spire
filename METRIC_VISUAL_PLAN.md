@@ -16,7 +16,9 @@ behavior diverges from expectation, and the planned changes.
 - `VisualCondition` — ordered rule
   - `state` (green/blue/yellow/grey/red)
   - `operator` (gt/gte/lt/lte/eq/between)
-  - `target`, `tolerance`, `order`
+  - `target`, `tolerance` (half-width of the BETWEEN
+    band — `|value − target| ≤ tolerance`; ignored by the
+    other operators), `order`
 - `VisualReference` — LIKE-style pattern (`%`/`_`) + label + order
   - selects which of the statistic's `reference` values become
     named datasets (series / pie slice / gauge)
@@ -192,19 +194,22 @@ not bugs:
   - `order` is precedence
   - example: "red if > 100" ordered before "green if > 50" → a
     value of 150 is red
-  - seed defaults are deliberately non-overlapping: green
-    `GT target` / yellow `BETWEEN target ± 10` / red `LT target`
-- **Gauge detail shows a raw number.** → A3
+  - seed defaults: green `GT target` / yellow
+    `BETWEEN target ± 10` / red `LT target` — the bands
+    overlap on (target, target+10]; first-match order
+    resolves it (above target → green, target−10..target
+    → yellow, below → red)
+- **Gauge detail shows a raw number.** → A2
   - no unit, even for currency or percentage statistics
   - multiple references → multiple dials side by side, sharing
     one max
   - example: "Revenue" (currency) gauge with references `online`
     and `store` → two dials scaled 0→ceiling (ceiling =
-    `max(target + tolerance)` across conditions)
-   - center text "12400" and "800" — no `$`; the $800 dial reads
-     nearly empty on the shared scale
+    `max(target + tolerance)` across conditions); center
+    text "12400" and "800" — no `$`; the $800 dial reads
+    nearly empty on the shared scale
 - **Pie slices show the raw `reference` string when no
-  reference pattern matches.** → A6
+  reference pattern matches.** → A7
   - slices are the values grouped by
     `StatisticValue.reference` (querysets.py:137-149)
   - the pattern → label map comes from the visual's
@@ -219,15 +224,21 @@ not bugs:
   - the fallback is correct for real data (references are
     free-form — click tracking records actual view names,
     middleware.py:57); the demo data just collides with it
+- **A fully drifted visual reads as a real zero.** → A5
+  - references match nothing → `current_value` = 0
+  - 0 satisfies the default `RED LT target` condition →
+    the red badge (visual.html:24-29)
+  - visually identical to a genuine zero; the cause is
+    only visible by querying the values
 - **Duplication: `VisualCondition.matches()` is implemented
-   twice.** → A5
+  twice.** → A4
   - identical logic on the model and in
     `VisualConditionTransformationService` (drift risk)
   - production only calls the model method (via
     `current_condition`)
   - the service copy is exercised by one test
 - **`period_range.html` compares raw interval strings**
-  (`'monthly'`, `'daily'`). → A2
+  (`'monthly'`, `'daily'`).
   - works today, fragile (hardcoded choice values)
 
 ## 3. Signage performance deep-dive (low-powered targets)
@@ -310,10 +321,11 @@ Batches:
 
 | Batch | Contents | Why |
 |---|---|---|
-| B1 — display quick wins | A2, A4, A3 | low risk, independent, visible results |
+| B1 — display quick wins | A2, A3, A5 | low risk, independent, visible results; same render surface |
 | B2 — signage + period semantics | §3 mitigations #1, #3, #4 + A1 | same rendering surface (charts.py + chart client); #1/#3/#4 cut live-chart count and re-renders |
-| B3 — hygiene | A5 | zero behavior change |
-| — | A6 | decision record, no action |
+| B3 — hygiene | A4 | zero behavior change |
+| B4 — period offset | A6 | small, independent feature |
+| — | A7 | decision record, no action |
 
 ### A1 — Chart period semantics (better drawings)
 
@@ -337,93 +349,64 @@ Batches:
       month-to-date
     - weekly → always the full Sun–Sat frame (today it's a
       stub that grows through the week)
-  - **daily trailing window** (daily — fixes the one-point
-    chart in §2)
-    - the number keeps period semantics (that day's total)
-    - the chart draws the last ~14 days ending at the
-      anchor, anchor day emphasized
-  - **anchor marker** (all time-axis charts) — ECharts
-    `markLine` at the evaluation date (matters once
-    `visual.date` ≠ today)
-- tests: data-shape assertions (zero-fill, window extent)
+- tests: data-shape assertions (zero-fill, frame extent)
   in test_transformation_service.py; option assertions
-  (ghost styling, markLine) in test_charts.py — both under
+  (ghost styling) in test_charts.py — both under
   visual/tests/test_services/
 - deferred: previous-period comparison series (paired bars,
   previous-period line, pie delta suffix, gauge history) —
   the wall is a headline medium; re-add only if the need
   proves out
-- display counterpart: A2 (same anchor/frame semantics;
-  daily: card keeps the single day, the header shows the
-  trailing window)
-
-### A2 — Unify Evaluation Date + Period display
-
-- today they read as two independent facts
-  (detail_card.html:61-71), but the period is derived from
-  the date + the statistic's interval:
-  - two date formats side by side ("Sept. 18, 2026" vs
-    "Sep 13, 2026") — a third in the chart header
-    (period_range.html, no year)
-  - daily (or no statistic) → the same date appears twice
-  - monthly → the date looks like a random point inside the
-    shown range
-- foundation: one server-side `period_label()` on
-  `VisualTransformationService` (reuses `date_range()` +
-  interval):
-  - `Week of Sep 13, 2026` / `September 2026` /
-    `Sep 18, 2026`
-  - serves the card attribute and the chart header
-    (period_range.html — daily: the trailing-window range,
-    not the single day)
-- options, best first:
-  - **single "Period" attribute using `period_label()`**
-    - date demoted to a sub-line (display only — editing
-      still happens in the update form)
-  - **keep both, align them** (quick win, format-only)
-    - one date format page-wide (falls out of the label
-      foundation)
-    - interval prefix: `Week:` / `Month:` / `Day:`
-    - suppress Period when the range is a single day (daily
-      / no statistic)
-  - **live preview in the edit form** — the form uses a
-    native date input; pass the statistic's interval in the
-    context + a small JS change listener (no AJAX)
-- tests: `period_label()` unit tests (daily / weekly /
-  monthly / no statistic) + detail card render assertion
-- chart-body counterpart: A1
-
-### A3 — Gauge value + reference
+### A2 — Gauge: value, reference, scale
 
 - **Layout (always):**
   - center = the value
   - bottom = the reference — ratio of the gauge ceiling
     (`value / max × 100`, 1 decimal)
-- **Value-type rule:**
+- **Value-type rule (drives the label and the scale):**
   - percentage type → show only the percentage
-    (e.g. `12.34%`); no reference
+    (e.g. `12.34%`); no reference; scale fixed 0–100
   - number / currency type → formatted value
     (e.g. `$1,234.50`) + the reference at the bottom
+- **Scale fix (percentage → 100):**
+  - today: `gauge_max` = max(target+tolerance) → value×2
+    → 100 (transformation_service.py:300-320) — built for
+    raw number scales
+  - a 5% gauge with no conditions → max 10 → the needle
+    sits dead center
+  - fix: `if self._is_percentage(): return 100` — the
+    helper already exists (transformation_service.py:86-90)
+  - a percentage is 0–100 by definition; conditions then sit
+    at meaningful positions (target 10 = the 10% position)
+  - trade: a low rate (3–8%) sits near the bottom — honest
+    over zoomed
 - **How:**
-  - the server pre-computes both strings per data item with the
-    existing `format_statistic_value`
+  - the server pre-computes both strings per data item with
+    the existing `format_statistic_value`
     (domain/statistic/format.py)
   - `chart.html` injects static formatters once at init (JS
     API — functions cannot travel in the JSON payload)
   - no-statistic gauge → empty data: the formatters must
     tolerate an empty / zero value
+- tests: percentage gauge scale, with/without conditions
 
-### A4 — Pie chart rendering
+### A3 — Pie chart rendering
 
 - **Options in `VisualPieChart.build_option_body`,
   charts.py:60-69:**
   - donut: `radius: ['45%', '70%']`, `center: ['50%', '45%']`
   - `label: {'show': False}` — drops the outside
     leader-line labels that collide with the card header
-  - `legend: {'type': 'scroll', 'bottom': 0}`
-  - tooltip `'{b}: {c} ({d}%)'` — value + percent on hover
+  - `legend: {'type': 'scroll', 'bottom': 0}` (today:
+    `{'bottom': 30}`, contrib/chart/charts.py:21)
+- tooltip stays the ECharts default — it already shows
+  value + percent on hover (trigger 'item',
+  contrib/chart/charts.py:112); an explicit formatter was
+  considered, not doing it (cosmetic only)
+- tests: option assertions in test_charts.py (donut
+  radius, label hidden, legend scroll)
 
-### A5 — Deferred polish (small, separate)
+### A4 — Deferred polish (small, separate)
 
 - **Deduplicate `VisualCondition.matches()`.**
   - today:
@@ -438,48 +421,106 @@ Batches:
     - delete the method — it leaves
       `VisualConditionTransformationService` empty, so delete
       the class too
-    - remove its attachment (`VisualConditionService`,
-      service.py:81)
+    - remove its import (service.py:26, one name from the
+      3-name import block) and its attachment
+      (`VisualConditionService`, service.py:81)
     - delete the wiring test (test_models.py:156-160) — its
       only purpose was asserting that attachment; the
       semantic tests already target `condition.matches(...)`
     - keep the model method as the single implementation — it
       sits next to `color`/`icon`, and the existing model tests
       target it
-  - blast radius: exactly 3 spots (class, attachment, test) —
-    nothing else references `condition.services.transformation`
-  - outcome: no behavior change; ~15 dead lines removed
+  - blast radius: exactly 4 spots (class, import, attachment,
+    test) — a repo-wide grep found nothing else referencing
+    the service copy
+  - outcome: no behavior change; ~24 lines removed
 
-### A6 — Decided, intentionally unchanged
+### A5 — "No matching data" vs a true zero
+
+- today: a drifted reference (matches nothing) → value 0 →
+  the red `LT target` badge — indistinguishable from a real
+  zero
+- add a render flag — references set AND
+  `for_reference_patterns(patterns).count() == 0` AND the
+  statistic has values → `no_matching_data`
+- render the existing no-condition state (A7's transparent
+  circle) + a "no matching data" caption, instead of 0 + red
+- both call sites: `render_context()`
+  (transformation_service.py:332-346) and the detail view's
+  `_visual_context` (page_views.py:23-37)
+- the unfiltered-has-values check keeps a brand-new
+  statistic (no data at all) on the existing no-data path
+- the all-time count is deliberate: a rename with legacy
+  rows still inside the 90-day retention keeps the count > 0, 
+  so the flag fires only after they prune out
+- tests:
+  - flag fires: references set, zero matches, statistic
+    has values
+  - flag stays off: empty statistic (existing no-data
+    path), no references, or any match exists
+  - the caption renders in visual.html
+
+### A6 — Period offset selector (detail page)
+
+- today: viewing a past period means editing + saving
+  `visual.date` — a persisted change that shifts every
+  surface (cards, detail, signage) until it's edited back
+- add a display-only shift on the detail page: a native
+  select (This/Last month, This/Last week, Yesterday) →
+  `?period_offset=N`; no JS — a full reload per choice
+- a ~15-line helper next to `interval_range`
+  (interval.py:14): daily −N days, weekly −7N days, monthly
+  −N months, day-clamped (Jan 31 → Dec 31)
+- the shifted date threads through existing paths —
+  `current_value(value_date=...)` and
+  `date_range(value_date=...)` already take it; the chart
+  needs it in `params` (charts.py:33-57, `series_datasets`)
+- nothing saved: cards, regions, signage keep the persisted
+  date (`render_context` unchanged)
+- not A1's comparison series — renders period N−1 only
+- the period attribute and header show the shifted range —
+  the existing raw-range rendering follows the shifted
+  date
+- when A1 ships, its ghost frame follows the shifted date,
+  not the saved one
+
+### A7 — Decided, intentionally unchanged
 
 - **Transparent, icon-less indicator circle when there is no
   data** — kept as-is.
 - **`animation: false` for signage charts** — considered, not
   doing it (animations stay).
 - **Pie slice labels falling back to raw `reference` strings
-  when no reference pattern matches** (the demo seed shows
-  URL names) — out of scope (no seed-data change).
+  when no reference pattern matches** (current data shows
+  raw keys) — out of scope.
+- **Daily one-point line/area/bar charts** — kept as-is (no
+  trailing window; a weekly visual provides the trend view).
+- **Anchor marker (a `markLine` at the evaluation date)** —
+  considered, not doing it (the ghosted unelapsed part
+  already shows where the frame ends).
+- **Unifying Evaluation Date + Period display**
+  (`period_label`) — considered, not doing it (both card
+  attributes stay as-is; the date formats remain mixed).
+- **Per-reference match counts on the detail page** —
+  considered, not doing it (an all-time total is a weak
+  signal: the charts already show the per-reference daily
+  spread; the save-time block + the no-match state cover
+  the important cases)
 
-## 5. Key files
+## 5. Files to change
 
-| Area | Path |
-|---|---|
-| Models | `django_spire/metric/visual/models.py` |
-| Computation | `django_spire/metric/visual/services/transformation_service.py` |
-| Visual services | `django_spire/metric/visual/services/service.py` |
-| Charts | `django_spire/metric/visual/charts.py`, `django_spire/contrib/chart/charts.py` |
-| Render template | `django_spire/metric/visual/templates/django_spire/metric/visual/render/visual.html` |
-| Period label | `django_spire/metric/visual/templates/django_spire/metric/visual/render/period_range.html` |
-| Chart client | `django_spire/core/templates/django_spire/chart/chart.html` |
-| Region tag | `django_spire/metric/templatetags/django_spire_metric_region.py` |
-| Poll constants | `django_spire/metric/visual/constants.py` |
-| Detail view | `django_spire/metric/visual/views/page_views.py` |
-| Detail card | `django_spire/metric/visual/templates/django_spire/metric/visual/card/detail_card.html`, `.../card/regions_card.html` |
-| Visual form | `django_spire/metric/visual/forms.py`, `django_spire/metric/visual/templates/django_spire/metric/visual/form/form.html` |
-| Signage display | `django_spire/metric/visual/signage/views/page_views.py`, `.../signage/page/display_page.html` |
-| Interval math | `django_spire/metric/domain/statistic/interval.py`, `.../statistic/constants.py` |
-| Value formatting | `django_spire/metric/domain/statistic/format.py` |
-| Value querysets | `django_spire/metric/domain/statistic/querysets.py` |
-| Record (domain rules) | `django_spire/metric/domain/statistic/services/service.py` |
-| Click tracking | `django_spire/metric/domain/statistic/middleware.py` |
-| Seeding | `django_spire/metric/domain/statistic/seeding/seeder.py` (`VALUE_REFERENCES`), `django_spire/metric/visual/seeding/seeder.py` (references) |
+| Area | Path | Items |
+|---|---|---|
+| Computation | `django_spire/metric/visual/services/transformation_service.py` | A1, A2, A4, A5, A6 |
+| Visual services | `django_spire/metric/visual/services/service.py` | A4 |
+| Charts | `django_spire/metric/visual/charts.py` | A1, A2, A3, A6 |
+| Interval math | `django_spire/metric/domain/statistic/interval.py` | A6 |
+| Detail view | `django_spire/metric/visual/views/page_views.py` | A5, A6 |
+| Render template | `.../visual/render/visual.html` | A5 |
+| Detail page | `.../visual/page/detail_page.html` | A6 |
+| Chart client | `django_spire/core/templates/django_spire/chart/chart.html` | A2, §3 #1/#3 |
+| Signage display | `django_spire/metric/visual/signage/views/page_views.py` | §3 #4 |
+| Signage page | `.../signage/page/display_page.html` | §3 #1/#3 |
+| Tests | `django_spire/metric/visual/tests/` (services, views, models), `.../signage/tests/`, `.../domain/statistic/tests/test_interval.py` | all |
+
+Template paths are under `django_spire/metric/visual/templates/django_spire/`.
