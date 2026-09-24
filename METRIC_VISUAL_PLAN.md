@@ -1,7 +1,34 @@
 # Metric Visual — Behavior Notes & Plan
 
-Working notes on how `django_spire/metric/visual` behaves today, where
-behavior diverges from expectation, and the planned changes.
+Working notes on how `django_spire/metric/visual` behaves today, the
+target display behavior, where behavior diverges from expectation,
+and the planned changes.
+
+## 0. Target behavior
+
+The visual app displays statistics the way a person reading a wall or
+daashboard expects: the current unit's value, plus a lookback of the
+recent units, anchored to today and never going stale.
+
+- **Always current.** A visual has no date of its own. Every surface
+  (detail page, region slots, signage walls) renders the unit
+  containing today; the `Visual.date` column is removed (A7).
+- **Unit-based lookback.** A chart shows the N most recent units of
+  the statistic's interval, ending with the unit containing the
+  display date:
+  - daily → 8 days (today + the preceding 7)
+  - weekly → 12 weeks (this Sun–Sat week + the preceding 11)
+  - monthly → 13 months (this month + the preceding 12)
+  - N is a per-visual choice (`display_unit_count`); unset = the
+    interval default (A1)
+- **Header** = the current unit's value (today / week-to-date /
+  month-to-date), labeled with the display range the chart covers
+  (A1)
+- **All series share the frame** — one series per reference, each its
+  own color, all over the same unit range (A1)
+- **Browsing a past date** stays display-only: `?value_date=...`, the
+  window ends at the unit containing the picked date, nothing is
+  saved (A6)
 
 ## 1. How it works today
 
@@ -104,6 +131,14 @@ rolls it forward.
     page)
   - then **polled**: a Glue function rebuilds the full option and
     the client calls `setOption(option, {notMerge: true})`
+  - **currently broken (A9)**: the client wraps its params as
+    `{'kwargs': ...}` (chart.html:49), but the server's Glue
+    `execute` unpacks the payload straight into the data
+    function (`function(**kwargs)`), so every tick reaches
+    `build_option_body(kwargs=...)` and raises
+    `TypeError: missing 'visual_pk'`; the client's catch logs
+    "Chart update failed" and moves on. Charts today render
+    once at page load and never actually update
 
 | Surface | Cadence |
 |---|---|
@@ -277,6 +312,9 @@ ARM) and Raspberry Pi boxes running Chromium, displaying the page
   - S×M independent `setTimeout` chains → ≈ 4 requests/min per
     chart
   - 5 slides × 4 sections ≈ 80 req/min per wall, continuously
+  - today those polls all 500 server-side (A9) — the request
+    volume is real, the returned data is not; after A9 the
+    re-render cost below is what actually lands
 - **Each poll is a full server-side rebuild.**
   - `Visual.objects.get` + cache-key computation (a
     `Max(timestamp)` aggregate per key)
@@ -334,51 +372,114 @@ ARM) and Raspberry Pi boxes running Chromium, displaying the page
 
 ## 4. Action items
 
-Numbered by workstream, not ranked by impact — A7 (walls stop
-going stale) and A5 (no false red zeros) carry the most
-behavior change; the batch table is the execution order.
+Numbered by workstream, not ranked by impact — A1+A7 (walls stop
+going stale and show the unit lookback) and A5 (no false red
+zeros) carry the most behavior change; the batch table is the
+execution order.
 
 Batches:
 
 | Batch | Contents | Why |
 |---|---|---|
 | B1 — display quick wins | A2, A3, A5 | low risk, independent, visible results; same render surface |
-| B2 — signage + period semantics | §3 mitigations #1, #3, #4 + A1 | same rendering surface (charts.py + chart client); #1/#3/#4 cut live-chart count and re-renders |
-| B3 — hygiene | A4 | zero behavior change |
-| B4 — date & period | A6, A7 | display-only date-jump browse + follow-today rollover |
+| B2 — core display change | A1 + A7 + A6 + A9 | one model migration (drop `date`, add `display_unit_count`), one computation core, one render surface — the window, always-today, browse, and the broken-poll fix (A6 depends on A9) are interlocked |
+| B3 — signage performance | §3 mitigations #1, #3, #4 | client-side JS architecture, independent of the data shape; split out to keep B2's diff small |
+| B4 — hygiene | A4 | zero behavior change |
 | — | A8 | decision record, no action |
 
-### A1 — Chart period semantics (better drawings)
+### A1 — Unit-based display window (the core change)
 
-- the date + period pair gives charts two drawing assets
-  that are unused today:
-  - **anchor** — the date being evaluated (A7's
-    effective date; A6's jumped date)
-  - **frame** — the full interval around it
-- improvements:
-  - **full frame, unelapsed part dimmed** (weekly / monthly)
-    - today (non-percentage):
-      - only days with data under the visual's reference
-        patterns are drawn (GROUP BY day, querysets.py:126)
-      - the range is the full interval (no clamping to
-        visual.date, interval.py:19-22)
-      - missing days vanish; the axis compresses to the
-        data's extent
-      - percentage charts instead draw a moving window
-        ending at the date (§2)
-    - monthly bar on Sep 18 → all 30 days drawn, days after
-      the anchor ghosted → the chart shows why the number is
-      month-to-date
-    - weekly → always the full Sun–Sat frame (today it's a
-      stub that grows through the week)
-- tests: data-shape assertions (zero-fill, frame extent)
-  in test_transformation_service.py; option assertions
-  (ghost styling) in test_charts.py — both under
-  visual/tests/test_services/
-- deferred: previous-period comparison series (paired bars,
-  previous-period line, pie delta suffix, gauge history) —
-  the wall is a headline medium; re-add only if the need
-  proves out
+- **What it replaces.** Today a chart is drawn over the
+  statistic's interval around the saved date (1 day / Sun–Sat /
+  calendar month), only days with data, axis compressed to the
+  data's extent; a daily statistic renders as one point. The
+  earlier "ghost the unelapsed part of the frame" plan is
+dropped — under the window design every unit in the frame is
+complete except the current one, and the current one is shown
+as-is (its partial accumulation matches the header number). The
+earlier deferred "previous-period comparison series" is what the
+window delivers: today's unit plus the preceding units in one
+frame, on every surface.
+- **Model** — new field `Visual.display_unit_count`
+  - `models.PositiveSmallIntegerField(null=True, blank=True)`,
+    form-validated 2..104
+  - unset → interval default: daily 8, weekly 12, monthly 13
+    (constants in `visual/constants.py`)
+  - exposed in the form ("Display units"); detail card gets a
+    "Display units" attribute (effective count)
+  - same migration as the `date` removal (A7)
+- **Frame** — `display_window_range(interval, end_date, count)` in
+  `domain/statistic/interval.py`
+  - N consecutive units ending at the unit containing `end_date`
+    (= today, or A6's picked date)
+  - daily: `end_date − 7 .. end_date` (default 8)
+  - weekly: the Sunday of the week containing `end_date`, minus
+    count−1 weeks, through that week's Saturday (default 12)
+  - monthly: the 1st of the month count−1 months before
+    `end_date`'s month, through the last day of `end_date`'s
+    month (default 13)
+- **Chart points** — per unit, per reference
+  - non-percentage → SUM of the unit's values
+  - percentage → the unit's raw average (no moving window — the
+    smoothed series is retired; the header's moving-window
+    `current_value` is unchanged)
+  - empty units → 0 (stable 8/12/13-point axis)
+  - unit label = the unit's start date (day / Sunday / 1st of
+    month)
+  - new `StatisticValueQuerySet.unit_points(interval, start, end)`
+    generalizing `series_points` (querysets.py:126-135): daily =
+    TruncDate as-is, weekly = week start (Sun), monthly = month
+    start
+  - bucketing stays DB-portable: fetch day-level totals for the
+    window (bounded: ≤ 13 months ≈ 395 days) and aggregate days
+    into units in Python — a SQL week-start expression differs
+    between Postgres and SQLite, and the project supports both
+- **Header** — `current_value` semantics unchanged (today /
+  week-to-date / month-to-date); the small label under the
+  number and the detail card's Period attribute show the window
+  range instead of the single interval period; the Evaluation
+  Date attribute is removed (A7)
+- **Context keys** — `period_start`/`period_end` keep their
+  names; only their meaning changes (single interval period →
+  window range). Two producers set them, seven consumers pass
+  them through (no consumer edits needed):
+  - producers: `render_context()`
+    (transformation_service.py:337-345) and the detail view
+    (`_visual_context` page_views.py:28-29, `detail_view` :82)
+  - consumers: `render/period_range.html`,
+    `render/region_visual.html`, `card/detail_card.html:28,69`,
+    `signage/page/display_page.html:194`,
+    `presentation/render/slide.html:31`,
+    `presentation/card/section_card.html:33`, the
+    `render_visual_region` templatetag
+    (templatetags/django_spire_metric_region.py:54-55)
+  - `period_range.html`'s monthly branch prints only the month
+    name (`{{ period_start|date:'F' }}`) — a 13-month window
+    needs a start–end range there
+- **Pie** — sum per reference over the whole window (percentage:
+  average); `series_breakdown` already takes start/end — pass the
+  window range
+- **Gauge** — unchanged (current unit's value per dataset; A2's
+  format/scale fix still applies)
+- **Seeder** — `VisualSeeder._seed_visual_values` stamps its
+  30-point wave inside `date_range()` (visual/seeding/ seeder.
+  py:125) — the single interval around the saved date. After A7
+  that is one day for a daily statistic and the demo wave
+  collapses into one point; seed the wave across
+  `display_window_range(...)` instead. (The domain seeder's
+  30-day values still fill the window, but the wave shape is
+  what the demo charts are built from)
+- **Caching** — the effective unit count joins the
+  `_cache_key` parts
+- **Tests** — frame extent per interval, count override,
+  zero-fill, weekly/monthly bucketing, percentage raw average,
+  window range at A6's picked date; option assertions (point
+  count per kind) in test_charts.py; seeder wave spans the
+  window — under visual/tests/test_services/. Update existing
+  assertions written for the old behavior:
+  test_transformation_service.py:517 (`period_start ==
+  period_end` — a daily window is 8 days now) and the
+  `visual.date = ...` fixtures (A7)
 ### A2 — Gauge: value, reference, scale
 
 - **Layout (always):**
@@ -509,50 +610,54 @@ Batches:
 
 ### A6 — Date-jump period browse (detail page)
 
-- today, viewing a past period means editing + saving
-  `visual.date` — a persisted change that shifts every
-  surface until it's edited back
+- A7 removes the saved date, so a display-only browse is the
+  only way to view a past period
 - this makes it display-only, on the detail page only
   - for inspection — "what did last week look like?"
   - one URL parameter: `?value_date=YYYY-MM-DD`
   - zero JS — a plain form submit
-  - nothing is saved: no parameter renders the
-    effective date, exactly as today
+  - nothing is saved: no parameter renders today,
+    exactly as the default
   - `render_context` unchanged — cards, regions, and
     signage are untouched
   - the wall deliberately gets no jump
-    - its period is current (A7) or pinned (A7) — a
-      transient URL date on a fixed kiosk URL is easy
-      to forget
+    - it is always current (A7) — a transient URL date
+      on a fixed kiosk URL is easy to forget
 - a date-jump form — one native date input + Go
   - below the Period attribute (detail_card.html:66-71)
   - `max` = today — no future dates (they have no data)
-    - today, not the effective date: a pinned visual
-      must still browse up to the present
     - the view re-checks, since `max` is only a UI hint
-  - renders the period containing the picked date
-    (day / week / month, per the interval)
-  - clearing the input + Go returns to the effective
-    date
+  - renders the display window (A1's unit count) ending at the
+    unit containing the picked date
+  - clearing the input + Go returns to today
   - shown only when a statistic is set
-- threading is nearly free
-  - all five data methods already take `value_date`
-    (transformation_service.py:76, 114, 191, 234, 270)
-  - the view passes the shifted value to
-    `current_condition(value=...)` (:142) so the badge
-    matches the shifted number
-  - the five chart bodies (charts.py:30-95) forward
-    `value_date` from `params` — pie and gauge included
-- the Period attribute + header follow automatically
-  - both render from the `period_start`/`period_end`
-    context (detail_card.html:69, period_range.html:1-7)
-- the Evaluation Date attribute does not
-  - hard-coded `visual.date` (detail_card.html:63)
-  - gets the shifted date via a `value_date` context key
-    (effective-date fallback, A7)
-- not A1's comparison series — renders one period, no
-  ghost frame (when A1 ships, it follows the shifted
-  date)
+- threading
+  - the server-side data methods are ready: all five take
+    `value_date` (transformation_service.py:76, 114, 191, 234,
+    270)
+  - the view passes the shifted date to `current_value()` /
+    `current_condition()` (page_views.py:26-27) so the header
+    number and badge match the shifted window, and to both
+    `date_range()` calls in the detail path
+    (`_visual_context` :28-29, `detail_view` :82)
+  - **charts are the non-free part** (requires A9 first):
+    - the view puts `value_date` into the chart instance's
+      params (`transformation.chart(params={'visual_pk': ..., 'value_date': ...})`) so the initial render (`to_option_dict`) and every poll carry it
+    - the five chart bodies (charts.py:30-95) forward
+      `value_date` from `params` — pie and gauge included
+    - `value_date` arrives from the client JSON as a
+      `YYYY-MM-DD` string; the chart bodies parse it to a
+      `date` before calling the transformation methods (they
+      do `timedelta` math and `.isoformat()` on it)
+- the Period attribute + header label follow automatically
+  - both render from the `period_start`/`period_end` context
+    (detail_card.html:69, period_range.html:1-7) — now the
+    window range, self-evident even for a picked past date
+- the Evaluation Date attribute is removed (A7); with a picked
+  date active, the window range in the Period attribute shows
+  where the data comes from
+- renders one window (A1) ending at the picked date — no other
+  period shown alongside
 - extension to signage (out of scope)
   - `?value_date=YYYY-MM-DD` on the display URL
   - `display_view` → `display_slides()`
@@ -561,12 +666,12 @@ Batches:
   - the operator navigates the kiosk to the URL to
     preview and back to the plain URL to revert
 - tests:
-  - the form renders the picked date's period
-  - missing or invalid param renders the effective date
+  - the form renders the window ending at the picked date
+  - missing or invalid param renders today
   - detail view context shifted
     (value, condition, period, chart params)
 
-### A7 — Follow-today date (auto-rollover)
+### A7 — Always-today date (drop the date)
 
 - today: `date` defaults to `timezone.localdate` once at
   creation (models.py:56)
@@ -575,42 +680,36 @@ Batches:
   - nothing rolls it forward
   - a daily visual on a wall shows creation-day's number
     forever
-- add a model field, `date_follows_today`
-  - `models.BooleanField(default=True)`
-  - the migration sets existing rows to True — all
-    current visuals start rolling; pinning stays one
-    checkbox away
-- one choke point: an `effective_date` property
-  - `timezone.localdate()` when following
-  - else `date`
-  - every `value_date or self.obj.date` fallback uses it
-    (five sites: transformation_service.py:52, 77, 128,
-    203, 282)
-  - missing one leaves that surface on the saved date
-    (e.g. header rolls, charts don't)
+- decision: a presented visual is always the current data for
+  its statistic's interval — no date field, no pinning, no
+  follow-today checkbox. The earlier `date_follows_today`
+  flag plan is dropped; the column is removed instead.
+- **Model**
+  - drop `Visual.date` (same migration adds
+    `display_unit_count`, A1)
+  - drop the form field (forms.py:48, 50) and the form
+    template line (form/form.html:31)
+  - drop the detail card's Evaluation Date attribute
+    (detail_card.html:61-64)
+  - drop `date` from admin `list_display` (admin.py:29)
+- **Anchor** — every `value_date or self.obj.date` fallback
+  becomes `value_date or timezone.localdate()`
+  - five sites: transformation_service.py:52, 77, 128, 203,
+    282
+  - the first is the cache-key site — missing it would let a
+    rolled day reuse yesterday's key and serve the stale
+    aggregate
 - every surface rolls at midnight
   - cards, regions, signage, and detail
   - the 120s cache absorbs the rollover lag
-- the Edit form gets a "Follow today" checkbox
-  - the date field is disabled while following
-  - the field always shows the effective date
-    (today while following)
-  - while the checkbox is on, saving never writes `date`
-  - unchecking makes the field editable
-  - saving then writes the field's value to `date`
-    - e.g. the field shows 2026-09-24 → `date` =
-      2026-09-24
-    - never the stale value in the database
-- the Evaluation Date attribute (detail_card.html:63)
-  shows the effective date
-- A6's form bounds at today
+- A6 is the only path to a non-today date, and it is
+  display-only (nothing is saved)
 - tests:
-  - `effective_date` follows the flag
-  - a following daily visual recomputes for the new day
-  - a pinned one does not
-  - pinning via the form
-  - fixtures asserting a specific date pin the flag
-    (False)
+  - a daily visual recomputes for the new day (shift the
+    test clock across midnight)
+  - the cache key changes with the date
+  - fixtures that set `date` drop the kwarg or pass
+    `value_date` instead
 
 ### A8 — Decided, intentionally unchanged
 
@@ -621,35 +720,86 @@ Batches:
 - **Pie slice labels falling back to raw `reference` strings
   when no reference pattern matches** (current data shows
   raw keys) — out of scope.
-- **Daily one-point line/area/bar charts** — kept as-is (no
-  trailing window; a weekly visual provides the trend view).
-- **Anchor marker (a `markLine` at the evaluation date)** —
-  considered, not doing it (the ghosted unelapsed part
-  already shows where the frame ends).
-- **Unifying Evaluation Date + Period display**
-  (`period_label`) — considered, not doing it (both card
-  attributes stay as-is; the date formats remain mixed).
+- **Daily one-point line/area/bar charts** — replaced: A1's
+  window draws 8 daily points.
+- **Ghosting the current in-progress unit** (a half bar /
+  dimmed point to signal the week/month is still
+  accumulating) — considered, not doing it (the header number
+  plus the window range make the to-date status legible; the
+  partial unit matches the header).
+- **Anchor marker (a `markLine` at the display date)** —
+  considered, not doing it (the frame ends at the display date
+  by construction).
+- **Moving-window smoothing on percentage chart points** —
+  replaced by the raw per-unit average (A1); the header keeps
+  the moving-window value, so the number and the latest point
+  can differ slightly by design.
+- **The "Evaluation Date" card attribute** — removed (A7); the
+  Period attribute shows the display range (A1).
 - **Per-reference match counts on the detail page** —
   considered, not doing it (an all-time total is a weak
-  signal: the charts already show the per-reference daily
-  spread; the save-time block + the no-match state cover
-  the important cases).
+  signal: the charts already show the per-reference unit
+  spread; the save-time block + the no-match state cover the
+  important cases).
+- **Renaming `period_start`/`period_end` to
+  `display_start`/`display_end`** — considered, not doing it
+  (seven templates/templatag/view sites pass the keys through;
+  reusing the names keeps the A1 diff to the two producers).
+- **Fixing the broken chart poll as part of A1/A6** — it is
+  its own item (A9): a pre-existing bug, testable on its own,
+  and the prerequisite for A6's live browsed charts.
+
+### A9 — Fix the chart live-update plumbing (pre-existing bug)
+
+- **Today, every chart poll fails server-side.**
+  - client: `proxy.execute({'kwargs': this._params || {}})`
+    (core/.../chart/chart.html:49) — params wrapped in a
+    `kwargs` key, shipped that way since the first
+    implementation of the poll
+  - server: `FunctionGlue.execute` runs
+    `function(**request_kwargs)` →
+    `visual_line_chart_data(kwargs={'visual_pk': N})` →
+    `build_option_body(kwargs=...)` →
+    `TypeError: missing 1 required positional argument:
+    'visual_pk'` (reproduced against the bound data function)
+  - the client's `catch` logs "Chart update failed" and
+    schedules the next tick, so the failure is silent; charts
+    render once and never update, and §1/§3's "live" cadence
+    has in practice been initial-render-only
+- **Fix** — send the params flat from the client:
+  - `proxy.execute(this._params || {})` (chart.html:49)
+  - the server path then becomes `execute(kwargs={'visual_pk': N})` → `_build_option(visual_pk=N)` → `build_option_body(visual_pk=N)` — no server change needed; the same flat shape carries `value_date` for A6
+- **Scope check** — the only Glue-polled data functions in the
+  repo are the five visual chart bodies (grep
+  `build_option_body`), all with the `(cls, visual_pk,
+  **_kwargs)` signature, so the flat call shape is safe for
+  every caller
+- **Tests**
+  - unit: `visual_line_chart_data(visual_pk=pk)` returns the
+    option (and, with `value_date` as a string, A6's shape)
+  - all five bodies accept the flat kwargs without TypeError
 
 ## 5. Files to change
 
 | Area | Path | Items |
 |---|---|---|
 | Computation | `django_spire/metric/visual/services/transformation_service.py` | A1, A2, A4, A5, A6, A7 |
-| Visual model | `django_spire/metric/visual/models.py` | A7 |
-| Visual form | `django_spire/metric/visual/forms.py` | A7 |
+| Interval | `django_spire/metric/domain/statistic/interval.py` | A1 |
+| Value querysets | `django_spire/metric/domain/statistic/querysets.py` | A1 |
+| Visual model | `django_spire/metric/visual/models.py` | A1, A7 |
+| Migration (new) | `django_spire/metric/visual/migrations/` | A1, A7 |
+| Visual form | `django_spire/metric/visual/forms.py` | A1, A7 |
+| Visual constants | `django_spire/metric/visual/constants.py` | A1 |
 | Visual services | `django_spire/metric/visual/services/service.py` | A4 |
 | Charts | `django_spire/metric/visual/charts.py` | A1, A2, A3, A6 |
 | Detail view | `django_spire/metric/visual/views/page_views.py` | A5, A6 |
-| Render template | `.../visual/render/visual.html` | A5 |
-| Detail card | `.../visual/card/detail_card.html` | A6, A7 |
-| Chart client | `django_spire/core/templates/django_spire/chart/chart.html` | A2, §3 #1/#3 |
+| Visual admin | `django_spire/metric/visual/admin.py` | A7 |
+| Visual seeder | `django_spire/metric/visual/seeding/seeder.py` | A1 |
+| Render templates | `.../visual/render/visual.html`, `.../render/period_range.html`, `.../visual/form/form.html` | A1, A5, A7 |
+| Detail card | `.../visual/card/detail_card.html` | A1, A6, A7 |
+| Chart client | `django_spire/core/templates/django_spire/chart/chart.html` | A2, A9, §3 #1/#3 |
 | Signage display | `django_spire/metric/visual/signage/views/page_views.py` | §3 #4 |
 | Signage page | `.../signage/page/display_page.html` | §3 #1/#3 |
-| Tests | `django_spire/metric/visual/tests/` (services, views, models), `.../signage/tests/` | all |
+| Tests | `django_spire/metric/visual/tests/` (services, views, models, seeder), `.../signage/tests/` | all |
 
 Template paths are under `django_spire/metric/visual/templates/django_spire/`.
