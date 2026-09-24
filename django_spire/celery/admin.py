@@ -16,8 +16,6 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'display_name',
         'state',
         'started_datetime',
-        'completed_datetime',
-        'reference_key',
         'task_name',
     )
     list_filter = ('task_name', 'display_name', 'state', 'started_datetime', 'completed_datetime')
@@ -42,7 +40,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'started_datetime',
         'completed_datetime',
         '_task_meta',
-        '_result',
+        'result_verbose',
     )
     fields = (
         'task_id',
@@ -55,7 +53,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'started_datetime',
         'completed_datetime',
         '_task_meta',
-        '_result',
+        'result_verbose',
     )
 
     def has_add_permission(self, request: HttpRequest) -> bool:
