@@ -30,7 +30,8 @@ behavior diverges from expectation, and the planned changes.
 ### Value computation (`services/transformation_service.py`)
 
 Everything is anchored to `visual.date` (the "Evaluation Date"),
-not necessarily now.
+not necessarily now — saved once at creation; nothing
+rolls it forward.
 
 - **Period** = the statistic's interval around `visual.date`
   (`domain/statistic/interval.py`)
@@ -64,6 +65,24 @@ not necessarily now.
   - key includes the statistic's latest value timestamp → new
     data invalidates naturally
   - gauge max also keys on the conditions
+
+### Value retention (`domain/statistic`)
+
+- each recorded event is a new `StatisticValue` row
+  (`StatisticProcessorService.add_value`,
+  processor_service.py:57-62) — rows accumulate, never
+  auto-deleted on write
+- two cleanup mechanisms exist, both only via the
+  `prune_metric_statistic_values` management command:
+  - age: delete rows older than
+    `DJANGO_SPIRE_METRIC_RETENTION_DAYS` (default 90)
+  - cap: per (statistic, sub-domain, reference), keep the
+    latest `DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`
+    (default 1000) rows
+- nothing in the repo schedules the command (no Celery
+  beat, no call from the tracking path) — expected to be
+  scheduled in the future (ops/cron); until then rows
+  persist indefinitely
 
 ### Rendering
 
@@ -209,7 +228,7 @@ not bugs:
     text "12400" and "800" — no `$`; the $800 dial reads
     nearly empty on the shared scale
 - **Pie slices show the raw `reference` string when no
-  reference pattern matches.** → A7
+  reference pattern matches.** → A8
   - slices are the values grouped by
     `StatisticValue.reference` (querysets.py:137-149)
   - the pattern → label map comes from the visual's
@@ -315,7 +334,9 @@ ARM) and Raspberry Pi boxes running Chromium, displaying the page
 
 ## 4. Action items
 
-Ordered by impact.
+Numbered by workstream, not ranked by impact — A7 (walls stop
+going stale) and A5 (no false red zeros) carry the most
+behavior change; the batch table is the execution order.
 
 Batches:
 
@@ -324,14 +345,15 @@ Batches:
 | B1 — display quick wins | A2, A3, A5 | low risk, independent, visible results; same render surface |
 | B2 — signage + period semantics | §3 mitigations #1, #3, #4 + A1 | same rendering surface (charts.py + chart client); #1/#3/#4 cut live-chart count and re-renders |
 | B3 — hygiene | A4 | zero behavior change |
-| B4 — period offset | A6 | small, independent feature |
-| — | A7 | decision record, no action |
+| B4 — date & period | A6, A7 | display-only date-jump browse + follow-today rollover |
+| — | A8 | decision record, no action |
 
 ### A1 — Chart period semantics (better drawings)
 
 - the date + period pair gives charts two drawing assets
   that are unused today:
-  - **anchor** — the evaluation date
+  - **anchor** — the date being evaluated (A7's
+    effective date; A6's jumped date)
   - **frame** — the full interval around it
 - improvements:
   - **full frame, unelapsed part dimmed** (weekly / monthly)
@@ -440,19 +462,44 @@ Batches:
 - today: a drifted reference (matches nothing) → value 0 →
   the red `LT target` badge — indistinguishable from a real
   zero
-- add a render flag — references set AND
-  `for_reference_patterns(patterns).count() == 0` AND the
-  statistic has values → `no_matching_data`
-- render the existing no-condition state (A7's transparent
-  circle) + a "no matching data" caption, instead of 0 + red
+- the form guard (forms.py:114-130) blocks saving a dead
+  pattern while the statistic has values, so this state
+  only arises via:
+  1. a pattern typed ahead of an empty statistic (no
+     suggestions, check skipped) where the data later
+     arrives under a different name
+  2. the recorder renaming references after the fact
+     (view rename; the `ds:` → `django_spire:` namespace
+     change happened in this deployment)
+  3. the recorder stopping a reference and its rows being
+     deleted by a scheduled prune (not yet scheduled —
+     §1 "Value retention")
+  4. writes outside the form (shell/DB/API)
+- add a `no_matching_data` flag to the render context —
+  true only when all three hold:
+  1. the visual has references set
+  2. those patterns match zero values (all-time) —
+     `statistic.values.for_reference_patterns(patterns).count() == 0`
+  3. the statistic has values at all (unfiltered)
+- render the existing no-condition state + a "no
+  matching data" caption, instead of 0 + red
+  - indicator: the transparent circle (A8) + caption
+  - chart kinds: grey badge + caption (charts already
+    empty — no matching points / slices)
 - both call sites: `render_context()`
   (transformation_service.py:332-346) and the detail view's
   `_visual_context` (page_views.py:23-37)
 - the unfiltered-has-values check keeps a brand-new
   statistic (no data at all) on the existing no-data path
 - the all-time count is deliberate: a rename with legacy
-  rows still inside the 90-day retention keeps the count > 0, 
-  so the flag fires only after they prune out
+  rows keeps the count > 0, so the flag fires only after
+  those rows are deleted — which needs
+  `prune_metric_statistic_values` scheduled (not yet —
+  §1 "Value retention")
+- rationale: the wall's audience is non-technical, so a
+  false red 0 stays unexplained until a technical person
+  investigates; the caption makes the cause self-evident
+  and removes that dependency
 - tests:
   - flag fires: references set, zero matches, statistic
     has values
@@ -460,31 +507,112 @@ Batches:
     path), no references, or any match exists
   - the caption renders in visual.html
 
-### A6 — Period offset selector (detail page)
+### A6 — Date-jump period browse (detail page)
 
-- today: viewing a past period means editing + saving
+- today, viewing a past period means editing + saving
   `visual.date` — a persisted change that shifts every
-  surface (cards, detail, signage) until it's edited back
-- add a display-only shift on the detail page: a native
-  select (This/Last month, This/Last week, Yesterday) →
-  `?period_offset=N`; no JS — a full reload per choice
-- a ~15-line helper next to `interval_range`
-  (interval.py:14): daily −N days, weekly −7N days, monthly
-  −N months, day-clamped (Jan 31 → Dec 31)
-- the shifted date threads through existing paths —
-  `current_value(value_date=...)` and
-  `date_range(value_date=...)` already take it; the chart
-  needs it in `params` (charts.py:33-57, `series_datasets`)
-- nothing saved: cards, regions, signage keep the persisted
-  date (`render_context` unchanged)
-- not A1's comparison series — renders period N−1 only
-- the period attribute and header show the shifted range —
-  the existing raw-range rendering follows the shifted
-  date
-- when A1 ships, its ghost frame follows the shifted date,
-  not the saved one
+  surface until it's edited back
+- this makes it display-only, on the detail page only
+  - for inspection — "what did last week look like?"
+  - one URL parameter: `?value_date=YYYY-MM-DD`
+  - zero JS — a plain form submit
+  - nothing is saved: no parameter renders the
+    effective date, exactly as today
+  - `render_context` unchanged — cards, regions, and
+    signage are untouched
+  - the wall deliberately gets no jump
+    - its period is current (A7) or pinned (A7) — a
+      transient URL date on a fixed kiosk URL is easy
+      to forget
+- a date-jump form — one native date input + Go
+  - below the Period attribute (detail_card.html:66-71)
+  - `max` = today — no future dates (they have no data)
+    - today, not the effective date: a pinned visual
+      must still browse up to the present
+    - the view re-checks, since `max` is only a UI hint
+  - renders the period containing the picked date
+    (day / week / month, per the interval)
+  - clearing the input + Go returns to the effective
+    date
+  - shown only when a statistic is set
+- threading is nearly free
+  - all five data methods already take `value_date`
+    (transformation_service.py:76, 114, 191, 234, 270)
+  - the view passes the shifted value to
+    `current_condition(value=...)` (:142) so the badge
+    matches the shifted number
+  - the five chart bodies (charts.py:30-95) forward
+    `value_date` from `params` — pie and gauge included
+- the Period attribute + header follow automatically
+  - both render from the `period_start`/`period_end`
+    context (detail_card.html:69, period_range.html:1-7)
+- the Evaluation Date attribute does not
+  - hard-coded `visual.date` (detail_card.html:63)
+  - gets the shifted date via a `value_date` context key
+    (effective-date fallback, A7)
+- not A1's comparison series — renders one period, no
+  ghost frame (when A1 ships, it follows the shifted
+  date)
+- extension to signage (out of scope)
+  - `?value_date=YYYY-MM-DD` on the display URL
+  - `display_view` → `display_slides()`
+    (signage/services/transformation_service.py:46) →
+    each section's `render_context(value_date=...)` (:63)
+  - the operator navigates the kiosk to the URL to
+    preview and back to the plain URL to revert
+- tests:
+  - the form renders the picked date's period
+  - missing or invalid param renders the effective date
+  - detail view context shifted
+    (value, condition, period, chart params)
 
-### A7 — Decided, intentionally unchanged
+### A7 — Follow-today date (auto-rollover)
+
+- today: `date` defaults to `timezone.localdate` once at
+  creation (models.py:56)
+  - every computation keys to the saved value
+    (transformation_service.py:77, 128)
+  - nothing rolls it forward
+  - a daily visual on a wall shows creation-day's number
+    forever
+- add a model field, `date_follows_today`
+  - `models.BooleanField(default=True)`
+  - the migration sets existing rows to True — all
+    current visuals start rolling; pinning stays one
+    checkbox away
+- one choke point: an `effective_date` property
+  - `timezone.localdate()` when following
+  - else `date`
+  - every `value_date or self.obj.date` fallback uses it
+    (five sites: transformation_service.py:52, 77, 128,
+    203, 282)
+  - missing one leaves that surface on the saved date
+    (e.g. header rolls, charts don't)
+- every surface rolls at midnight
+  - cards, regions, signage, and detail
+  - the 120s cache absorbs the rollover lag
+- the Edit form gets a "Follow today" checkbox
+  - the date field is disabled while following
+  - the field always shows the effective date
+    (today while following)
+  - while the checkbox is on, saving never writes `date`
+  - unchecking makes the field editable
+  - saving then writes the field's value to `date`
+    - e.g. the field shows 2026-09-24 → `date` =
+      2026-09-24
+    - never the stale value in the database
+- the Evaluation Date attribute (detail_card.html:63)
+  shows the effective date
+- A6's form bounds at today
+- tests:
+  - `effective_date` follows the flag
+  - a following daily visual recomputes for the new day
+  - a pinned one does not
+  - pinning via the form
+  - fixtures asserting a specific date pin the flag
+    (False)
+
+### A8 — Decided, intentionally unchanged
 
 - **Transparent, icon-less indicator circle when there is no
   data** — kept as-is.
@@ -505,22 +633,23 @@ Batches:
   considered, not doing it (an all-time total is a weak
   signal: the charts already show the per-reference daily
   spread; the save-time block + the no-match state cover
-  the important cases)
+  the important cases).
 
 ## 5. Files to change
 
 | Area | Path | Items |
 |---|---|---|
-| Computation | `django_spire/metric/visual/services/transformation_service.py` | A1, A2, A4, A5, A6 |
+| Computation | `django_spire/metric/visual/services/transformation_service.py` | A1, A2, A4, A5, A6, A7 |
+| Visual model | `django_spire/metric/visual/models.py` | A7 |
+| Visual form | `django_spire/metric/visual/forms.py` | A7 |
 | Visual services | `django_spire/metric/visual/services/service.py` | A4 |
 | Charts | `django_spire/metric/visual/charts.py` | A1, A2, A3, A6 |
-| Interval math | `django_spire/metric/domain/statistic/interval.py` | A6 |
 | Detail view | `django_spire/metric/visual/views/page_views.py` | A5, A6 |
 | Render template | `.../visual/render/visual.html` | A5 |
-| Detail page | `.../visual/page/detail_page.html` | A6 |
+| Detail card | `.../visual/card/detail_card.html` | A6, A7 |
 | Chart client | `django_spire/core/templates/django_spire/chart/chart.html` | A2, §3 #1/#3 |
 | Signage display | `django_spire/metric/visual/signage/views/page_views.py` | §3 #4 |
 | Signage page | `.../signage/page/display_page.html` | §3 #1/#3 |
-| Tests | `django_spire/metric/visual/tests/` (services, views, models), `.../signage/tests/`, `.../domain/statistic/tests/test_interval.py` | all |
+| Tests | `django_spire/metric/visual/tests/` (services, views, models), `.../signage/tests/` | all |
 
 Template paths are under `django_spire/metric/visual/templates/django_spire/`.
