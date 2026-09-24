@@ -240,7 +240,7 @@ class UserFormSaveModelObjTestCase(BaseTestCase):
 
         user = AuthUser.objects.get(email='newuser@example.com')
         assert user.username == 'newuser@example.com'
-        assert str(user.pk) in response.result['redirect']['url']
+        assert str(user.pk) in response.redirect['url']
 
     def test_save_model_obj_updates_user(self) -> None:
         user = create_user(
@@ -423,7 +423,7 @@ class UserGroupFormSaveModelObjTestCase(BaseTestCase):
         form = UserGroupForm(data={'groups': [self.group1.pk]}, instance=self.user)
         response = form.save_model_obj(self.request)
 
-        assert str(self.user.pk) in response.result['redirect']['url']
+        assert str(self.user.pk) in response.redirect['url']
 
     def test_save_model_obj_invalid_group_returns_error(self) -> None:
         form = UserGroupForm(data={'groups': [99999]}, instance=self.user)

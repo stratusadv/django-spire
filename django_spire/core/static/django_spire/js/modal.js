@@ -80,24 +80,20 @@ Spire.modal = {
     },
 
     /**
-     * Show the HTML returned by a Glue attribute declared with @Glue.html_attr.
+     * Show a Glue component or the HTML returned by @Glue.html_attr.
      * The content arrives with its own proxies already registered, so it takes
-     * no scopeData.
+     * no scopeData. A component is rendered here and disposed on close.
      *
      * Resolves when the modal CLOSES, with whatever the content passed to
-     * Spire.modal.close() -- so the opener decides what the outcome means,
-     * rather than the content reaching out to invalidate things it shouldn't
-     * know about:
+     * Spire.modal.close(). A component can expose an event from an owned form:
      *
      *     @click="
-     *         const outcome = await Spire.modal.dispatchGlue(
-     *             component.edit_entry_modal({ entry_id: 12 }),
-     *             { dialogClasses: 'modal-lg' }
-     *         )
-     *         if (outcome?.saved) await component.render()
+     *         const modal = await component.edit_entry_modal({ entry_id: 12 })
+     *         modal.$on('saved', () => component.$refresh())
+     *         await Spire.modal.dispatchGlue(modal, { dialogClasses: 'modal-lg' })
      *     "
      *
-     * @param {Promise<{html: string}>|{html: string}} glueHtmlResult
+     * @param {Promise<*>|*} glueHtmlResult
      * @param {object} [options={}]
      * @param {object} [options.eventData={}]
      * @param {string} [options.dialogClasses='']
@@ -106,24 +102,36 @@ Spire.modal = {
      */
     async dispatchGlue(glueHtmlResult, {eventData = {}, dialogClasses = '', renderToBody = true} = {}) {
         const result = await glueHtmlResult;
+        const component = result && typeof result === 'object' && '$el' in result
+            && typeof result.render === 'function' && typeof result.$dispose === 'function'
+            ? result : null;
 
-        if (typeof result?.html !== 'string') {
-            const hint = typeof result === 'string'
-                ? `Received the rendered text, which is what a plain @Glue.attr ` +
-                  `returning a TemplateResponse resolves to: its markup would show, ` +
-                  `but the proxies it binds to would never be registered.`
-                : `Received ${result?.constructor?.name ?? String(result)}.`;
+        try {
+            const rendered = component ? await component.render() : result;
+            if (typeof rendered?.html !== 'string') {
+                const hint = typeof rendered === 'string'
+                    ? `Received the rendered text, which is what a plain @Glue.attr ` +
+                      `returning a TemplateResponse resolves to: its markup would show, ` +
+                      `but the proxies it binds to would never be registered.`
+                    : `Received ${rendered?.constructor?.name ?? String(rendered)}.`;
 
-            throw new Error(
-                `Spire.modal.dispatchGlue() expects the result of a Glue attribute ` +
-                `declared with @Glue.html_attr. ${hint}`
-            );
+                throw new Error(
+                    `Spire.modal.dispatchGlue() expects a Glue component or the result ` +
+                    `of a Glue attribute declared with @Glue.html_attr. ${hint}`
+                );
+            }
+
+            const closed = new Promise(resolve => Spire.modal._settleOnClose(resolve));
+            Spire.modal.dispatch(rendered.html, {eventData, dialogClasses, renderToBody});
+
+            return await closed;
+        } finally {
+            if (component) {
+                const root = component.$el;
+                component.$dispose();
+                root?.remove();
+            }
         }
-
-        const closed = new Promise(resolve => Spire.modal._settleOnClose(resolve));
-        Spire.modal.dispatch(result.html, {eventData, dialogClasses, renderToBody});
-
-        return closed;
     },
 
     /**
@@ -145,9 +153,14 @@ Spire.modal = {
      * @param {object} [options.eventData={}]
      * @param {string} [options.dialogClasses='']
      * @param {boolean} [options.renderToBody=true]
+     * @returns {Promise<*>} the outcome passed to Spire.modal.close(), or
+     *     undefined if dismissed -- the same contract as dispatchGlue()
      */
     async dispatchView(url, {payload = {}, eventData = {}, dialogClasses = 'modal-dialog-centered', renderToBody = true} = {}) {
         let htmlContent = await Glue.view(url).get(payload);
+        const closed = new Promise(resolve => Spire.modal._settleOnClose(resolve));
         Spire.modal.dispatch(htmlContent, {eventData, dialogClasses, renderToBody});
+
+        return closed;
     }
 };

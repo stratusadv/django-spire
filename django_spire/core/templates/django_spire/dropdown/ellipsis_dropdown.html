@@ -19,7 +19,14 @@
         </a>
     </li>
     {% endif %}
-    {% if delete_url and delete_url != '#' %}
+    {% if delete_modal_url and delete_modal_url != '#' %}
+    <li>
+        <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="#"
+           @click.prevent="await Spire.modal.dispatchView('{{ delete_modal_url }}')">
+            <i class="bi bi-trash"></i>Delete
+        </a>
+    </li>
+    {% elif delete_url and delete_url != '#' %}
     <li>
         <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="{{ delete_url }}">
             <i class="bi bi-trash"></i>Delete

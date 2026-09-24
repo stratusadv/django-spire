@@ -29,7 +29,7 @@ class SignageModelForm(forms.ModelForm):
         if self.is_valid():
             signage, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
-            return GlueResponse(result={'redirect': {'url': _signage_detail_url(signage.pk)}})
+            return GlueResponse(redirect={'url': _signage_detail_url(signage.pk)})
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
@@ -51,7 +51,7 @@ class SignagePresentationModelForm(forms.ModelForm):
         if self.is_valid():
             link, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
-            return GlueResponse(result={'redirect': {'url': _signage_detail_url(link.signage_id)}})
+            return GlueResponse(redirect={'url': _signage_detail_url(link.signage_id)})
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
