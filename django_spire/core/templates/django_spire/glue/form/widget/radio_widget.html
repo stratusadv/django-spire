@@ -17,7 +17,7 @@
                             :checked="value === choice.value"
                             @change="value = choice.value"
                             :disabled="Boolean(field.disabled) || (field.disabled_choices || []).includes(choice.value)">
-                        <label class="form-check-label" :for="`${field.name}-${choice.value}`" x-text="choice.label"></label>
+                        <label class="form-check-label" :for="`${field.name}-${choice.value}`" x-html="field.choiceLabelHtml(choice)"></label>
                     </div>
                 </div>
             </template>

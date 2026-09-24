@@ -4,4 +4,4 @@
 >
     {% if is_selected %}<i class="bi bi-check"></i>{% endif %}
 </span>
-<span class="text-truncate" x-text="choice.label"></span>
+<span class="text-truncate" x-html="field.choiceLabelHtml(choice)"></span>

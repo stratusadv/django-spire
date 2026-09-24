@@ -159,6 +159,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
+    'django_glue.middleware.GlueViewMiddleware',
 ]
 
 KALEIDOSCOPE_IGNORE_PATHS = [

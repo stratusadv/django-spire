@@ -28,7 +28,7 @@
                 <label
                     class="form-check-label"
                     :for="field.id + '_' + choice.value"
-                    x-text="choice.label"
+                    x-html="field.choiceLabelHtml(choice)"
                 ></label>
             </div>
         </template>

@@ -48,7 +48,7 @@ dependencies = [
     "celery-types==0.26.0",
     "dandy==2.2.0",
     "django==6.0.6",
-    "django-glue==1.0.1",
+    "django-glue",
     "django-ninja==1.7.0",
     "django-sendgrid-v5==1.3.1",
     "django-storages==1.14.6",
@@ -67,6 +67,11 @@ dependencies = [
     "twilio==9.11.0",
     "statistic==0.1.6",
 ]
+
+# BRANCH-LOCAL: builds against the django-glue working tree (v1.1/base) rather
+# than the released 1.0.1 on PyPI. Restore a version pin before this merges.
+[tool.uv.sources]
+django-glue = { path = "../django-glue", editable = true }
 
 [project.optional-dependencies]
 production = []
