@@ -317,26 +317,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return result
 
     def gauge_max(self) -> int:
-        key = self._cache_key('gauge', include_conditions=True)
-        cached = cache.get(key)
-        if cached is not None:
-            return cached
-
-        ceiling = Decimal(0)
-
-        for condition in self.obj.conditions.all():
-            upper = condition.target + condition.tolerance
-            ceiling = max(ceiling, upper)
-
-        if ceiling <= 0:
-            ceiling = self.current_value() * Decimal(2)
-
-        if ceiling <= 0:
-            ceiling = Decimal(100)
-
-        result = int(ceiling)
-        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
-        return result
+        return 100
 
     def chart(self, value_date: date | None = None) -> Any | None:
         from django_spire.metric.visual.charts import VISUAL_CHART_CLASSES  # noqa: PLC0415

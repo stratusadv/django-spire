@@ -4,7 +4,10 @@ from datetime import date
 from typing import Any
 
 from django_spire.contrib.chart.charts import AreaChart, BarChart, GaugeChart, LineChart, PieChart
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.visual.choices import VisualKindChoices
 from django_spire.metric.visual.models import Visual
 
@@ -118,6 +121,17 @@ class VisualPieChart(PieChart):
         }
 
 
+def _gauge_item(dataset: dict, ceiling: int, is_percentage: bool) -> dict:
+    value = round(float(dataset['value']), 2)
+
+    if is_percentage:
+        return {'value': value, 'name': dataset['label'], 'label': dataset['label']}
+
+    reference = f'{value / ceiling * 100:.1f}%' if ceiling > 0 else ''
+
+    return {'value': value, 'name': reference or dataset['label'], 'label': dataset['label']}
+
+
 class VisualGaugeChart(GaugeChart):
     glue_name = 'visual_gauge_chart'
 
@@ -125,9 +139,16 @@ class VisualGaugeChart(GaugeChart):
     def build_option_body(cls, visual_pk: int, **kwargs: Any) -> dict:
         visual = _visual_for(visual_pk)
         value_date = _value_date(kwargs.get('value_date'))
+        transformation = visual.services.transformation
 
-        ceiling = visual.services.transformation.gauge_max()
-        datasets = visual.services.transformation.dataset_values(value_date)
+        statistic = visual.statistic
+        is_percentage = (
+            statistic is not None and statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
+        )
+        value_type = statistic.value_type if statistic else StatisticValueTypeChoices.NUMBER
+
+        ceiling = transformation.gauge_max()
+        datasets = transformation.dataset_values(value_date)
 
         return {
             'series': [
@@ -135,11 +156,10 @@ class VisualGaugeChart(GaugeChart):
                     'name': visual.name,
                     'min': 0,
                     'max': ceiling,
-                    'detail': {'formatter': '{value}'},
-                    'data': [
-                        {'value': round(float(dataset['value']), 2), 'name': dataset['label']}
-                        for dataset in datasets
-                    ],
+                    'valueType': value_type,
+                    'detail': {'offsetCenter': ['0%', '0%']},
+                    'title': {'show': not is_percentage, 'offsetCenter': ['0%', '70%']},
+                    'data': [_gauge_item(dataset, ceiling, is_percentage) for dataset in datasets],
                 }
             ]
         }

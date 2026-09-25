@@ -5,9 +5,52 @@
         _glue_name: '{{ chart_glue_name|default:'' }}',
         _update_interval: {{ chart_update_interval|default:3 }},
 
+        _gauge_detail_formatter(value_type) {
+            const fixed = (number) =>
+                number.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            return (value) => {
+                const number = Number(value ?? 0);
+
+                if (value_type === 'percentage') {
+                    return `${fixed(number)}%`;
+                }
+                if (value_type === 'currency') {
+                    return `${number < 0 ? '-' : ''}$${fixed(Math.abs(number))}`;
+                }
+                return number.toLocaleString('en-US', {maximumFractionDigits: 2});
+            };
+        },
+        _inject_gauge_formatters(option) {
+            let gaugeLabels = null;
+
+            for (const series of option.series || []) {
+                if (series.type !== 'gauge') continue;
+
+                series.detail = {
+                    ...(series.detail || {}),
+                    formatter: this._gauge_detail_formatter(series.valueType),
+                };
+
+                gaugeLabels = Object.fromEntries(
+                    (series.data || []).map((item) => [item.name, item.label ?? item.name])
+                );
+            }
+
+            if (gaugeLabels && option.legend) {
+                option.legend = {
+                    ...option.legend,
+                    formatter: (name) => gaugeLabels[name] ?? name,
+                };
+            }
+
+            return option;
+        },
         init() {
             this.theme = window.get_echarts_theme ? window.get_echarts_theme() : {};
-            const option = this._themed(JSON.parse(this.$el.querySelector('#chart-option').textContent));
+            const option = this._themed(
+                this._inject_gauge_formatters(JSON.parse(this.$el.querySelector('#chart-option').textContent))
+            );
             this._params = JSON.parse(this.$el.querySelector('#chart-params').textContent);
 
             this.chart = echarts.init($el);
@@ -50,7 +93,7 @@
                 const option = response?.result?.result ?? response?.result ?? response;
 
                 if (option) {
-                    this.chart.setOption(this._themed(option), { notMerge: true });
+                    this.chart.setOption(this._themed(this._inject_gauge_formatters(option)), { notMerge: true });
                 }
             } catch (error) {
                 console.error('Chart update failed:', error);

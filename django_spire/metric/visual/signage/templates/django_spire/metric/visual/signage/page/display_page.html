@@ -54,6 +54,7 @@
                 root.style.setProperty('--signage-zoom', '1');
             }
 
+            const truncate = (name) => (name.length > 28 ? '…' + name.slice(-27) : name);
             const attach = () => {
                 if (!window.echarts || echarts._kioskThemePatched) return;
                 echarts._kioskThemePatched = true;
@@ -79,7 +80,7 @@
                             option.legend = {
                                 ...option.legend,
                                 bottom: 8,
-                                formatter: (name) => (name.length > 28 ? '…' + name.slice(-27) : name),
+                                formatter: truncate,
                                 textStyle: { ...(option.legend.textStyle || {}), fontSize: fontSize },
                             };
                         }
@@ -101,7 +102,14 @@
                         }
                         for (const series of option.series || []) {
                             if (series.type === 'pie') {
-                                series.label = { ...(series.label || {}), show: false };
+                                series.label = {
+                                    ...(series.label || {}),
+                                    show: true,
+                                    formatter: (params) => truncate(params.name),
+                                    overflow: 'truncate',
+                                    width: Math.floor(chart.getWidth() * 0.35),
+                                };
+                                series.labelLayout = { ...(series.labelLayout || {}), hideOverlap: true };
                             }
                         }
 

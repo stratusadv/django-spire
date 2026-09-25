@@ -7,7 +7,10 @@ from typing import Any
 from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.visual.charts import (
     VisualGaugeChart,
     VisualLineChart,
@@ -34,9 +37,9 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         domain = create_test_domain()
         self.sub_domain = create_test_subdomain(domain=domain)
-        group = create_test_statistic_group(domain=domain)
+        self.group = create_test_statistic_group(domain=domain)
         self.statistic = create_test_statistic(
-            group=group, interval=StatisticIntervalChoices.WEEKLY
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
         )
 
     def _chart_option(
@@ -197,10 +200,53 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         option = chart.to_option_dict()
 
-        assert option['series'][0]['type'] == 'gauge'
-        assert option['series'][0]['min'] == 0
-        assert option['series'][0]['max'] == 60
-        assert option['series'][0]['data'][0]['value'] == 50.0
+        series = option['series'][0]
+
+        assert series['type'] == 'gauge'
+        assert series['min'] == 0
+        assert series['max'] == 100
+        assert series['valueType'] == StatisticValueTypeChoices.NUMBER
+        assert series['detail'] == {'offsetCenter': ['0%', '0%']}
+        assert series['title'] == {'show': True, 'offsetCenter': ['0%', '70%']}
+        assert option['legend'] == {'bottom': 30}
+
+        item = series['data'][0]
+
+        assert item['value'] == 50.0
+        assert item['name'] == '50.0%'
+        assert item['label'] == visual.services.transformation.dataset_values()[0]['label']
+
+    def test_gauge_chart_option_percentage(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(
+            statistic=statistic,
+            kind='gauge',
+            target=Decimal(80),
+            tolerance=Decimal(10),
+            with_conditions=True,
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal('12.34'), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['max'] == 100
+        assert series['valueType'] == StatisticValueTypeChoices.PERCENTAGE
+        assert series['title'] == {'show': False, 'offsetCenter': ['0%', '70%']}
+
+        item = series['data'][0]
+
+        assert item['value'] == 12.34
+
+        label = visual.services.transformation.dataset_values()[0]['label']
+
+        assert item['name'] == label
+        assert item['label'] == label
 
     def test_independent_instances_share_one_glue_name(self):
         chart_a, _ = self._chart_option('line', reference='/home/')

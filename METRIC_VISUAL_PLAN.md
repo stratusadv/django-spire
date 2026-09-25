@@ -1112,3 +1112,105 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   {'hideOverlap': True}}` for all grid charts (framework
   safety net, no-op when labels fit); pinned in
   `test_line_chart_option`.
+- **Kiosk pie labels restored (with protection)** — the kiosk
+  theme patch in `display_page.html` (added 2026-09-21 in
+  `a77e8d6e`, the scaling overhaul) had been force-hiding pie
+  labels (`label.show = false`) so un-truncated reference
+  names couldn't break the wall layout. Now: the 28-char
+  truncator is extracted into a `truncate()` helper shared by
+  the legend and pie labels; the pie branch sets
+  `show: true`, `formatter: truncate(params.name)`,
+  `overflow: 'truncate'` + `width: 35%` of the canvas
+  (ECharts-level ellipsis, computable only client-side), and
+  `labelLayout.hideOverlap: true` so crowded pies drop
+  overlapping labels. No slice-count gate — a many-slice pie
+  shows whatever fits, legend still below. Inline template
+  JS (no test coverage; verified visually).
+- **A2 — gauge value, reference, scale** —
+  - Scale fix: `gauge_max()` short-circuits
+    `if self._is_percentage(): return 100` before the
+    condition/value fallbacks — a 5% gauge no longer gets
+    max 10 (needle dead center); conditions now sit at
+    meaningful positions (target 10 = the 10% mark). Low
+    rates sit near the bottom: honest over zoomed.
+  - Layout: value centered (`detail.offsetCenter
+    ['0%','0%']`), reference ratio at the bottom
+    (`title.offsetCenter ['0%','70%']`).
+  - Value-type rule: the server pre-computes both strings
+    per data item via `format_statistic_value` —
+    `detail` = the formatted value (`12.34%`,
+    `$1,234.50`, `1,234`), `reference` =
+    `value / max × 100` at 1 decimal (`83.3%`) for
+    number/currency only; percentage gauges omit it and
+    set `title.show: false`. ECharts formatters are
+    functions and cannot travel in the JSON payload, so
+    `chart.html` injects them once at init (reading
+    `params.data.detail` / `params.data.reference`); a
+    no-statistic gauge ships empty data and the formatters
+    are never invoked.
+  - Tests: `test_gauge_max_is_100_for_percentage`
+    (with conditions — the short-circuit is a single line,
+    so the without-conditions variant is a strict
+    subsumption), gauge chart-option asserts extended to
+    the detail/title dicts + item strings, plus a
+    percentage chart-option test (max 100, `12.34%`, no
+    reference, title hidden). Metric + core 894 passed.
+- **A2 follow-up (needle z-order + update-path formatters)** —
+  - The gauge pointer drew over the center value: `detail`
+    and `title` now carry `z: 10` so both text layers sit
+    above the needle.
+  - The Glue polling path (`_update()` in `chart.html`)
+    re-sets the option with `notMerge: true` from the JSON
+    payload, which carries no functions — after the first
+    poll the gauge reverted to the raw `{value}` center
+    (no `%`/`$` label, so it no longer matched the card
+    header) and the name instead of the ratio. The
+    formatter injection was extracted to
+    `_inject_gauge_formatters(option)` and is now applied
+    in both `init()` and `_update()`.
+- **A2 follow-up (ECharts gauge contract + 0–100 scale)** —
+  Read the shipped ECharts 6.1.0 `GaugeView` source; three
+  hard facts reshaped the design:
+  - `detail.formatter(fn)` is called with the **raw value
+    number only** — `params.data` never exists, so the
+    earlier `params.data?.detail` always fell through to
+    `String(params.value ?? 0)` → `'0'` (the reported
+    0-in-the-middle). The detail text is now formatted
+    client-side in `_gauge_detail_formatter(value_type)`,
+    mirroring `format_statistic_value` (percentage
+    `51.12%`, currency `-$1,234.50`, number `1,234.5`);
+    `valueType` rides in the series payload (ECharts
+    ignores unknown keys) and the count-up animation
+    formats interpolated values cleanly.
+  - The gauge **title never calls a formatter** — it
+    always renders the data item's `name`. The reference
+    ratio now rides in `name` (e.g. `50.0%`); percentage
+    gauges hide the title, where the label stays the
+    name.
+  - Title/detail `z2` is hard-coded from
+    `pointer.showAbove` (0 or 2) and the pointer renders
+    last — **no option puts text above the needle**; the
+    `z: 10` experiment was dead config and is removed.
+    Needle restored (user choice); the slight overlap
+    with the center value is accepted.
+  - **All gauges are now 0–100** (user decision,
+    overriding the type-conditional scale):
+    `gauge_max()` returns `100` unconditionally — the
+    conditions still color the arc/state but no longer
+    set the ceiling. The three old gauge_max tests
+    (250-from-conditions, 80-value-fallback,
+    100-percentage) collapsed to one
+    `test_gauge_max_is_100`; the chart-option test keeps
+    a 60-ceiling condition and asserts max 100 to pin
+    the override. Metric + core 892 passed.
+- **A2 follow-up (legend + reference label restored)** —
+  The hidden legend was overreach: the gauge legend had
+  always shown the reference label, and moving the ratio
+  into `name` cost the legend that label. Restored:
+  `VisualGaugeChart` no longer hides the legend; each data
+  item carries `label` (the reference name) alongside
+  `name` (the ratio), and `chart.html` injects a
+  `legend.formatter` mapping name→label (functions can't
+  ride in the JSON payload) — so the legend shows the
+  reference label again while the title keeps the A2
+  ratio. Metric + core 892 passed.
