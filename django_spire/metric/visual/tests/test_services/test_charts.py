@@ -83,13 +83,29 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         assert chart.glue_name == 'visual_line_chart'
         assert chart.data_function_path.endswith('visual_line_chart_data')
-        assert option['xAxis'] == {'type': 'time'}
+        assert option['xAxis']['type'] == 'category'
+        assert option['xAxis']['axisLabel'] == {'hideOverlap': True}
+        assert option['xAxis']['data'] == [
+            'Feb 22',
+            'Mar 1',
+            'Mar 8',
+            'Mar 15',
+            'Mar 22',
+            'Mar 29',
+            'Apr 5',
+            'Apr 12',
+            'Apr 19',
+            'Apr 26',
+            'May 3',
+            'May 10',
+        ]
+        assert option['yAxis'] == {'type': 'value', 'axisLabel': {'hideOverlap': True}}
         assert option['series'][0]['type'] == 'line'
 
         points = option['series'][0]['data']
         assert len(points) == 12
-        assert points[-1] == ['2026-05-10', 30.0]
-        assert all(point[1] == 0.0 for point in points[:-1])
+        assert points[-1] == 30.0
+        assert all(point == 0.0 for point in points[:-1])
 
     def test_line_chart_option_multiple_datasets(self):
         chart, option = self._chart_option('line', references=['/home/', '/dashboard/'])
@@ -98,9 +114,9 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         assert [item['name'] for item in series] == ['/home/', '/dashboard/']
         assert [len(item['data']) for item in series] == [12, 12]
-        assert series[0]['data'][-1] == ['2026-05-10', 30.0]
-        assert series[1]['data'][-1] == ['2026-05-10', 180.0]
-        assert all(point[1] == 0.0 for item in series for point in item['data'][:-1])
+        assert series[0]['data'][-1] == 30.0
+        assert series[1]['data'][-1] == 180.0
+        assert all(point == 0.0 for item in series for point in item['data'][:-1])
 
         assert isinstance(chart, VisualLineChart)
 
@@ -108,13 +124,14 @@ class VisualChartOptionTestCase(BaseTestCase):
         chart, option = self._chart_option('bar', reference='/home/')
 
         assert chart.glue_name == 'visual_bar_chart'
-        assert option['xAxis'] == {'type': 'time'}
+        assert option['xAxis']['type'] == 'category'
+        assert option['xAxis']['axisLabel'] == {'hideOverlap': True}
         assert option['series'][0]['type'] == 'bar'
 
         points = option['series'][0]['data']
         assert len(points) == 12
-        assert points[-1] == ['2026-05-10', 30.0]
-        assert all(point[1] == 0.0 for point in points[:-1])
+        assert points[-1] == 30.0
+        assert all(point == 0.0 for point in points[:-1])
 
     def test_area_chart_option_has_area_style(self):
         _, option = self._chart_option('area', reference='/home/')
@@ -206,7 +223,9 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         option = visual_line_chart_data(visual_pk=visual.pk)
 
+        assert option['xAxis']['data'][-1] == f'{week_start:%b} {week_start.day}'
+
         data = option['series'][0]['data']
         assert len(data) == 12
-        assert data[-1] == [week_start.isoformat(), 5.0]
-        assert all(point[1] == 0.0 for point in data[:-1])
+        assert data[-1] == 5.0
+        assert all(point == 0.0 for point in data[:-1])

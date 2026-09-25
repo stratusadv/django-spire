@@ -317,6 +317,9 @@ class VisualChartExecuteTestCase(BaseTestCase):
         )
 
         assert response.status_code == 200
-        data = response.json()['result']['result']['series'][0]['data']
+        option = response.json()['result']['result']
+        assert option['xAxis']['data'][-2:] == ['May 14', 'May 15']
+
+        data = option['series'][0]['data']
         assert len(data) == 8
-        assert data[-2:] == [['2026-05-14', 10.0], ['2026-05-15', 20.0]]
+        assert data[-2:] == [10.0, 20.0]

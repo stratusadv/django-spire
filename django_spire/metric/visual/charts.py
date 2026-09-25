@@ -4,6 +4,7 @@ from datetime import date
 from typing import Any
 
 from django_spire.contrib.chart.charts import AreaChart, BarChart, GaugeChart, LineChart, PieChart
+from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.visual.choices import VisualKindChoices
 from django_spire.metric.visual.models import Visual
 
@@ -19,14 +20,34 @@ def _value_date(value_date: Any) -> date | None:
     return date.fromisoformat(value_date) if isinstance(value_date, str) else value_date
 
 
+def _unit_label(unit_start: date, interval: str, first_year: int) -> str:
+    if interval == StatisticIntervalChoices.MONTHLY:
+        if unit_start.year == first_year:
+            return f'{unit_start:%b}'
+
+        return f'{unit_start:%b} {unit_start.year % 100}'
+
+    return f'{unit_start:%b} {unit_start.day}'
+
+
+def _unit_x_axis(visual: Visual, value_date: date | None) -> dict:
+    datasets = visual.services.transformation.series_datasets(value_date)
+    points = datasets[0]['points'] if datasets else []
+
+    labels = []
+    if points:
+        interval = visual.statistic.interval
+        first_year = points[0]['timestamp'].year
+        labels = [_unit_label(point['timestamp'], interval, first_year) for point in points]
+
+    return {'type': 'category', 'data': labels, 'axisLabel': {'hideOverlap': True}}
+
+
 def _series_option(visual: Visual, value_date: date | None) -> list[dict]:
     return [
         {
             'name': dataset['label'],
-            'data': [
-                [point['timestamp'].isoformat(), round(float(point['value']), 2)]
-                for point in dataset['points']
-            ],
+            'data': [round(float(point['value']), 2) for point in dataset['points']],
         }
         for dataset in visual.services.transformation.series_datasets(value_date)
     ]
@@ -40,7 +61,10 @@ class VisualLineChart(LineChart):
         visual = _visual_for(visual_pk)
         value_date = _value_date(kwargs.get('value_date'))
 
-        return {'xAxis': {'type': 'time'}, 'series': _series_option(visual, value_date)}
+        return {
+            'xAxis': _unit_x_axis(visual, value_date),
+            'series': _series_option(visual, value_date),
+        }
 
 
 class VisualBarChart(BarChart):
@@ -51,7 +75,10 @@ class VisualBarChart(BarChart):
         visual = _visual_for(visual_pk)
         value_date = _value_date(kwargs.get('value_date'))
 
-        return {'xAxis': {'type': 'time'}, 'series': _series_option(visual, value_date)}
+        return {
+            'xAxis': _unit_x_axis(visual, value_date),
+            'series': _series_option(visual, value_date),
+        }
 
 
 class VisualAreaChart(AreaChart):
@@ -62,7 +89,10 @@ class VisualAreaChart(AreaChart):
         visual = _visual_for(visual_pk)
         value_date = _value_date(kwargs.get('value_date'))
 
-        return {'xAxis': {'type': 'time'}, 'series': _series_option(visual, value_date)}
+        return {
+            'xAxis': _unit_x_axis(visual, value_date),
+            'series': _series_option(visual, value_date),
+        }
 
 
 class VisualPieChart(PieChart):

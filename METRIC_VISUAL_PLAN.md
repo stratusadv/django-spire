@@ -1073,13 +1073,42 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   plus `container-type: size`, so the circle/caption cqw/cqh units
   resolve against the same box the ECharts canvas occupies.
   Circle: centered at `top: 45%` (the pie's `center: ['50%','45%']`)
-  with diameter `min(65cqw, 65cqh)` — between the original
+  with diameter `min(60cqw, 60cqh)` — between the original
   (~40cqh) and the pie's 75% default, per user tuning (smaller than
   the pie, larger than before); the icon scales with it
-  (`min(32.5cqw, 32.5cqh)`, the prior 50% ratio). The state
+  (`min(30cqw, 30cqh)`, the prior 50% ratio). The state
   caption (badge + text, including the A5 "No matching data" line)
   sits at `bottom: 10%; left: 50%; width: 90%` — a raised variant
   of the pie's legend placement (`bottom: 0`), per user request.
   No Data transparent-circle behavior unchanged. Template only;
   no test changes (nothing pins this markup; the A5 caption-string
   tests still hold).
+- **X-axis rebuilt as one category label per unit (kiosk)** —
+  the line/bar/area charts used `xAxis: {'type': 'time'}`,
+  which is wrong for these fixed-N-unit windows: ECharts
+  places time ticks at *nice time points* (month boundaries),
+  not at our units, so on the kiosk the month names collided
+  with adjacent day numbers ("29Aug"/"29Sep"). First fix was
+  `axisLabel.hideOverlap: true` (off by default in 6.1.0 —
+  verified in the shipped bundle, with it falsy only the
+  first/last label pairs are checked) — that removed the
+  collision but dropped all month context and left a cramped
+  month-boundary tick ("5 8"), so the axis was replaced:
+  `_unit_x_axis()` now returns `{'type': 'category', 'data':
+  [<one label per unit>], 'axisLabel': {'hideOverlap': True}}`
+  and the series data is plain values aligned to that frame
+  (all references share the unit frame, so index alignment
+  holds). `_unit_label()`: daily/weekly → "May 10" (unit
+  start), monthly → "May", with a two-digit year appended
+  ("Jan 26") when a 13-month window crosses into a second
+  year.   `hideOverlap` stays as the fallback for narrow cards.
+  The kiosk theme patch keeps the key (it spreads the existing
+  `axisLabel`). Line/bar/execute-endpoint test expectations
+  updated to the category axis + plain values.
+  Follow-up: the kiosk screenshot then showed the *y* axis
+  with the same disease (0–18 in ten ticks at kiosk font
+  stacked on each other) — the base `Chart._build_option`
+  now emits `yAxis: {'type': 'value', 'axisLabel':
+  {'hideOverlap': True}}` for all grid charts (framework
+  safety net, no-op when labels fit); pinned in
+  `test_line_chart_option`.
