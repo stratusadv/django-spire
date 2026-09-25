@@ -1214,3 +1214,73 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   ride in the JSON payload) — so the legend shows the
   reference label again while the title keeps the A2
   ratio. Metric + core 892 passed.
+- **gauge_max reverted (user)** — the user restored the
+  original conditions-based `gauge_max()` in
+  `transformation_service.py` (max condition
+  target+tolerance, else 2× current value, else 100;
+  cached), superseding the all-gauges-0–100 change. The
+  percentage short-circuit is also gone — percentage
+  gauges scale from their conditions too. Tests
+  re-aligned: `test_gauge_max_derived_from_conditions`
+  (250) and `test_gauge_max_falls_back_to_value` (80)
+  restored; chart-option tests back to the conditions
+  ceilings (number 60 → `83.3%`, percentage 80/10 → 90).
+  Metric + core 893 passed.
+- **A2 re-done + adaptive overflow scale (user)** — the
+  revert also dropped the A2 percentage rule, so
+  `gauge_max()` is back to A2 (percentage → 100) **plus**
+  an overflow rule after the "Support Ticket Volume"
+  screenshot (value 916.22 on a 0–110 scale → needle
+  pegged, "832.9%" reference — nonsense for any fixed
+  scale, 0–100 included). When the value exceeds the
+  conditions ceiling, the ceiling becomes
+  `_nice_ceiling(value × 1.2)` — round up on the ladder
+  1/1.2/1.5/2/2.5/3/4/5/6/8/10 × 10ⁿ (916.22 → 0–1200,
+  needle ~76%, reference `76.4%`). In-range gauges are
+  untouched (conditions scale), percentage gauges stay
+  0–100. The existing gauge cache key embeds
+  `_value_revision()` (latest value timestamp), so the
+  scale recomputes as live values arrive — no stale
+  pegging. Tests: percentage-100 restored, adaptive
+  service test (100/10 + value 1000 → 1200), adaptive
+  chart-option test (916.22 → max 1200, `76.4%`). Metric
+  + core 896 passed.
+- **Indicator cross-browser fallback (user)** — the
+  indicator circle rendered as a collapsed sliver in the
+  user's primary browser (fine in Firefox): the
+  `min(60cqw, 60cqh)` sizing only resolves where
+  container queries work. Layered declarations now: base
+  `height: 60%; aspect-ratio: 1; max-width: 100%` (a
+  square at 60% of the box height — identical look on
+  landscape cards; clamps to an ellipse on portrait
+  cards) with the exact `min(60cqw, 60cqh)` overriding in
+   container-query browsers; icon falls back to `4.75em`
+   (~50% of the circle) with `min(30cqw, 30cqh)` on top.
+   Metric + core 896 passed.
+- **Presentation sections all polling the last visual
+  (user: "sections overwritten as support ticket volume")** —
+  Server side was verified clean (per-section bindings and
+  rendered HTML correct); the overwrite was client-side.
+  Alpine 3.15 `mergeProxies` `set` trap: a write to a key
+  that is **not an own property of any object in the
+  component's data stack** falls through to the last stack
+  entry — the nearest ancestor `x-data` scope, shared by
+  every component on the page. `chart.html`'s `x-data`
+  literal declared `chart`, `theme`, `_glue_name`,
+  `_update_interval` but not `_params`, so every chart's
+  `init()` wrote `this._params` into that shared ancestor
+  scope; the last section to init (Support Ticket Volume,
+  `visual_pk=8`) won, and all 7 charts polled with
+  `visual_pk=8`. Reproduced in a real browser (Playwright):
+  all charts showed the ticket pie/series, every
+  `/__dg__/callable_attribute/*/execute/` request carried
+  `{"visual_pk": 8}`. Fix: declare the runtime properties
+  in the literal (`_params: null`, `_update_timer: null`,
+  `_resize_observer: null`) so each write resolves to the
+  component's own data object. Verified post-fix: each
+  chart polls its own `visual_pk` and renders its own
+  visual. Audit of the other 84 `x-data` usages found no
+  other multi-instance + undeclared-runtime-state cases
+  (signage `rotation` is single-instance per page;
+  `message_item` only writes declared props). Metric +
+  core 896 passed.

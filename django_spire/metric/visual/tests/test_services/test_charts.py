@@ -204,7 +204,7 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         assert series['type'] == 'gauge'
         assert series['min'] == 0
-        assert series['max'] == 100
+        assert series['max'] == 60
         assert series['valueType'] == StatisticValueTypeChoices.NUMBER
         assert series['detail'] == {'offsetCenter': ['0%', '0%']}
         assert series['title'] == {'show': True, 'offsetCenter': ['0%', '70%']}
@@ -213,8 +213,32 @@ class VisualChartOptionTestCase(BaseTestCase):
         item = series['data'][0]
 
         assert item['value'] == 50.0
-        assert item['name'] == '50.0%'
+        assert item['name'] == '83.3%'
         assert item['label'] == visual.services.transformation.dataset_values()[0]['label']
+
+    def test_gauge_chart_option_adapts_to_overflowing_value(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(
+            statistic=statistic,
+            kind='gauge',
+            target=Decimal(100),
+            tolerance=Decimal(10),
+            with_conditions=True,
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal('916.22'), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['max'] == 1200
+
+        item = series['data'][0]
+
+        assert item['value'] == 916.22
+        assert item['name'] == '76.4%'
 
     def test_gauge_chart_option_percentage(self):
         statistic = create_test_statistic(

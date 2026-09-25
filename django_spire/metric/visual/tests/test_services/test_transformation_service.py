@@ -607,11 +607,39 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         assert {'name': '/dashboard/', 'value': 30.0} in breakdown
         assert {'name': '/home/', 'value': 15.0} in breakdown
 
-    def test_gauge_max_is_100(self):
+    def test_gauge_max_derived_from_conditions(self):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, target=Decimal(200), tolerance=Decimal(50))
 
+        assert visual.services.transformation.gauge_max() == 250
+
+    def test_gauge_max_falls_back_to_value(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(40), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.gauge_max() == 80
+
+    def test_gauge_max_is_100_for_percentage(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(statistic=statistic, target=Decimal(200), tolerance=Decimal(50))
+
         assert visual.services.transformation.gauge_max() == 100
+
+    def test_gauge_max_adapts_when_value_exceeds_conditions(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(1000), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.gauge_max() == 1200
 
     def test_current_value_is_cached(self):
         statistic = create_test_statistic(group=self.group)

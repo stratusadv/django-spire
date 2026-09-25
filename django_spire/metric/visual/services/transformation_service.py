@@ -30,6 +30,20 @@ if TYPE_CHECKING:
 
 VISUAL_AGGREGATE_CACHE_TTL_SECONDS = 120
 
+_NICE_CEILING_STEPS = ('1', '1.2', '1.5', '2', '2.5', '3', '4', '5', '6', '8', '10')
+
+
+def _nice_ceiling(value: Decimal) -> int:
+    base = Decimal(1).scaleb(value.adjusted())
+
+    for step in _NICE_CEILING_STEPS:
+        candidate = base * Decimal(step)
+        if candidate >= value:
+            return int(candidate)
+
+    message = f'Unreachable: no nice ceiling for {value}'
+    raise ValueError(message)
+
 
 class VisualTransformationService(BaseDjangoModelService['Visual']):
     obj: Visual
@@ -317,7 +331,33 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return result
 
     def gauge_max(self) -> int:
-        return 100
+        if self._is_percentage():
+            return 100
+
+        key = self._cache_key('gauge', include_conditions=True)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+
+        ceiling = Decimal(0)
+
+        for condition in self.obj.conditions.all():
+            upper = condition.target + condition.tolerance
+            ceiling = max(ceiling, upper)
+
+        if ceiling <= 0:
+            ceiling = self.current_value() * Decimal(2)
+
+        value = self.current_value()
+        if value > ceiling:
+            ceiling = _nice_ceiling(value * Decimal('1.2'))
+
+        if ceiling <= 0:
+            ceiling = Decimal(100)
+
+        result = int(ceiling)
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
 
     def chart(self, value_date: date | None = None) -> Any | None:
         from django_spire.metric.visual.charts import VISUAL_CHART_CLASSES  # noqa: PLC0415

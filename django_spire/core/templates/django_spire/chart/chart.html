@@ -2,6 +2,9 @@
     x-data="{
         chart: null,
         theme: {},
+        _params: null,
+        _update_timer: null,
+        _resize_observer: null,
         _glue_name: '{{ chart_glue_name|default:'' }}',
         _update_interval: {{ chart_update_interval|default:3 }},
 
