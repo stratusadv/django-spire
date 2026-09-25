@@ -827,6 +827,60 @@ frame, on every surface.
   - unit: `visual_line_chart_data(visual_pk=pk)` returns the
     option (and, with `value_date` as a string, A6's shape)
 
+### A10 — Chart scaling at every resolution (deferred)
+
+- **Decision (unit-strategy question, user asked to park it):**
+  do **not** convert charts to `cqw/cqh/vw/vh`.
+  - ECharts options are canvas data — no CSS units exist inside
+    them; every metric is a px number or a `%` string, so there
+    is nothing to convert. Sizing can only be computed
+    client-side before `setOption` (which is what the signage
+    patch already does).
+  - `cqw/cqh` are the exact feature class broken in the user's
+    Chrome (`cqh` resolves to 0 when the container's height
+    comes from `min-height`/flex — the indicator collapse, see
+    implementation log). Building the visual system on them
+    would reintroduce that bug everywhere.
+  - `vw/vh` are viewport-anchored and wrong for
+    card-embedded charts (the box is not a fixed fraction of
+    the viewport — sidebar, header, column/row counts vary);
+    only a full-bleed kiosk layout qualifies.
+- **The scale unit is the root font size** — the mechanism
+  signage already uses and is the actual answer to
+  "consistency at every resolution":
+  - DOM text is rem-based (scales automatically)
+  - geometry is `%` of its own box (indicator circle `60%`,
+    chart box `flex: 1 1 auto`) — already resolution-independent
+  - ECharts text/grid metrics derive from the root font via
+    the `display_page.html` patch, which sets
+    `html { font-size: 100vh/50 }` (kiosk zoom vars) and reads
+    the computed root font into textStyle/legend/axes/tooltip
+    + font-derived grid margins
+  - browser zoom needs nothing: it scales canvas and DOM
+    together, and the computed root font stays 16px, so the
+    options stay 12px and the whole page zooms uniformly
+- **Pickup recipe (if/when wanted):** extract the font scaling
+  out of `display_page.html` into `chart.html`'s `_themed()`
+  hook — the single init point for every Spire chart, and it
+  already runs on init *and* every poll update:
+  - read `getComputedStyle(document.documentElement).fontSize`
+    per option build
+  - `root ≈ 16px` (normal pages, browser zoom) → option
+    **untouched** — in-page charts stay byte-identical, zero
+    regression surface
+  - `root > 16px` (signage or any vh-root page) →
+    `fontSize = rootFont × var(--chart-text-ratio, 1)` on
+    textStyle/legend/axis/tooltip + the font-derived grid
+    margins — default ratio 1.0 reproduces signage's current
+    behavior exactly (21.6px at 1080p)
+  - `display_page.html`'s patch then shrinks to the kiosk-only,
+    non-scaling parts (legend `bottom: 8`, pie-label
+    truncation)
+  - any future full-screen context (e.g. a "TV mode" for
+    presentations) then needs only
+    `html { font-size: calc(100vh / 50) }` and both DOM and
+    charts follow automatically
+
 ## 5. Files to change
 
 | Area | Path | Items |
