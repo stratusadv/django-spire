@@ -1063,3 +1063,23 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   `test_django_spire_metric_region.py::test_no_matching_data_renders_caption`
   (tag → include → caption end-to-end). Metric 535 + core 358
   passed after the follow-up.
+- **Indicator geometry aligned with the pie** — the indicator
+  branch of `visual.html` was flow layout (`.mt-6` circle with a
+  `40cqh` diameter — resolving against the *viewport* on
+  non-signage surfaces, which have no `container-type` ancestor —
+  plus a `.mt-5` caption). It now mirrors the chart box
+  structurally: a `position-relative` box with the same style as
+  `chart.html` (`flex: 1 1 auto; min-height: 95%; width: 100%`)
+  plus `container-type: size`, so the circle/caption cqw/cqh units
+  resolve against the same box the ECharts canvas occupies.
+  Circle: centered at `top: 45%` (the pie's `center: ['50%','45%']`)
+  with diameter `min(65cqw, 65cqh)` — between the original
+  (~40cqh) and the pie's 75% default, per user tuning (smaller than
+  the pie, larger than before); the icon scales with it
+  (`min(32.5cqw, 32.5cqh)`, the prior 50% ratio). The state
+  caption (badge + text, including the A5 "No matching data" line)
+  sits at `bottom: 10%; left: 50%; width: 90%` — a raised variant
+  of the pie's legend placement (`bottom: 0`), per user request.
+  No Data transparent-circle behavior unchanged. Template only;
+  no test changes (nothing pins this markup; the A5 caption-string
+  tests still hold).

@@ -86,25 +86,28 @@
             </div>
 
             {% if visual.statistic %}
-                <div class="mt-6 text-center">
-                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
-                          style="width: 40cqh; height: 40cqh; background-color: {{ current_condition.color }};">
+                <div class="position-relative" style="flex: 1 1 auto; min-height: 95%; width: 100%; container-type: size;">
+                    <span class="badge rounded-pill d-flex align-items-center justify-content-center position-absolute"
+                          style="top: 45%; left: 50%; transform: translate(-50%, -50%);
+                                 width: min(65cqw, 65cqh); height: min(65cqw, 65cqh);
+                                 background-color: {{ current_condition.color }};">
                         <i class="bi {{ current_condition.icon }} text-white"
-                           style="font-size: 20cqh;"></i>
+                           style="font-size: min(32.5cqw, 32.5cqh);"></i>
                     </span>
-                </div>
-                <div class="mt-5 text-center">
-                    {% if current_condition %}
-                        <span class="badge" style="background-color: {{ current_condition.color }};">
-                            {{ current_condition.get_state_display }}
-                        </span>
-                        <span class="small text-muted ms-1">{{ current_condition }}</span>
-                    {% else %}
-                        <span class="badge text-bg-secondary text-white">No Data</span>
-                        <span class="small text-muted ms-1">
-                            {% if no_matching_data %}No matching data{% else %}No condition matches the current value{% endif %}
-                        </span>
-                    {% endif %}
+                    <div class="position-absolute text-center"
+                         style="bottom: 10%; left: 50%; transform: translateX(-50%); width: 90%;">
+                        {% if current_condition %}
+                            <span class="badge" style="background-color: {{ current_condition.color }};">
+                                {{ current_condition.get_state_display }}
+                            </span>
+                            <span class="small text-muted ms-1">{{ current_condition }}</span>
+                        {% else %}
+                            <span class="badge text-bg-secondary text-white">No Data</span>
+                            <span class="small text-muted ms-1">
+                                {% if no_matching_data %}No matching data{% else %}No condition matches the current value{% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
             {% else %}
                 <div class="text-muted">No statistic selected yet.</div>
