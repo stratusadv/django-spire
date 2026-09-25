@@ -42,6 +42,10 @@
             {% else %}
                 <div class="text-muted">No data available.</div>
             {% endif %}
+
+            {% if no_matching_data %}
+                <div class="small text-muted mt-2">No matching data</div>
+            {% endif %}
         {% else %}
             <div class="text-muted">No statistic selected yet.</div>
         {% endif %}
@@ -97,7 +101,9 @@
                         <span class="small text-muted ms-1">{{ current_condition }}</span>
                     {% else %}
                         <span class="badge text-bg-secondary text-white">No Data</span>
-                        <span class="small text-muted ms-1">No condition matches the current value</span>
+                        <span class="small text-muted ms-1">
+                            {% if no_matching_data %}No matching data{% else %}No condition matches the current value{% endif %}
+                        </span>
                     {% endif %}
                 </div>
             {% else %}

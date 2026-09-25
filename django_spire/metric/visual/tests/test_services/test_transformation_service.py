@@ -275,6 +275,36 @@ class VisualTransformationServiceTestCase(BaseTestCase):
 
         assert visual.services.transformation.current_condition() is None
 
+    def test_no_matching_data_flag_off_without_references(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.no_matching_data() is False
+
+    def test_no_matching_data_flag_off_for_empty_statistic(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, reference='/live/', with_conditions=False)
+
+        assert visual.services.transformation.no_matching_data() is False
+
+    def test_render_context_no_matching_data_suppresses_condition(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, reference='/live/')
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+
+        context = visual.services.transformation.render_context()
+
+        assert context['no_matching_data'] is True
+        assert context['current_value'] == Decimal(0)
+        assert context['current_condition'] is None
+
     def test_series_data_ordered_and_reference_filtered(self):
         statistic = create_test_statistic(
             group=self.group, interval=StatisticIntervalChoices.WEEKLY

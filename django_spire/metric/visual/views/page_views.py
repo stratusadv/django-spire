@@ -43,11 +43,13 @@ def _visual_context(
 ) -> dict:
     transformation = visual.services.transformation
     period_start, period_end = transformation.display_window(value_date)
+    no_match = transformation.no_matching_data()
 
     context = {
         'visual': visual,
         'current_value': transformation.current_value(value_date),
-        'current_condition': transformation.current_condition(value_date),
+        'current_condition': None if no_match else transformation.current_condition(value_date),
+        'no_matching_data': no_match,
         'period_start': period_start,
         'period_end': period_end,
         'display_unit_label': transformation.display_unit_label(),

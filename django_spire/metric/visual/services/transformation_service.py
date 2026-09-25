@@ -172,6 +172,30 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return None
 
+    def no_matching_data(self) -> bool:
+        if not self.obj.statistic_id or self._statistic_deleted():
+            return False
+
+        datasets = self._datasets()
+        if not datasets:
+            return False
+
+        key = self._cache_key('no-match')
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+
+        values = self.obj.statistic.values
+
+        if not values.count():
+            result = False
+        else:
+            patterns = [dataset.reference for dataset in datasets]
+            result = not values.for_reference_patterns(patterns).count()
+
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
+
     def _series_points(self, value_date: date, values: Any) -> list[dict]:
         interval = self.obj.statistic.interval
         start_date, end_date = display_window_range(interval, value_date, self.display_unit_count())
@@ -333,12 +357,14 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
             return self.empty_render_context()
 
         current_value = self.current_value()
+        no_match = self.no_matching_data()
         period_start, period_end = self.display_window()
 
         return {
             'visual': self.obj,
             'current_value': current_value,
-            'current_condition': self.current_condition(value=current_value),
+            'current_condition': None if no_match else self.current_condition(value=current_value),
+            'no_matching_data': no_match,
             'chart': self.chart(),
             'period_start': period_start,
             'period_end': period_end,
@@ -346,7 +372,13 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
     @staticmethod
     def empty_render_context() -> dict:
-        return {'visual': None, 'current_value': None, 'current_condition': None, 'chart': None}
+        return {
+            'visual': None,
+            'current_value': None,
+            'current_condition': None,
+            'no_matching_data': False,
+            'chart': None,
+        }
 
 
 class VisualRegionTransformationService(BaseDjangoModelService['VisualRegion']):

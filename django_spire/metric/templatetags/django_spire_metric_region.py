@@ -47,6 +47,7 @@ def render_visual_region(context: dict[str, Any], key: str) -> dict[str, Any]:
         'visual': render_context['visual'],
         'current_value': render_context['current_value'],
         'current_condition': render_context['current_condition'],
+        'no_matching_data': render_context['no_matching_data'],
         'chart': chart,
         'display_title': region.services.transformation.display_title,
         'chart_glue_name': chart.glue_name if chart is not None and live else '',

@@ -1010,3 +1010,56 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   and failed its own test. The new option keys are not pinned
   in the tests (user decision — cosmetic layout, verified
   visually); the pie tests stay data-shape only.
+
+### A5 — done
+
+- `no_matching_data()` on the transformation service: true
+  only when references are set, the patterns match zero
+  values (all-time), and the statistic has values at all.
+  Cached under `_cache_key('no-match')` — the key embeds the
+  reference list + value revision, so adding references or
+  new values invalidates it; all-time by design (ignores
+  `value_date`).
+- Both `render_context()` and the detail view's
+  `_visual_context` pass the flag and **suppress
+  `current_condition`** when it is true — the existing grey
+  "No Data" state renders unchanged (grey badge, transparent
+  indicator circle; no badge markup edits) and the header
+  keeps showing 0 (a true in-window zero); only the false
+  red badge is replaced.
+- `visual.html`: chart branch gains a "No matching data" line
+  under the chart; the indicator's no-condition caption
+  switches from "No condition matches the current value" to
+  "No matching data". `detail_card.html` passes the key in
+  its include `with` clause (the other consumers pass the
+  full context dict through).
+- Tests: +3 service (off without references / off for empty
+  statistic / render_context suppression), +2 view (caption
+  shown / absent). In the test-trim reviews, two service
+  tests were dropped as strict subsumptions of the view
+  tests: "off with any match" (the matching-reference view
+  test asserts the flag is False for that scenario) and
+  "flag fires" (the detail-view test asserts the flag is
+  True for that scenario). Signage query-count
+  test 10 → 13: the flag adds one reference-list query per
+  visual per render (the guard runs before the cache
+  lookup); the test's flat-structural intent is unchanged.
+  Metric suite 534 passed.
+- **A5 follow-up (surface gap + include simplification)** —
+  reviewing the `visual.html` include sites found the flag
+  only reached the detail page: every consumer re-enumerates
+  keys in an explicit `with` list, and three of them dropped
+  `no_matching_data` (region tag dict + `region_visual.html`,
+  `display_page.html`, `section_card.html`), so those
+  surfaces showed the grey badge with the wrong caption.
+  Fixed: the region inclusion tag now returns the key,
+  `display_page.html` forwards `section.no_matching_data`
+  (its list is load-bearing — it renames loop variables), and
+  the three purely-redundant `with` lists (detail card,
+  region visual, presentation section card) were dropped for
+  bare includes — without `only` the include inherits the
+  parent context anyway, so new `render_context()` keys now
+  flow to those surfaces automatically. Regression test:
+  `test_django_spire_metric_region.py::test_no_matching_data_renders_caption`
+  (tag → include → caption end-to-end). Metric 535 + core 358
+  passed after the follow-up.

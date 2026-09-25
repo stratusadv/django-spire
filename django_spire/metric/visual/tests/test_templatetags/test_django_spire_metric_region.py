@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.template import Context, Template
 
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -8,6 +10,7 @@ from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
     create_test_statistic_group,
+    create_test_subdomain,
     create_test_visual,
 )
 
@@ -18,8 +21,8 @@ class RenderVisualRegionTagTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        domain = create_test_domain()
-        group = create_test_statistic_group(domain=domain)
+        self.domain = create_test_domain()
+        group = create_test_statistic_group(domain=self.domain)
         self.statistic = create_test_statistic(group=group)
         self.request = self.client.get('/').wsgi_request
 
@@ -71,3 +74,16 @@ class RenderVisualRegionTagTestCase(BaseTestCase):
         content = self._render()
 
         assert visual.name in content
+
+    def test_no_matching_data_renders_caption(self):
+        visual = create_test_visual(statistic=self.statistic, reference='/live/')
+        VisualRegion.objects.create(key=TAG_KEY, visual=visual)
+
+        sub_domain = create_test_subdomain(domain=self.domain)
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=sub_domain
+        )
+
+        content = self._render()
+
+        assert 'No matching data' in content

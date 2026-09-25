@@ -99,7 +99,7 @@ class SignageTransformationServiceTestCase(BaseTestCase):
 
         self.signage.services.transformation.display_slides()
 
-        with self.assertNumQueries(10):
+        with self.assertNumQueries(13):
             slides = self.signage.services.transformation.display_slides()
 
         assert len(slides) == 3

@@ -158,6 +158,45 @@ class VisualPageViewsTestCase(BaseTestCase):
         }
         assert 'value="2026-05-15"' in response.content.decode()
 
+    def test_detail_view_no_matching_data_shows_caption(self):
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        sub_domain = create_test_subdomain(domain=domain)
+        statistic = create_test_statistic(group=group)
+        visual = create_test_visual(statistic=statistic, reference='/live/')
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=sub_domain
+        )
+
+        response = self.client.get(
+            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
+        )
+
+        assert response.status_code == 200
+        assert response.context_data['no_matching_data'] is True
+        assert response.context_data['current_condition'] is None
+        assert 'No matching data' in response.content.decode()
+
+    def test_detail_view_matching_reference_has_no_caption(self):
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        sub_domain = create_test_subdomain(domain=domain)
+        statistic = create_test_statistic(group=group)
+        visual = create_test_visual(statistic=statistic, reference='/home/')
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=sub_domain
+        )
+
+        response = self.client.get(
+            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
+        )
+
+        assert response.status_code == 200
+        assert response.context_data['no_matching_data'] is False
+        assert 'No matching data' not in response.content.decode()
+
     def test_detail_view_renders_browse_form_when_statistic_set(self):
         response = self.client.get(
             reverse('django_spire:metric:visual:page:detail', kwargs={'pk': self.visual.pk})
