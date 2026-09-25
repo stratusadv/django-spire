@@ -521,19 +521,36 @@ frame, on every surface.
 
 ### A3 — Pie chart rendering
 
-- **Options in `VisualPieChart.build_option_body`,
-  charts.py:60-69:**
-  - donut: `radius: ['45%', '70%']`, `center: ['50%', '45%']`
-  - `label: {'show': False}` — drops the outside
-    leader-line labels that collide with the card header
-  - `legend: {'type': 'scroll', 'bottom': 0}` (today:
-    `{'bottom': 30}`, contrib/chart/charts.py:21)
+- **Options in `VisualPieChart`** (charts.py):
+  - stays a **pie, not a donut** — user decision, no
+    `radius` change (filled pie, ECharts default size)
+  - `center: ['50%', '45%']` on the series — nudged slightly
+    up so the pie clears the bottom legend
+  - `label: {'show': True}` — slice labels stay shown
+    (the original plan hid them to avoid card-header
+    collision; the decision was reversed to try them
+    visible)
+  - `default_legend = {'bottom': 0, 'left': 'center',
+    'width': '90%'}` on `VisualPieChart` (today:
+    `{'bottom': 30}`, contrib/chart/charts.py:21) — a plain
+    legend that wraps lines within 90% width: every
+    reference stays visible, no paging. Overrides
+    `default_legend` (not `legend`) so the base `bottom: 30`
+    default does not leak through the `{**default, **legend}`
+    merge — same pattern as `PieChart.default_tooltip`.
+    Considered and rejected in the browser: a bottom scroll
+    legend (`type: 'scroll'` never pages without an explicit
+    width — an auto-width one lays items at natural size —
+    and its paging arrows proved hard to discover) and a
+    vertical right-edge column (long slug labels make the
+    column wide)
 - tooltip stays the ECharts default — it already shows
   value + percent on hover (trigger 'item',
   contrib/chart/charts.py:112); an explicit formatter was
   considered, not doing it (cosmetic only)
-- tests: option assertions in test_charts.py (donut
-  radius, label hidden, legend scroll)
+- the pie stays data-shape tested (slices/labels); the new
+  option keys (label shown, center, legend) are deliberately
+  not pinned — cosmetic layout, verified visually
 
 ### A4 — Deferred polish (small, separate)
 
@@ -972,3 +989,24 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   calls, and the service tests only needed to pin interval
   resolution + default count). Metric suite 528 passed after the
   trim.
+
+### A3 — done
+
+- `VisualPieChart` stays a filled pie (no donut — user
+  decision): the series gets `center: ['50%', '45%']`
+  (slight upward nudge so the pie clears the bottom legend)
+  and an explicit `label: {'show': True}` (the original plan
+  hid the slice labels to avoid the card-header collision;
+  reversed — labels stay shown). Legend settled on
+  constrained wrapping — `default_legend = {'bottom': 0,
+  'left': 'center', 'width': '90%'}` — after the browser
+  rejected a bottom scroll legend (auto-width scroll legends
+  never page without an explicit width, and the paging
+  arrows were hard to discover) and a vertical right-edge
+  column (long slug labels make the column wide). Overriding
+  `default_legend` (not `legend`) keeps the base `bottom: 30`
+  default from leaking through the merge — the first
+  vertical-legend attempt shipped with the stale `bottom: 30`
+  and failed its own test. The new option keys are not pinned
+  in the tests (user decision — cosmetic layout, verified
+  visually); the pie tests stay data-shape only.

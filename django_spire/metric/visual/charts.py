@@ -67,6 +67,7 @@ class VisualAreaChart(AreaChart):
 
 class VisualPieChart(PieChart):
     glue_name = 'visual_pie_chart'
+    default_legend = {'bottom': 0, 'left': 'center', 'width': '90%'}
 
     @classmethod
     def build_option_body(cls, visual_pk: int, **kwargs: Any) -> dict:
@@ -75,7 +76,16 @@ class VisualPieChart(PieChart):
 
         data = visual.services.transformation.series_breakdown(value_date)
 
-        return {'series': [{'name': visual.name, 'data': data}]}
+        return {
+            'series': [
+                {
+                    'name': visual.name,
+                    'label': {'show': True},
+                    'center': ['50%', '45%'],
+                    'data': data,
+                }
+            ]
+        }
 
 
 class VisualGaugeChart(GaugeChart):
