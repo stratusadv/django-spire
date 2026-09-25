@@ -41,6 +41,7 @@ class PresentationPageViewsTestCase(BaseTestCase):
         section_data = response.context_data['slides'][0]['sections'][0]
         assert 'chart' in section_data
         assert 'grid_style' in section_data
+        assert response.context_data['slides'][0]['row_count'] == 1
 
         content = response.content.decode()
         assert 'Row 1, Col 1' in content
@@ -53,6 +54,7 @@ class PresentationPageViewsTestCase(BaseTestCase):
         )
         assert edit_url in content
         assert delete_url in content
+        assert 'grid-auto-rows: 48rem' in content
 
     def test_detail_view_empty_section_shows_placeholder(self):
         slide = create_test_slide(self.presentation)
@@ -68,3 +70,19 @@ class PresentationPageViewsTestCase(BaseTestCase):
         content = response.content.decode()
         assert 'Row 0, Col 0' in content
         assert 'Empty' in content
+
+    def test_detail_view_row_count_with_two_rows(self):
+        slide = create_test_slide(self.presentation)
+        create_test_section(slide, row=0, col=0, with_visual=False)
+        create_test_section(slide, row=1, col=0, with_visual=False)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:presentation:page:detail',
+                kwargs={'pk': self.presentation.pk},
+            )
+        )
+
+        assert response.status_code == 200
+        assert response.context_data['slides'][0]['row_count'] == 2
+        assert 'grid-auto-rows: 24rem' in response.content.decode()
