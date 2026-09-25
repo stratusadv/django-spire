@@ -23,7 +23,6 @@ from django_spire.metric.visual.services.processor_service import (
     VisualRegionProcessorService,
 )
 from django_spire.metric.visual.services.transformation_service import (
-    VisualConditionTransformationService,
     VisualRegionTransformationService,
     VisualTransformationService,
 )
@@ -78,7 +77,6 @@ class VisualConditionService(BaseDjangoModelService['VisualCondition']):
     intelligence = VisualConditionIntelligenceService()
     processor = VisualConditionProcessorService()
     factory = VisualConditionFactoryService()
-    transformation = VisualConditionTransformationService()
 
     def save_model_obj(self, **field_data: dict | None) -> tuple[VisualCondition, bool]:
         if self.obj.pk is None and self.obj.visual_id:

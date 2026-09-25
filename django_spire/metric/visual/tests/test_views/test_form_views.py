@@ -5,6 +5,8 @@ from decimal import Decimal
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.visual import forms
+from django_spire.metric.visual.choices import VisualKindChoices
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -110,3 +112,26 @@ class VisualFormViewsTestCase(BaseTestCase):
         assert 'id="reference-datalist"' in html
         assert '<option value="/home/">' in html
         assert '<option value="/dashboard/">' in html
+
+
+class VisualModelFormTestCase(BaseTestCase):
+    def _form(self, value: str) -> forms.VisualModelForm:
+        return forms.VisualModelForm(
+            data={
+                'name': 'x',
+                'description': 'd',
+                'kind': VisualKindChoices.INDICATOR,
+                'display_unit_count': value,
+            }
+        )
+
+    def test_display_unit_count_accepts_bounds(self):
+        for value in ('1', '104', ''):
+            form = self._form(value)
+            assert form.is_valid(), f'{value!r} should be valid: {form.errors}'
+
+    def test_display_unit_count_rejects_out_of_range(self):
+        for value in ('0', '105'):
+            form = self._form(value)
+            assert not form.is_valid(), f'{value!r} should be invalid'
+            assert 'display_unit_count' in form.errors

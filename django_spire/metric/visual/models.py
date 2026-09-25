@@ -4,7 +4,6 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.db import models, transaction
-from django.utils import timezone
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.activity.mixins import ActivityMixin
@@ -53,9 +52,11 @@ class Visual(HistoryModelMixin, ActivityMixin):
         related_name='visuals',
         related_query_name='visual',
     )
-    date = models.DateField(default=timezone.localdate)
     kind = models.CharField(
         max_length=20, choices=VisualKindChoices.choices, default=VisualKindChoices.INDICATOR
+    )
+    display_unit_count = models.PositiveSmallIntegerField(
+        null=True, blank=True, verbose_name='Display units'
     )
 
     objects = querysets.VisualQuerySet().as_manager()

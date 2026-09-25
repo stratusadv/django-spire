@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django_glue import Glue
 
 from django_spire.history.activity.models import Activity
@@ -20,16 +22,38 @@ if TYPE_CHECKING:
 from django.template.response import TemplateResponse
 
 
-def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
+def _browse_value_date(request: WSGIRequest) -> date | None:
+    raw_value = request.GET.get('value_date')
+    if not raw_value:
+        return None
+
+    try:
+        value_date = date.fromisoformat(raw_value)
+    except ValueError:
+        return None
+
+    if value_date > timezone.localdate():
+        return None
+
+    return value_date
+
+
+def _visual_context(
+    request: WSGIRequest, visual: models.Visual, value_date: date | None = None
+) -> dict:
+    transformation = visual.services.transformation
+    period_start, period_end = transformation.display_window(value_date)
+
     context = {
         'visual': visual,
-        'current_value': visual.services.transformation.current_value(),
-        'current_condition': visual.services.transformation.current_condition(),
-        'period_start': visual.services.transformation.date_range()[0],
-        'period_end': visual.services.transformation.date_range()[1],
+        'current_value': transformation.current_value(value_date),
+        'current_condition': transformation.current_condition(value_date),
+        'period_start': period_start,
+        'period_end': period_end,
+        'display_unit_label': transformation.display_unit_label(),
     }
 
-    chart = visual.services.transformation.chart()
+    chart = transformation.chart(value_date=value_date)
     if chart is not None:
         chart.glue(request)
         context['chart'] = chart
@@ -77,9 +101,12 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         name=str(visual), view_name='django_spire:metric:visual:page:detail', view_kwargs={'pk': pk}
     )
 
+    value_date = _browse_value_date(request)
+
     context = nav.as_context()
-    context.update(_visual_context(request, visual))
-    context['period_start'], context['period_end'] = visual.services.transformation.date_range()
+    context.update(_visual_context(request, visual, value_date))
+    context['value_date'] = value_date
+    context['today'] = timezone.localdate()
     context['activity_log'] = _visual_activity_log(visual)
 
     return TemplateResponse(

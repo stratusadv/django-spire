@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from django.utils import timezone
-
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.visual.models import Visual, VisualRegion
 from django_spire.metric.visual.seeding.constants import VISUAL_REGION_SEEDS, VISUAL_SEEDS
@@ -36,7 +34,6 @@ class VisualSeederTestCase(BaseTestCase):
             assert visual.kind == seed['kind']
             assert visual.statistic is not None
             assert visual.description == seed['description']
-            assert visual.date == timezone.localdate()
 
     def test_seeded_visuals_display_data(self) -> None:
         VisualSeeder(count=len(VISUAL_SEEDS), verbose=False).seed_database()

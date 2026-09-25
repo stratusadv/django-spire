@@ -25,7 +25,7 @@
         </div>
         <div class="row g-3">
             <div class="col-lg-6">
-                {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition period_start=period_start period_end=period_end %}
+                {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition chart=chart period_start=period_start period_end=period_end %}
             </div>
 
             <div class="col-lg-6">
@@ -58,17 +58,36 @@
                         {% endif %}
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="attribute-label">Evaluation Date</div>
-                        <div>{{ visual.date }}</div>
-                    </div>
-
                     <div class="col-md-8">
                         <div class="attribute-label">Period</div>
                         <div>
                             {{ period_start|date:'M j, Y' }} - {{ period_end|date:'M j, Y' }}
                         </div>
                     </div>
+
+                    {% if visual.statistic %}
+                        <div class="col-md-4">
+                            <div class="attribute-label">Display Units</div>
+                            <div>{{ display_unit_label }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if visual.statistic %}
+                        <div class="col-12">
+                            <form method="get" class="row g-2 align-items-end">
+                                <div class="col-auto">
+                                    <label class="attribute-label" for="value-date-input">Browse Date</label>
+                                    <input class="form-control form-control-sm" type="date"
+                                           name="value_date" id="value-date-input"
+                                           max="{{ today|date:'Y-m-d' }}"
+                                           value="{{ value_date|date:'Y-m-d' }}">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Go</button>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

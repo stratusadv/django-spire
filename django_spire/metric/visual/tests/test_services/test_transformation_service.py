@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
+from unittest import mock
 
 from django.core.cache import cache
 from django.utils import timezone
@@ -46,20 +47,19 @@ class VisualTransformationServiceTestCase(BaseTestCase):
     def test_date_range_daily(self):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
-        assert visual.services.transformation.date_range() == (date(2026, 5, 15), date(2026, 5, 15))
+        assert visual.services.transformation.date_range(date(2026, 5, 15)) == (
+            date(2026, 5, 15),
+            date(2026, 5, 15),
+        )
 
     def test_date_range_weekly(self):
         statistic = create_test_statistic(
             group=self.group, interval=StatisticIntervalChoices.WEEKLY
         )
         visual = create_test_visual(statistic=statistic, with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
-        start_date, end_date = visual.services.transformation.date_range()
+        start_date, end_date = visual.services.transformation.date_range(date(2026, 5, 15))
         assert start_date == date(2026, 5, 10)
         assert end_date == date(2026, 5, 16)
 
@@ -68,10 +68,8 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             group=self.group, interval=StatisticIntervalChoices.MONTHLY
         )
         visual = create_test_visual(statistic=statistic, with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
-        start_date, end_date = visual.services.transformation.date_range()
+        start_date, end_date = visual.services.transformation.date_range(date(2026, 5, 15))
         assert start_date == date(2026, 5, 1)
         assert end_date == date(2026, 5, 31)
 
@@ -80,8 +78,6 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             group=self.group, interval=StatisticIntervalChoices.MONTHLY
         )
         visual = create_test_visual(statistic=statistic, with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         statistic.services.processor.add_value(
             reference='/home/',
@@ -102,7 +98,7 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             value_timestamp=aware(date(2026, 6, 1)),
         )
 
-        assert visual.services.transformation.current_value() == Decimal(100)
+        assert visual.services.transformation.current_value(date(2026, 5, 15)) == Decimal(100)
 
     def test_current_value_filters_reference(self):
         statistic = create_test_statistic(group=self.group)
@@ -120,6 +116,117 @@ class VisualTransformationServiceTestCase(BaseTestCase):
     def test_current_value_without_statistic(self):
         visual = Visual.objects.create(name='empty')
         assert visual.services.transformation.current_value() == Decimal(0)
+
+    def test_current_value_anchors_to_localdate(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        today = timezone.localdate()
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(today - timedelta(days=1)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(25), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(25)
+
+    def test_daily_visual_recomputes_after_midnight_rollover(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        today = timezone.localdate()
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+        with mock.patch(
+            'django_spire.metric.visual.services.transformation_service.timezone.localdate',
+            return_value=today + timedelta(days=1),
+        ):
+            assert visual.services.transformation.current_value() == Decimal(0)
+
+    def test_cache_key_changes_with_date(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        today = timezone.localdate()
+        key_today = visual.services.transformation._cache_key('value')
+        key_next_day = visual.services.transformation._cache_key(
+            'value', value_date=today + timedelta(days=1)
+        )
+
+        assert today.isoformat() in key_today
+        assert key_today != key_next_day
+
+    def test_display_window_defaults_per_interval(self):
+        cases = {
+            StatisticIntervalChoices.DAILY: (date(2026, 5, 8), date(2026, 5, 15)),
+            StatisticIntervalChoices.WEEKLY: (date(2026, 2, 22), date(2026, 5, 16)),
+            StatisticIntervalChoices.MONTHLY: (date(2025, 5, 1), date(2026, 5, 31)),
+        }
+
+        for interval, window in cases.items():
+            statistic = create_test_statistic(group=self.group, interval=interval)
+            visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+            assert visual.services.transformation.display_window(date(2026, 5, 15)) == window
+
+    def test_display_window_uses_visual_count_override(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.display_unit_count = 3
+        visual.save()
+
+        assert visual.services.transformation.display_unit_count() == 3
+        assert visual.services.transformation.display_window(date(2026, 5, 15)) == (
+            date(2026, 5, 13),
+            date(2026, 5, 15),
+        )
+
+    def test_display_window_without_statistic_is_value_date(self):
+        visual = Visual.objects.create(name='empty')
+
+        assert visual.services.transformation.display_window(date(2026, 5, 15)) == (
+            date(2026, 5, 15),
+            date(2026, 5, 15),
+        )
+
+    def test_display_unit_label_daily_default(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        assert visual.services.transformation.display_unit_label() == '8 day(s)'
+
+    def test_display_unit_label_weekly_and_monthly_defaults(self):
+        weekly_statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        monthly_statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.MONTHLY
+        )
+        weekly_visual = create_test_visual(statistic=weekly_statistic, with_conditions=False)
+        monthly_visual = create_test_visual(statistic=monthly_statistic, with_conditions=False)
+
+        assert weekly_visual.services.transformation.display_unit_label() == '12 week(s)'
+        assert monthly_visual.services.transformation.display_unit_label() == '13 month(s)'
+
+    def test_display_unit_label_honors_count_override(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.display_unit_count = 3
+        visual.save()
+
+        assert visual.services.transformation.display_unit_label() == '3 day(s)'
+
+    def test_display_unit_label_without_statistic_is_bare_count(self):
+        visual = Visual.objects.create(name='empty')
+
+        assert visual.services.transformation.display_unit_label() == '8'
 
     def test_current_condition_green(self):
         statistic = create_test_statistic(group=self.group)
@@ -173,8 +280,6 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             group=self.group, interval=StatisticIntervalChoices.WEEKLY
         )
         visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         statistic.services.processor.add_value(
             reference='/home/',
@@ -195,12 +300,11 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             value_timestamp=aware(date(2026, 5, 15), 12),
         )
 
-        points = visual.services.transformation.series_data()
+        points = visual.services.transformation.series_data(date(2026, 5, 15))
 
-        assert points == [
-            {'timestamp': date(2026, 5, 14), 'value': 10.0},
-            {'timestamp': date(2026, 5, 15), 'value': 20.0},
-        ]
+        assert len(points) == 12
+        assert points[-1] == {'timestamp': date(2026, 5, 10), 'value': 30.0}
+        assert all(point['value'] == 0.0 for point in points[:-1])
 
     def test_series_datasets_multiple_references(self):
         statistic = create_test_statistic(
@@ -212,8 +316,6 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             labels=['Home', 'Dashboard'],
             with_conditions=False,
         )
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         statistic.services.processor.add_value(
             reference='/home/',
@@ -228,12 +330,15 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             value_timestamp=aware(date(2026, 5, 15), 12),
         )
 
-        datasets = visual.services.transformation.series_datasets()
+        datasets = visual.services.transformation.series_datasets(date(2026, 5, 15))
 
-        assert datasets == [
-            {'label': 'Home', 'points': [{'timestamp': date(2026, 5, 14), 'value': 10.0}]},
-            {'label': 'Dashboard', 'points': [{'timestamp': date(2026, 5, 15), 'value': 55.0}]},
-        ]
+        assert [dataset['label'] for dataset in datasets] == ['Home', 'Dashboard']
+        assert all(len(dataset['points']) == 12 for dataset in datasets)
+        assert datasets[0]['points'][-1] == {'timestamp': date(2026, 5, 10), 'value': 10.0}
+        assert datasets[1]['points'][-1] == {'timestamp': date(2026, 5, 10), 'value': 55.0}
+        assert all(
+            point['value'] == 0.0 for dataset in datasets for point in dataset['points'][:-1]
+        )
 
     def test_series_datasets_wildcard_prefix(self):
         statistic = create_test_statistic(
@@ -245,8 +350,6 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             labels=['Helpdesk Pages'],
             with_conditions=False,
         )
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         statistic.services.processor.add_value(
             reference='helpdesk:page:view',
@@ -267,17 +370,13 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             value_timestamp=aware(date(2026, 5, 15), 12),
         )
 
-        datasets = visual.services.transformation.series_datasets()
+        datasets = visual.services.transformation.series_datasets(date(2026, 5, 15))
 
-        assert datasets == [
-            {
-                'label': 'Helpdesk Pages',
-                'points': [
-                    {'timestamp': date(2026, 5, 14), 'value': 10.0},
-                    {'timestamp': date(2026, 5, 15), 'value': 20.0},
-                ],
-            }
-        ]
+        assert [dataset['label'] for dataset in datasets] == ['Helpdesk Pages']
+        points = datasets[0]['points']
+        assert len(points) == 12
+        assert points[-1] == {'timestamp': date(2026, 5, 10), 'value': 30.0}
+        assert all(point['value'] == 0.0 for point in points[:-1])
 
     def test_current_value_uses_first_dataset_only(self):
         statistic = create_test_statistic(group=self.group)
@@ -315,6 +414,48 @@ class VisualTransformationServiceTestCase(BaseTestCase):
     def test_series_data_without_statistic(self):
         visual = Visual.objects.create(name='empty', kind='line')
         assert visual.services.transformation.series_data() == []
+
+    def test_series_data_honors_display_unit_count_override(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
+        visual.display_unit_count = 3
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(7), sub_domain=self.sub_domain
+        )
+
+        points = visual.services.transformation.series_data()
+
+        assert len(points) == 3
+        assert points[-1] == {'timestamp': timezone.localdate(), 'value': 7.0}
+
+    def test_series_data_monthly_buckets_values(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.MONTHLY
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(30),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 3, 10)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(20),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 20)),
+        )
+
+        points = visual.services.transformation.series_data(date(2026, 5, 15))
+
+        assert len(points) == 13
+        assert points[-3] == {'timestamp': date(2026, 3, 1), 'value': 30.0}
+        assert points[-1] == {'timestamp': date(2026, 5, 1), 'value': 20.0}
+        assert all(point['value'] == 0.0 for point in points[:-3])
+        assert points[-2]['value'] == 0.0
 
     def test_series_breakdown_groups_by_reference(self):
         statistic = create_test_statistic(group=self.group)
@@ -361,8 +502,6 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
         )
         visual = create_test_visual(statistic=statistic, with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         statistic.services.processor.add_value(
             reference='/home/',
@@ -383,15 +522,13 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             value_timestamp=aware(date(2026, 5, 1)),
         )
 
-        assert visual.services.transformation.current_value() == Decimal(5)
+        assert visual.services.transformation.current_value(date(2026, 5, 15)) == Decimal(5)
 
-    def test_series_data_percentage_rolling_average(self):
+    def test_series_data_percentage_uses_raw_unit_average(self):
         statistic = create_test_statistic(
             group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
         )
         visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         statistic.services.processor.add_value(
             reference='/home/',
@@ -403,15 +540,21 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             reference='/home/',
             value=Decimal(6),
             sub_domain=self.sub_domain,
-            value_timestamp=aware(date(2026, 5, 15)),
+            value_timestamp=aware(date(2026, 5, 15), 10),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(8),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 12),
         )
 
-        points = visual.services.transformation.series_data()
+        points = visual.services.transformation.series_data(date(2026, 5, 15))
 
-        assert points == [
-            {'timestamp': date(2026, 5, 14), 'value': 4.0},
-            {'timestamp': date(2026, 5, 15), 'value': 5.0},
-        ]
+        assert len(points) == 8
+        assert points[-2] == {'timestamp': date(2026, 5, 14), 'value': 4.0}
+        assert points[-1] == {'timestamp': date(2026, 5, 15), 'value': 7.0}
+        assert all(point['value'] == 0.0 for point in points[:-2])
 
     def test_series_breakdown_percentage_averages_reference(self):
         statistic = create_test_statistic(
@@ -514,13 +657,12 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         assert context['current_value'] == Decimal(150)
         assert context['current_condition'] is not None
         assert context['chart'] is None
-        assert context['period_start'] == context['period_end']
+        assert context['period_end'] == timezone.localdate()
+        assert context['period_start'] == timezone.localdate() - timedelta(days=7)
 
     def test_render_context_chart(self):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, kind='line', with_conditions=False)
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         context = visual.services.transformation.render_context()
 

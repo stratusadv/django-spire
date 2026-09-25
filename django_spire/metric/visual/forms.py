@@ -11,12 +11,27 @@ from django_glue.message import GlueMessage
 from django_spire.metric.domain import models as domain_models
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
+from django_spire.metric.visual.constants import DISPLAY_UNIT_COUNT_MAX, DISPLAY_UNIT_COUNT_MIN
 
 if TYPE_CHECKING:
     from typing import ClassVar
 
 
 class VisualModelForm(forms.ModelForm):
+    display_unit_count = forms.IntegerField(
+        required=False,
+        label='Display units',
+        help_text=(
+            'How many recent units the charts display. '
+            'Default: 8 days, 12 weeks, or 13 months, based on the interval of the statistic.'
+        ),
+        min_value=DISPLAY_UNIT_COUNT_MIN,
+        max_value=DISPLAY_UNIT_COUNT_MAX,
+        widget=forms.NumberInput(
+            attrs={'min': DISPLAY_UNIT_COUNT_MIN, 'max': DISPLAY_UNIT_COUNT_MAX}
+        ),
+    )
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -45,9 +60,8 @@ class VisualModelForm(forms.ModelForm):
 
     class Meta:
         model = models.Visual
-        fields = ['name', 'description', 'statistic', 'kind', 'date']
+        fields = ['name', 'description', 'statistic', 'kind', 'display_unit_count']
         exclude: ClassVar = []
-        widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
 
 
 class VisualConditionModelForm(forms.ModelForm):

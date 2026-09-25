@@ -131,14 +131,18 @@ rolls it forward.
     page)
   - then **polled**: a Glue function rebuilds the full option and
     the client calls `setOption(option, {notMerge: true})`
-  - **currently broken (A9)**: the client wraps its params as
-    `{'kwargs': ...}` (chart.html:49), but the server's Glue
-    `execute` unpacks the payload straight into the data
-    function (`function(**kwargs)`), so every tick reaches
-    `build_option_body(kwargs=...)` and raises
-    `TypeError: missing 'visual_pk'`; the client's catch logs
-    "Chart update failed" and moves on. Charts today render
-    once at page load and never actually update
+  - **A9 correction (misdiagnosis retracted)**: an earlier
+    revision of this plan claimed the `{'kwargs': ...}` wrap in
+    chart.html:49 broke every poll. It did not —
+    `FunctionGlue.execute(self, kwargs)` has its own `kwargs`
+    parameter that consumes the wrapper key before
+    `function(**kwargs)` unpacks the *inner* dict, so the
+    original wrap was always correct and polls worked. The B2
+    implementation briefly applied a flat call instead, which
+    genuinely broke every poll (`ValueError: missing required
+    argument: 'kwargs'`); it has been reverted and the
+    convention is now pinned by an endpoint-level test (see
+    A9 and the implementation log)
 
 | Surface | Cadence |
 |---|---|
@@ -312,9 +316,9 @@ ARM) and Raspberry Pi boxes running Chromium, displaying the page
   - S×M independent `setTimeout` chains → ≈ 4 requests/min per
     chart
   - 5 slides × 4 sections ≈ 80 req/min per wall, continuously
-  - today those polls all 500 server-side (A9) — the request
-    volume is real, the returned data is not; after A9 the
-    re-render cost below is what actually lands
+  - the polls return live data (the A9 "broken poll" claim was
+    a misdiagnosis — see the A9 item); the re-render cost below
+    is what lands
 - **Each poll is a full server-side rebuild.**
   - `Visual.objects.get` + cache-key computation (a
     `Max(timestamp)` aggregate per key)
@@ -382,7 +386,7 @@ Batches:
 | Batch | Contents | Why |
 |---|---|---|
 | B1 — display quick wins | A2, A3, A5 | low risk, independent, visible results; same render surface |
-| B2 — core display change | A1 + A7 + A6 + A9 | one model migration (drop `date`, add `display_unit_count`), one computation core, one render surface — the window, always-today, browse, and the broken-poll fix (A6 depends on A9) are interlocked |
+| B2 — core display change | A1 + A7 + A6 + A9 | one model migration (drop `date`, add `display_unit_count`), one computation core, one render surface — the window, always-today, and browse are interlocked; A6's chart params ride the existing poll plumbing, whose call convention A9 re-verified and pinned with a test |
 | B3 — signage performance | §3 mitigations #1, #3, #4 | client-side JS architecture, independent of the data shape; split out to keep B2's diff small |
 | B4 — hygiene | A4 | zero behavior change |
 | — | A8 | decision record, no action |
@@ -402,11 +406,13 @@ window delivers: today's unit plus the preceding units in one
 frame, on every surface.
 - **Model** — new field `Visual.display_unit_count`
   - `models.PositiveSmallIntegerField(null=True, blank=True)`,
-    form-validated 2..104
+    form-validated 1..104
   - unset → interval default: daily 8, weekly 12, monthly 13
     (constants in `visual/constants.py`)
-  - exposed in the form ("Display units"); detail card gets a
-    "Display units" attribute (effective count)
+  - exposed in the form ("Display units" label + hint explaining
+    the default); detail card gets a "Display units" attribute
+    (effective count + interval word, e.g. "12 week(s)"), hidden
+    when no statistic is set
   - same migration as the `date` removal (A7)
 - **Frame** — `display_window_range(interval, end_date, count)` in
   `domain/statistic/interval.py`
@@ -427,9 +433,9 @@ frame, on every surface.
   - unit label = the unit's start date (day / Sunday / 1st of
     month)
   - new `StatisticValueQuerySet.unit_points(interval, start, end)`
-    generalizing `series_points` (querysets.py:126-135): daily =
-    TruncDate as-is, weekly = week start (Sun), monthly = month
-    start
+    generalizing the then-existing `series_points` (since deleted
+    as dead code): daily = TruncDate as-is, weekly = week start
+    (Sun), monthly = month start
   - bucketing stays DB-portable: fetch day-level totals for the
     window (bounded: ≤ 13 months ≈ 395 days) and aggregate days
     into units in Python — a SQL week-start expression differs
@@ -640,7 +646,8 @@ frame, on every surface.
     number and badge match the shifted window, and to both
     `date_range()` calls in the detail path
     (`_visual_context` :28-29, `detail_view` :82)
-  - **charts are the non-free part** (requires A9 first):
+  - **charts are the non-free part** (poll call convention
+    re-verified in A9):
     - the view puts `value_date` into the chart instance's
       params (`transformation.chart(params={'visual_pk': ..., 'value_date': ...})`) so the initial render (`to_option_dict`) and every poll carry it
     - the five chart bodies (charts.py:30-95) forward
@@ -745,39 +752,63 @@ frame, on every surface.
   `display_start`/`display_end`** — considered, not doing it
   (seven templates/templatag/view sites pass the keys through;
   reusing the names keeps the A1 diff to the two producers).
-- **Fixing the broken chart poll as part of A1/A6** — it is
-  its own item (A9): a pre-existing bug, testable on its own,
-  and the prerequisite for A6's live browsed charts.
+- **The chart poll call convention as part of A1/A6** — it is
+  its own item (A9): not a pre-existing bug (the original wrap
+  was correct), but re-verified with an endpoint-level test,
+  because A6's live browsed charts depend on the poll carrying
+  `value_date` intact.
 
-### A9 — Fix the chart live-update plumbing (pre-existing bug)
+### A9 — Chart live-update call convention (re-verified, not a bug)
 
-- **Today, every chart poll fails server-side.**
-  - client: `proxy.execute({'kwargs': this._params || {}})`
-    (core/.../chart/chart.html:49) — params wrapped in a
-    `kwargs` key, shipped that way since the first
-    implementation of the poll
-  - server: `FunctionGlue.execute` runs
-    `function(**request_kwargs)` →
-    `visual_line_chart_data(kwargs={'visual_pk': N})` →
-    `build_option_body(kwargs=...)` →
-    `TypeError: missing 1 required positional argument:
-    'visual_pk'` (reproduced against the bound data function)
-  - the client's `catch` logs "Chart update failed" and
-    schedules the next tick, so the failure is silent; charts
-    render once and never update, and §1/§3's "live" cadence
-    has in practice been initial-render-only
-- **Fix** — send the params flat from the client:
-  - `proxy.execute(this._params || {})` (chart.html:49)
-  - the server path then becomes `execute(kwargs={'visual_pk': N})` → `_build_option(visual_pk=N)` → `build_option_body(visual_pk=N)` — no server change needed; the same flat shape carries `value_date` for A6
-- **Scope check** — the only Glue-polled data functions in the
-  repo are the five visual chart bodies (grep
-  `build_option_body`), all with the `(cls, visual_pk,
-  **_kwargs)` signature, so the flat call shape is safe for
-  every caller
+- **The "broken poll" premise of this item was a misdiagnosis.**
+  - an earlier revision claimed the client's
+    `proxy.execute({'kwargs': this._params || {}})`
+    (core/.../chart/chart.html:49) failed server-side with
+    `TypeError: missing 'visual_pk'`
+  - that trace was wrong: `FunctionGlue.execute(self, kwargs)`
+    (`django_glue/glue/function.py:60`) has a single required
+    parameter named `kwargs`; the callable-attribute resolver
+    (`django_glue/glue/attributes/callable.py`) maps the
+    client's top-level call-kwargs onto that parameter, and
+    `execute` then runs `function(**kwargs)` — unpacking the
+    *inner* dict into `_build_option(visual_pk=...,
+    value_date=...)`. The original wrap was always the correct
+    convention, and the polls worked
+- **What actually happened in B2** — the flat call
+  `proxy.execute(this._params || {})` was applied as "the A9
+  fix", which made every poll of every Glue-polled chart (5
+  visual + 2 home demo) raise `ValueError: Attribute 'execute'
+  missing required argument: 'kwargs'. Provided: ['visual_pk']`
+  (500 per tick, silent in the UI). Reverted to the original
+  wrap.
+- **Why tests never caught it** — the suite calls the data
+  functions directly (`visual_line_chart_data(visual_pk=...)`),
+  never through the
+  `/__dg__/callable_attribute/<name>/execute/` endpoint.
+  Added an endpoint-level test (wrapping
+  `knowledge/collection/tests/test_views/test_form_views.py`'s
+  `_call_glue_attribute` pattern): the wrapped shape returns
+  the rebuilt option.
+- **Convention note** — the client's `_filterKwargs` passes
+  the wrapped `kwargs` key through unfiltered only because
+  every glued chart data function is the base
+  `Chart._build_option(cls, **kwargs)` (zero declared params,
+  so the identity's `params` list is empty). A data function
+  with explicit declared params would get its call filtered to
+  `{}` and fail; if such a chart is ever added, the poll
+  convention must be re-checked.
+- **Scope** — the Glue-polled data functions in the repo are
+  the five visual chart bodies **plus two demo charts** on the
+  home page (`monthly_sales_chart`, `productivity_area_chart` —
+  `test_project/app/home/charts.py`, included via `chart.html`
+  from `home/page/chart_demo_page.html`). All are `Chart`
+  subclasses, so the poll path is `_build_option(**kwargs)` →
+  `build_option_body(**kwargs)` for every caller; the demo
+  charts poll with empty params.
 - **Tests**
+  - endpoint: the wrapped call returns the rebuilt option (200)
   - unit: `visual_line_chart_data(visual_pk=pk)` returns the
     option (and, with `value_date` as a string, A6's shape)
-  - all five bodies accept the flat kwargs without TypeError
 
 ## 5. Files to change
 
@@ -803,3 +834,141 @@ frame, on every surface.
 | Tests | `django_spire/metric/visual/tests/` (services, views, models, seeder), `.../signage/tests/` | all |
 
 Template paths are under `django_spire/metric/visual/templates/django_spire/`.
+
+## 6. Implementation log
+
+### A1 — done
+
+- **Model** — `Visual.display_unit_count`
+  (`PositiveSmallIntegerField(null=True, blank=True)`, verbose_name
+  "Display units"), migration `0008_visual_display_unit_count`.
+  Form field validates 1..104
+  (`DISPLAY_UNIT_COUNT_MIN/MAX` in `visual/constants.py`); unset →
+  `DEFAULT_DISPLAY_UNIT_COUNTS` (daily 8 / weekly 12 / monthly 13) via
+  `effective_display_unit_count()`. The declared form field carries
+  an explicit `label` (declared fields don't inherit the model
+  verbose_name, so django-glue's metadata resolver otherwise yields
+  a blank label) and `help_text` — `widget.html` renders it as the
+  hint automatically. Detail card shows a "Display Units"
+  attribute via `display_unit_label()` (e.g. "12 week(s)",
+  `DISPLAY_UNIT_LABELS` in constants), hidden when no statistic is
+  set.
+- **Frame** — `display_window_range(interval, end_date, count)` +
+  `unit_end` / `next_unit_start` in `domain/statistic/interval.py`
+  (pure date math, DB-agnostic).
+- **Chart points** — `StatisticValueQuerySet.unit_points(interval,
+  start, end, *, average)` : one query for day-level
+  `Sum` + `Count`, days bucketed into units in Python (Postgres/
+  SQLite portable), empty units zero-filled, point label = unit
+  start. Percentages use the unit's raw `Avg` (moving-window series
+  retired — `_percentage_series` deleted; `current_value` header
+  keeps its moving-window value).
+- **Service** — `display_window(value_date)` /
+  `display_unit_count()` on the transformation service;
+  `series_datasets` points and `series_breakdown` (pie) now span the
+  window; `render_context()` and the detail view's
+  `period_start`/`period_end` are the window range (context key
+  names unchanged — all seven consumers untouched); the effective
+  unit count joins the `_cache_key` parts. `date_range()` remains
+  for the header's current-unit value only.
+- **Label** — `period_range.html` now prints a start–end range for
+  any multi-unit window (single date when start == end).
+- **Seeder** — `_seed_visual_values` stamps its 30-point wave
+  across `display_window()` instead of the single interval.
+- **Tests** — 527 passed (was 512: +15). New: window-frame extents
+  per interval + counts (domain `test_interval.py`), service window
+  frames / count override / no-statistic fallback, count-driven
+  series length, monthly bucketing, raw unit average for
+  percentages (two values in one day → their mean). Updated:
+  series assertions to 8/12/13-point zero-filled windows,
+  `render_context` period = 8-day window, A6 picked-date period =
+  12-week window ending at the picked week.
+- **Deviation** — the "Evaluation Date attribute removed" line was
+  already satisfied by A7; no other deviations.
+
+### A4 + A7 + A6 (+ A9 client convention) — done
+
+- **A4** — deleted `VisualConditionTransformationService` (and its
+  `VisualConditionOperatorChoices` import), the import + attachment in
+  `services/service.py`, and the wiring test in `test_models.py`.
+  `VisualCondition.matches` on the model is the single implementation.
+- **A7** — dropped `Visual.date` (model + migration
+  `0007_remove_visual_date`), all five `value_date or self.obj.date`
+  anchors now fall back to `timezone.localdate()` (including the
+  cache-key site), form field + template line + admin `list_display`
+  entry + detail-card "Evaluation Date" attribute removed. Tests that
+  pinned `visual.date = date(2026, 5, 15)` now pass the date
+  explicitly (`value_date=` or via chart params); new tests cover the
+  always-today anchor, midnight rollover (patched `timezone.localdate`),
+  and the cache key changing with the date.
+- **A6** — detail page only: `?value_date=YYYY-MM-DD` parsed in
+  `_browse_value_date` (invalid or future → ignored → today), threaded
+  through `current_value` / `current_condition` / `date_range` and into
+  the chart's Glue params (`transformation.chart(value_date=...)` →
+  `params['value_date']` as `YYYY-MM-DD`). The five chart bodies parse
+  the string via `_value_date()` and forward it to
+  `series_datasets` / `series_breakdown` / `dataset_values`. Plain GET
+  form (native date input, `max` = today, Go) under the Period
+  attribute in `detail_card.html`, rendered only when a statistic is
+  set; clearing the input returns to today. `render_context()` is
+  untouched — regions, signage, and presentations stay always-today.
+  The browsed window is the A1 display window (per-visual unit
+  count) ending at the unit containing the picked date.
+- **A9 (client convention)** — the original
+  `proxy.execute({'kwargs': this._params || {}})` in `chart.html:49`
+  was **always correct** and this "fix" was a misdiagnosis:
+  `FunctionGlue.execute(self, kwargs)` has its own `kwargs` parameter
+  that the attribute-call resolver maps the client's top-level
+  call-kwargs onto, and `execute` then does `function(**kwargs)` —
+  unpacking the *inner* dict. A B2 change to a flat call
+  (`proxy.execute(this._params || {})`) was the actual regression:
+  every poll of all 7 Glue-polled charts (5 visual + 2 home demo)
+  500'd with `ValueError: Attribute 'execute' missing required
+  argument: 'kwargs'. Provided: ['visual_pk']`. Reverted to the
+  original wrap. A6's chart threading is unaffected — `value_date`
+  rides inside the wrapped params either way.
+- **Tests** — metric suite 512 passed (was 502: +11, −1); core +
+  home smoke 359 passed. New: `value_date` string shape, localdate
+  anchor through the chart path, and six detail-view A6 cases
+  (picked period, missing/invalid/future param, form rendered /
+  hidden). (The original "flat-kwargs acceptance for all five data
+  functions" loop was later deleted — tautological, and named after
+  the retracted flat convention; the bar body it alone exercised now
+  has a dedicated `test_bar_chart_option`.)
+- **A9 follow-up (regression pin)** — added endpoint-level tests in
+  `test_page_views.py::VisualChartExecuteTestCase` that POST through
+  the real `/__dg__/callable_attribute/visual_line_chart/execute/`
+  route (the suite had only ever called the data functions
+  directly, so the flat-call regression shipped green): the wrapped
+  shape returns the rebuilt option (200). Also pins the template
+  line in `test_detail_view_with_chart_kind`. Metric suite re-run
+  after the revert is green.
+- **Detail-card chart include (explicitness only)** —
+  `detail_card.html`'s include of `render/visual.html` did not
+  pass `chart` in its `with` clause, while the other three
+  includers (region, signage, presentation) do. Added
+  `chart=chart` for parity — a behavior no-op, because an include
+  without `only` inherits the full parent context, so the chart
+  always reached the partial. The test failure that surfaced it
+  was an assertion typo (expected `... || {})` where the template
+  has `... || {}}`), not a rendering gap.
+- **Test-trim pass** — review of the session's new tests found one
+  dead key and several redundancies, all removed: the
+  `display_unit_count` context key in `_visual_context` (no
+  template consumes it — the card renders `display_unit_label`
+  only) plus its assertion and the static-label assertion in
+  `test_detail_view_missing_value_date_renders_today`;
+  `test_execute_rejects_flat_params` (pinned django-glue's negative
+  contract; the template pin + positive endpoint test already guard
+  the regression); `DisplayWindowRangeTestCase` 8 → 5 (dropped the
+  three `count_two` variants — the count parameter is already
+  exercised by the distinct 8/12/13 defaults and the from-sunday
+  case); `IntervalRangeTestCase` 10 → 9 (dropped a second Saturday
+  case that duplicated `test_weekly_range_from_saturday` one week
+  earlier); the three per-interval `display_window` default tests
+  merged into `test_display_window_defaults_per_interval` (the
+  per-interval date math is already pinned in
+  `DisplayWindowRangeTestCase`, two of the three were identical
+  calls, and the service tests only needed to pin interval
+  resolution + default count). Metric suite 528 passed after the
+  trim.
