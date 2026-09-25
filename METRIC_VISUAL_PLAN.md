@@ -1280,7 +1280,49 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   component's own data object. Verified post-fix: each
   chart polls its own `visual_pk` and renders its own
   visual. Audit of the other 84 `x-data` usages found no
-  other multi-instance + undeclared-runtime-state cases
-  (signage `rotation` is single-instance per page;
-  `message_item` only writes declared props). Metric +
-  core 896 passed.
+   other multi-instance + undeclared-runtime-state cases
+   (signage `rotation` is single-instance per page;
+   `message_item` only writes declared props). Metric +
+   core 896 passed.
+- **Indicator cqw/cqh removed (user: "weird on Chrome,
+   good on Firefox")** — the previous entry's layered
+   fallback did not save the user's Chrome: it *supports*
+   container queries, so the `min(60cqw, 60cqh)` override
+   layer is valid syntax and fires — but Chromium resolves
+   `cqh` against the container's **specified** size, and the
+   indicator box's height comes from `min-height: 95%`
+   (specified height `auto`), so `cqh ≈ 0` and
+   `min(60cqw, 60cqh) = 0` collapsed the circle to the
+   `.badge` padding sliver (Firefox resolves query units
+   against the used size, hence the correct circle). The
+   CQ units are now gone from the indicator entirely:
+   container div drops `container-type: size`; the circle
+   keeps only the universal base (`height: 60%;
+   aspect-ratio: 1; max-width: 100%` — 60% of the box's
+   used height, what Firefox's CQ math already produced on
+   these wide layouts). Signage `display_page.html`'s
+   `.kiosk-section { container-type: size }` is untouched —
+   it uses no `cqw/cqh` units. Template only; Metric + core
+   896 passed.
+- **Indicator icon sized to the circle (user: "looks weird
+   in signage")** — the fixed `2.5rem` icon from the
+   previous entry broke the intended 50% icon-to-circle
+   ratio (the original `30cqh` on a `60cqh` circle) in
+   every context: 27% on the detail page, 63% in the small
+   presentation cell, 11% in the signage cell (a 510px
+   circle with a 54px dot). A span-scoped CQ test
+   (`container-type: size` on the circle itself, `50cqw`
+   icon) resolves in Edge 153 but still leans on the
+   container-query feature class that is broken in the
+   user's Chrome, so the icon is sized against the actual
+   rendered circle instead: the indicator include emits a
+   small script registering its circle `span` with a shared
+   guarded `ResizeObserver` (`window.__spireIndicatorRo`,
+   same guarded-global pattern the signage page uses for its
+   ECharts patch) that sets `icon.style.fontSize =
+   circle.offsetWidth * 0.5`. The 2.5rem inline style stays
+   as the no-JS fallback. Verified in Chromium: detail
+   147px circle → 73.5px icon, presentation 63px → 31.5px,
+   signage 510px → 255px — 50% in all three, and the RO
+   re-fires on signage slide rotation (x-show) and resize.
+   Metric + core 896 passed.
