@@ -136,9 +136,9 @@ gone (A7).
     page)
   - then **polled**: a Glue function rebuilds the full option and
     the client calls `setOption(option, {notMerge: true})`
-  - **A9 correction (misdiagnosis retracted)**: an earlier
-    revision of this plan claimed the `{'kwargs': ...}` wrap in
-    chart.html:49 broke every poll. It did not —
+   - **A9 correction (misdiagnosis retracted)**: an earlier
+     revision of this plan claimed the `{'kwargs': ...}` wrap in
+     chart.html:82 broke every poll. It did not —
     `FunctionGlue.execute(self, kwargs)` has its own `kwargs`
     parameter that consumes the wrapper key before
     `function(**kwargs)` unpacks the *inner* dict, so the
@@ -267,6 +267,7 @@ addresses it; the unmarked ones still match the code:
     resolves it (above target → green, target−10..target
     → yellow, below → red)
 - **Gauge detail shows a raw number.** → A2
+  (resolved — the center value is now client-formatted)
   - no unit, even for currency or percentage statistics
   - multiple references → multiple dials side by side, sharing
     one max
@@ -292,21 +293,22 @@ addresses it; the unmarked ones still match the code:
     free-form — click tracking records actual view names,
     middleware.py:57); the demo data just collides with it
 - **A fully drifted visual reads as a real zero.** → A5
+  (resolved — the "No matching data" caption now
+  differentiates it on every surface)
   - references match nothing → `current_value` = 0
   - 0 satisfies the default `RED LT target` condition →
     the red badge (visual.html:24-29)
-  - visually identical to a genuine zero; the cause is
-    only visible by querying the values
 - **Duplication: `VisualCondition.matches()` is implemented
-  twice.** → A4
+  twice.** → A4 (resolved — the service copy was deleted;
+  the model method is the single implementation)
   - identical logic on the model and in
     `VisualConditionTransformationService` (drift risk)
   - production only calls the model method (via
     `current_condition`)
-  - the service copy is exercised by one test
 - **`period_range.html` compares raw interval strings**
-  (`'monthly'`, `'daily'`).
-  - works today, fragile (hardcoded choice values)
+  (`'monthly'`, `'daily'`). → A1 (resolved — now a date
+  comparison: a single date when start == end, else a
+  start–end range)
 
 ## 3. Signage performance deep-dive (low-powered targets)
 
@@ -348,7 +350,7 @@ ARM) and Raspberry Pi boxes running Chromium, displaying the page
     churn
   - GC pressure on a 1 GB TV over days
 
-### Mitigations (batch B2 — ship with A1; see §4)
+### Mitigations (batch B3 — signage performance; see §4)
 
 1. **Lazily initialize charts**
    - init a chart when its slide is first shown
@@ -523,25 +525,30 @@ frame, on every surface.
   - number / currency type → formatted value
     (e.g. `$1,234.50`); adaptive ceiling (see log)
 - **Scale fix (percentage → 100):**
-  - today: `gauge_max` = max(target+tolerance) → value×2
-    → 100 (transformation_service.py:300-320) — built for
+  - pre-fix: `gauge_max` = max(target+tolerance) → value×2
+    → 100 (transformation_service.py:340) — built for
     raw number scales
   - a 5% gauge with no conditions → max 10 → the needle
     sits dead center
   - fix: `if self._is_percentage(): return 100` — the
-    helper already exists (transformation_service.py:86-90)
+    helper already exists (transformation_service.py:121)
   - a percentage is 0–100 by definition; conditions then sit
     at meaningful positions (target 10 = the 10% position)
   - trade: a low rate (3–8%) sits near the bottom — honest
     over zoomed
-- **How:**
-  - the server pre-computes both strings per data item with
-    the existing `format_statistic_value`
-    (domain/statistic/format.py)
-  - `chart.html` injects static formatters once at init (JS
-    API — functions cannot travel in the JSON payload)
-  - no-statistic gauge → empty data: the formatters must
-    tolerate an empty / zero value
+- **How (final state — see the A2 log entries):**
+  - the center value is formatted **client-side** by
+    `chart.html`'s `_gauge_detail_formatter(value_type)`,
+    mirroring `format_statistic_value`
+    (domain/statistic/format.py) — ECharts'
+    `detail.formatter` receives the raw number only, so the
+    string cannot be pre-computed server-side
+  - `valueType` rides in the series payload; the formatter
+    injection runs in both `init()` and `_update()` —
+    functions cannot travel in the JSON payload, and the
+    `notMerge: true` poll re-set drops whatever was injected
+  - no-statistic gauge → empty data: the formatters are
+    never invoked
 - tests: percentage gauge scale, with/without conditions
 
 ### A3 — Pie chart rendering
@@ -611,7 +618,7 @@ frame, on every surface.
 - today: a drifted reference (matches nothing) → value 0 →
   the red `LT target` badge — indistinguishable from a real
   zero
-- the form guard (forms.py:114-130) blocks saving a dead
+- the form guard (forms.py:145) blocks saving a dead
   pattern while the statistic has values, so this state
   only arises via:
   1. a pattern typed ahead of an empty statistic (no
@@ -805,7 +812,7 @@ frame, on every surface.
 - **The "broken poll" premise of this item was a misdiagnosis.**
   - an earlier revision claimed the client's
     `proxy.execute({'kwargs': this._params || {}})`
-    (core/.../chart/chart.html:49) failed server-side with
+    (core/.../chart/chart.html:82) failed server-side with
     `TypeError: missing 'visual_pk'`
   - that trace was wrong: `FunctionGlue.execute(self, kwargs)`
     (`django_glue/glue/function.py:60`) has a single required
@@ -871,40 +878,87 @@ frame, on every surface.
     the viewport — sidebar, header, column/row counts vary);
     only a full-bleed kiosk layout qualifies.
 - **The scale unit is the root font size** — the mechanism
-  signage already uses and is the actual answer to
+  signage already uses and the actual answer to
   "consistency at every resolution":
   - DOM text is rem-based (scales automatically)
   - geometry is `%` of its own box (indicator circle `60%`,
     chart box `flex: 1 1 auto`) — already resolution-independent
   - ECharts text/grid metrics derive from the root font via
     the `display_page.html` patch, which sets
-    `html { font-size: 100vh/50 }` (kiosk zoom vars) and reads
-    the computed root font into textStyle/legend/axes/tooltip
-    + font-derived grid margins
+    `html { font-size: calc(100vh / (50 / var(--signage-zoom))) }`
+    and reads the computed root font into textStyle/legend/
+    axes/tooltip + font-derived grid margins
+  - the gauge's hardcoded px dial metrics are scaled from the
+    root font with a zoom-capped factor (kiosk patch, below)
   - browser zoom needs nothing: it scales canvas and DOM
     together, and the computed root font stays 16px, so the
     options stay 12px and the whole page zooms uniformly
-- **Pickup recipe (if/when wanted):** extract the font scaling
-  out of `display_page.html` into `chart.html`'s `_themed()`
-  hook — the single init point for every Spire chart, and it
-  already runs on init *and* every poll update:
+- **What the kiosk patch does today** (extraction source):
+  - root font `100vh/50 × zoom` — zoom 1 / 1.25 / 1.5 via
+    `?zoom=`, forced back to 1 on short screens
+    (`innerHeight / zoom < 240`, display_page.html:53)
+  - grid-chart text (textStyle/legend/axes/tooltip) = the root
+    font + font-derived grid margins
+  - gauge branch — ECharts 6.1.0 hardcodes the dial's px
+    metrics (axisLabel 12, detail 30, title 16, axisLine 10),
+    which never inherit textStyle, so they scale explicitly:
+    - `scale = (rootFont / GAUGE_FONT_BASE) × (min(zoom,
+      GAUGE_ZOOM_CAP) / zoom)`, `GAUGE_FONT_BASE = 21.6`
+      (the 1080p zoom-1 root), `GAUGE_ZOOM_CAP = 1.25`,
+      rounded to 2 decimals — resolution and zoom are
+      decoupled axes: zoom grows the root font but the dial
+      *shrinks* (radius = 0.375·min(w,h); the rem header bar
+      eats grid height), so uncapped scaling runs ~1.6× tight
+      at high zoom; high renders exactly at the medium size
+    - px metrics: axisLabel 12×s + distance 15×s, detail
+      30×s + width 100×s, title 16×s, axisLine 10×s,
+      splitLine/axisTick lengths + distances, pointer width;
+      `pointer.length: '60%'` and the offsetCenter values are
+      % of the radius — untouched
+    - collision guard: the title (center + 0.7·r +
+      titleFont/2) hides within 2px of the legend top
+      (h − 8 − rootFont − 6) — fires on small boxes (640×480
+      high zoom); 0×0 hidden slides keep the title until the
+      first visible poll re-evaluates
+- **Pickup recipe (if/when wanted):** extract the
+  resolution-only font scaling out of `display_page.html`
+  into `chart.html`'s `_themed()` hook — the single init
+  point for every Spire chart, and it already runs on init
+  *and* every poll update (chart.html:41, :86):
   - read `getComputedStyle(document.documentElement).fontSize`
     per option build
-  - `root ≈ 16px` (normal pages, browser zoom) → option
+  - the gate is **root ≠ 16px** (the browser default), not
+    "root > 16": a vh-root page can legitimately run *below*
+    16 (720p → 14.4, a 600px-tall kiosk → 12) and those scale
+    *down* (12/21.6 ≈ 0.56×) — a "root > 16" guard would
+    silently skip every sub-800px-tall kiosk, leaving dial
+    text ~1.8× oversized
+  - `root = 16px` (normal pages, browser zoom) → option
     **untouched** — in-page charts stay byte-identical, zero
     regression surface
-  - `root > 16px` (signage or any vh-root page) →
-    `fontSize = rootFont × var(--chart-text-ratio, 1)` on
-    textStyle/legend/axis/tooltip + the font-derived grid
-    margins — default ratio 1.0 reproduces signage's current
-    behavior exactly (21.6px at 1080p)
-  - `display_page.html`'s patch then shrinks to the kiosk-only,
-    non-scaling parts (legend `bottom: 8`, pie-label
-    truncation)
+  - otherwise → `fontSize = rootFont × var(--chart-text-ratio,
+    1)` on textStyle/legend/axis/tooltip + the font-derived
+    grid margins — default ratio 1.0 reproduces signage's
+    current behavior exactly (21.6px at 1080p)
+  - **stays in `display_page.html`** (kiosk-only, not
+    resolution): the gauge's zoom-cap factor (`min(zoom,
+    1.25)/zoom` — `?zoom=` is a kiosk concept), the gauge
+    collision guard, the legend `bottom: 8` offset, the
+    pie-label `truncate()` (28-char) formatter, the
+    `--signage-zoom` root-font calc and the short-screen
+    zoom→1 fallback
+  - if an in-page gauge ever appears, only the resolution
+    half of the gauge formula (`rootFont / 21.6`) would be
+    worth sharing into the hook
   - any future full-screen context (e.g. a "TV mode" for
     presentations) then needs only
     `html { font-size: calc(100vh / 50) }` and both DOM and
     charts follow automatically
+  - **ordering note** — B3's shared poll loop (deferred)
+    rewrites the same `chart.html` init/`_update` code; land
+    B3 first or design the extraction to compose with it —
+    either way it composes, since the hook lives in
+    `_themed`, which both paths already call
 
 ## 5. Files to change
 
@@ -989,7 +1043,7 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   `services/service.py`, and the wiring test in `test_models.py`.
   `VisualCondition.matches` on the model is the single implementation.
 - **A7** — dropped `Visual.date` (model + migration
-  `0007_remove_visual_date`), all five `value_date or self.obj.date`
+  `0007_remove_visual_date`), all six `value_date or self.obj.date`
   anchors now fall back to `timezone.localdate()` (including the
   cache-key site), form field + template line + admin `list_display`
   entry + detail-card "Evaluation Date" attribute removed. Tests that
@@ -1011,7 +1065,7 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   The browsed window is the A1 display window (per-visual unit
   count) ending at the unit containing the picked date.
 - **A9 (client convention)** — the original
-  `proxy.execute({'kwargs': this._params || {}})` in `chart.html:49`
+  `proxy.execute({'kwargs': this._params || {}})` in `chart.html:82`
   was **always correct** and this "fix" was a misdiagnosis:
   `FunctionGlue.execute(self, kwargs)` has its own `kwargs` parameter
   that the attribute-call resolver maps the client's top-level
@@ -1156,9 +1210,10 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
   (~40cqh) and the pie's 75% default, per user tuning (smaller than
   the pie, larger than before); the icon scales with it
   (`min(30cqw, 30cqh)`, the prior 50% ratio). The state
-  caption (badge + text, including the A5 "No matching data" line)
-  sits at `bottom: 10%; left: 50%; width: 90%` — a raised variant
-  of the pie's legend placement (`bottom: 0`), per user request.
+    caption (badge + text, including the A5 "No matching data" line)
+    sits at `bottom: 17%; left: 50%; width: 90%` (initially
+    10%, later tuned) — a raised variant of the pie's legend
+    placement (`bottom: 0`), per user request.
   No Data transparent-circle behavior unchanged. Template only;
   no test changes (nothing pins this markup; the A5 caption-string
   tests still hold).
@@ -1379,10 +1434,13 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
    keeps only the universal base (`height: 60%;
    aspect-ratio: 1; max-width: 100%` — 60% of the box's
    used height, what Firefox's CQ math already produced on
-   these wide layouts). Signage `display_page.html`'s
-   `.kiosk-section { container-type: size }` is untouched —
-   it uses no `cqw/cqh` units. Template only; Metric + core
-   896 passed.
+    these wide layouts). The icon's `min(30cqw, 30cqh)`
+    layer went with it — its no-JS fallback became the
+    fixed `2.5rem` (the next entry replaces that with
+    dynamic sizing). Signage `display_page.html`'s
+    `.kiosk-section { container-type: size }` is untouched —
+    it uses no `cqw/cqh` units. Template only; Metric + core
+    896 passed.
 - **Indicator icon sized to the circle (user: "looks weird
    in signage")** — the fixed `2.5rem` icon from the
    previous entry broke the intended 50% icon-to-circle
@@ -1533,9 +1591,10 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
      (visual name), not the data item name — so "keep
      both" means title = reference name per dial, legend
      = visual name (superseded by the legend-parity
-     entry below). Verified in Edge: 640×480 high →
-     title hidden, legend clean; 1920×1080 z1 → title
-     shown, no collision.
+     entry below). Inline template JS — no test coverage;
+     verified in Edge: 640×480 high → title hidden,
+     legend clean; 1920×1080 z1 → title shown, no
+     collision.
   - **Gauge legend parity with the other charts +
     duplicate-reference guard** — user report: the gauge
     showed "both label and reference" when a reference
@@ -1587,3 +1646,42 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
     Verified live in Edge: labeled → legend = label;
     unlabeled → legend = visual name. Metric + core
     905 passed.
+   - **Pie labels appeared late on shown slides (100×0
+     fallback bake-in)** — user report: on the signage
+     display page the pie slice labels (the text at the
+     label-line ends) appeared only ~15–17s after their
+     slide showed. Root cause: hidden slides' charts init
+     at page load while `display: none`, and ECharts
+     6.1.0 reports a **100×0 fallback box** for zero-size
+     DOMs (verified in-page: `echarts.init` on a hidden
+     element → `getWidth()=100, getHeight()=0`) — so the
+     kiosk patch baked `label.width = floor(100 × 0.35) =
+     35` into every hidden pie at init; `chart.resize()`
+     on slide-show re-renders at the real box but never
+     re-evaluates the option, leaving labels truncated to
+     35px (≈2 chars + ellipsis — reads as no text) until
+     the first poll after showing re-ran the wrapper with
+     the real width (measured: 35 at show, 206 =
+     floor(591×0.35) only after the 15–17s poll). Pie is
+     the only box-dependent option in the patch. Fix in
+     the `display_page.html` wrapper: (1) the pie
+     truncation (`overflow: 'truncate'` + `width`) is set
+     only when the box is real (`boxW > 0 && boxH > 0`),
+     so the 100×0 fallback bakes nothing; (2) the wrapper
+     captures each setOption's pre-wrap option
+     (`chart._kioskLastOption`) and patches
+     `chart.resize` to re-apply it (merge) when the box
+     transitions collapsed (height 0) to real — so shown
+     pies get the real truncation width on the show
+     frame, and the gauge collision guard (which
+     previously re-evaluated only at the first poll after
+     showing — the "0×0" wart in the collision-guard
+     entry is really this 100×0 fallback; the height-0
+     skip is what made it harmless) is re-evaluated
+     immediately too. Known residual: a window-resize
+     while a pie is shown leaves the width stale until
+     the next poll (same as before). Verified in Edge at
+     1280×720: label.width 206 immediately at show (was
+     35 until t+16s), labels fully rendered with
+     truncation; gauge slide unaffected (title/legend/
+     scale text correct). Metric app 546 passed.

@@ -73,6 +73,7 @@
                     const chart = originalInit(el, themeOverride || theme, opts);
                     const originalSetOption = chart.setOption.bind(chart);
                     chart.setOption = (option, setOpts) => {
+                        chart._kioskLastOption = option;
                         const fontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
                         option = { ...(option || {}) };
 
@@ -102,15 +103,20 @@
                                 bottom: fontSize * 3 + 16,
                             };
                         }
+                        const boxW = chart.getWidth();
+                        const boxH = chart.getHeight();
                         for (const series of option.series || []) {
                             if (series.type === 'pie') {
-                                series.label = {
+                                const label = {
                                     ...(series.label || {}),
                                     show: true,
                                     formatter: (params) => truncate(params.name),
-                                    overflow: 'truncate',
-                                    width: Math.floor(chart.getWidth() * 0.35),
                                 };
+                                if (boxW > 0 && boxH > 0) {
+                                    label.overflow = 'truncate';
+                                    label.width = Math.floor(boxW * 0.35);
+                                }
+                                series.label = label;
                                 series.labelLayout = { ...(series.labelLayout || {}), hideOverlap: true };
                             }
                             if (series.type === 'gauge') {
@@ -152,8 +158,6 @@
                                     width: Math.round(100 * scale),
                                     fontSize: Math.round(30 * scale),
                                 };
-                                const boxW = chart.getWidth();
-                                const boxH = chart.getHeight();
 
                                 if (option.legend && boxW > 0 && boxH > 0) {
                                     const radius = 0.375 * Math.min(boxW, boxH);
@@ -168,6 +172,14 @@
                         }
 
                         return originalSetOption(option, setOpts);
+                    };
+                    const originalResize = chart.resize.bind(chart);
+                    chart.resize = (w, h) => {
+                        const wasCollapsed = chart.getHeight() === 0;
+                        originalResize(w, h);
+                        if (wasCollapsed && chart.getHeight() > 0 && chart._kioskLastOption) {
+                            chart.setOption(chart._kioskLastOption);
+                        }
                     };
                     return chart;
                 };
