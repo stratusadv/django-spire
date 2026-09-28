@@ -1444,3 +1444,25 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
     15/38/20; 3840×2160 high = 30/75/40/25. User confirmed
     the high-zoom gauge reads well. Metric + core 897
     passed.
+ - **A5 follow-up 2 (presentation surface gap)** — the
+    A5 follow-up's bare-include simplification did not
+    reach the presentation surface: `section_card.html`
+    inherits context from `slide.html`, where each
+    section's data sits under the loop variable `item`,
+    so the bare `no_matching_data` in `visual.html`
+    resolved empty and drifted references rendered the
+    wrong caption (indicator: "No condition matches the
+    current value"; chart kinds: no caption at all). The
+    "inherits the parent context anyway" reasoning only
+    holds where the key is top-level (detail card,
+    region tag). Fixed by forwarding
+    `no_matching_data=item.no_matching_data` in
+    `slide.html`'s include (mirroring
+    `display_page.html`); regression test
+    `presentation/tests/test_views/test_page_views.py::PresentationPageViewsTestCase::test_detail_view_no_matching_data_shows_caption`
+    (fails on the unfixed include — caption absent).
+    Lesson: new `render_context()` keys flow
+    automatically to the detail card and region
+    surfaces, but need explicit forwarding in
+    `slide.html` to reach presentation slides.
+    Presentation suite 54 + metric app 540 passed.

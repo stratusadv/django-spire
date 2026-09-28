@@ -1,12 +1,22 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.visual.presentation.models import SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
     create_test_section,
     create_test_slide,
+)
+from django_spire.metric.visual.tests.factories import (
+    create_test_domain,
+    create_test_statistic,
+    create_test_statistic_group,
+    create_test_subdomain,
+    create_test_visual,
 )
 
 
@@ -86,3 +96,29 @@ class PresentationPageViewsTestCase(BaseTestCase):
         assert response.status_code == 200
         assert response.context_data['slides'][0]['row_count'] == 2
         assert 'grid-auto-rows: 24rem' in response.content.decode()
+
+    def test_detail_view_no_matching_data_shows_caption(self):
+        slide = create_test_slide(self.presentation)
+
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        sub_domain = create_test_subdomain(domain=domain)
+        statistic = create_test_statistic(group=group)
+        visual = create_test_visual(statistic=statistic, reference='/live/')
+        SlideSection.objects.create(slide=slide, visual=visual, row=1, col=1)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=sub_domain
+        )
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:presentation:page:detail',
+                kwargs={'pk': self.presentation.pk},
+            )
+        )
+
+        assert response.status_code == 200
+        assert response.context_data['slides'][0]['sections'][0]['no_matching_data'] is True
+
+        assert 'No matching data' in response.content.decode()
