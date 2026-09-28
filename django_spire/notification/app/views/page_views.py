@@ -39,6 +39,7 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         ),
         access=Glue.Access.CHANGE,
         computed_attributes=computed_attributes,
+        batch_size=25,
     )
 
     nav = AppNotificationNavigation()

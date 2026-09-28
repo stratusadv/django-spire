@@ -48,6 +48,7 @@ def dropdown_content_view(request: WSGIRequest) -> TemplateResponse:
         ),
         access=Glue.Access.CHANGE,
         computed_attributes=computed_attributes,
+        batch_size=25,
     )
 
     context = {'app_notification_list_url': body_data.get('app_notification_list_url')}
