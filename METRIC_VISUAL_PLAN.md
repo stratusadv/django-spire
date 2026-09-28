@@ -920,8 +920,27 @@ frame, on every surface.
     - collision guard: the title (center + 0.7·r +
       titleFont/2) hides within 2px of the legend top
       (h − 8 − rootFont − 6) — fires on small boxes (640×480
-      high zoom); 0×0 hidden slides keep the title until the
-      first visible poll re-evaluates
+       high zoom); 0×0 hidden slides keep the title until the
+       first visible poll re-evaluates
+   - pie branch — label truncation (28 chars,
+     `width: floor(boxW × 0.35)` — set only for real boxes,
+     the 100×0 hidden init bakes nothing) + `hideOverlap`;
+     when a bottom slice label would land in the wrapped
+     legend (wide, short cells), the series-level
+     `labelLayout` **function** (the only working callback
+     form in ECharts 6.1.0 — `label.position: [x, y]` and
+     the nested object key are silently ignored) moves it
+     just left of the pie's left edge — `align: 'right'`
+     at x = centerX − radius − max(radius/4, font/2),
+     stacked on the pie's centerY, floored in the
+     callback at the actual rendered text width — so the
+     leader line stays short;
+     the pie's center/radius are untouched; a captured
+     pre-wrap option
+     (`chart._kioskLastOption`) is re-applied through a
+     patched `chart.resize` on the collapsed→real
+     transition so shown pies get the real width on the
+     show frame
 - **Pickup recipe (if/when wanted):** extract the
   resolution-only font scaling out of `display_page.html`
   into `chart.html`'s `_themed()` hook — the single init
@@ -945,10 +964,11 @@ frame, on every surface.
   - **stays in `display_page.html`** (kiosk-only, not
     resolution): the gauge's zoom-cap factor (`min(zoom,
     1.25)/zoom` — `?zoom=` is a kiosk concept), the gauge
-    collision guard, the legend `bottom: 8` offset, the
-    pie-label `truncate()` (28-char) formatter, the
-    `--signage-zoom` root-font calc and the short-screen
-    zoom→1 fallback
+     collision guard, the legend `bottom: 8` offset, the
+     pie-label `truncate()` (28-char) formatter and its
+     legend-collision left-shift, the
+     `--signage-zoom` root-font calc and the short-screen
+     zoom→1 fallback
   - if an in-page gauge ever appears, only the resolution
     half of the gauge formula (`rootFont / 21.6`) would be
     worth sharing into the hook
@@ -1687,6 +1707,110 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
      35 until t+16s), labels fully rendered with
       truncation; gauge slide unaffected (title/legend/
       scale text correct). Metric app 546 passed.
+    - **pie: bottom slice label collided with the wrapped
+      bottom legend (moved to the left margin, pie
+      untouched)** — user report on the "Warehouse Floor
+      Screen" signage: the full-width "Support Ticket
+      Volume" pie's bottom (largest, red) slice label
+      landed in the legend rows at 1920×1080 high zoom.
+      Measured: pie body fits by 3px (bottom 205 vs
+      legend top 208), but the bottom label sits ~44px
+      below the pie — label-vs-legend is never resolved by
+      `hideOverlap` (it only compares labels to labels).
+      User chose: move the colliding label to the left
+      side instead of shrinking/raising the pie. The fix
+      needed three ECharts 6.1.0 API facts (verified in
+      the source + isolated instances, since the docs
+      describe the old behavior):
+      - `label.position: [x, y]` is **ignored** at both
+        series and data-item level (renders at the default
+        outer position)
+      - the `labelLayout` **object** form applies its own
+        properties per label (so `{hideOverlap: true}`
+        works) but a nested `labelLayout` function key is
+        **never called** — the working callback is the
+        **function form**: series-level
+        `labelLayout: (params) => {...}`, called per label
+        with `{dataIndex, text, rect, labelRect, align,
+        verticalAlign, labelLinePoints}`, returning the
+        per-label layout — `x`/`y` in **viewport**
+        coordinates (percent-parsed against the box
+        w/h), plus `align`/`verticalAlign`/`width`/
+        `fontSize`/`dx`/`dy`/`hideOverlap`/`moveOverlap`/
+        `labelLinePoints`. `hideOverlap` runs afterwards,
+        per-label, on the returned flags.
+      - the raw (pre-defaults) option has no
+        `series.radius` — ECharts' 50% outer default only
+        appears in `getOption()`; reading it raw gives
+        NaN (the first draft silently skipped every pie)
+      Implementation (display_page.html pie branch,
+      kiosk-only, real boxes only):
+       - legend extent estimate — per item: 30px (25px
+         icon + 5 gap) + `min(name.length, 28) × font ×
+         0.5` (the 28-char formatter cap; the measured
+         average char width is 0.46–0.57×font, and 0.6 —
+         the first value — over-estimated: at 640×480 it
+         called the short 4-item legend 2 rows when it
+         renders 1, placing the legend top 12px above
+         reality and shifting a label that fit by 3px,
+         which the width floor then pushed onto the pie
+          disc), + 5px between items; rows = ceil(total /
+          (0.9 × boxW)); `legendTop = boxH − 8 − rows ×
+          (max(font, 14) + 9)` — the 14px legend icon,
+          not the text, sets the row height at small
+          fonts (rendered row pitch: 23–24px at font
+          9.6, 41 at 32.4)
+       - collision per slice — mid-angle from cumulative
+         value fractions (start at 12 o'clock, clockwise),
+         `labelBottom = centerY − (radius + 15)·cos(mid) +
+         font/2` (15 = default labelLine length1); shift
+         when it exceeds `legendTop + font/2` — the
+         tolerance keeps a label that merely touches the
+         legend in place (the anchor estimate is a few px
+         off from the rendered rect)
+       - shifted labels get a `shiftPlan` entry: right-
+         aligned just left of the pie's left edge —
+         `x = centerX − radius − max(radius/4, font/2)`;
+         the gap is radius-based (the pie's visual size),
+         floored by half a font (first draft used the box's
+         left margin — "a little far"; then font/2 — fine
+         at 1080p high zoom, 16px, but 4.8px at 640×480
+         — "too close"); `y` stacked centered on the
+         pie's centerY with `(font + 6)` spacing. The
+         callback applies the plan with a floor at the
+         **actual** rendered text width
+         (`params.labelRect.width + 2`, same text so same
+         width as at the default position) so the label
+         cannot run off the box's left edge — the first
+         draft pre-floored with the max truncated width
+         (`0.35×boxW + font`), which on narrow cells
+         pushed x right, past the pie's edge, and the
+         label sat on the disc. It returns `{...plan, x,
+         align: 'right', hideOverlap: true}` — an
+         explicit `align` is mandatory: ECharts keeps the
+         slice's default, which would anchor the text at
+         the wrong end of x. The label line re-routes to
+         the new position automatically
+      - safety net: any unshifted label whose rendered
+        `labelRect` bottom crosses `legendTop` is clamped
+        up to it (`{y: legendTop − height}`)
+      - everything else returns `{hideOverlap: true}`
+        (the pre-existing A3 behavior); 100×0 hidden
+        boxes take the plain object form as before
+       Verified in Edge: the reported case — red label
+      right-aligned at (811, 132), 18px left of the
+      pie's edge (829), line re-routed short, pie
+      center/radius/size unchanged, legend clean; no
+      false positives — the top cell's `second` label
+      (fits by 6px) and every other slice stay put;
+      1280×720 medium zoom (borderline 2px case,
+      shifted, 14px gap), 1920×1080 no-zoom and 4K
+      (both fit, nothing moves), 640×480 no-zoom (the
+      false-positive fix: the top `second` stays at its
+      default position 4px above the legend, the bottom
+      label shifts with an 11px gap) all checked. Pie
+      size/center untouched per the user's request.
+      Metric app 549 passed.
     - **A1 follow-up (header value labeled by its own
       window)** — the header's small line above the number
       printed the chart's display range while the number

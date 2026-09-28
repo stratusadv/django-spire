@@ -117,7 +117,84 @@
                                     label.width = Math.floor(boxW * 0.35);
                                 }
                                 series.label = label;
-                                series.labelLayout = { ...(series.labelLayout || {}), hideOverlap: true };
+                                if (boxW > 0 && boxH > 0) {
+                                    const data = series.data || [];
+                                    const legendWidth = boxW * 0.9;
+                                    const legendItemsWidth =
+                                        data.reduce(
+                                            (sum, d) => sum + 30 + Math.min(String(d.name || '').length, 28) * fontSize * 0.5,
+                                            0,
+                                        ) + (data.length - 1) * 5;
+                                    const legendRows = Math.max(1, Math.ceil(legendItemsWidth / legendWidth));
+                                    const legendTop = boxH - 8 - legendRows * (Math.max(fontSize, 14) + 9);
+
+                                    let outer = series.radius;
+                                    if (Array.isArray(outer)) {
+                                        outer = outer[outer.length - 1];
+                                    }
+                                    const minSide = Math.min(boxW, boxH);
+                                    const radius =
+                                        typeof outer === 'number'
+                                            ? outer
+                                            : ((parseFloat(outer) || 50) / 100) * (minSide / 2);
+                                    const center = series.center;
+                                    const centerX =
+                                        Array.isArray(center) && center[0]
+                                            ? (parseFloat(center[0]) / 100) * boxW
+                                            : 0.5 * boxW;
+                                    const centerY =
+                                        Array.isArray(center) && center[1]
+                                            ? (parseFloat(center[1]) / 100) * boxH
+                                            : 0.45 * boxH;
+
+                                    const shiftPlan = {};
+                                    if (radius > 0) {
+                                        const total = data.reduce((sum, d) => sum + (d.value || 0), 0);
+
+                                        if (total > 0) {
+                                            const shifted = [];
+                                            let cumulative = 0;
+
+                                            data.forEach((d, i) => {
+                                                const start = cumulative / total;
+                                                cumulative += d.value || 0;
+                                                const midAngle = ((start + cumulative / total) / 2) * 2 * Math.PI;
+                                                const labelBottom = centerY - (radius + 15) * Math.cos(midAngle) + fontSize / 2;
+
+                                                if (labelBottom > legendTop + fontSize * 0.5) {
+                                                    shifted.push(i);
+                                                }
+                                            });
+
+                                            shifted.forEach((index, k) => {
+                                                shiftPlan[index] = {
+                                                    x: Math.round(centerX - radius - Math.max(radius * 0.25, fontSize * 0.5)),
+                                                    y: Math.round(
+                                                        centerY - ((shifted.length - 1) * (fontSize + 6)) / 2 + k * (fontSize + 6),
+                                                    ),
+                                                };
+                                            });
+                                        }
+                                    }
+
+                                    series.labelLayout = (params) => {
+                                        const plan = shiftPlan[params.dataIndex];
+                                        if (plan) {
+                                            const labelW = params.labelRect ? Math.round(params.labelRect.width) : 0;
+
+                                            return { ...plan, x: Math.max(plan.x, labelW + 2), align: 'right', hideOverlap: true };
+                                        }
+                                        const rect = params.labelRect;
+
+                                        if (rect && rect.y + rect.height > legendTop) {
+                                            return { y: Math.round(legendTop - rect.height), hideOverlap: true };
+                                        }
+
+                                        return { hideOverlap: true };
+                                    };
+                                } else {
+                                    series.labelLayout = { ...(series.labelLayout || {}), hideOverlap: true };
+                                }
                             }
                             if (series.type === 'gauge') {
                                 const zoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--signage-zoom')) || 1;
