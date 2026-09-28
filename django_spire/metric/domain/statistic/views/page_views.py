@@ -24,7 +24,16 @@ if TYPE_CHECKING:
 def group_list_view(request: WSGIRequest) -> TemplateResponse:
     groups = models.StatisticGroup.objects.active().not_deleted().select_related('domain')
 
-    Glue.queryset(request, 'groups', groups, Glue.Access.CHANGE, fields='__all__')
+    Glue.queryset(
+        request,
+        'groups',
+        groups,
+        Glue.Access.CHANGE,
+        fields=Glue.fields(
+            'id', 'name', 'description', 'created_datetime',
+            domain=('name', 'sub_domain_name'),
+        ),
+    )
 
     nav = StatisticGroupNavigation()
     context = nav.as_context()

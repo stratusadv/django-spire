@@ -33,7 +33,10 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         request=request,
         target=notifications,
         unique_name='notifications',
-        fields='__all__',
+        fields=Glue.fields(
+            'id',
+            notification=('title', 'body', 'priority', 'sent_datetime'),
+        ),
         access=Glue.Access.CHANGE,
         computed_attributes=computed_attributes,
     )
