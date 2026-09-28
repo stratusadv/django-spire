@@ -26,7 +26,7 @@ class PresentationModelForm(forms.ModelForm):
             presentation, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={'redirect': {'url': _presentation_detail_url(presentation.pk)}}
+                redirect={'url': _presentation_detail_url(presentation.pk)}
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
@@ -44,7 +44,7 @@ class SlideModelForm(forms.ModelForm):
             slide, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={'redirect': {'url': _presentation_detail_url(slide.presentation_id)}}
+                redirect={'url': _presentation_detail_url(slide.presentation_id)}
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
@@ -95,9 +95,7 @@ class SlideSectionModelForm(forms.ModelForm):
             section, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {'url': _presentation_detail_url(section.slide.presentation_id)}
-                }
+                redirect={'url': _presentation_detail_url(section.slide.presentation_id)}
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])

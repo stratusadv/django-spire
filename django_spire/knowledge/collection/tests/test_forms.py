@@ -131,9 +131,7 @@ class CollectionFormTests(BaseTestCase):
 
         response = form.save_model_obj(self._request(self.super_user))
 
-        assert response.result == {
-            'redirect': {'url': reverse('django_spire:knowledge:page:home')}
-        }
+        assert response.redirect == {'url': reverse('django_spire:knowledge:page:home')}
 
     def test_parent_field_is_not_required(self):
         assert CollectionForm().fields['parent'].required is False
@@ -166,13 +164,11 @@ class CollectionFormTests(BaseTestCase):
 
         response = form.save_model_obj(self._request(self.super_user))
 
-        assert response.result == {
-            'redirect': {
-                'url': reverse(
-                    'django_spire:knowledge:collection:page:top_level',
-                    kwargs={'pk': self.collection.pk},
-                )
-            }
+        assert response.redirect == {
+            'url': reverse(
+                'django_spire:knowledge:collection:page:top_level',
+                kwargs={'pk': self.collection.pk},
+            )
         }
 
     def test_save_model_obj_invalid_form_returns_error_message(self):

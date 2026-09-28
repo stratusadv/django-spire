@@ -20,6 +20,8 @@
             this.removeContentScope?.()
             contentElement.innerHTML = event.detail.htmlContent
 
+            window.Glue?.registerComponentsFromDom(contentElement)
+
             if (event.detail.scopeData) {
                 this.removeContentScope = Alpine.addScopeToNode(
                     contentElement,

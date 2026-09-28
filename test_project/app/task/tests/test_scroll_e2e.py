@@ -67,3 +67,119 @@ def test_reset_and_load_busts_the_stale_scroll_query_cache(
     scroll.wait_for_row_count(1)
     expect(scroll.rows.first).to_contain_text(keep.name)
     expect(scroll.rows).not_to_contain_text('Doomed Task')
+
+
+SCROLL_DATA = """
+    () => [...document.querySelectorAll('[x-data]')]
+        .map((element) => Alpine.$data(element))
+        .find((data) => data && 'scrollQuerySet' in data)
+"""
+
+OVERLAPPING_RESETS = f"""
+    async () => {{
+        const scroll = ({SCROLL_DATA})()
+        while (scroll.isLoading) await new Promise((resolve) => setTimeout(resolve, 50))
+
+        const prototype = Object.getPrototypeOf(scroll.scrollQuerySet)
+        const originalRefresh = prototype.refresh
+        let refreshCount = 0
+        let releaseSecond
+        const secondGate = new Promise((resolve) => {{ releaseSecond = resolve }})
+
+        prototype.refresh = async function () {{
+            const call = ++refreshCount
+            const result = await originalRefresh.call(this)
+            if (call === 2) await secondGate
+            return result
+        }}
+
+        try {{
+            scroll.filterField = ''
+            scroll.scrollQuerySet = scroll.scrollQuerySet.filter({{name__icontains: 'Needle'}})
+            const first = scroll.resetAndLoad()
+            const second = scroll.resetAndLoad()
+            await first
+            releaseSecond()
+            await second
+        }} finally {{
+            prototype.refresh = originalRefresh
+        }}
+
+        return scroll.items.map((item) => item.name)
+    }}
+"""
+
+LOAD_MORE_DURING_RESET = f"""
+    async () => {{
+        const scroll = ({SCROLL_DATA})()
+        while (scroll.isLoading) await new Promise((resolve) => setTimeout(resolve, 50))
+        if (!scroll.hasMore) throw new Error('the scroll must have another page to load')
+
+        const prototype = Object.getPrototypeOf(scroll.scrollQuerySet)
+        const originalLoadMore = prototype.loadMore
+        let releaseLoadMore
+        const loadMoreGate = new Promise((resolve) => {{ releaseLoadMore = resolve }})
+
+        prototype.loadMore = async function (...args) {{
+            await loadMoreGate
+            return originalLoadMore.apply(this, args)
+        }}
+
+        try {{
+            const loadMore = scroll.loadMoreItems()
+            scroll.orderBy = '-name'
+            await new Promise((resolve) => setTimeout(resolve, 1500))
+            releaseLoadMore()
+            await loadMore
+            await new Promise((resolve) => setTimeout(resolve, 500))
+        }} finally {{
+            prototype.loadMore = originalLoadMore
+        }}
+
+        return scroll.items.map((item) => item.name)
+    }}
+"""
+
+
+def test_an_overtaken_reset_does_not_replace_the_newer_reset_results(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    for number in range(1, 31):
+        create_test_task(name=f'Task {number:02d}')
+
+    create_test_task(name='Needle Task')
+
+    demo = demo_start()
+    demo.goto('task:page:list')
+
+    scroll = GlueScroll(page, row_selector='.row.border-bottom')
+    scroll.wait_for_rows()
+
+    names = page.evaluate(OVERLAPPING_RESETS)
+
+    assert names == ['Needle Task']
+    scroll.wait_for_row_count(1)
+    expect(scroll.rows.first).to_contain_text('Needle Task')
+
+
+def test_a_page_load_in_flight_does_not_overwrite_a_reordered_reset(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    for number in range(1, 81):
+        create_test_task(name=f'Task {number:02d}')
+
+    demo = demo_start()
+    demo.goto('task:page:list')
+
+    scroll = GlueScroll(page, row_selector='.row.border-bottom')
+    scroll.wait_for_rows()
+
+    names = page.evaluate(LOAD_MORE_DURING_RESET)
+
+    assert names[0] == 'Task 80'
+    assert names == sorted(names, reverse=True)
+    assert len(names) == len(set(names))

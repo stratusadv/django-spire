@@ -33,14 +33,14 @@ class EntryFormViewTests(BaseTestCase):
         ]
 
     @staticmethod
-    def _glue_manifests(response) -> list[dict]:
+    def _glue_entries(response) -> list[dict]:
         match = re.search(
             r'<script id="django-glue-context" type="application/json">(.*?)</script>',
             response.content.decode(),
             re.DOTALL,
         )
 
-        return json.loads(match.group(1))['manifest_list']
+        return json.loads(match.group(1))['objects']
 
     def _create_url(self, collection_pk: int | None = None) -> str:
         return reverse(
@@ -82,11 +82,10 @@ class EntryFormViewTests(BaseTestCase):
     def test_create_view_registers_glue_entry_model(self):
         response = self.client.get(self._create_url())
 
-        manifest = self._glue_manifests(response)[0]
-        attributes = manifest['metadata']['attributes']
+        static_data = self._glue_entries(response)[0]['static_data']
 
-        assert attributes['name']['namespace'] == 'field'
-        assert attributes['save']['namespace'] == 'callable'
+        assert static_data['fields']['name']['namespace'] == 'field'
+        assert 'save' in static_data['callables']
 
     def test_update_view_context_entry_is_instance(self):
         response = self.client.get(self._update_url(self.entry.pk, self.child_collection.pk))
