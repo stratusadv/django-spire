@@ -14,7 +14,11 @@ from django_spire.metric.domain.statistic.constants import (
 )
 from django_spire.metric.domain.statistic.interval import display_window_range, interval_range
 from django_spire.metric.domain.statistic.querysets import reference_matches
-from django_spire.metric.visual.constants import DISPLAY_UNIT_LABELS, effective_display_unit_count
+from django_spire.metric.visual.constants import (
+    DISPLAY_PERIOD_LABELS,
+    DISPLAY_UNIT_LABELS,
+    effective_display_unit_count,
+)
 
 if TYPE_CHECKING:
     from datetime import date
@@ -117,6 +121,16 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         interval = self.obj.statistic.interval if self.obj.statistic_id else None
         label = DISPLAY_UNIT_LABELS.get(interval)
         return f'{count} {label}' if label else str(count)
+
+    def display_period_label(self) -> str:
+        interval = self.obj.statistic.interval if self.obj.statistic_id else None
+        if not interval:
+            return ''
+
+        if self._is_percentage():
+            return f'Last {percentage_moving_window_days(interval)} days'
+
+        return DISPLAY_PERIOD_LABELS.get(interval, '')
 
     def _is_percentage(self) -> bool:
         return (
@@ -396,6 +410,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
             'chart': self.chart(),
             'period_start': period_start,
             'period_end': period_end,
+            'display_period_label': self.display_period_label(),
         }
 
     @staticmethod

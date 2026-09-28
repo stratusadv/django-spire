@@ -17,6 +17,11 @@ DISPLAY_UNIT_LABELS = {
     StatisticIntervalChoices.WEEKLY: 'week(s)',
     StatisticIntervalChoices.MONTHLY: 'month(s)',
 }
+DISPLAY_PERIOD_LABELS = {
+    StatisticIntervalChoices.DAILY: 'Today',
+    StatisticIntervalChoices.WEEKLY: 'Week to date',
+    StatisticIntervalChoices.MONTHLY: 'Month to date',
+}
 
 
 def effective_display_unit_count(interval: str | None, display_unit_count: int | None) -> int:

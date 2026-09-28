@@ -94,6 +94,8 @@ class VisualPageViewsTestCase(BaseTestCase):
         assert response.context_data['period_start'] == timezone.localdate() - timedelta(days=7)
         assert response.context_data['display_unit_label'] == '8 day(s)'
         assert '8 day(s)' in response.content.decode()
+        assert response.context_data['display_period_label'] == 'Today'
+        assert '<span class="small text-muted">Today</span>' in response.content.decode()
 
     def test_detail_view_invalid_value_date_renders_today(self):
         response = self.client.get(

@@ -18,7 +18,7 @@
                     <div class="text-end">
                         <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
                         <div class="fs-5 fw-semibold lh-1">
-                            {{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                            <span class="small text-muted">{{ display_period_label }}</span> {{ current_value|statistic_value:visual.statistic.value_type }}</div>
                     </div>
                 {% endif %}
                 {% if current_condition %}
@@ -68,7 +68,7 @@
                         <div class="text-end">
                             <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
                             <div class="fs-5 fw-semibold lh-1">
-                                {{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                                <span class="small text-muted">{{ display_period_label }}</span> {{ current_value|statistic_value:visual.statistic.value_type }}</div>
                         </div>
                     {% endif %}
                     {% if current_condition %}

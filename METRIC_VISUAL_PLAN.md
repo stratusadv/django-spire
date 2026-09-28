@@ -22,8 +22,10 @@ recent units, anchored to today and never going stale.
   - N is a per-visual choice (`display_unit_count`); unset = the
     interval default (A1)
 - **Header** = the current unit's value (today / week-to-date /
-  month-to-date), labeled with the display range the chart covers
-  (A1)
+  month-to-date; percentage: 2/7/30-day moving average), prefixed
+  with the word that names that window — "Today" / "Week to
+  date" / "Month to date" / "Last N days" — while the line above
+  it keeps the display range the chart covers (A1 + A1 follow-up)
 - **All series share the frame** — one series per reference, each its
   own color, all over the same unit range (A1)
 - **Browsing a past date** stays display-only: `?value_date=...`, the
@@ -1683,5 +1685,39 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
      the next poll (same as before). Verified in Edge at
      1280×720: label.width 206 immediately at show (was
      35 until t+16s), labels fully rendered with
-     truncation; gauge slide unaffected (title/legend/
-     scale text correct). Metric app 546 passed.
+      truncation; gauge slide unaffected (title/legend/
+      scale text correct). Metric app 546 passed.
+    - **A1 follow-up (header value labeled by its own
+      window)** — the header's small line above the number
+      printed the chart's display range while the number
+      was the current unit's value — the label and the
+      value described different windows. Alternatives
+      considered and rejected: a window-total header
+      (re-scales the condition badges, which are tuned to
+      the unit scale; percentages have no meaningful
+      "total") and a single-day "today's value for all"
+      header (correct for daily statistics, but a weekly
+      statistic collected once per week would read 0 on
+      six of seven days — the user's example of 100/88/90/
+      100 per week must show 100 for the current week,
+      which the existing calculation already does).
+      Decision: the value keeps its meaning (current unit)
+      and is prefixed with the word that names that
+      window, directly in front of the number
+      (visual.html, both branches; `small text-muted`
+      span, matching the period line above — not the
+      value's semibold); the display range stays where it
+      is. New `display_period_label()` on
+      the transformation service + `DISPLAY_PERIOD_LABELS`
+      in `visual/constants.py` (percentage: "Last N days"
+      from `percentage_moving_window_days`); the key is
+      added to `render_context()`, the detail view's
+      `_visual_context`, and explicitly forwarded in the
+      two include `with` lists (signage `display_page.html`,
+      presentation `slide.html` — the A5 follow-up 2
+      lesson). Tests: +3 service (number intervals,
+      percentage windows, no statistic → '') + 2
+      detail-view assertions (context key == 'Today' and
+      rendered in content). No calculation change — all
+      existing value tests untouched. Metric app 549
+      passed.

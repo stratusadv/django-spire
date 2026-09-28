@@ -54,4 +54,5 @@ def render_visual_region(context: dict[str, Any], key: str) -> dict[str, Any]:
         'chart_update_interval': VISUAL_REGION_LIVE_UPDATE_INTERVAL if live else 0,
         'period_start': render_context.get('period_start'),
         'period_end': render_context.get('period_end'),
+        'display_period_label': render_context.get('display_period_label'),
     }

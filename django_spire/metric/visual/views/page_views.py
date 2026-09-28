@@ -53,6 +53,7 @@ def _visual_context(
         'period_start': period_start,
         'period_end': period_end,
         'display_unit_label': transformation.display_unit_label(),
+        'display_period_label': transformation.display_period_label(),
     }
 
     chart = transformation.chart(value_date=value_date)

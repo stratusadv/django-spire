@@ -228,6 +228,49 @@ class VisualTransformationServiceTestCase(BaseTestCase):
 
         assert visual.services.transformation.display_unit_label() == '8'
 
+    def test_display_period_label_number_intervals(self):
+        statistic = create_test_statistic(group=self.group)
+        weekly_statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        monthly_statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.MONTHLY
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        weekly_visual = create_test_visual(statistic=weekly_statistic, with_conditions=False)
+        monthly_visual = create_test_visual(statistic=monthly_statistic, with_conditions=False)
+
+        assert visual.services.transformation.display_period_label() == 'Today'
+        assert weekly_visual.services.transformation.display_period_label() == 'Week to date'
+        assert monthly_visual.services.transformation.display_period_label() == 'Month to date'
+
+    def test_display_period_label_percentage_windows(self):
+        daily_statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        weekly_statistic = create_test_statistic(
+            group=self.group,
+            interval=StatisticIntervalChoices.WEEKLY,
+            value_type=StatisticValueTypeChoices.PERCENTAGE,
+        )
+        monthly_statistic = create_test_statistic(
+            group=self.group,
+            interval=StatisticIntervalChoices.MONTHLY,
+            value_type=StatisticValueTypeChoices.PERCENTAGE,
+        )
+        daily_visual = create_test_visual(statistic=daily_statistic, with_conditions=False)
+        weekly_visual = create_test_visual(statistic=weekly_statistic, with_conditions=False)
+        monthly_visual = create_test_visual(statistic=monthly_statistic, with_conditions=False)
+
+        assert daily_visual.services.transformation.display_period_label() == 'Last 2 days'
+        assert weekly_visual.services.transformation.display_period_label() == 'Last 7 days'
+        assert monthly_visual.services.transformation.display_period_label() == 'Last 30 days'
+
+    def test_display_period_label_without_statistic(self):
+        visual = Visual.objects.create(name='empty')
+
+        assert visual.services.transformation.display_period_label() == ''
+
     def test_current_condition_green(self):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
