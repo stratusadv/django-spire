@@ -437,8 +437,8 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         )
 
         assert visual.services.transformation.dataset_values() == [
-            {'label': '/home/', 'value': Decimal(10)},
-            {'label': '/dashboard/', 'value': Decimal(90)},
+            {'label': '/home/', 'reference_label': '', 'value': Decimal(10)},
+            {'label': '/dashboard/', 'reference_label': '', 'value': Decimal(90)},
         ]
 
     def test_series_data_without_statistic(self):

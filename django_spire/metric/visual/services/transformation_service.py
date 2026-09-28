@@ -128,7 +128,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return bool(self.obj.statistic_id and self.obj.statistic.is_deleted)
 
     def _datasets(self) -> list[VisualReference]:
-        return list(self.obj.references.all())
+        return list(self.obj.references.not_deleted())
 
     def _values_for(self, reference: str) -> Any:
         return self.obj.statistic.values.for_reference_pattern(reference)
@@ -317,11 +317,18 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         datasets = self._datasets()
 
         if not datasets:
-            result = [{'label': self.obj.name, 'value': self.current_value(value_date)}]
+            result = [
+                {
+                    'label': self.obj.name,
+                    'reference_label': '',
+                    'value': self.current_value(value_date),
+                }
+            ]
         else:
             result = [
                 {
                     'label': str(dataset),
+                    'reference_label': dataset.label,
                     'value': self.current_value(value_date, reference=dataset.reference),
                 }
                 for dataset in datasets

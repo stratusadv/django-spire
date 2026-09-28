@@ -142,15 +142,28 @@
                                     ...(series.pointer || {}),
                                     width: Math.round(6 * scale),
                                 };
+                                const titleFont = Math.round(16 * scale);
                                 series.title = {
                                     ...(series.title || {}),
-                                    fontSize: Math.round(16 * scale),
+                                    fontSize: titleFont,
                                 };
                                 series.detail = {
                                     ...(series.detail || {}),
                                     width: Math.round(100 * scale),
                                     fontSize: Math.round(30 * scale),
                                 };
+                                const boxW = chart.getWidth();
+                                const boxH = chart.getHeight();
+
+                                if (option.legend && boxW > 0 && boxH > 0) {
+                                    const radius = 0.375 * Math.min(boxW, boxH);
+                                    const titleBottom = boxH / 2 + radius * 0.7 + titleFont / 2;
+                                    const legendTop = boxH - 8 - fontSize - 6;
+
+                                    if (titleBottom > legendTop - 2) {
+                                        series.title = { ...series.title, show: false };
+                                    }
+                                }
                             }
                         }
 

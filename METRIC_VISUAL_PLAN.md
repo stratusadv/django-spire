@@ -7,7 +7,7 @@ and the planned changes.
 ## 0. Target behavior
 
 The visual app displays statistics the way a person reading a wall or
-daashboard expects: the current unit's value, plus a lookback of the
+dashboard expects: the current unit's value, plus a lookback of the
 recent units, anchored to today and never going stale.
 
 - **Always current.** A visual has no date of its own. Every surface
@@ -37,7 +37,7 @@ recent units, anchored to today and never going stale.
 - `Visual`
   - name, description, optional `Statistic` FK, `kind`
     (indicator | line | bar | area | pie | gauge)
-  - `date` — evaluation date, defaults to today, **editable**
+   - (the former `date` evaluation column — removed, A7)
   - one proxy model + service per kind
     (`IndicatorVisual`, `LineChartVisual`, ...)
 - `VisualCondition` — ordered rule
@@ -56,19 +56,22 @@ recent units, anchored to today and never going stale.
 
 ### Value computation (`services/transformation_service.py`)
 
-Everything is anchored to `visual.date` (the "Evaluation Date"),
-not necessarily now — saved once at creation; nothing
-rolls it forward.
+Everything is anchored to `value_date or
+timezone.localdate()` — the detail view's A6 browse param,
+defaulting to today; the former saved `visual.date` anchor is
+gone (A7).
 
-- **Period** = the statistic's interval around `visual.date`
-  (`domain/statistic/interval.py`)
+- **Period** = the statistic's interval around the anchor
+  date (`domain/statistic/interval.py`) — used for the
+  header's current value only; the charts use A1's display
+  window instead
   - daily → that day, weekly → Sun–Sat, monthly → calendar
     month
 - **Current value** (big header number)
   - no statistic / soft-deleted statistic → `0`
   - percentage statistics → moving-window **average of daily
     averages**, window = 2 / 7 / 30 days (daily / weekly / monthly
-    interval), ending at `visual.date`
+    interval), ending at the anchor date
   - otherwise → **SUM** of all values in the period, across
     **all sub-domains**, filtered by the visual's references when
     set
@@ -78,15 +81,17 @@ rolls it forward.
   - no match → grey "No Data" badge
 - **Chart data**
   - **line/bar/area** → one series per `VisualReference` (or one
-    series named after the visual when none); points = per-day
-    totals **within the period only** (percentages: per-day
-    moving-window values)
-  - **pie** → sum per reference in the period (average for
+    series named after the visual when none); one point per unit
+    over the display window (A1: 8/12/13 units, zero-filled;
+    percentages: the unit's raw average)
+  - **pie** → sum per reference over the window (average for
     percentages); slice label from the matching reference's label,
     else the raw reference
-  - **gauge** → current value per dataset; max =
-    `max(target + tolerance)` across conditions, else value × 2,
-    else 100
+  - **gauge** → current value per dataset; max (A2) = 100 for
+    percentages, else `max(target + tolerance)` across
+    conditions, else value × 2, with an adaptive
+    `_nice_ceiling(value × 1.2)` when the value overflows the
+    ceiling
 - **Caching**
   - aggregates cached 120s in the Django cache
   - key includes the statistic's latest value timestamp → new
@@ -172,7 +177,7 @@ rolls it forward.
   signage display) stay on the slower 10–12s / 15–17s cadences.
 - The intervals themselves are **hardcoded, not model columns**:
   - region: constant `VISUAL_REGION_LIVE_UPDATE_INTERVAL = 10`
-    (`visual/constants.py:3`)
+    (`visual/constants.py:5`)
   - signage display: literal `15` in the `display_view` context
     (signage page_views.py:100)
   - the model columns that exist are on/off / rotation only:
@@ -202,16 +207,20 @@ rolls it forward.
   - `html` font-size = `100vh / 50 × zoom` → all rem-based sizes
     scale with screen height
   - ECharts fonts scale too — a patched `echarts.init` matches
-    the root font size
+    the root font size; the gauge's hardcoded px metrics scale
+    with a zoom-capped factor, and its title hides when the box
+    is too small for title + legend (see the implementation
+    log)
   - query params: `?zoom=high|medium` (1.5 / 1.25), `?padding=`
   - fallback: short screens are forced to zoom 1
 
 ## 2. Divergences & semantics to know
 
-These match the code exactly — they are behaviors that surprise,
-not bugs:
+Behaviors that surprised — each is marked with the item that
+addresses it; the unmarked ones still match the code:
 
-- **Daily statistics → one-point line/area/bar charts.**
+- **Daily statistics → one-point line/area/bar charts.** → A1
+  (resolved — the window draws 8 daily points)
   - chart time range = the period → the chart shows exactly
     the evaluation day
   - a daily line/area renders as a single dot at that day's
@@ -488,15 +497,31 @@ frame, on every surface.
   `visual.date = ...` fixtures (A7)
 ### A2 — Gauge: value, reference, scale
 
-- **Layout (always):**
-  - center = the value
-  - bottom = the reference — ratio of the gauge ceiling
-    (`value / max × 100`, 1 decimal)
+- **Before (pre-A2):** center = the raw value
+  (`detail: {'formatter': '{value}'}` — no unit, no
+  currency), bottom (title) = the reference name (data
+  item name), legend = the visual name (the gauge legend
+  entry is the series name), scale =
+  max(target+tolerance) → value×2 → 100 — a raw-number
+  scale that mis-scales percentage statistics (5% → max
+  10 → needle near dead center)
+- **Layout (always; final state, see log):**
+  - center = the value, formatted client-side (percentage /
+    currency / number)
+  - bottom (title) = the reference name (visual name when no
+    reference) — all value types. Originally the reference %
+    (`value / max × 100`, 1 decimal) sat here; dropped — it
+    was arbitrary against an adaptive ceiling (A2 follow-up)
+  - legend = the reference's label when there is exactly one
+    labeled reference, else the visual name — the ECharts
+    gauge legend entry is the series name, so
+    `VisualGaugeChart` names the series accordingly
+    (see the series-name log entry)
 - **Value-type rule (drives the label and the scale):**
-  - percentage type → show only the percentage
-    (e.g. `12.34%`); no reference; scale fixed 0–100
+  - percentage type → formatted percentage (e.g. `12.34%`);
+    scale fixed 0–100
   - number / currency type → formatted value
-    (e.g. `$1,234.50`) + the reference at the bottom
+    (e.g. `$1,234.50`); adaptive ceiling (see log)
 - **Scale fix (percentage → 100):**
   - today: `gauge_max` = max(target+tolerance) → value×2
     → 100 (transformation_service.py:300-320) — built for
@@ -1466,3 +1491,99 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
     surfaces, but need explicit forwarding in
     `slide.html` to reach presentation slides.
     Presentation suite 54 + metric app 540 passed.
+  - **A2 follow-up (gauge dial title = reference
+    name)** — the dial title showed the reference %
+    (`value / max × 100`, 1 decimal) for number /
+    currency statistics and was hidden for percentage
+    ones, while the reference name lived only in the
+    legend — unlike the pie, whose slice labels carry
+    the name. The reference % against an adaptive
+    ceiling (`_nice_ceiling`) sits around 50–90% by
+    construction, so it was weak information; the user
+    chose name on the dial. `_gauge_item` now sets
+    `name = label` for all value types and `title =
+    {'show': True, 'offsetCenter': ['0%', '70%']}` is
+    constant — percentage gauges gain the title, which
+    inherits the existing gauge branch's zoom-capped
+    `16 × scale` font. The reference % is gone from the
+    dial entirely (it also fed the hover tooltip —
+    immaterial on signage). The legend (name + color
+    mapping) is kept per user decision — the same
+     label+legend duplication the pie already has — so
+     `chart.html`'s name→label legend formatter became an
+     identity map (removed by the legend-parity entry
+     below). Three test assertions updated in
+     test_charts.py (name → label ×2, percentage title
+     show False → True). Metric + core 898 passed.
+  - **Gauge title collision guard (640×480 high
+    zoom)** — the new title collided with the bottom
+    legend in small boxes: at 640×480 ?zoom=high the
+    gauge box is 271×108, and the title (center + 0.7·r,
+    r = 0.375·min(w,h)) ended up below the legend's top
+    edge — name and legend overlapping. The signage
+    patch's gauge branch now computes
+    titleBottom = h/2 + 0.7·r + titleFont/2 vs
+    legendTop = h − 8 − rootFont − 6 and sets
+    title.show = false when they would overlap by less
+    than 2px; the box>0 guard leaves hidden slides (0×0
+    at init) showing the title until the first poll
+    after they appear re-evaluates (≤15s). The live
+    option dump also settled the legend question: the
+    ECharts gauge legend entry is the series name
+     (visual name), not the data item name — so "keep
+     both" means title = reference name per dial, legend
+     = visual name (superseded by the legend-parity
+     entry below). Verified in Edge: 640×480 high →
+     title hidden, legend clean; 1920×1080 z1 → title
+     shown, no collision.
+  - **Gauge legend parity with the other charts +
+    duplicate-reference guard** — user report: the gauge
+    showed "both label and reference" when a reference
+    had a label. Root cause: the visual held two
+    reference rows with the same pattern (one labeled,
+    one not) → two dials titled with the label and the
+    raw reference; user confirmed a repeated pattern is
+    always a mistake. Final state: (1)
+    `VisualReferenceModelForm.clean()` rejects a
+    pattern already added to the same visual — scoped
+    to `not_deleted()` rows, else soft-deleted
+    duplicates block edits (4 form tests); (2) the
+    `chart.html` identity-map name→label legend
+    formatter is removed (a no-op, since the ECharts
+    gauge legend is series-driven), leaving only the
+    detail value-formatter injection — the `legend.data`
+    variant tried here was superseded by the
+    series-name entry below; (3) `_datasets()` is a
+    plain pass-over of `references.not_deleted()` — the
+    `not_deleted()` also closes a leak where
+    soft-deleted references reached unprefetched chart
+    polls. An interim version deduped repeated patterns
+    in `_datasets()` (labeled row wins) but was removed
+    as a workaround in the wrong layer; the stale
+    duplicate row was soft-deleted instead. New
+    multi-reference gauge test in test_charts.py;
+    Metric + core 902 passed.
+  - **Gauge legend: series-name driven (fixes
+    disappearing legend)** — the `legend.data` approach
+    above broke in ECharts: the gauge legend only
+    resolves entries that match the *series name*, so
+    dial names listed there (reference labels) were
+    silently dropped — the legend vanished whenever a
+    label existed (reproduced live). Final state: no
+    `legend.data`; `VisualGaugeChart` names the series
+    with the single reference's label when there is
+    exactly one labeled reference, and with
+    `visual.name` otherwise (unlabeled single
+    reference, multiple references, or none) — so the
+    legend renders the label when one exists and the
+    visual name otherwise (the pre-plan behavior for
+    unlabeled references). `dataset_values()` now
+    carries the raw `reference_label` alongside
+    `label` (the `str()` display) so the chart can tell
+    them apart; the gauge is its only consumer.
+    Multiple-reference gauges keep the single
+    visual-name legend entry (pre-plan behavior); dial
+    titles still show `label or reference` per dial.
+    Verified live in Edge: labeled → legend = label;
+    unlabeled → legend = visual name. Metric + core
+    905 passed.

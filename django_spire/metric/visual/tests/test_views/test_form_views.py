@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.visual import forms
+from django_spire.metric.visual import forms, models
 from django_spire.metric.visual.choices import VisualKindChoices
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
@@ -112,6 +112,67 @@ class VisualFormViewsTestCase(BaseTestCase):
         assert 'id="reference-datalist"' in html
         assert '<option value="/home/">' in html
         assert '<option value="/dashboard/">' in html
+
+    def _reference_form(
+        self, data: dict, instance: models.VisualReference
+    ) -> forms.VisualReferenceModelForm:
+        return forms.VisualReferenceModelForm(data=data, instance=instance)
+
+    def _add_reference_value(self, reference: str = '/home/') -> None:
+        sub_domain = create_test_subdomain(domain=self.domain)
+        self.visual.statistic.services.processor.add_value(
+            reference=reference, value=Decimal(5), sub_domain=sub_domain
+        )
+
+    def test_reference_form_rejects_duplicate_pattern(self):
+        self._add_reference_value()
+        self.visual.references.create(reference='/home/', order=0)
+
+        form = self._reference_form(
+            data={'visual': self.visual.pk, 'reference': '/home/', 'label': '', 'order': 1},
+            instance=models.VisualReference(visual=self.visual),
+        )
+
+        assert not form.is_valid()
+        assert 'reference' in form.errors
+
+    def test_reference_form_allows_other_visuals_pattern(self):
+        self._add_reference_value()
+        other = create_test_visual(statistic=self.visual.statistic, name='other')
+        other.references.create(reference='/home/', order=0)
+
+        form = self._reference_form(
+            data={'visual': self.visual.pk, 'reference': '/home/', 'label': '', 'order': 1},
+            instance=models.VisualReference(visual=self.visual),
+        )
+        form.is_valid()
+
+        assert 'reference' not in form.errors
+
+    def test_reference_form_allows_pattern_of_deleted_reference(self):
+        self._add_reference_value()
+        stale = self.visual.references.create(reference='/home/', order=0)
+        stale.set_deleted()
+
+        form = self._reference_form(
+            data={'visual': self.visual.pk, 'reference': '/home/', 'label': '', 'order': 1},
+            instance=models.VisualReference(visual=self.visual),
+        )
+        form.is_valid()
+
+        assert 'reference' not in form.errors
+
+    def test_reference_form_allows_saving_its_own_pattern(self):
+        self._add_reference_value()
+        existing = self.visual.references.create(reference='/home/', label='Home', order=0)
+
+        form = self._reference_form(
+            data={'visual': self.visual.pk, 'reference': '/home/', 'label': 'Home', 'order': 0},
+            instance=existing,
+        )
+        form.is_valid()
+
+        assert 'reference' not in form.errors
 
 
 class VisualModelFormTestCase(BaseTestCase):

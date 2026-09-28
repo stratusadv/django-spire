@@ -25,25 +25,12 @@
             };
         },
         _inject_gauge_formatters(option) {
-            let gaugeLabels = null;
-
             for (const series of option.series || []) {
                 if (series.type !== 'gauge') continue;
 
                 series.detail = {
                     ...(series.detail || {}),
                     formatter: this._gauge_detail_formatter(series.valueType),
-                };
-
-                gaugeLabels = Object.fromEntries(
-                    (series.data || []).map((item) => [item.name, item.label ?? item.name])
-                );
-            }
-
-            if (gaugeLabels && option.legend) {
-                option.legend = {
-                    ...option.legend,
-                    formatter: (name) => gaugeLabels[name] ?? name,
                 };
             }
 

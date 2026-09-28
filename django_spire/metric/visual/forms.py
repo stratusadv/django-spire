@@ -51,10 +51,14 @@ class VisualModelForm(forms.ModelForm):
 
     @Glue.attr(required_access=Glue.Access.CHANGE, takes_client_state=True)
     def statistic_choices(self) -> list[dict]:
-        statistics = domain_models.Statistic.objects.not_deleted().select_related('group').order_by('group__name')
+        statistics = (
+            domain_models.Statistic.objects.not_deleted()
+            .select_related('group')
+            .order_by('group__name')
+        )
 
         return [
-            {'value': statistic.id, 'label': f"{statistic.group.name} > {statistic.name}"}
+            {'value': statistic.id, 'label': f'{statistic.group.name} > {statistic.name}'}
             for statistic in statistics
         ]
 
@@ -140,6 +144,16 @@ class VisualReferenceModelForm(forms.ModelForm):
                 'reference',
                 'That reference pattern does not match any values for the selected statistic.',
             )
+
+        if self.instance.visual_id:
+            duplicate = (
+                self.instance.visual.references.not_deleted()
+                .exclude(pk=self.instance.pk)
+                .filter(reference=pattern)
+                .exists()
+            )
+            if duplicate:
+                self.add_error('reference', 'This reference is already added to the visual.')
 
         return cleaned_data
 

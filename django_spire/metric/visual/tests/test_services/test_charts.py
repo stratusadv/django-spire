@@ -208,13 +208,59 @@ class VisualChartOptionTestCase(BaseTestCase):
         assert series['valueType'] == StatisticValueTypeChoices.NUMBER
         assert series['detail'] == {'offsetCenter': ['0%', '0%']}
         assert series['title'] == {'show': True, 'offsetCenter': ['0%', '70%']}
-        assert option['legend'] == {'bottom': 30}
 
         item = series['data'][0]
 
         assert item['value'] == 50.0
-        assert item['name'] == '83.3%'
-        assert item['label'] == visual.services.transformation.dataset_values()[0]['label']
+
+        label = visual.services.transformation.dataset_values()[0]['label']
+
+        assert item['name'] == label
+        assert series['name'] == visual.name
+        assert option['legend'] == {'bottom': 30}
+
+    def test_gauge_chart_option_single_labeled_reference_names_series(self):
+        visual = create_test_visual(
+            statistic=self.statistic,
+            kind='gauge',
+            reference='/home/',
+            labels=['Home'],
+            with_conditions=True,
+        )
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['name'] == 'Home'
+        assert series['data'][0]['name'] == 'Home'
+        assert option['legend'] == {'bottom': 30}
+
+    def test_gauge_chart_option_series_name_falls_back_to_visual_name(self):
+        visual = create_test_visual(
+            statistic=self.statistic,
+            kind='gauge',
+            references=['/home/', '/dashboard/'],
+            labels=['', 'Dashboard'],
+            with_conditions=True,
+        )
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
+        )
+        self.statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(70), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['name'] == visual.name
+        assert [item['name'] for item in series['data']] == ['/home/', 'Dashboard']
+        assert option['legend'] == {'bottom': 30}
 
     def test_gauge_chart_option_adapts_to_overflowing_value(self):
         statistic = create_test_statistic(group=self.group)
@@ -238,7 +284,10 @@ class VisualChartOptionTestCase(BaseTestCase):
         item = series['data'][0]
 
         assert item['value'] == 916.22
-        assert item['name'] == '76.4%'
+
+        label = visual.services.transformation.dataset_values()[0]['label']
+
+        assert item['name'] == label
 
     def test_gauge_chart_option_percentage(self):
         statistic = create_test_statistic(
@@ -261,7 +310,7 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         assert series['max'] == 100
         assert series['valueType'] == StatisticValueTypeChoices.PERCENTAGE
-        assert series['title'] == {'show': False, 'offsetCenter': ['0%', '70%']}
+        assert series['title'] == {'show': True, 'offsetCenter': ['0%', '70%']}
 
         item = series['data'][0]
 
@@ -270,7 +319,6 @@ class VisualChartOptionTestCase(BaseTestCase):
         label = visual.services.transformation.dataset_values()[0]['label']
 
         assert item['name'] == label
-        assert item['label'] == label
 
     def test_independent_instances_share_one_glue_name(self):
         chart_a, _ = self._chart_option('line', reference='/home/')
