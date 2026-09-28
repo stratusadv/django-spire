@@ -4,9 +4,10 @@ Spire.modal = {
 
     /**
      * Close the dispatch modal, optionally reporting an outcome to whoever
-     * opened it. dispatchGlue()'s promise resolves with `result`; a modal
-     * dismissed any other way (Cancel, the X, Escape, the backdrop) resolves
-     * undefined, so "completed" and "dismissed" stay distinguishable.
+     * opened it. dispatchGlueComponent()'s and dispatchGlueHtml()'s promises
+     * resolve with `result`; a modal dismissed any other way (Cancel, the X,
+     * Escape, the backdrop) resolves undefined, so "completed" and "dismissed"
+     * stay distinguishable.
      *
      * @param {*} [result]
      */
@@ -80,44 +81,51 @@ Spire.modal = {
     },
 
     /**
-     * Show a Glue component or the HTML returned by @Glue.html_attr.
+     * Show a Glue component in the dispatch modal.
      * The content arrives with its own proxies already registered, so it takes
-     * no scopeData. A component is rendered here and disposed on close.
+     * no scopeData. The component is rendered here and disposed on close.
      *
      * Resolves when the modal CLOSES, with whatever the content passed to
-     * Spire.modal.close(). A component can expose an event from an owned form:
+     * Spire.modal.close(). Subscribe to an owned child's events before
+     * dispatching; the returned component already carries its children:
      *
      *     @click="
      *         const modal = await component.edit_entry_modal({ entry_id: 12 })
-     *         modal.$on('saved', () => component.$refresh())
-     *         await Spire.modal.dispatchGlue(modal, { dialogClasses: 'modal-lg' })
+     *         modal.time_entry.form.$on('saved', () => component.$refresh())
+     *         await Spire.modal.dispatchGlueComponent(modal, { dialogClasses: 'modal-lg' })
      *     "
      *
-     * @param {Promise<*>|*} glueHtmlResult
+     * For the result of a Glue attribute declared with @Glue.html_attr, use
+     * dispatchGlueHtml() instead.
+     *
+     * @param {Promise<*>|*} glueComponent
      * @param {object} [options={}]
      * @param {object} [options.eventData={}]
      * @param {string} [options.dialogClasses='']
      * @param {boolean} [options.renderToBody=true]
      * @returns {Promise<*>} the outcome, or undefined if dismissed
      */
-    async dispatchGlue(glueHtmlResult, {eventData = {}, dialogClasses = '', renderToBody = true} = {}) {
-        const result = await glueHtmlResult;
-        const component = result && typeof result === 'object' && '$el' in result
-            && typeof result.render === 'function' && typeof result.$dispose === 'function'
-            ? result : null;
+    async dispatchGlueComponent(
+        glueComponent,
+        {eventData = {}, dialogClasses = '', renderToBody = true} = {},
+    ) {
+        const component = await glueComponent;
+        if (!component || typeof component !== 'object' || !('$el' in component)
+            || typeof component.render !== 'function' || typeof component.$dispose !== 'function') {
+            throw new Error(
+                `Spire.modal.dispatchGlueComponent() expects a Glue component object. ` +
+                `Received ${component?.constructor?.name ?? String(component)}. ` +
+                `For the result of a Glue attribute declared with @Glue.html_attr, ` +
+                `use Spire.modal.dispatchGlueHtml() instead.`
+            );
+        }
 
         try {
-            const rendered = component ? await component.render() : result;
+            const rendered = await component.render();
             if (typeof rendered?.html !== 'string') {
-                const hint = typeof rendered === 'string'
-                    ? `Received the rendered text, which is what a plain @Glue.attr ` +
-                      `returning a TemplateResponse resolves to: its markup would show, ` +
-                      `but the proxies it binds to would never be registered.`
-                    : `Received ${rendered?.constructor?.name ?? String(rendered)}.`;
-
                 throw new Error(
-                    `Spire.modal.dispatchGlue() expects a Glue component or the result ` +
-                    `of a Glue attribute declared with @Glue.html_attr. ${hint}`
+                    `Spire.modal.dispatchGlueComponent(): the component did not render ` +
+                    `to { html }. Received ${rendered?.constructor?.name ?? String(rendered)}.`
                 );
             }
 
@@ -126,12 +134,50 @@ Spire.modal = {
 
             return await closed;
         } finally {
-            if (component) {
-                const root = component.$el;
-                component.$dispose();
-                root?.remove();
-            }
+            const root = component.$el;
+            component.$dispose();
+            root?.remove();
         }
+    },
+
+    /**
+     * Show the HTML returned by a Glue attribute declared with @Glue.html_attr.
+     * The result resolves to `{ html: string }` and is dispatched as-is.
+     *
+     * Resolves when the modal CLOSES, with whatever the content passed to
+     * Spire.modal.close(), or undefined if dismissed.
+     *
+     * For a Glue component object, use dispatchGlueComponent() instead.
+     *
+     * @param {Promise<*>|*} glueHtmlResult
+     * @param {object} [options={}]
+     * @param {object} [options.eventData={}]
+     * @param {string} [options.dialogClasses='']
+     * @param {boolean} [options.renderToBody=true]
+     * @returns {Promise<*>} the outcome, or undefined if dismissed
+     */
+    async dispatchGlueHtml(
+        glueHtmlResult,
+        {eventData = {}, dialogClasses = '', renderToBody = true} = {},
+    ) {
+        const result = await glueHtmlResult;
+        if (typeof result?.html !== 'string') {
+            const hint = typeof result === 'string'
+                ? `Received the rendered text, which is what a plain @Glue.attr ` +
+                  `returning a TemplateResponse resolves to: its markup would show, ` +
+                  `but the proxies it binds to would never be registered.`
+                : `Received ${result?.constructor?.name ?? String(result)}.`;
+
+            throw new Error(
+                `Spire.modal.dispatchGlueHtml() expects the result of a Glue attribute ` +
+                `declared with @Glue.html_attr. ${hint}`
+            );
+        }
+
+        const closed = new Promise(resolve => Spire.modal._settleOnClose(resolve));
+        Spire.modal.dispatch(result.html, {eventData, dialogClasses, renderToBody});
+
+        return closed;
     },
 
     /**
@@ -154,7 +200,8 @@ Spire.modal = {
      * @param {string} [options.dialogClasses='']
      * @param {boolean} [options.renderToBody=true]
      * @returns {Promise<*>} the outcome passed to Spire.modal.close(), or
-     *     undefined if dismissed -- the same contract as dispatchGlue()
+     *     undefined if dismissed -- the same contract as dispatchGlueComponent()
+     *     and dispatchGlueHtml()
      */
     async dispatchView(url, {payload = {}, eventData = {}, dialogClasses = 'modal-dialog-centered', renderToBody = true} = {}) {
         let htmlContent = await Glue.view(url).get(payload);
