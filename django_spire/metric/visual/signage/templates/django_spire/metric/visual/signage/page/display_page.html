@@ -55,6 +55,8 @@
             }
 
             const truncate = (name) => (name.length > 28 ? '…' + name.slice(-27) : name);
+            const GAUGE_FONT_BASE = 21.6;
+            const GAUGE_ZOOM_CAP = 1.25;
             const attach = () => {
                 if (!window.echarts || echarts._kioskThemePatched) return;
                 echarts._kioskThemePatched = true;
@@ -110,6 +112,45 @@
                                     width: Math.floor(chart.getWidth() * 0.35),
                                 };
                                 series.labelLayout = { ...(series.labelLayout || {}), hideOverlap: true };
+                            }
+                            if (series.type === 'gauge') {
+                                const zoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--signage-zoom')) || 1;
+                                const scale = Math.round((fontSize / GAUGE_FONT_BASE) * (Math.min(zoom, GAUGE_ZOOM_CAP) / zoom) * 100) / 100;
+                                series.axisLine = {
+                                    ...(series.axisLine || {}),
+                                    lineStyle: {
+                                        ...(series.axisLine?.lineStyle || {}),
+                                        width: Math.round(10 * scale),
+                                    },
+                                };
+                                series.splitLine = {
+                                    ...(series.splitLine || {}),
+                                    length: Math.round(10 * scale),
+                                    distance: Math.round(10 * scale),
+                                };
+                                series.axisTick = {
+                                    ...(series.axisTick || {}),
+                                    length: Math.round(6 * scale),
+                                    distance: Math.round(10 * scale),
+                                };
+                                series.axisLabel = {
+                                    ...(series.axisLabel || {}),
+                                    distance: Math.round(15 * scale),
+                                    fontSize: Math.round(12 * scale),
+                                };
+                                series.pointer = {
+                                    ...(series.pointer || {}),
+                                    width: Math.round(6 * scale),
+                                };
+                                series.title = {
+                                    ...(series.title || {}),
+                                    fontSize: Math.round(16 * scale),
+                                };
+                                series.detail = {
+                                    ...(series.detail || {}),
+                                    width: Math.round(100 * scale),
+                                    fontSize: Math.round(30 * scale),
+                                };
                             }
                         }
 

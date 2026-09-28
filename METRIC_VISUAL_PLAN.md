@@ -1377,6 +1377,70 @@ Template paths are under `django_spire/metric/visual/templates/django_spire/`.
    circle.offsetWidth * 0.5`. The 2.5rem inline style stays
    as the no-JS fallback. Verified in Chromium: detail
    147px circle → 73.5px icon, presentation 63px → 31.5px,
-   signage 510px → 255px — 50% in all three, and the RO
-   re-fires on signage slide rotation (x-show) and resize.
-   Metric + core 896 passed.
+    signage 510px → 255px — 50% in all three, and the RO
+    re-fires on signage slide rotation (x-show) and resize.
+    Metric + core 896 passed.
+ - **Signage gauge scale text scales with resolution (user:
+    "gauge scale dial seems too small when the screen
+    resolution is high" — the tick numbers / value / title
+    on the dial)** — ECharts 6.1.0's gauge hardcodes
+    `detail.fontSize: 30`, `title.fontSize: 16`,
+    `axisLabel.fontSize: 12` (verified in the CDN source:
+    `GaugeSeriesModel.defaultOption`, and the
+    `setTextStyleCommon`/`setTokenTextStyle` path only falls
+    back to the global `textStyle` when the label's own value
+    is unset — which it always is, being in the default). So
+    the signage root-font patch never touched them: the dial
+    scales with the cell (default `radius: '75%'` of
+    `min(w,h)`), but the scale text stayed 12/30/16px at
+    every resolution. The `setOption` wrapper in
+    `display_page.html` now scales the gauge's px-based
+    metrics from the root font, `scale = rootFont / 21.6`
+    (21.6px = the 1080p root font, `100vh/50` at zoom 1):
+    1080p renders the exact current values (12/30/16/10) and
+    4K renders 2× (24/60/32/20). Covered: `axisLabel`
+    fontSize+distance, `detail` fontSize+width, `title`
+    fontSize, `axisLine.lineStyle.width`, `splitLine`
+    length+distance, `axisTick` length+distance, `pointer`
+    width. `pointer.length: '60%'` and the `offsetCenter`
+    values are already % of the radius — untouched, and the
+    existing spreads preserve `charts.py`'s offset overrides.
+    First cut was radius-relative (`r = 0.375·min(w,h)`,
+    ratios tuned on the full-row cell, r≈319) — but the
+    actual gauge slide is a 2-row cell (r≈141 at 1080p), so
+    it shrank the text below today's at 1080p (12→8px) and
+    only grew 1.25× at 4K: a regression at both, and it
+    needed a ResizeObserver re-application because the value
+    was computed from the chart box, which is 0×0 while the
+    slide is hidden at init. Root-font values don't depend on
+    the box, so hidden slides get correct values from the
+    first `setOption` and no RO is needed. Verified in Edge:
+    signage gauge slide at 1920×1080 = 12/30/16/10
+    (identical to before), 3840×2160 = 24/60/32/20. Metric +
+    core 897 passed.
+ - **Signage gauge text capped at the medium zoom (user:
+    "when it shows with high zoom, it looks a little ugly …
+    the rest of the zooms look good")** — the previous
+    entry's `scale = rootFont / 21.6` conflates two axes:
+    resolution (100vh grows with the screen, so does the
+    chart box — scaling is correct) and `--signage-zoom`
+    (1 / 1.25 / 1.5 via `?zoom=`). Zoom only grows the root
+    font — the `6.5rem` header bar in the kiosk-grid height
+    gets taller in px, the grid gets shorter, and the dial
+    (radius = 0.375·min(w,h)) actually *shrinks* ~7% at
+    high zoom — so the scale text ran 1.5× on a 0.93× dial:
+    ~1.6× tighter than zoom 1, tick labels crowding. Medium
+    (1.25×) stays within tolerance, hence "the rest look
+    good." The gauge branch now decouples the two:
+    `scale = (rootFont / 21.6) × (min(zoom, GAUGE_ZOOM_CAP) /
+    zoom)` with `GAUGE_ZOOM_CAP = 1.25`, rounded to 2
+    decimals (100vh/50×1.5 isn't exactly 1.25×21.6 in float
+    — without the rounding Math.round(37.499…) drifted the
+    capped level 1px below the real medium). Effect: zoom 1
+    and medium byte-identical, high renders exactly at the
+    medium size, and the resolution factor is untouched
+    (4K-high = 2.5×, was 3.0×). Verified in Edge:
+    1920×1080 zoom 1/medium/high = 12/30/16, 15/38/20,
+    15/38/20; 3840×2160 high = 30/75/40/25. User confirmed
+    the high-zoom gauge reads well. Metric + core 897
+    passed.
