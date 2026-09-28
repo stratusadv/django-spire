@@ -9,6 +9,8 @@ class CeleryConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_celery'
     name = 'django_spire.celery'
+    verbose_name = 'Celery (Django Spire)'
+
     MODEL_PERMISSIONS = (
         {
             'name': 'celery',

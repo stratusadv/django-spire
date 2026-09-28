@@ -44,7 +44,7 @@
 }" class="{{ task_body_class }} fs-7 py-2 text-muted">
     {% if celery_task.is_pending %}
         Pending
-        <div class="progress mt-1" style="height: 3px;">
+        <div class="progress my-1" style="height: 3px;">
             <div class="progress-bar bg-primary" role="progressbar"
                  style="width: 0%;"
                  aria-valuenow="0" aria-valuemin="0"
@@ -61,7 +61,7 @@
         {% else %}
             • Completing Soon
         {% endif %}
-            <div class="progress mt-1" style="height: 3px;">
+            <div class="progress my-1" style="height: 3px;">
                 <div class="progress-bar bg-primary" role="progressbar"
                      :style="{ width: progress + '%' }"
                      aria-valuenow="{{ celery_task.estimated_progress_hundred }}" aria-valuemin="0"

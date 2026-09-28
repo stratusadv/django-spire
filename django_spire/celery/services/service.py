@@ -47,9 +47,21 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                     self.obj.result_capture_attempts = F('result_capture_attempts') + 1
 
     def update_from_async_result_and_save_if_change(self) -> None:
-        has_changed = False
-
         async_result = self.obj.async_result
+
+        new_state = async_result.state  # This is to prevent race based mutations
+
+        if self.obj.state in states.READY_STATES:
+            if new_state == states.SUCCESS and self.obj.has_no_result:
+                self.update_result(async_result)
+                self.obj.save()
+
+            return
+
+        if new_state == states.PENDING and self.obj.state != states.PENDING:
+            return
+
+        has_changed = False
 
         new_meta_dict = async_result.info  # This is to prevent race based mutations
 
@@ -66,9 +78,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
             has_changed = True
 
-        new_state = async_result.state  # This is to prevent race based mutations
-
-        if self.obj.state != states.SUCCESS and new_state == states.SUCCESS:
+        if new_state == states.SUCCESS:
             self.update_result(async_result)
             has_changed = True
 
@@ -78,3 +88,6 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
         if has_changed:
             self.obj.save()
+
+
+
