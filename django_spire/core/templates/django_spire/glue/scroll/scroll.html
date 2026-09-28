@@ -1,75 +1,86 @@
 <div
         x-data="{
         searchQuery: '',
-        sliceStart: 0,
-        sliceStop: 0,
         orderBy: '{% block scroll_queryset_order_by_field %}{% endblock %}',
         filterField: '{% block scroll_queryset_filter_field %}{% endblock %}',
         scrollQuerySet: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
+        pageQuerySet: null,
         items: [],
         isLoading: false,
         hasMore: true,
-        increment: {% block increment %}25{% endblock %},
+        loadGeneration: 0,
         init() {
-            this.sliceStop = this.increment
-
             this.$watch('searchQuery', () => this.resetAndLoad())
             this.$watch('orderBy', () => this.resetAndLoad())
         },
-        async loadMoreItems(reset = false) {
+        async loadMoreItems() {
             if (this.isLoading || !this.hasMore) {
-                return 
+                return
             }
 
+            if (this.pageQuerySet === null) {
+                await this.resetAndLoad()
+                return
+            }
+
+            const generation = this.loadGeneration
+            const pageQuerySet = this.pageQuerySet
             this.isLoading = true
 
-            const start = this.sliceStart
-            const stop = this.sliceStop
-
             try {
-                if (this.filterField !== '') {
-                    this.scrollQuerySet = this.scrollQuerySet.filter({
-                        [this.filterField + '__icontains']: this.searchQuery
-                    })
+                await pageQuerySet.loadMore()
+
+                if (generation !== this.loadGeneration) {
+                    return
                 }
 
-                if (this.orderBy !== '') {
-                    this.scrollQuerySet = this.scrollQuerySet.orderBy(this.orderBy)
-                }
-
-                this.scrollQuerySet = this.scrollQuerySet.slice(start, stop)
-
-                await this.scrollQuerySet.all()
-
-                const nextItems = this.scrollQuerySet.items
-                if (reset) {
-                    this.items = nextItems
-                } else {
-                    this.items = [...this.items, ...nextItems]
-                }
-                this.hasMore = nextItems.length >= this.increment
-
-                this.sliceStart = stop
-                this.sliceStop = stop + this.increment
+                this.items = pageQuerySet.items
+                this.hasMore = pageQuerySet.hasNext
             }
             finally {
-                this.isLoading = false
+                if (generation === this.loadGeneration) {
+                    this.isLoading = false
+                }
             }
         },
         async resetAndLoad() {
-            this.sliceStart = 0
-            this.sliceStop = this.increment
+            const generation = ++this.loadGeneration
+
+            this.isLoading = true
             this.hasMore = true
             this.items = []
 
-            // scrollQuerySet retains its own query cache for the life of this component, so a
-            // plain reload can still serve stale cached pages (e.g. after an edit moves a row
-            // out of this scroll's filter). Bust it before reloading.
-            if (typeof this.scrollQuerySet.refresh === 'function') {
-                await this.scrollQuerySet.refresh()
+            let pageQuerySet = this.scrollQuerySet
+
+            if (this.filterField !== '') {
+                pageQuerySet = pageQuerySet.filter({
+                    [this.filterField + '__icontains']: this.searchQuery
+                })
             }
 
-            await this.loadMoreItems(true)
+            if (this.orderBy !== '') {
+                pageQuerySet = pageQuerySet.orderBy(this.orderBy)
+            }
+
+            this.pageQuerySet = pageQuerySet
+
+            // refresh() re-runs the first batch instead of replaying a page cached from an
+            // earlier load, e.g. after an edit moves a row out of this scroll's filter.
+            try {
+                await pageQuerySet.refresh()
+
+                if (generation !== this.loadGeneration) {
+                    return
+                }
+
+                this.items = pageQuerySet.items
+                this.hasMore = pageQuerySet.hasNext
+            }
+            finally {
+                if (generation === this.loadGeneration) {
+                    this.isLoading = false
+                }
+            }
         },
         async updateItem(pk, removed = false) {
             if (!pk) {

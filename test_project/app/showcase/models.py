@@ -92,6 +92,15 @@ class WidgetShowcase(ActivityMixin, HistoryModelMixin):
         blank=False,
         related_name='primary_showcases',
     )
+    # Glued with a label_formatter (see forms.py) so its choice labels are
+    # pre-rendered HTML instead of plain model strings.
+    formatted_category = models.ForeignKey(
+        ShowcaseCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='formatted_showcases',
+    )
 
     # datetime/*
     date_field = models.DateField(null=True, blank=True)
@@ -143,6 +152,10 @@ class WidgetShowcase(ActivityMixin, HistoryModelMixin):
     @Glue.property
     def primary_category_display(self) -> str:
         return self.primary_category.name if self.primary_category_id else '—'
+
+    @Glue.property
+    def formatted_category_display(self) -> str:
+        return self.formatted_category.name if self.formatted_category_id else '—'
 
     @Glue.property
     def watchers_display(self) -> str:

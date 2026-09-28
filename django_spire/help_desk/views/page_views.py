@@ -19,7 +19,16 @@ if TYPE_CHECKING:
 def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
     tickets = HelpDeskTicket.objects.active()
 
-    Glue.queryset(request, 'tickets', tickets, Glue.Access.CHANGE, fields='__all__')
+    Glue.queryset(
+        request,
+        'tickets',
+        tickets,
+        Glue.Access.CHANGE,
+        fields=Glue.fields(
+            'id', 'description', 'created_datetime', 'purpose', 'priority', 'status',
+            created_by=('username',),
+        ),
+    )
 
     nav = HelpDeskNavigation()
     nav.page_title = 'Ticket'

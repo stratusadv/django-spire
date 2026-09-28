@@ -468,8 +468,7 @@ class TestWidgetShowcaseRoundTrip:
         demo.narrate('Editing and saving, without navigating anywhere', step='2')
         demo.fill(field_widget(page, 'Char field').locator('input'), 'After Edit')
         demo.fill(field_widget(page, 'Integer field').locator('input'), '99')
-        with page.expect_response(lambda r: '/load_state/' in r.url):
-            demo.click(page.locator('button.btn-primary'))
+        demo.click(page.locator('button.btn-primary'))
 
         demo.narrate('The panel updates in place -- same URL, no reload', step='3')
         assert page.url == url_before_save

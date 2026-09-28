@@ -199,7 +199,7 @@ class TaskProcessorService(BaseDjangoModelService['Task']):
 
 ## 7 · Exposing Services to Templates with Glue
 
-Service methods can be bound straight into templates with `Glue.attr`:
+Service methods can be bound straight into templates: expose a sub-service with `Glue.namespace`, and mark each method the client may call with `@Glue.attr`:
 
 ```python
 from django_glue import Glue
@@ -209,7 +209,7 @@ from task.services.factory_service import TaskFactoryService
 class TaskService(BaseDjangoModelService['Task']):
     obj: Task
 
-    factory = Glue.attr(TaskFactoryService(), required_access=Glue.Access.CHANGE)
+    factory = Glue.namespace(TaskFactoryService(), required_access=Glue.Access.CHANGE)
 ```
 
 ```python

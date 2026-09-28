@@ -79,7 +79,7 @@
                         :class="{'opacity-50': isChoiceDisabled(choice)}"
                         style="max-width: 15rem;"
                         @click.stop="removeChoice(choice)"
-                        x-text="choice.label"
+                        x-html="field.choiceLabelHtml(choice)"
                     ></span>
                 </template>
                 <span class="text-body-secondary" x-show="selectedChoices.length === 0">
