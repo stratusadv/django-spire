@@ -9,6 +9,7 @@ class AuthSmsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'django_spire.auth.sms'
     label = 'django_spire_auth_sms'
+    verbose_name = 'Auth SMS (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core', 'django_spire_auth')
 

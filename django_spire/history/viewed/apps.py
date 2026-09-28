@@ -9,6 +9,7 @@ class HistoryViewedConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_history_viewed'
     name = 'django_spire.history.viewed'
+    verbose_name = 'History Viewed (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core', 'django_spire_history')
 

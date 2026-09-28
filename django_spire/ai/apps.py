@@ -9,6 +9,7 @@ class AiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_ai'
     name = 'django_spire.ai'
+    verbose_name = 'AI (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core',)
     URLPATTERNS_INCLUDE = 'django_spire.ai.urls'

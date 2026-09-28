@@ -9,6 +9,7 @@ class KnowledgeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_knowledge'
     name = 'django_spire.knowledge'
+    verbose_name = 'Knowledge (Django Spire)'
     MODEL_PERMISSIONS = (
         {
             'name': 'knowledge',

@@ -9,7 +9,7 @@ class SignageConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_metric_visual_signage'
     name = 'django_spire.metric.visual.signage'
-    verbose_name = 'DJANGO_SPIRE_METRIC_VISUAL_SIGNAGE'
+    verbose_name = 'Metric Signage (Django Spire)'
 
     MODEL_PERMISSIONS = (
         {

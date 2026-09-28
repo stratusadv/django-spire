@@ -9,6 +9,7 @@ class HelpDeskConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_help_desk'
     name = 'django_spire.help_desk'
+    verbose_name = 'Help Desk (Django Spire)'
     MODEL_PERMISSIONS = (
         {
             'name': 'help_desk',

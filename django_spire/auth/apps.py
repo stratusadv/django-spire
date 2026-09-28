@@ -9,6 +9,7 @@ class AuthConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_auth'
     name = 'django_spire.auth'
+    verbose_name = 'Auth (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core',)
 

@@ -9,7 +9,7 @@ class VisualConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_metric_visual'
     name = 'django_spire.metric.visual'
-    verbose_name = 'DJANGO_SPIRE_METRIC_VISUAL'
+    verbose_name = 'Metric Visual (Django Spire)'
 
     MODEL_PERMISSIONS = (
         {

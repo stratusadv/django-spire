@@ -9,7 +9,7 @@ class PresentationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_metric_visual_presentation'
     name = 'django_spire.metric.visual.presentation'
-    verbose_name = 'DJANGO_SPIRE_METRIC_VISUAL_PRESENTATION'
+    verbose_name = 'Metric Presentation (Django Spire)'
 
     MODEL_PERMISSIONS = (
         {

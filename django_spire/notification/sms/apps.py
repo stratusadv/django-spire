@@ -11,6 +11,7 @@ class NotificationSmsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'django_spire.notification.sms'
     label = 'django_spire_notification_sms'
+    verbose_name = 'Notification SMS (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core', 'django_spire_notification')
 

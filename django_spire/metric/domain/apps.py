@@ -9,7 +9,7 @@ class DomainConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_metric_domain'
     name = 'django_spire.metric.domain'
-    verbose_name = 'DJANGO_SPIRE_METRIC_DOMAIN'
+    verbose_name = 'Metric Domain (Django Spire)'
 
     API_V1_ROUTER = 'django_spire.metric.domain.api_v1.router'
     API_V1_ROUTER_PREFIX = 'metric/domain'

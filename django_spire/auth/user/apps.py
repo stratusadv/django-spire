@@ -9,6 +9,7 @@ class UserAccountConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_auth_user'
     name = 'django_spire.auth.user'
+    verbose_name = 'Auth User (Django Spire)'
 
     MODEL_PERMISSIONS = (
         {
