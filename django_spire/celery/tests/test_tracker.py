@@ -50,7 +50,7 @@ class CeleryTaskTrackerStatePushTestCase(SimpleTestCase):
         task = _make_task()
 
         with (
-            patch('django_spire.celery.tracker._async_update_state') as mock_update_state,
+            patch('django_spire.celery.tracker._update_celery_task_backend_state') as mock_update_state,
             patch(
                 'django_spire.celery.tracker._state_update_executor.submit',
                 side_effect=_completed_future,
@@ -70,15 +70,79 @@ class CeleryTaskTrackerStatePushTestCase(SimpleTestCase):
     def test_set_completed_after_progress_does_not_raise(self) -> None:
         task = _make_task()
 
-        with patch(
-            'django_spire.celery.tracker._state_update_executor.submit',
-            side_effect=_completed_future,
+        with (
+            patch('django_spire.celery.tracker.CeleryTask.objects') as mock_objects,
+            patch(
+                'django_spire.celery.tracker._state_update_executor.submit',
+                side_effect=_completed_future,
+            ),
         ):
+            mock_objects.filter.return_value.first.return_value = None
             tracker = CeleryTaskTracker(task)
             tracker.set_started()
             tracker.update_count_progress(5, 10)
             tracker.update_state('MAKING NOISES')
             tracker.set_completed()
+
+    def test_set_completed_pushes_completed_meta_to_backend(self) -> None:
+        task = _make_task()
+
+        with (
+            patch('django_spire.celery.tracker.CeleryTask.objects') as mock_objects,
+            patch(
+                'django_spire.celery.tracker._state_update_executor.submit',
+                side_effect=_completed_future,
+            ),
+        ):
+            mock_objects.filter.return_value.first.return_value = None
+            tracker = CeleryTaskTracker(task)
+            tracker.meta.data['more'] = {'has_noises': True}
+            tracker.set_completed()
+
+            store_result_args = task.backend.store_result.call_args
+            assert store_result_args.args[0] == 'test-task-id'
+            assert store_result_args.args[1]['data'] == {'more': {'has_noises': True}}
+            assert store_result_args.args[1]['completed_time'] is not None
+
+    def test_set_completed_merges_meta_into_celery_task_row(self) -> None:
+        task = _make_task()
+        row = MagicMock()
+        row.meta_as_dict = {'data': {'bananas': 'The key'}, 'progress': 0.5}
+
+        with (
+            patch('django_spire.celery.tracker.CeleryTask.objects') as mock_objects,
+            patch(
+                'django_spire.celery.tracker._state_update_executor.submit',
+                side_effect=_completed_future,
+            ),
+        ):
+            mock_objects.filter.return_value.first.return_value = row
+            tracker = CeleryTaskTracker(task)
+            tracker.meta.data['more'] = {'has_noises': True}
+            tracker.set_completed()
+
+            mock_objects.filter.assert_called_once_with(task_id='test-task-id')
+            row.save.assert_called_once_with(update_fields=['_task_meta'])
+
+        assert row.meta_as_dict['data'] == {'bananas': 'The key', 'more': {'has_noises': True}}
+        assert row.meta_as_dict['progress'] == 1.0
+        assert row.meta_as_dict['completed_time'] is not None
+
+    def test_set_completed_without_celery_task_row_does_not_raise(self) -> None:
+        task = _make_task()
+
+        with (
+            patch('django_spire.celery.tracker.CeleryTask.objects') as mock_objects,
+            patch(
+                'django_spire.celery.tracker._state_update_executor.submit',
+                side_effect=_completed_future,
+            ),
+        ):
+            mock_objects.filter.return_value.first.return_value = None
+            tracker = CeleryTaskTracker(task)
+            tracker.set_completed()
+
+            mock_objects.filter.return_value.first.assert_called_once()
 
     def test_update_state_uppercases_state(self) -> None:
         task = _make_task()
@@ -94,10 +158,14 @@ class CeleryTaskTrackerStatePushTestCase(SimpleTestCase):
     def test_set_completed_marks_meta_completed(self) -> None:
         task = _make_task()
 
-        with patch(
-            'django_spire.celery.tracker._state_update_executor.submit',
-            side_effect=_completed_future,
+        with (
+            patch('django_spire.celery.tracker.CeleryTask.objects') as mock_objects,
+            patch(
+                'django_spire.celery.tracker._state_update_executor.submit',
+                side_effect=_completed_future,
+            ),
         ):
+            mock_objects.filter.return_value.first.return_value = None
             tracker = CeleryTaskTracker(task)
             tracker.set_completed()
 

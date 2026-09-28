@@ -6,8 +6,9 @@ from celery import states
 from celery.result import AsyncResult
 from django.db.models import F
 from django.utils.timezone import make_aware, is_naive
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from django_spire.celery.meta import CeleryTaskMeta
 from django_spire.celery.services.queue_service import CeleryTaskQueueService
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from sqlalchemy.exc import OperationalError, DatabaseError
@@ -67,9 +68,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
         if self.obj.meta_as_dict != new_meta_dict:
             if async_result.ready():
-                completed_meta = self.obj.meta
-                completed_meta.set_completed()
-                self.obj.meta = completed_meta
+                self._apply_completed_meta(new_meta_dict)
             else:
                 self.obj.meta_as_dict = new_meta_dict
 
@@ -89,5 +88,13 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         if has_changed:
             self.obj.save()
 
+    def _apply_completed_meta(self, new_meta_dict: Any) -> None:
+        completed_meta = self.obj.meta
 
+        if isinstance(new_meta_dict, dict) and new_meta_dict.get('data') is not None:
+            completed_meta.merge(CeleryTaskMeta(**new_meta_dict))
 
+        if completed_meta.completed_time is None:
+            completed_meta.set_completed()
+
+        self.obj.meta = completed_meta

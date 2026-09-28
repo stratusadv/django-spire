@@ -84,3 +84,47 @@ class CeleryTaskServiceUpdateFromAsyncResultTestCase(TestCase):
         self.service.update_from_async_result_and_save_if_change()
 
         assert self.celery_task.state == states.STARTED
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_ready_dict_meta_is_merged(self, mock_async_result: MagicMock) -> None:
+        self.celery_task.meta_as_dict = {'data': {'bananas': 'The key'}, 'progress': 0.5}
+        self.celery_task.save()
+
+        mock_result = MagicMock()
+        mock_result.state = states.SUCCESS
+        mock_result.ready.return_value = True
+        mock_result.info = {
+            'data': {'bananas': 'The key', 'more': {'has_noises': True}},
+            'progress': 1.0,
+            'started_time': 100.0,
+            'completed_time': 123.0,
+        }
+        mock_result.get.return_value = 'The pirate says YARR'
+        mock_result.date_done = now()
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_async_result_and_save_if_change()
+
+        meta = self.celery_task.meta
+        assert meta.data == {'bananas': 'The key', 'more': {'has_noises': True}}
+        assert meta.completed_time == 123.0
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_ready_string_info_keeps_existing_meta(self, mock_async_result: MagicMock) -> None:
+        self.celery_task.meta_as_dict = {'data': {'bananas': 'The key'}, 'progress': 0.5}
+        self.celery_task.save()
+
+        mock_result = MagicMock()
+        mock_result.state = states.SUCCESS
+        mock_result.ready.return_value = True
+        mock_result.info = 'The pirate says YARR'
+        mock_result.get.return_value = 'The pirate says YARR'
+        mock_result.date_done = now()
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_async_result_and_save_if_change()
+
+        meta = self.celery_task.meta
+        assert meta.data == {'bananas': 'The key'}
+        assert meta.progress == 1.0
+        assert meta.completed_time is not None

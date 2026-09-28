@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, UTC
-from typing import Any
+from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -117,3 +117,16 @@ class CeleryTaskMeta(BaseModel):
         self.progress = 1.0
         self.estimated_completed_time = time.time() + 5
         self.last_update_time = time.time() + 1
+
+    def merge(self, other: Self) -> Self:
+        for field in type(self).model_fields:
+            value = getattr(other, field)
+
+            if field == 'data':
+                value = {**self.data, **value}
+            elif value is None:
+                continue
+
+            object.__setattr__(self, field, value)
+
+        return self

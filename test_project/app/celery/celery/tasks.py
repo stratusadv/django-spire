@@ -18,18 +18,15 @@ def _sleep(task: Task, length: int) -> None:
 
     for i in range(length):
         sleep(1)
+        tracker.meta.data['counted_seconds'] = i + 1
 
         if length > 5:
-            tracker.update_cumulative_progress(1)
+            tracker.update_cumulative_progress(added_value=1)
             tracker.update_state('MAKING NOISES')
 
     tracker.meta.data['more'] = {
         'has_noises': True,
     }
-
-    print(f'{tracker.meta.data=}')
-
-    tracker.force_update_celery_task_state()
 
     tracker.set_completed()
 
