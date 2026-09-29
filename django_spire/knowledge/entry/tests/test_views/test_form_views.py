@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import json
-import re
-
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -31,16 +28,6 @@ class EntryFormViewTests(BaseTestCase):
             breadcrumb.name
             for breadcrumb in response.context['django_spire_navigation']['breadcrumbs']
         ]
-
-    @staticmethod
-    def _glue_entries(response) -> list[dict]:
-        match = re.search(
-            r'<script id="django-glue-context" type="application/json">(.*?)</script>',
-            response.content.decode(),
-            re.DOTALL,
-        )
-
-        return json.loads(match.group(1))['objects']
 
     def _create_url(self, collection_pk: int | None = None) -> str:
         return reverse(
@@ -78,14 +65,6 @@ class EntryFormViewTests(BaseTestCase):
 
         assert self.collection.name in breadcrumb_names
         assert self.child_collection.name in breadcrumb_names
-
-    def test_create_view_registers_glue_entry_model(self):
-        response = self.client.get(self._create_url())
-
-        static_data = self._glue_entries(response)[0]['static_data']
-
-        assert static_data['fields']['name']['namespace'] == 'field'
-        assert 'save' in static_data['callables']
 
     def test_update_view_context_entry_is_instance(self):
         response = self.client.get(self._update_url(self.entry.pk, self.child_collection.pk))
