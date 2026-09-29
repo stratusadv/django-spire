@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const packages = join(root, 'node_modules');
-const vendor = join(root, 'django_spire/core/static/django_spire/vendor');
+const vendor = join(root, 'test_project/vendor');
 
 const assets = [
   ['bootstrap/dist/js/bootstrap.bundle.min.js', 'bootstrap/bootstrap.bundle.min.js'],
