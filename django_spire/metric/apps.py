@@ -9,6 +9,7 @@ class MetricConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_metric'
     name = 'django_spire.metric'
+    verbose_name = 'Metric (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core',)
 

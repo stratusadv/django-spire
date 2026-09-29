@@ -9,6 +9,7 @@ class CommentConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_comment'
     name = 'django_spire.comment'
+    verbose_name = 'Comment (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core',)
     URLPATTERNS_INCLUDE = 'django_spire.comment.urls'

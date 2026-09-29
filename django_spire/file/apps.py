@@ -10,6 +10,7 @@ class FileConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_file'
     name = 'django_spire.file'
+    verbose_name = 'File (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core',)
     URLPATTERNS_INCLUDE = 'django_spire.file.urls'

@@ -9,6 +9,7 @@ class HistoryConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_history'
     name = 'django_spire.history'
+    verbose_name = 'History (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core',)
 

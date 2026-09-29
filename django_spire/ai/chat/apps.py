@@ -9,6 +9,7 @@ class AiChatConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'django_spire.ai.chat'
     label = 'django_spire_ai_chat'
+    verbose_name = 'AI Chat (Django Spire)'
     MODEL_PERMISSIONS = (
         {
             'name': 'ai_chat',

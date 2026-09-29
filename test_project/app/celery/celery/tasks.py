@@ -8,6 +8,8 @@ from django_spire.celery.tracker import CeleryTaskTracker
 def _sleep(task: Task, length: int) -> None:
     tracker = CeleryTaskTracker(task)
 
+    tracker.meta.data['bananas'] = 'The #&A$ is the key!'
+
     if length <= 5:
         tracker.set_started_and_completing_soon()
     else:
@@ -16,10 +18,15 @@ def _sleep(task: Task, length: int) -> None:
 
     for i in range(length):
         sleep(1)
+        tracker.meta.data['counted_seconds'] = i + 1
 
         if length > 5:
-            tracker.update_cumulative_progress(1)
+            tracker.update_cumulative_progress(added_value=1)
             tracker.update_state('MAKING NOISES')
+
+    tracker.meta.data['more'] = {
+        'has_noises': True,
+    }
 
     tracker.set_completed()
 

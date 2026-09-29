@@ -10,6 +10,7 @@ class NotificationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'django_spire.notification'
     label = 'django_spire_notification'
+    verbose_name = 'Notification (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_core', 'django_spire_history', 'django_spire_history_viewed')
 

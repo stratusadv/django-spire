@@ -9,6 +9,7 @@ class ApiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_api'
     name = 'django_spire.api'
+    verbose_name = 'API (Django Spire)'
     MODEL_PERMISSIONS = (
         {
             'name': 'api',

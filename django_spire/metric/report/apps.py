@@ -9,6 +9,7 @@ class ReportConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_metric_report'
     name = 'django_spire.metric.report'
+    verbose_name = 'Metric Report (Django Spire)'
 
     MODEL_PERMISSIONS = (
         {

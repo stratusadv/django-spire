@@ -9,6 +9,7 @@ class AiContextConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'django_spire.ai.context'
     label = 'django_spire_ai_context'
+    verbose_name = 'AI Context (Django Spire)'
 
     REQUIRED_APPS = ('django_spire_ai',)
 

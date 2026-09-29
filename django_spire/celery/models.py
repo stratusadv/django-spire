@@ -18,7 +18,7 @@ def _celery_state_choices() -> list:
 
 
 class CeleryTask(models.Model):
-    task_id = models.UUIDField(editable=False)
+    task_id = models.UUIDField(editable=False, verbose_name='Celery Task ID')
     task_name = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
 
@@ -159,6 +159,10 @@ class CeleryTask(models.Model):
     @result.deleter
     def result(self) -> Any:
         self._result = None
+
+    @property
+    def result_verbose(self) -> str:
+        return str(self.result)
 
     @property
     def send_failed(self) -> bool:

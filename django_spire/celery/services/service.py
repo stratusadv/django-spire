@@ -6,8 +6,9 @@ from celery import states
 from celery.result import AsyncResult
 from django.db.models import F
 from django.utils.timezone import make_aware, is_naive
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from django_spire.celery.meta import CeleryTaskMeta
 from django_spire.celery.services.queue_service import CeleryTaskQueueService
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from sqlalchemy.exc import OperationalError, DatabaseError
@@ -47,17 +48,27 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                     self.obj.result_capture_attempts = F('result_capture_attempts') + 1
 
     def update_from_async_result_and_save_if_change(self) -> None:
-        has_changed = False
-
         async_result = self.obj.async_result
+
+        new_state = async_result.state  # This is to prevent race based mutations
+
+        if self.obj.state in states.READY_STATES:
+            if new_state == states.SUCCESS and self.obj.has_no_result:
+                self.update_result(async_result)
+                self.obj.save()
+
+            return
+
+        if new_state == states.PENDING and self.obj.state != states.PENDING:
+            return
+
+        has_changed = False
 
         new_meta_dict = async_result.info  # This is to prevent race based mutations
 
         if self.obj.meta_as_dict != new_meta_dict:
             if async_result.ready():
-                completed_meta = self.obj.meta
-                completed_meta.set_completed()
-                self.obj.meta = completed_meta
+                self._apply_completed_meta(new_meta_dict)
             else:
                 self.obj.meta_as_dict = new_meta_dict
 
@@ -66,9 +77,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
             has_changed = True
 
-        new_state = async_result.state  # This is to prevent race based mutations
-
-        if self.obj.state != states.SUCCESS and new_state == states.SUCCESS:
+        if new_state == states.SUCCESS:
             self.update_result(async_result)
             has_changed = True
 
@@ -78,3 +87,14 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
         if has_changed:
             self.obj.save()
+
+    def _apply_completed_meta(self, new_meta_dict: Any) -> None:
+        completed_meta = self.obj.meta
+
+        if isinstance(new_meta_dict, dict) and new_meta_dict.get('data') is not None:
+            completed_meta.merge(CeleryTaskMeta(**new_meta_dict))
+
+        if completed_meta.completed_time is None:
+            completed_meta.set_completed()
+
+        self.obj.meta = completed_meta

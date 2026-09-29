@@ -1,6 +1,7 @@
 {% extends 'django_spire/item/item.html' %}
 
-{% load django_spire_humanize spire_core_tags %}
+{% load django_spire_humanize %}
+{% load django_spire_core_tags %}
 
 {% block item_content_gutter %}{% endblock %}
 {% block item_padding %}pb-1 pt-1{% endblock %}
@@ -11,8 +12,10 @@
         <div class="row g-1 align-items-end">
             <div class="col text-secondary">
                 <span class="fs--1">{{ comment.user.get_full_name|title }}</span>
-                <span class="fs--2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ comment.created_datetime }}">
-                     - {{ comment.created_datetime|naturaltime }} {% if comment.is_edited %}<span class="fst-italic">(edited)</span>{% endif %}
+                <span class="fs--2" data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{{ comment.created_datetime }}">
+                     - {{ comment.created_datetime|naturaltime }} {% if comment.is_edited %}
+                    <span class="fst-italic">(edited)</span>{% endif %}
                 </span>
             </div>
         </div>
@@ -22,19 +25,19 @@
         {{ comment.information | linebreaksbr }}
     </div>
 
-{#    <div class="col-12 pe-0">#}
-{#        {% if not is_child %}#}
-{#            {% with comment.children.active.prefetch_user as children_list %}#}
-{#                {% if children_list %}#}
-{#                    <div class="bg-layer-two rounded border border-1 px-2 py-2 mb-2">#}
-{#                        {% for comment in children_list %}#}
-{#                            {% include 'django_spire/comment/item/comment_item.html' with is_child=True %}#}
-{#                        {% endfor %}#}
-{#                    </div>#}
-{#                {% endif %}#}
-{#            {% endwith %}#}
-{#        {% endif %}#}
-{#    </div>#}
+    {#    <div class="col-12 pe-0">#}
+    {#        {% if not is_child %}#}
+    {#            {% with comment.children.active.prefetch_user as children_list %}#}
+    {#                {% if children_list %}#}
+    {#                    <div class="bg-layer-two rounded border border-1 px-2 py-2 mb-2">#}
+    {#                        {% for comment in children_list %}#}
+    {#                            {% include 'django_spire/comment/item/comment_item.html' with is_child=True %}#}
+    {#                        {% endfor %}#}
+    {#                    </div>#}
+    {#                {% endif %}#}
+    {#            {% endwith %}#}
+    {#        {% endif %}#}
+    {#    </div>#}
 {% endblock %}
 
 {% block item_button %}
