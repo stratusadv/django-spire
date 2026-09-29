@@ -30,7 +30,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     attachment = models.FileField(blank=True, null=True)
 
     objects = TaskQuerySet().as_manager()
-    services = Glue.attr(TaskService(), required_access=Glue.Access.DELETE)
+    services = Glue.namespace(TaskService(), required_access=Glue.Access.DELETE)
 
     class Meta:
         verbose_name = 'Task'

@@ -18,9 +18,7 @@ class PirateModelForm(forms.ModelForm):
         if self.is_valid():
             pirate, _created = Pirate.services.save_model_obj(**self.cleaned_data)
             return GlueResponse(
-                result={'redirect': {
-                    'url': reverse('rest:page:detail', kwargs={'pk': pirate.pk})}
-                }
+                redirect={'url': reverse('rest:page:detail', kwargs={'pk': pirate.pk})}
             )
 
         return None

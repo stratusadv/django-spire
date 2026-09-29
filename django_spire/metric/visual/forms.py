@@ -38,18 +38,16 @@ class VisualModelForm(forms.ModelForm):
             visual, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            'django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        'django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}
+                    )
                 }
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
-    @Glue.attr(required_access=Glue.Access.CHANGE, takes_client_state=True)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def statistic_choices(self) -> list[dict]:
         statistics = (
             domain_models.Statistic.objects.not_deleted()
@@ -75,13 +73,11 @@ class VisualConditionModelForm(forms.ModelForm):
             condition, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            'django_spire:metric:visual:page:detail',
-                            kwargs={'pk': condition.visual_id},
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        'django_spire:metric:visual:page:detail',
+                        kwargs={'pk': condition.visual_id},
+                    )
                 }
             )
 
@@ -117,13 +113,11 @@ class VisualReferenceModelForm(forms.ModelForm):
             reference_obj, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            'django_spire:metric:visual:page:detail',
-                            kwargs={'pk': reference_obj.visual_id},
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        'django_spire:metric:visual:page:detail',
+                        kwargs={'pk': reference_obj.visual_id},
+                    )
                 }
             )
 
@@ -176,7 +170,7 @@ class VisualRegionModelForm(forms.ModelForm):
             else:
                 redirect_url = reverse('django_spire:metric:visual:page:list')
 
-            return GlueResponse(result={'redirect': {'url': redirect_url}})
+            return GlueResponse(redirect={'url': redirect_url})
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
