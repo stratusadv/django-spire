@@ -11,12 +11,27 @@ from django_glue.message import GlueMessage
 from django_spire.metric.domain import models as domain_models
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
+from django_spire.metric.visual.constants import DISPLAY_UNIT_COUNT_MAX, DISPLAY_UNIT_COUNT_MIN
 
 if TYPE_CHECKING:
     from typing import ClassVar
 
 
 class VisualModelForm(forms.ModelForm):
+    display_unit_count = forms.IntegerField(
+        required=False,
+        label='Display units',
+        help_text=(
+            'How many recent units the charts display. '
+            'Default: 8 days, 12 weeks, or 13 months, based on the interval of the statistic.'
+        ),
+        min_value=DISPLAY_UNIT_COUNT_MIN,
+        max_value=DISPLAY_UNIT_COUNT_MAX,
+        widget=forms.NumberInput(
+            attrs={'min': DISPLAY_UNIT_COUNT_MIN, 'max': DISPLAY_UNIT_COUNT_MAX}
+        ),
+    )
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -34,18 +49,21 @@ class VisualModelForm(forms.ModelForm):
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def statistic_choices(self) -> list[dict]:
-        statistics = domain_models.Statistic.objects.not_deleted().select_related('group').order_by('group__name')
+        statistics = (
+            domain_models.Statistic.objects.not_deleted()
+            .select_related('group')
+            .order_by('group__name')
+        )
 
         return [
-            {'value': statistic.id, 'label': f"{statistic.group.name} > {statistic.name}"}
+            {'value': statistic.id, 'label': f'{statistic.group.name} > {statistic.name}'}
             for statistic in statistics
         ]
 
     class Meta:
         model = models.Visual
-        fields = ['name', 'description', 'statistic', 'kind', 'date']
+        fields = ['name', 'description', 'statistic', 'kind', 'display_unit_count']
         exclude: ClassVar = []
-        widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
 
 
 class VisualConditionModelForm(forms.ModelForm):
@@ -120,6 +138,16 @@ class VisualReferenceModelForm(forms.ModelForm):
                 'reference',
                 'That reference pattern does not match any values for the selected statistic.',
             )
+
+        if self.instance.visual_id:
+            duplicate = (
+                self.instance.visual.references.not_deleted()
+                .exclude(pk=self.instance.pk)
+                .filter(reference=pattern)
+                .exists()
+            )
+            if duplicate:
+                self.add_error('reference', 'This reference is already added to the visual.')
 
         return cleaned_data
 

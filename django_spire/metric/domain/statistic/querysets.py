@@ -7,13 +7,13 @@ from functools import reduce
 from operator import or_
 from typing import TYPE_CHECKING
 
-from django.db.models import Avg, Q, QuerySet, Sum
+from django.db.models import Avg, Count, Q, QuerySet, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 
 from django_spire.core.querysets import SearchQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
-from django_spire.metric.domain.statistic.interval import local_day_start
+from django_spire.metric.domain.statistic.interval import local_day_start, next_unit_start, unit_end
 
 if TYPE_CHECKING:
     from django_spire.metric.domain.models import SubDomain
@@ -123,16 +123,42 @@ class StatisticValueQuerySet(QuerySet):
     def average(self) -> Decimal:
         return self.aggregate(total=Avg('value'))['total'] or Decimal(0)
 
-    def series_points(self, start_date: date, end_date: date) -> list[tuple[date, Decimal]]:
+    def unit_points(
+        self, interval: str, start_date: date, end_date: date, *, average: bool = False
+    ) -> list[tuple[date, Decimal]]:
         rows = (
             self.date_range(start_date, end_date)
             .annotate(day=TruncDate('timestamp', tzinfo=timezone.get_current_timezone()))
             .values('day')
-            .annotate(total=Sum('value'))
+            .annotate(total=Sum('value'), count=Count('id'))
             .order_by('day')
         )
 
-        return [(row['day'], Decimal(row['total'])) for row in rows]
+        daily_totals = {row['day']: Decimal(row['total'] or 0) for row in rows}
+        daily_counts = {row['day']: row['count'] for row in rows}
+
+        points = []
+        unit_start = start_date
+        while unit_start <= end_date:
+            total = Decimal(0)
+            count = 0
+            day = unit_start
+            while day <= unit_end(interval, unit_start) and day <= end_date:
+                total += daily_totals.get(day, Decimal(0))
+                count += daily_counts.get(day, 0)
+                day += timedelta(days=1)
+
+            if not average:
+                value = total
+            elif count:
+                value = total / count
+            else:
+                value = Decimal(0)
+
+            points.append((unit_start, value))
+            unit_start = next_unit_start(interval, unit_start)
+
+        return points
 
     def breakdown(
         self, start_date: date, end_date: date, *, average: bool = False
@@ -147,17 +173,6 @@ class StatisticValueQuerySet(QuerySet):
         )
 
         return [(row['reference'] or 'Unassigned', Decimal(row['total'])) for row in rows]
-
-    def daily_averages(self, start_date: date, end_date: date) -> list[tuple[date, Decimal]]:
-        rows = (
-            self.date_range(start_date, end_date)
-            .annotate(day=TruncDate('timestamp', tzinfo=timezone.get_current_timezone()))
-            .values('day')
-            .annotate(total=Avg('value'))
-            .order_by('day')
-        )
-
-        return [(row['day'], Decimal(row['total'])) for row in rows]
 
     def moving_window_average(self, end_date: date, window_days: int) -> Decimal:
         start_date = end_date - timedelta(days=window_days - 1)

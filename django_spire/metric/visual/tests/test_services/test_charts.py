@@ -1,14 +1,21 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
 from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
-from django_spire.metric.visual.charts import VisualGaugeChart, VisualLineChart
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
+from django_spire.metric.visual.charts import (
+    VisualGaugeChart,
+    VisualLineChart,
+    visual_line_chart_data,
+)
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -30,9 +37,9 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         domain = create_test_domain()
         self.sub_domain = create_test_subdomain(domain=domain)
-        group = create_test_statistic_group(domain=domain)
+        self.group = create_test_statistic_group(domain=domain)
         self.statistic = create_test_statistic(
-            group=group, interval=StatisticIntervalChoices.WEEKLY
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
         )
 
     def _chart_option(
@@ -45,8 +52,6 @@ class VisualChartOptionTestCase(BaseTestCase):
             references=references,
             with_conditions=False,
         )
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         self.statistic.services.processor.add_value(
             reference='/home/',
@@ -73,7 +78,7 @@ class VisualChartOptionTestCase(BaseTestCase):
             value_timestamp=aware(date(2026, 5, 14), 12),
         )
 
-        chart = visual.services.transformation.chart()
+        chart = visual.services.transformation.chart(value_date=date(2026, 5, 15))
         return chart, chart.to_option_dict()
 
     def test_line_chart_option(self):
@@ -81,13 +86,29 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         assert chart.glue_name == 'visual_line_chart'
         assert chart.data_function_path.endswith('visual_line_chart_data')
-        assert option['xAxis'] == {'type': 'time'}
+        assert option['xAxis']['type'] == 'category'
+        assert option['xAxis']['axisLabel'] == {'hideOverlap': True}
+        assert option['xAxis']['data'] == [
+            'Feb 22',
+            'Mar 1',
+            'Mar 8',
+            'Mar 15',
+            'Mar 22',
+            'Mar 29',
+            'Apr 5',
+            'Apr 12',
+            'Apr 19',
+            'Apr 26',
+            'May 3',
+            'May 10',
+        ]
+        assert option['yAxis'] == {'type': 'value', 'axisLabel': {'hideOverlap': True}}
         assert option['series'][0]['type'] == 'line'
 
         points = option['series'][0]['data']
-        assert len(points) == 2
-        assert points[0] == ['2026-05-14', 10.0]
-        assert points[1] == ['2026-05-15', 20.0]
+        assert len(points) == 12
+        assert points[-1] == 30.0
+        assert all(point == 0.0 for point in points[:-1])
 
     def test_line_chart_option_multiple_datasets(self):
         chart, option = self._chart_option('line', references=['/home/', '/dashboard/'])
@@ -95,10 +116,25 @@ class VisualChartOptionTestCase(BaseTestCase):
         series = option['series']
 
         assert [item['name'] for item in series] == ['/home/', '/dashboard/']
-        assert series[0]['data'] == [['2026-05-14', 10.0], ['2026-05-15', 20.0]]
-        assert series[1]['data'] == [['2026-05-14', 130.0], ['2026-05-15', 50.0]]
+        assert [len(item['data']) for item in series] == [12, 12]
+        assert series[0]['data'][-1] == 30.0
+        assert series[1]['data'][-1] == 180.0
+        assert all(point == 0.0 for item in series for point in item['data'][:-1])
 
         assert isinstance(chart, VisualLineChart)
+
+    def test_bar_chart_option(self):
+        chart, option = self._chart_option('bar', reference='/home/')
+
+        assert chart.glue_name == 'visual_bar_chart'
+        assert option['xAxis']['type'] == 'category'
+        assert option['xAxis']['axisLabel'] == {'hideOverlap': True}
+        assert option['series'][0]['type'] == 'bar'
+
+        points = option['series'][0]['data']
+        assert len(points) == 12
+        assert points[-1] == 30.0
+        assert all(point == 0.0 for point in points[:-1])
 
     def test_area_chart_option_has_area_style(self):
         _, option = self._chart_option('area', reference='/home/')
@@ -123,8 +159,6 @@ class VisualChartOptionTestCase(BaseTestCase):
             labels=['Home', 'Dashboard'],
             with_conditions=False,
         )
-        visual.date = date(2026, 5, 15)
-        visual.save()
 
         self.statistic.services.processor.add_value(
             reference='/home/',
@@ -139,7 +173,7 @@ class VisualChartOptionTestCase(BaseTestCase):
             value_timestamp=aware(date(2026, 5, 15), 11),
         )
 
-        chart = visual.services.transformation.chart()
+        chart = visual.services.transformation.chart(value_date=date(2026, 5, 15))
         _, option = chart, chart.to_option_dict()
 
         slices = option['series'][0]['data']
@@ -166,10 +200,125 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         option = chart.to_option_dict()
 
-        assert option['series'][0]['type'] == 'gauge'
-        assert option['series'][0]['min'] == 0
-        assert option['series'][0]['max'] == 60
-        assert option['series'][0]['data'][0]['value'] == 50.0
+        series = option['series'][0]
+
+        assert series['type'] == 'gauge'
+        assert series['min'] == 0
+        assert series['max'] == 60
+        assert series['valueType'] == StatisticValueTypeChoices.NUMBER
+        assert series['detail'] == {'offsetCenter': ['0%', '0%']}
+        assert series['title'] == {'show': True, 'offsetCenter': ['0%', '70%']}
+
+        item = series['data'][0]
+
+        assert item['value'] == 50.0
+
+        label = visual.services.transformation.dataset_values()[0]['label']
+
+        assert item['name'] == label
+        assert series['name'] == visual.name
+        assert option['legend'] == {'bottom': 30}
+
+    def test_gauge_chart_option_single_labeled_reference_names_series(self):
+        visual = create_test_visual(
+            statistic=self.statistic,
+            kind='gauge',
+            reference='/home/',
+            labels=['Home'],
+            with_conditions=True,
+        )
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['name'] == 'Home'
+        assert series['data'][0]['name'] == 'Home'
+        assert option['legend'] == {'bottom': 30}
+
+    def test_gauge_chart_option_series_name_falls_back_to_visual_name(self):
+        visual = create_test_visual(
+            statistic=self.statistic,
+            kind='gauge',
+            references=['/home/', '/dashboard/'],
+            labels=['', 'Dashboard'],
+            with_conditions=True,
+        )
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
+        )
+        self.statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(70), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['name'] == visual.name
+        assert [item['name'] for item in series['data']] == ['/home/', 'Dashboard']
+        assert option['legend'] == {'bottom': 30}
+
+    def test_gauge_chart_option_adapts_to_overflowing_value(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(
+            statistic=statistic,
+            kind='gauge',
+            target=Decimal(100),
+            tolerance=Decimal(10),
+            with_conditions=True,
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal('916.22'), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['max'] == 1200
+
+        item = series['data'][0]
+
+        assert item['value'] == 916.22
+
+        label = visual.services.transformation.dataset_values()[0]['label']
+
+        assert item['name'] == label
+
+    def test_gauge_chart_option_percentage(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(
+            statistic=statistic,
+            kind='gauge',
+            target=Decimal(80),
+            tolerance=Decimal(10),
+            with_conditions=True,
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal('12.34'), sub_domain=self.sub_domain
+        )
+
+        option = visual.services.transformation.chart().to_option_dict()
+
+        series = option['series'][0]
+
+        assert series['max'] == 100
+        assert series['valueType'] == StatisticValueTypeChoices.PERCENTAGE
+        assert series['title'] == {'show': True, 'offsetCenter': ['0%', '70%']}
+
+        item = series['data'][0]
+
+        assert item['value'] == 12.34
+
+        label = visual.services.transformation.dataset_values()[0]['label']
+
+        assert item['name'] == label
 
     def test_independent_instances_share_one_glue_name(self):
         chart_a, _ = self._chart_option('line', reference='/home/')
@@ -178,3 +327,23 @@ class VisualChartOptionTestCase(BaseTestCase):
         assert isinstance(chart_a, VisualLineChart)
         assert isinstance(chart_b, VisualLineChart)
         assert chart_a.glue_name == chart_b.glue_name == 'visual_line_chart'
+
+    def test_data_function_without_value_date_anchors_to_localdate(self):
+        visual = create_test_visual(
+            statistic=self.statistic, kind='line', reference='/home/', with_conditions=False
+        )
+        today = timezone.localdate()
+        week_start = today - timedelta(days=(today.weekday() + 1) % 7)
+
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(5), sub_domain=self.sub_domain
+        )
+
+        option = visual_line_chart_data(visual_pk=visual.pk)
+
+        assert option['xAxis']['data'][-1] == f'{week_start:%b} {week_start.day}'
+
+        data = option['series'][0]['data']
+        assert len(data) == 12
+        assert data[-1] == 5.0
+        assert all(point == 0.0 for point in data[:-1])

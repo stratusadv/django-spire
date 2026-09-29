@@ -1,7 +1,5 @@
-{% if interval == 'monthly' %}
-    {{ period_start|date:'F' }}
-{% elif interval == 'daily' %}
-    {{ period_start|date:'M j' }}
+{% if period_start == period_end %}
+    {{ period_start|date:'M j, Y' }}
 {% else %}
-    {{ period_start|date:'M j' }} - {{ period_end|date:'M j' }}
+    {{ period_start|date:'M j, Y' }} - {{ period_end|date:'M j, Y' }}
 {% endif %}

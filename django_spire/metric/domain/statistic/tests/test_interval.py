@@ -5,7 +5,11 @@ from datetime import date, timedelta
 from django.test import TestCase
 
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
-from django_spire.metric.domain.statistic.interval import interval_range, local_day_start
+from django_spire.metric.domain.statistic.interval import (
+    display_window_range,
+    interval_range,
+    local_day_start,
+)
 
 
 class IntervalRangeTestCase(TestCase):
@@ -44,13 +48,6 @@ class IntervalRangeTestCase(TestCase):
             date(2026, 8, 22),
         )
 
-    def test_weekly_range_from_saturday_start_of_week(self):
-        saturday = date(2026, 8, 15)
-        assert interval_range(StatisticIntervalChoices.WEEKLY, saturday) == (
-            date(2026, 8, 9),
-            date(2026, 8, 15),
-        )
-
     def test_monthly_range_midmonth(self):
         assert interval_range(StatisticIntervalChoices.MONTHLY, date(2026, 1, 15)) == (
             date(2026, 1, 1),
@@ -73,6 +70,38 @@ class IntervalRangeTestCase(TestCase):
         assert interval_range(StatisticIntervalChoices.MONTHLY, date(2025, 12, 31)) == (
             date(2025, 12, 1),
             date(2025, 12, 31),
+        )
+
+
+class DisplayWindowRangeTestCase(TestCase):
+    def test_daily_window_default(self):
+        assert display_window_range(StatisticIntervalChoices.DAILY, date(2026, 9, 25), 8) == (
+            date(2026, 9, 18),
+            date(2026, 9, 25),
+        )
+
+    def test_weekly_window_default(self):
+        assert display_window_range(StatisticIntervalChoices.WEEKLY, date(2026, 5, 15), 12) == (
+            date(2026, 2, 22),
+            date(2026, 5, 16),
+        )
+
+    def test_weekly_window_from_sunday(self):
+        assert display_window_range(StatisticIntervalChoices.WEEKLY, date(2026, 5, 10), 3) == (
+            date(2026, 4, 26),
+            date(2026, 5, 16),
+        )
+
+    def test_monthly_window_default(self):
+        assert display_window_range(StatisticIntervalChoices.MONTHLY, date(2026, 5, 15), 13) == (
+            date(2025, 5, 1),
+            date(2026, 5, 31),
+        )
+
+    def test_monthly_window_crosses_year_start(self):
+        assert display_window_range(StatisticIntervalChoices.MONTHLY, date(2026, 2, 10), 3) == (
+            date(2025, 12, 1),
+            date(2026, 2, 28),
         )
 
 

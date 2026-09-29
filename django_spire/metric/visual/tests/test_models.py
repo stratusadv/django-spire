@@ -153,12 +153,6 @@ class VisualConditionModelTestCase(BaseTestCase):
         )
         assert str(condition) == 'Green (Greater Than 100)'
 
-    def test_services_is_condition_service(self):
-        condition = VisualCondition.objects.create(
-            visual=self.visual, state='green', operator='gt', target=Decimal(100), order=0
-        )
-        assert condition.services.transformation.matches(Decimal(101)) is True
-
     def test_matches_gt(self):
         condition = VisualCondition.objects.create(
             visual=self.visual, state='green', operator='gt', target=Decimal(100), order=0

@@ -47,10 +47,12 @@ def render_visual_region(context: dict[str, Any], key: str) -> dict[str, Any]:
         'visual': render_context['visual'],
         'current_value': render_context['current_value'],
         'current_condition': render_context['current_condition'],
+        'no_matching_data': render_context['no_matching_data'],
         'chart': chart,
         'display_title': region.services.transformation.display_title,
         'chart_glue_name': chart.glue_name if chart is not None and live else '',
         'chart_update_interval': VISUAL_REGION_LIVE_UPDATE_INTERVAL if live else 0,
         'period_start': render_context.get('period_start'),
         'period_end': render_context.get('period_end'),
+        'display_period_label': render_context.get('display_period_label'),
     }

@@ -122,7 +122,7 @@ class VisualSeeder(Seeder):
 
         references = list(references) if references else VALUE_REFERENCES
 
-        start_date, end_date = visual.services.transformation.date_range()
+        start_date, end_date = visual.services.transformation.display_window()
 
         existing = set(
             StatisticValue.objects.filter(statistic=statistic, sub_domain=sub_domain).values_list(

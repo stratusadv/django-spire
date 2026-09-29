@@ -27,6 +27,7 @@ def _slide_data(request: WSGIRequest, slide: models.Slide) -> dict:
     sections = []
     section_sections = slide.sections.all()
     grid_styles = SlideSectionTransformationService.section_grid_styles(section_sections)
+    row_count = len({section.row for section in section_sections})
 
     for section in section_sections:
         section_data = {
@@ -41,7 +42,12 @@ def _slide_data(request: WSGIRequest, slide: models.Slide) -> dict:
 
         sections.append(section_data)
 
-    return {'slide': slide, 'sections': sections, 'grid_columns': SLIDE_GRID_COLUMNS}
+    return {
+        'slide': slide,
+        'sections': sections,
+        'grid_columns': SLIDE_GRID_COLUMNS,
+        'row_count': row_count,
+    }
 
 
 def _presentation_activity_log(presentation: models.Presentation) -> QuerySet:

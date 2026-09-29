@@ -1,20 +1,24 @@
 from __future__ import annotations
 
-from datetime import timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.core.cache import cache
 from django.db.models import Max
+from django.utils import timezone
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.metric.domain.statistic.constants import (
     StatisticValueTypeChoices,
     percentage_moving_window_days,
 )
-from django_spire.metric.domain.statistic.interval import interval_range
+from django_spire.metric.domain.statistic.interval import display_window_range, interval_range
 from django_spire.metric.domain.statistic.querysets import reference_matches
-from django_spire.metric.visual.choices import VisualConditionOperatorChoices
+from django_spire.metric.visual.constants import (
+    DISPLAY_PERIOD_LABELS,
+    DISPLAY_UNIT_LABELS,
+    effective_display_unit_count,
+)
 
 if TYPE_CHECKING:
     from datetime import date
@@ -29,6 +33,20 @@ if TYPE_CHECKING:
 
 
 VISUAL_AGGREGATE_CACHE_TTL_SECONDS = 120
+
+_NICE_CEILING_STEPS = ('1', '1.2', '1.5', '2', '2.5', '3', '4', '5', '6', '8', '10')
+
+
+def _nice_ceiling(value: Decimal) -> int:
+    base = Decimal(1).scaleb(value.adjusted())
+
+    for step in _NICE_CEILING_STEPS:
+        candidate = base * Decimal(step)
+        if candidate >= value:
+            return int(candidate)
+
+    message = f'Unreachable: no nice ceiling for {value}'
+    raise ValueError(message)
 
 
 class VisualTransformationService(BaseDjangoModelService['Visual']):
@@ -49,7 +67,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         reference: str | None = None,
         include_conditions: bool = False,
     ) -> str:
-        value_date = value_date or self.obj.date
+        value_date = value_date or timezone.localdate()
 
         parts = [
             'metric:visual',
@@ -59,6 +77,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
             value_date.isoformat(),
             self._value_revision(),
             reference or '-',
+            str(self.display_unit_count()),
         ]
         if reference is None:
             datasets = self._datasets()
@@ -74,7 +93,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return ':'.join(str(part) for part in parts)
 
     def date_range(self, value_date: date | None = None) -> tuple[date, date]:
-        value_date = value_date or self.obj.date
+        value_date = value_date or timezone.localdate()
 
         interval = self.obj.statistic.interval if self.obj.statistic_id else None
 
@@ -82,6 +101,36 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
             return value_date, value_date
 
         return interval_range(interval, value_date)
+
+    def display_unit_count(self) -> int:
+        interval = self.obj.statistic.interval if self.obj.statistic_id else None
+        return effective_display_unit_count(interval, self.obj.display_unit_count)
+
+    def display_window(self, value_date: date | None = None) -> tuple[date, date]:
+        value_date = value_date or timezone.localdate()
+
+        interval = self.obj.statistic.interval if self.obj.statistic_id else None
+
+        if not interval:
+            return value_date, value_date
+
+        return display_window_range(interval, value_date, self.display_unit_count())
+
+    def display_unit_label(self) -> str:
+        count = self.display_unit_count()
+        interval = self.obj.statistic.interval if self.obj.statistic_id else None
+        label = DISPLAY_UNIT_LABELS.get(interval)
+        return f'{count} {label}' if label else str(count)
+
+    def display_period_label(self) -> str:
+        interval = self.obj.statistic.interval if self.obj.statistic_id else None
+        if not interval:
+            return ''
+
+        if self._is_percentage():
+            return f'Last {percentage_moving_window_days(interval)} days'
+
+        return DISPLAY_PERIOD_LABELS.get(interval, '')
 
     def _is_percentage(self) -> bool:
         return (
@@ -93,7 +142,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return bool(self.obj.statistic_id and self.obj.statistic.is_deleted)
 
     def _datasets(self) -> list[VisualReference]:
-        return list(self.obj.references.all())
+        return list(self.obj.references.not_deleted())
 
     def _values_for(self, reference: str) -> Any:
         return self.obj.statistic.values.for_reference_pattern(reference)
@@ -125,7 +174,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if cached is not None:
             return cached
 
-        value_date = value_date or self.obj.date
+        value_date = value_date or timezone.localdate()
 
         values = self._values_for(reference) if reference is not None else self._statistic_values()
 
@@ -151,41 +200,39 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return None
 
-    def _percentage_series(self, value_date: date, window_days: int, values: Any) -> list[dict]:
-        start_date = value_date - timedelta(days=window_days - 1)
-        fetch_start = start_date - timedelta(days=window_days - 1)
+    def no_matching_data(self) -> bool:
+        if not self.obj.statistic_id or self._statistic_deleted():
+            return False
 
-        daily_averages = dict(values.daily_averages(fetch_start, value_date))
+        datasets = self._datasets()
+        if not datasets:
+            return False
 
-        points = []
-        for day_offset in range(window_days):
-            day = start_date + timedelta(days=day_offset)
+        key = self._cache_key('no-match')
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
 
-            window_total = Decimal(0)
-            window_count = 0
-            for back in range(window_days):
-                d = day - timedelta(days=back)
-                if d in daily_averages:
-                    window_total += daily_averages[d]
-                    window_count += 1
+        values = self.obj.statistic.values
 
-            if window_count == 0:
-                continue
+        if not values.count():
+            result = False
+        else:
+            patterns = [dataset.reference for dataset in datasets]
+            result = not values.for_reference_patterns(patterns).count()
 
-            points.append({'timestamp': day, 'value': float(window_total / window_count)})
-
-        return points
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
 
     def _series_points(self, value_date: date, values: Any) -> list[dict]:
-        if self._is_percentage():
-            window_days = percentage_moving_window_days(self.obj.statistic.interval)
-            return self._percentage_series(value_date, window_days, values)
-
-        start_date, end_date = self.date_range(value_date)
+        interval = self.obj.statistic.interval
+        start_date, end_date = display_window_range(interval, value_date, self.display_unit_count())
 
         return [
-            {'timestamp': day, 'value': float(total)}
-            for day, total in values.series_points(start_date, end_date)
+            {'timestamp': unit_start, 'value': float(total)}
+            for unit_start, total in values.unit_points(
+                interval, start_date, end_date, average=self._is_percentage()
+            )
         ]
 
     def series_datasets(self, value_date: date | None = None) -> list[dict]:
@@ -200,7 +247,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if cached is not None:
             return cached
 
-        value_date = value_date or self.obj.date
+        value_date = value_date or timezone.localdate()
 
         datasets = self._datasets()
 
@@ -243,7 +290,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if cached is not None:
             return cached
 
-        start_date, end_date = self.date_range(value_date)
+        start_date, end_date = self.display_window(value_date)
 
         values = self._all_values()
 
@@ -279,16 +326,23 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if cached is not None:
             return cached
 
-        value_date = value_date or self.obj.date
+        value_date = value_date or timezone.localdate()
 
         datasets = self._datasets()
 
         if not datasets:
-            result = [{'label': self.obj.name, 'value': self.current_value(value_date)}]
+            result = [
+                {
+                    'label': self.obj.name,
+                    'reference_label': '',
+                    'value': self.current_value(value_date),
+                }
+            ]
         else:
             result = [
                 {
                     'label': str(dataset),
+                    'reference_label': dataset.label,
                     'value': self.current_value(value_date, reference=dataset.reference),
                 }
                 for dataset in datasets
@@ -298,6 +352,9 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return result
 
     def gauge_max(self) -> int:
+        if self._is_percentage():
+            return 100
+
         key = self._cache_key('gauge', include_conditions=True)
         cached = cache.get(key)
         if cached is not None:
@@ -312,6 +369,10 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if ceiling <= 0:
             ceiling = self.current_value() * Decimal(2)
 
+        value = self.current_value()
+        if value > ceiling:
+            ceiling = _nice_ceiling(value * Decimal('1.2'))
+
         if ceiling <= 0:
             ceiling = Decimal(100)
 
@@ -319,7 +380,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
         return result
 
-    def chart(self) -> Any | None:
+    def chart(self, value_date: date | None = None) -> Any | None:
         from django_spire.metric.visual.charts import VISUAL_CHART_CLASSES  # noqa: PLC0415
 
         chart_class = VISUAL_CHART_CLASSES.get(self.obj.kind)
@@ -327,46 +388,40 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if chart_class is None:
             return None
 
-        return chart_class(params={'visual_pk': self.obj.pk})
+        params = {'visual_pk': self.obj.pk}
+        if value_date is not None:
+            params['value_date'] = value_date.isoformat()
+
+        return chart_class(params=params)
 
     def render_context(self) -> dict:
         if self.obj.is_deleted or self._statistic_deleted():
             return self.empty_render_context()
 
         current_value = self.current_value()
-        period_start, period_end = self.date_range()
+        no_match = self.no_matching_data()
+        period_start, period_end = self.display_window()
 
         return {
             'visual': self.obj,
             'current_value': current_value,
-            'current_condition': self.current_condition(value=current_value),
+            'current_condition': None if no_match else self.current_condition(value=current_value),
+            'no_matching_data': no_match,
             'chart': self.chart(),
             'period_start': period_start,
             'period_end': period_end,
+            'display_period_label': self.display_period_label(),
         }
 
     @staticmethod
     def empty_render_context() -> dict:
-        return {'visual': None, 'current_value': None, 'current_condition': None, 'chart': None}
-
-
-class VisualConditionTransformationService(BaseDjangoModelService['VisualCondition']):
-    obj: VisualCondition
-
-    def matches(self, value: Decimal) -> bool:
-        value = Decimal(value)
-
-        comparisons: dict[str, bool] = {
-            VisualConditionOperatorChoices.GT: value > self.obj.target,
-            VisualConditionOperatorChoices.GTE: value >= self.obj.target,
-            VisualConditionOperatorChoices.LT: value < self.obj.target,
-            VisualConditionOperatorChoices.LTE: value <= self.obj.target,
-            VisualConditionOperatorChoices.EQ: value == self.obj.target,
-            VisualConditionOperatorChoices.BETWEEN: abs(value - self.obj.target)
-            <= self.obj.tolerance,
+        return {
+            'visual': None,
+            'current_value': None,
+            'current_condition': None,
+            'no_matching_data': False,
+            'chart': None,
         }
-
-        return comparisons.get(self.obj.operator, False)
 
 
 class VisualRegionTransformationService(BaseDjangoModelService['VisualRegion']):
