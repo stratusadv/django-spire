@@ -277,22 +277,25 @@ class VisualChartExecuteTestCase(BaseTestCase):
             response.content.decode(),
             re.DOTALL,
         )
-        manifest_list = json.loads(match.group(1))['manifest_list']
+        objects = json.loads(match.group(1))['objects']
 
         return next(
-            manifest
-            for manifest in manifest_list
-            if isinstance(manifest['metadata'].get('params'), list)
+            entry for entry in objects if isinstance(entry['static_data'].get('params'), list)
         )
 
-    def _call_execute(self, manifest: dict, call_kwargs: dict) -> HttpResponse:
+    def _call_execute(self, entry: dict, call_kwargs: dict) -> HttpResponse:
         return self.client.post(
-            '/__dg__/callable_attribute/visual_line_chart/execute/',
+            '/__dg__/callable_attribute/',
             data={
-                'policy_token': manifest['policy_token'],
-                'state': '{}',
-                'attribute': 'execute',
-                'kwargs': json.dumps(call_kwargs),
+                'objects': json.dumps(
+                    [
+                        {
+                            'address': entry['address'],
+                            'policy_token': entry['policy_token'],
+                            'call': {'attribute': 'execute', 'kwargs': call_kwargs},
+                        }
+                    ]
+                )
             },
         )
 
@@ -312,14 +315,16 @@ class VisualChartExecuteTestCase(BaseTestCase):
         page = self.client.get(
             reverse('django_spire:metric:visual:page:detail', kwargs={'pk': self.visual.pk})
         )
-        manifest = self._chart_manifest(page)
+        entry = self._chart_manifest(page)
 
         response = self._call_execute(
-            manifest, {'kwargs': {'visual_pk': self.visual.pk, 'value_date': '2026-05-15'}}
+            entry, {'kwargs': {'visual_pk': self.visual.pk, 'value_date': '2026-05-15'}}
         )
 
         assert response.status_code == 200
-        option = response.json()['result']['result']
+        objects = response.json()['objects']
+        result = next(item for item in objects if item['address'] == entry['address'])
+        option = result['result']['result']
         assert option['xAxis']['data'][-2:] == ['May 14', 'May 15']
 
         data = option['series'][0]['data']
