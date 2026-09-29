@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.1 - September 29, 2026
+
+### Fixes
+
+- The comment modal no longer crashes on open. Its `Glue.model` call now exposes the
+  `information` field at `CHANGE` access, so the comment text is editable.
+
 ## v1.1.0 - September 27, 2026
 
 ### Breaking
