@@ -57,7 +57,6 @@ def test_adaptive_choice_widgets_demo(
 
     demo = demo_start()
 
-    page.route('https://**', lambda route: route.abort())
     demo.goto('showcase:page:form')
     expect(page.get_by_role('heading', name='Widget Showcase')).to_be_visible()
     page.wait_for_function('window.Glue && window.Alpine')
