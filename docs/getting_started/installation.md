@@ -58,7 +58,7 @@ If you use [Celery](https://docs.celeryq.dev/), install `django_spire.celery` an
 
 ## Middleware
 
-`ActivityUserMiddleware` must be listed **after** `AuthenticationMiddleware` so activity records are attributed to the request user:
+`ActivityUserMiddleware` must be listed **after** `AuthenticationMiddleware` so activity records are attributed to the request user, and `GlueViewMiddleware` (from `django-glue` v1.1+) must be the **last** entry so it can negotiate the final response for `Glue.view`:
 
 ```python
 MIDDLEWARE = [
@@ -66,10 +66,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django_spire.history.activity.middleware.ActivityUserMiddleware',
     ...
+    'django_glue.middleware.GlueViewMiddleware',
 ]
 ```
 
-Django system checks warn (`django_spire_history_activity.W001`/`W002`) if it is missing or misordered.
+Django system checks warn (`django_spire_history_activity.W001`/`W002`) if the activity middleware is missing or misordered, and error if `GlueViewMiddleware` is missing or not last.
 
 ---
 

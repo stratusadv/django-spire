@@ -75,7 +75,15 @@ class CeleryTask(models.Model):
 
     @property
     def has_result(self) -> bool:
-        return not isinstance(pickle.loads(self._result), CeleryNoResult)
+        if not self._result:
+            return False
+
+        try:
+            result = pickle.loads(self._result)
+        except (EOFError, pickle.UnpicklingError):
+            return False
+
+        return not isinstance(result, CeleryNoResult)
 
     @property
     def has_no_result(self) -> bool:

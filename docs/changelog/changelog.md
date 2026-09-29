@@ -1,5 +1,64 @@
 # Changelog
 
+## v1.1.0 - September 27, 2026
+
+### Breaking
+
+- Migrated from `django-glue` v1.0.1 to v1.1.0. The most visible changes:
+  - `django_glue.middleware.GlueViewMiddleware` is now required as the **last** entry in
+    `MIDDLEWARE` (a system check errors if it is missing or misordered).
+  - Sub-services are exposed with `Glue.namespace(...)` instead of `Glue.attr(...)`;
+    `@Glue.attr` now marks individual service methods the client may call.
+  - `GlueResponse` takes the redirect directly (`GlueResponse(redirect={'url': ...})`)
+    instead of nesting it under `result`.
+  - The Alpine core is no longer loaded from the CDN: `django-glue` bundles it (with its
+    morph plugin) and owns Alpine startup. The `@alpinejs/*` plugin scripts stay in
+    `base.html` and register against the runtime Glue exposes.
+
+### Features
+
+- New `FormComponent` / `ModelFormComponent` (in `django_spire.core.glue.components`) for
+  exposing a single form as a Glue component, with `Spire.modal.dispatchGlueComponent()`
+  and `Spire.modal.dispatchGlueHtml()` client helpers that show Glue-rendered content in
+  the dispatch modal and resolve when it closes.
+- Choice fields can render HTML labels: pass `label_formatter` to `Glue.choices(...)` to
+  pre-render each choice label (see the showcase `formatted_category` widget).
+- Glue scroll lists (notification dropdown/list, task list, and the shared
+  `glue/scroll/scroll.html`) now load pages through the queryset's own continuation with
+  generation-ordered loads, so an overtaken reset or a page load in flight can no longer
+  overwrite newer results. Querysets bound for scrolling accept `batch_size`.
+- Metric visuals: charts now display a unit-based window (`display_unit_count` on the
+  visual, defaulting to 8 days / 12 weeks / 13 months) with period labels ("Today",
+  "Week to date", "Month to date"), a `value_date` browse parameter on the detail page
+  for historical dates, and a distinct "no matching data" state instead of a false zero.
+  Gauge, pie, and line/bar rendering were reworked (unit x-axis labels, overlapping
+  labels hidden, nicer axis ceilings). The signage display page was updated to match.
+- Celery admin: a state filter (standard plus observed states), human-readable state
+  display, and a readable result column on the `CeleryTask` change form.
+
+### Changes
+
+- The `Visual.date` field was removed; visuals are always computed as of today, and the
+  detail page's `value_date` parameter browses history (migrations `0007_remove_visual_date`,
+  `0008_visual_display_unit_count`).
+- Celery race-condition fixes: the tracker pushes state/meta to the Celery backend instead
+  of writing the `CeleryTask` row directly, and `CeleryTaskService` merges the completed
+  meta into the row when it polls a ready result (meta `data` is merged, not replaced).
+- The help desk ticket list now exposes explicit Glue fields instead of `__all__`.
+- Test project Celery app now runs with `task_acks_late`, `task_reject_on_worker_lost`,
+  soft/hard time limits, and broker retry on startup.
+
+### Fixes
+
+- `CeleryTaskTracker.update_cumulative_progress` now raises `ValueError` (instead of
+  `TypeError`) when no cumulative target was set, and clamps progress at the target.
+- The Celery admin change form no longer crashes on task rows with an empty or corrupt
+  result blob.
+
+### Chores
+
+- `playwright-limelight` (dev) is pinned from PyPI instead of a git revision.
+
 ## v1.0.4 - September 21, 2026
 
 ### Fixes
