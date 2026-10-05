@@ -493,7 +493,6 @@ class TemplatePaths:
     list_table_card_template_name: str
     list_card_template_name: str
     list_items_template_name: str
-    list_filter_form_template_name: str
     list_page_template_name: str
     template_directory_path: str
     table_row_template_name: str
@@ -527,7 +526,6 @@ class TemplatePaths:
             list_items_card_template_name='list_card',
             list_table_card_template_name='table_card',
             list_card_template_name='list_card',
-            list_filter_form_template_name='list_filter_form',
             list_items_template_name='list_items',
             table_row_template_name='row',
             table_rows_template_name='rows',

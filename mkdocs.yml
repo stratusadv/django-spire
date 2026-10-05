@@ -72,7 +72,6 @@ nav:
       - Choices: app_guides/contrib/choices.md
       - JSON Responses: app_guides/contrib/json_responses.md
       - SCSS Customization: app_guides/contrib/scss_customization.md
-      - QuerySet Utilities: app_guides/contrib/queryset.md
       - REST:
           - Overview: app_guides/rest/overview.md
           - Connectors: app_guides/rest/connector.md

@@ -3,7 +3,6 @@ from django_spire.testing.playwright.components.attribute_element import (
     AttributeElement,
     AttributeList,
 )
-from django_spire.testing.playwright.components.base_session_filter_form import FilterForm
 from django_spire.testing.playwright.components.breadcrumb_element import Breadcrumb
 from django_spire.testing.playwright.components.card import (
     Card,
@@ -17,6 +16,7 @@ from django_spire.testing.playwright.components.dropdown import (
     EllipsisModalDropdown,
     EllipsisTableDropdown,
 )
+from django_spire.testing.playwright.components.filter_form import FilterForm
 from django_spire.testing.playwright.components.glue_scroll import GlueScroll
 from django_spire.testing.playwright.components.infinite_scroll import (
     InfiniteScroll,
