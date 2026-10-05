@@ -48,6 +48,7 @@
                 }
 
                 this.items = await this.component.get_items({reset: true})
+                this.hasPreviouslyLoaded = true
             }
             finally {
                 if (generation === this.loadGeneration) {

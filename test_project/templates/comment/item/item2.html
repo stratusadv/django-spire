@@ -1,0 +1,15 @@
+<div class="row border-bottom py-2">
+    <div class="col">
+        {% url 'comment:page:detail' pk=comment_example.id as comment_detail_url %}
+        <a class="row" href="{{ comment_detail_url }}">
+            <div class="col-6">
+                <div class="attribute-label">Name</div>
+                <div x-text="comment_example.name"></div>
+            </div>
+            <div class="col-6">
+                <div class="attribute-label">Description</div>
+                <div x-text="comment_example.description"></div>
+            </div>
+        </a>
+    </div>
+</div>
