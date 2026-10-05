@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Change
+
+- Removed the `django_spire.contrib.SessionController` as it was not being used anymore. Session management will be 
+  handled by `Django Glue` going forward in this project.
+
 ## v1.1.0 - September 27, 2026
 
 ### Breaking
