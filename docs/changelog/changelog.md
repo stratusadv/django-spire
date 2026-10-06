@@ -7,6 +7,13 @@
 - Removed the `django_spire.contrib.SessionController` as it was not being used anymore. Session management will be 
   handled by `Django Glue` going forward in this project.
 
+## v1.1.1 - September 29, 2026
+
+### Fixes
+
+- The comment modal no longer crashes on open. Its `Glue.model` call now exposes the
+  `information` field at `CHANGE` access, so the comment text is editable.
+
 ## v1.1.0 - September 27, 2026
 
 ### Breaking
