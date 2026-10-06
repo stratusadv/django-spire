@@ -4,7 +4,6 @@ from typing import Any, ClassVar
 
 from django.forms import BaseForm
 from django_glue import Glue
-from django_glue.glue.component import Component
 from django_glue.glue.objects.django.form.object import FormGlue  # noqa: TC002
 
 
@@ -12,7 +11,7 @@ def _form_child(self: FormComponent) -> FormGlue:
     return self.build_child()
 
 
-class FormComponent(Component):
+class FormComponent(Glue.Component):
     """Base for components that expose a single form.
 
     Subclasses set ``form`` and declare their own construction parameters.
