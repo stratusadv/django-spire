@@ -100,6 +100,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
     nav = VisualNavigation()
+    nav.page_title = str(visual)
+    context = nav.as_context()
     nav.breadcrumbs.add(
         name=str(visual), view_name='django_spire:metric:visual:page:detail', view_kwargs={'pk': pk}
     )
