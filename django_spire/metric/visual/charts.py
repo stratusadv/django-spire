@@ -25,9 +25,6 @@ def _value_date(value_date: Any) -> date | None:
 
 def _unit_label(unit_start: date, interval: str, first_year: int) -> str:
     if interval == StatisticIntervalChoices.MONTHLY:
-        if unit_start.year == first_year:
-            return f'{unit_start:%b}'
-
         return f'{unit_start:%b} {unit_start.year % 100}'
 
     return f'{unit_start:%b} {unit_start.day}'
