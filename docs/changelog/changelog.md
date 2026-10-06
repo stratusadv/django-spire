@@ -1,18 +1,59 @@
 # Changelog
 
-## Unreleased
+## v1.2.0 - October 6, 2026
 
-### Change
+### Breaking
 
-- Removed the `django_spire.contrib.SessionController` as it was not being used anymore. Session management will be 
-  handled by `Django Glue` going forward in this project.
+- Migrated from `django-glue` v1.1.0 to v1.2.0. The changes a project is most likely to
+  meet (the [django-glue changelog](https://django-glue.stratusadv.com) has the full list):
+  - `DJANGO_GLUE_COMPONENTS_ROOT` is removed. Replace it with
+    `DJANGO_GLUE_COMPONENTS = {'DIRS': [<root>], 'APP_DIRS': True}`, which is shaped like
+    Django's `TEMPLATES`. A project that still sets the old name fails the system check
+    `django_glue.E004`.
+  - The component modules moved into the `django_glue.glue.components` package.
+    `django_glue.glue.component` and `django_glue.glue.component_registry` no longer
+    exist; import `Component` and `component_registry` from `django_glue.glue.components`,
+    or subclass `Glue.Component`.
+  - A component's re-render keeps the child components already on the page instead of
+    re-stamping them. A child that must redraw with its parent declares `rerender_on` or
+    is stamped with `rerender_with_parent`.
+  - A formset's `save()` saves nothing when any row is invalid; it previously saved the
+    valid rows.
+- Removed the `django_spire.contrib.session` package, as it was no longer used. Session
+  management is handled by `django-glue` going forward. This removes:
+  - `django_spire.contrib.session.controller.SessionController`.
+  - The `session_controller_to_json` template tag
+    (`django_spire.contrib.session.templatetags.session_tags`).
+  - The client `Spire.session.Controller` class. `django_spire/js/session.js` is deleted
+    and no longer loaded by `django_spire/base/base.html`.
+- `django_spire.testing.playwright.components.base_session_filter_form` is renamed to
+  `django_spire.testing.playwright.components.filter_form`. `FilterForm` is still exported
+  from `django_spire.testing.playwright.components`, so only imports of the module path
+  need updating.
 
-## v1.1.1 - September 29, 2026
+### Changes
+
+- `FormComponent` subclasses `Glue.Component` instead of importing `Component` from a
+  `django-glue` internal module.
+- `spire_startapp` no longer scaffolds session-backed list filtering. A generated app has:
+  - no `constants.py` (it only held `LIST_FILTERING_SESSION_KEY`), no
+    `<Model>ListFilterForm`, and no list filter form template;
+  - a queryset that subclasses `HistoryQuerySet` alone, without `SearchQuerySetMixin`,
+    `SessionFilterQuerySetMixin`, or a `bulk_filter` method;
+  - list page and list items views that load `objects.active()` instead of calling
+    `process_session_filter`, and no `filter_session` in the page context.
+- The knowledge entry form view no longer glues an unused `entry` model.
 
 ### Fixes
 
 - The comment modal no longer crashes on open. Its `Glue.model` call now exposes the
   `information` field at `CHANGE` access, so the comment text is editable.
+
+### Chores
+
+- Removed the "QuerySet Utilities" guide (`docs/app_guides/contrib/queryset.md`) from the
+  docs. It described `django_spire.contrib.queryset`, which no longer exists.
+- `.backplan/` is ignored by git.
 
 ## v1.1.0 - September 27, 2026
 
