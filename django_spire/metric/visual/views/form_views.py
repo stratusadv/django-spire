@@ -90,23 +90,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     return TemplateResponse(request, 'django_spire/metric/visual/page/form_page.html', context)
 
 
-@permission_required('django_spire_metric_visual.change_visual')
-def set_default_conditions_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect:
-    visual = get_object_or_404(models.Visual, pk=pk)
-
-    if request.method == 'POST':
-        current_value = visual.services.transformation.current_value()
-        target = current_value or 100
-        visual.services.factory.create_default_conditions(target=target)
-
-    return redirect(
-        request.GET.get(
-            'return_url',
-            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}),
-        )
-    )
-
-
 @permission_required('django_spire_metric_visual.add_visual')
 def create_condition_view(request: WSGIRequest, visual_pk: int) -> TemplateResponse:
     return _condition_form_view(request, visual_pk=visual_pk)
