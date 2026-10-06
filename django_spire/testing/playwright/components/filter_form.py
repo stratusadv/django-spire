@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class FilterForm:
-    """Playwright component for django_spire/filtering/form/base_session_filter_form.html"""
+    """Playwright component for filter and search forms."""
 
     def __init__(
         self, page: Page, form_selector: str = 'form[action*="filter"], form[action*="search"]'

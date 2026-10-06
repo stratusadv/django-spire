@@ -7,11 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
 from ${module_path} import models
-from ${module_path}.forms import ${model_class_name}ListFilterForm
-from ${module_path}.constants import LIST_FILTERING_SESSION_KEY
 from ${module_path}.navigation import ${model_class_name}Navigation
-
-from django_spire.contrib.session.controller import SessionController
 
 
 if TYPE_CHECKING:
@@ -37,7 +33,6 @@ def ${detail_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     context = nav.as_context()
     context['${context_single_var}'] = ${context_single_var}
-    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
     return TemplateResponse(
         request,
         context=context,
@@ -47,11 +42,7 @@ def ${detail_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('${permission_prefix}.view_${model_instance_name}')
 def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
-    ${context_plural_var} = models.${model_class_name}.objects.process_session_filter(
-        request=request,
-        session_key=LIST_FILTERING_SESSION_KEY,
-        form_class=${model_class_name}ListFilterForm,
-    )
+    ${context_plural_var} = models.${model_class_name}.objects.active()
 
     nav = ${model_class_name}Navigation()
     nav.page_title = models.${model_class_name}._meta.verbose_name_plural.title()
@@ -62,7 +53,6 @@ def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
 
     context = nav.as_context()
     context['${context_plural_var}'] = ${context_plural_var}
-    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
     return TemplateResponse(
         request,
         context=context,

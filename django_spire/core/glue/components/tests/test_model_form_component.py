@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from django_glue import Glue
 from django_glue.exceptions import GlueComponentParameterError
-from django_glue.glue.component_registry import component_registry
+from django_glue.glue.components import component_registry
 
 from django_spire.core.glue.components import ModelFormComponent
 from django_spire.core.tests.test_cases import BaseTestCase
