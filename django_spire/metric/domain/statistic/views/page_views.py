@@ -30,8 +30,7 @@ def group_list_view(request: WSGIRequest) -> TemplateResponse:
         groups,
         Glue.Access.CHANGE,
         fields=Glue.fields(
-            'id', 'name', 'description', 'created_datetime',
-            domain=('name', 'sub_domain_name'),
+            'id', 'name', 'description', 'created_datetime', domain=('name', 'sub_domain_name')
         ),
     )
 
@@ -101,25 +100,4 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         context=context,
         template='django_spire/metric/domain/statistic/page/detail_page.html',
-    )
-
-
-@permission_required('django_spire_metric_domain.view_statistic')
-def list_view(request: WSGIRequest) -> TemplateResponse:
-    statistics = (
-        models.Statistic.objects.active()
-        .not_deleted()
-        .bulk_filter(filter_data=request.GET.dict())
-        .select_related('group__domain')
-        .order_by('name')
-    )
-
-    nav = StatisticNavigation()
-    nav.page_title = 'Statistic'
-    context = nav.as_context()
-    context['statistics'] = statistics
-    return TemplateResponse(
-        request,
-        context=context,
-        template='django_spire/metric/domain/statistic/page/list_page.html',
     )

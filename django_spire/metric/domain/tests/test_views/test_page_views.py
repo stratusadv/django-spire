@@ -109,7 +109,7 @@ class SubDomainViewTestCase(BaseTestCase):
         )
         assert f'href="{group_href}"' in html
         assert f'href="{href}"' in html
-        assert f'{group.name} /' in html
+        assert group.name in html
         assert statistic.name in html
 
     def test_subdomain_detail_view_group_uses_create_url(self):

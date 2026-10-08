@@ -65,10 +65,6 @@ class StatisticUrlTestCase(BaseTestCase):
         self.group = create_test_statistic_group(domain=self.domain)
         self.statistic = create_test_statistic(group=self.group)
 
-    def test_list_view_url_path(self):
-        response = self.client.get(path=reverse('django_spire:metric:domain:statistic:page:list'))
-        assert response.status_code == 200
-
     def test_detail_view_url_path(self):
         response = self.client.get(
             path=reverse(

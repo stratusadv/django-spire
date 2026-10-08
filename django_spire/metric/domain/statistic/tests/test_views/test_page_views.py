@@ -72,14 +72,6 @@ class StatisticPageViewTestCase(BaseTestCase):
         self.group = create_test_statistic_group(domain=self.domain)
         self.statistic = create_test_statistic(group=self.group)
 
-    def test_list_view(self):
-        response = self.client.get(path=reverse('django_spire:metric:domain:statistic:page:list'))
-        assert response.status_code == 200
-        self.assertTemplateUsed(
-            response, 'django_spire/metric/domain/statistic/page/list_page.html'
-        )
-        assert self.statistic in response.context['statistics']
-
     def test_detail_view(self):
         self.statistic.services.processor.add_value(
             reference='/home/',
