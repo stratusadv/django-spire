@@ -87,7 +87,6 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
                 '|'.join(
                     f'{condition.target}-{condition.tolerance}'
                     for condition in self.obj.conditions.all()
-                    if not condition.is_deleted
                 )
             )
 
@@ -143,7 +142,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return bool(self.obj.statistic_id and self.obj.statistic.is_deleted)
 
     def _datasets(self) -> list[VisualReference]:
-        return list(self.obj.references.not_deleted())
+        return list(self.obj.references.all())
 
     def _values_for(self, reference: str) -> Any:
         return self.obj.statistic.values.for_reference_pattern(reference)
@@ -196,9 +195,6 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
             value = self.current_value(value_date)
 
         for condition in self.obj.conditions.all():
-            if condition.is_deleted:
-                continue
-
             if condition.matches(value):
                 return condition
 
@@ -367,9 +363,6 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         ceiling = Decimal(0)
 
         for condition in self.obj.conditions.all():
-            if condition.is_deleted:
-                continue
-
             upper = condition.target + condition.tolerance
             ceiling = max(ceiling, upper)
 

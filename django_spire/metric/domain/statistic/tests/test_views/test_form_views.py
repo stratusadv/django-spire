@@ -287,7 +287,10 @@ class StatisticFormViewTestCase(BaseTestCase):
             )
         )
         assert response.status_code == 302
-        assert response.url == reverse('django_spire:metric:domain:statistic:page:list')
+        assert response.url == reverse(
+            'django_spire:metric:domain:statistic:page:group_detail',
+            kwargs={'pk': self.statistic.group.pk},
+        )
 
         self.statistic.refresh_from_db()
         assert self.statistic.is_deleted

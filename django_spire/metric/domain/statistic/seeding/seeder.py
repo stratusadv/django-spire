@@ -54,7 +54,7 @@ class StatisticSeeder(Seeder):
 
 
 VALUE_REFERENCES = [
-    'django_spire:metric:domain:statistic:page:list',
+    'django_spire:metric:domain:statistic:page:group_list',
     'django_spire:metric:domain:statistic:page:detail',
     'django_spire:metric:domain:page:list',
     'django_spire:metric:domain:page:detail',

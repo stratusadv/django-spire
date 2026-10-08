@@ -3,10 +3,10 @@ from __future__ import annotations
 from uuid import uuid4
 
 from django.db import models, transaction
+from django.utils.timezone import localtime
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
-from django_spire.history.utils import soft_delete_queryset
 
 from django_spire.metric.visual.signage import querysets
 from django_spire.metric.visual.signage.services.service import (
@@ -42,7 +42,7 @@ class Signage(HistoryModelMixin, ActivityMixin):
     def set_deleted(self) -> None:
         with transaction.atomic():
             super().set_deleted()
-            soft_delete_queryset(self.signage_presentations.all())
+            self.signage_presentations.all().delete()
 
     class Meta:
         verbose_name = 'Signage'
@@ -50,7 +50,7 @@ class Signage(HistoryModelMixin, ActivityMixin):
         db_table = 'django_spire_metric_visual_signage'
 
 
-class SignagePresentation(HistoryModelMixin, ActivityMixin):
+class SignagePresentation(ActivityMixin):
     signage = models.ForeignKey(
         Signage,
         on_delete=models.CASCADE,
@@ -64,6 +64,7 @@ class SignagePresentation(HistoryModelMixin, ActivityMixin):
         related_query_name='presentation_link',
     )
     order = models.PositiveSmallIntegerField(default=0)
+    created_datetime = models.DateTimeField(default=localtime, editable=False)
 
     objects = querysets.SignagePresentationQuerySet().as_manager()
     services = SignagePresentationService()

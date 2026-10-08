@@ -27,7 +27,7 @@
                           style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
                         <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
                     </span>
-                {% elif visual.conditions.active %}
+                {% elif visual.conditions.all %}
                     <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
                           title="No data" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
                         <i class="bi bi-dash text-white fs-5"></i>

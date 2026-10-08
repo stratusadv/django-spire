@@ -12,6 +12,7 @@ from django_glue import Glue
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.history.activity.utils import log_child_deletion
 from django_spire.metric.visual import forms, models
 from django_spire.metric.visual.navigation import VisualNavigation
 
@@ -154,7 +155,8 @@ def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
         form = DeleteConfirmationForm(data=request.POST, obj=condition)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=condition.set_deleted)
+            form.save(user=request.user, delete_func=condition.delete)
+            log_child_deletion(visual, condition)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -264,7 +266,8 @@ def delete_reference_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
         form = DeleteConfirmationForm(data=request.POST, obj=reference_obj)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=reference_obj.set_deleted)
+            form.save(user=request.user, delete_func=reference_obj.delete)
+            log_child_deletion(visual, reference_obj)
 
             return HttpResponseRedirect(return_url)
     else:

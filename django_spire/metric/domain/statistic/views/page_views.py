@@ -108,27 +108,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 @permission_required('django_spire_metric_domain.view_statistic')
-def list_view(request: WSGIRequest) -> TemplateResponse:
-    statistics = (
-        models.Statistic.objects.active()
-        .not_deleted()
-        .bulk_filter(filter_data=request.GET.dict())
-        .select_related('group__domain')
-        .order_by('name')
-    )
-
-    nav = StatisticNavigation()
-    nav.page_title = 'Statistic'
-    context = nav.as_context()
-    context['statistics'] = statistics
-    return TemplateResponse(
-        request,
-        context=context,
-        template='django_spire/metric/domain/statistic/page/list_page.html',
-    )
-
-
-@permission_required('django_spire_metric_domain.view_statistic')
 def storage_view(request: WSGIRequest) -> TemplateResponse:
     retention_days = getattr(settings, 'DJANGO_SPIRE_METRIC_RETENTION_DAYS', 90)
 

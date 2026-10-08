@@ -318,22 +318,6 @@ class VisualTransformationServiceTestCase(BaseTestCase):
 
         assert visual.services.transformation.current_condition() is None
 
-    def test_current_condition_ignores_soft_deleted_condition(self):
-        statistic = create_test_statistic(group=self.group)
-        visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
-
-        statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
-        )
-
-        assert visual.services.transformation.current_condition().state == 'red'
-
-        red_condition = visual.conditions.not_deleted().get(state='red')
-        red_condition.set_deleted()
-
-        assert visual.services.transformation.current_condition() is None
-        assert visual.services.transformation.render_context()['current_condition'] is None
-
     def test_no_matching_data_flag_off_without_references(self):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, with_conditions=False)
@@ -699,17 +683,6 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         )
 
         assert visual.services.transformation.gauge_max() == 1200
-
-    def test_gauge_max_ignores_soft_deleted_condition(self):
-        statistic = create_test_statistic(group=self.group)
-        visual = create_test_visual(statistic=statistic, target=Decimal(200), tolerance=Decimal(50))
-
-        assert visual.services.transformation.gauge_max() == 250
-
-        yellow_condition = visual.conditions.not_deleted().get(state='yellow')
-        yellow_condition.set_deleted()
-
-        assert visual.services.transformation.gauge_max() == 200
 
     def test_current_value_is_cached(self):
         statistic = create_test_statistic(group=self.group)

@@ -84,22 +84,19 @@ class VisualModelTestCase(BaseTestCase):
         assert other.kind == 'indicator'
         assert GaugeChartVisual.objects.count() == 0
 
-    def test_set_deleted_soft_deletes_conditions_and_references(self):
+    def test_set_deleted_hard_deletes_conditions_and_references(self):
         visual = create_test_visual(
             statistic=self.visual.statistic, references=['/home/', '/dashboard/']
         )
-        conditions = list(visual.conditions.all())
-        references = list(visual.references.all())
+        condition_pks = set(visual.conditions.values_list('pk', flat=True))
+        reference_pks = set(visual.references.values_list('pk', flat=True))
 
         visual.set_deleted()
 
         visual.refresh_from_db()
-        for condition in conditions:
-            condition.refresh_from_db()
-            assert condition.is_deleted is True
-        for reference in references:
-            reference.refresh_from_db()
-            assert reference.is_deleted is True
+        assert visual.is_deleted is True
+        assert not VisualCondition.objects.filter(pk__in=condition_pks).exists()
+        assert not VisualReference.objects.filter(pk__in=reference_pks).exists()
 
     def test_set_deleted_detaches_regions_and_slide_sections(self):
         region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
@@ -115,7 +112,6 @@ class VisualModelTestCase(BaseTestCase):
         assert region.visual_id is None
         assert section.visual_id is None
         assert region.is_deleted is False
-        assert section.is_deleted is False
 
 
 class VisualKindModelTestCase(BaseTestCase):

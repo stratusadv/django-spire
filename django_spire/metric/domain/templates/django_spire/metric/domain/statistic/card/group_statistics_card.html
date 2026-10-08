@@ -17,7 +17,11 @@
                 <table class="table table-light table-hover">
                     <thead>
                     <tr>
-                        <th class="fw-medium">Name</th>
+                        {% if show_group_prefix %}
+                            <th class="fw-medium">Statistic Group > Statistic</th>
+                        {% else %}
+                            <th class="fw-medium">Statistic</th>
+                        {% endif %}
                         <th class="fw-medium">Interval</th>
                         <th class="fw-medium">Value Type</th>
                         <th class="fw-medium">Key</th>
@@ -27,10 +31,13 @@
                     {% for statistic in statistics %}
                         <tr>
                             <td>
-                                <a class='text-decoration-none'
-                                   href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk %}">
-                                    {% if show_group_prefix %}{{ statistic.group }} / {% endif %}
-                                </a>
+                                {% if show_group_prefix %}
+                                    <a class='text-decoration-none'
+                                       href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk %}">
+                                        {{ statistic.group }}
+                                    </a>
+                                    >
+                                {% endif %}
                                 <a class='text-decoration-none'
                                    href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
                                     {{ statistic.name }}

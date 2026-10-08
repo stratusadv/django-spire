@@ -41,13 +41,13 @@ class SignageTransformationServiceTestCase(BaseTestCase):
 
     def test_presentation_links_exclude_deleted(self):
         link = create_test_link(self.signage, order=0)
-        link.set_deleted()
+        link.delete()
 
         assert self.signage.services.transformation.presentation_links().count() == 0
 
     def test_presentations_exclude_deleted_link(self):
         link = create_test_link(self.signage, order=0)
-        link.set_deleted()
+        link.delete()
 
         assert self.signage.services.transformation.presentations().count() == 0
 
