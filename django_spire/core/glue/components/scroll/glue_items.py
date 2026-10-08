@@ -21,6 +21,8 @@ class GlueScrollItemsMixin:
 
     The items never arrive with the render: a Glue child is not derived again
     when its component refreshes, so every batch comes from ``load_items()``.
+    A batch holds up to ``batch_size`` items, and a full one means there may
+    be more.
     """
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
@@ -54,10 +56,7 @@ class GlueScrollItemsMixin:
         self._validate_offset(offset)
 
         return SequenceGlue(
-            [
-                self._get_named_glue_item(item)
-                for item in self.get_items(offset, self.batch_size + 1)
-            ],
+            [self._get_named_glue_item(item) for item in self.get_items(offset, self.batch_size)],
             name=f'batch_{offset}',
             access=self.access,
         )

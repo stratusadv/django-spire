@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django_glue import Glue
 
@@ -18,6 +18,7 @@ from test_project.app.task.navigation import TaskNavigation
 if TYPE_CHECKING:
     from django.db.models import QuerySet
     from django.http import HttpRequest
+    from django_glue.glue.objects.django.model.object import ModelGlue
 
 
 ORDERINGS = {
@@ -62,6 +63,9 @@ class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
             queryset = queryset.filter(status=self.status)
 
         return queryset.order_by(self.ordering if self.ordering in ORDERINGS else 'name')
+
+    def get_glue_item(self, item: Task, name: str, **kwargs: Any) -> ModelGlue:
+        return super().get_glue_item(item, name, form=TaskModalForm, **kwargs)
 
     @Glue.attr
     def child_list(self, pk: int) -> TaskChildListComponent:

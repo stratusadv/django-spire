@@ -131,8 +131,11 @@ def test_scrolling_and_reloading_glue_rows_keeps_the_list_whole_and_releases_dro
 
         live_records_after_each_reload.append(page.evaluate(scroll_facts)['liveRecords'])
 
-    assert first_pass['liveRecords'] == 61
-    assert live_records_after_each_reload == [61, 61, 61]
+    rows_forms_batches_and_the_list = 60 + 60 + 3 + 1
+
+    assert [first_pass['liveRecords'], *live_records_after_each_reload] == [
+        rows_forms_batches_and_the_list
+    ] * 4
 
     _row(page, tasks[-1]).get_by_title('Complete Task').click()
 
@@ -172,9 +175,10 @@ def test_changing_a_rows_status_saves_the_task(
 
     scroll = _open_task_list(page, demo_start, row_count=2)
 
-    with page.expect_response(lambda response: '__dg__' in response.url):
+    with page.expect_response(lambda response: '__dg__' in response.url) as save_response:
         _row(page, alpha).get_by_label('Task status').select_option(TaskStatusChoices.IN_PROGRESS)
 
+    assert 'save_model_obj' in save_response.value.request.post_data
     assert Task.objects.get(pk=alpha.pk).status == TaskStatusChoices.IN_PROGRESS
 
     expect(_row(page, alpha).get_by_label('Task status')).to_have_value(
@@ -182,6 +186,36 @@ def test_changing_a_rows_status_saves_the_task(
     )
     expect(_row(page, bravo).get_by_label('Task status')).to_have_value(TaskStatusChoices.NEW)
     assert scroll.row_count() == 2
+
+
+def test_a_rows_form_refuses_an_invalid_edit_and_reports_it_on_the_row(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    alpha = create_test_task(name='Alpha Task', status=TaskStatusChoices.NEW)
+
+    scroll = _open_task_list(page, demo_start, row_count=1)
+
+    outcome = page.evaluate(f"""
+        async () => {{
+            const form = {scroll.data_expression}.items[0].form
+
+            form.name = ''
+            await form.validate()
+
+            const nameHadErrors = form.hasErrors('name')
+            const statusHadErrors = form.hasErrors('status')
+
+            await form.save_model_obj()
+
+            return {{nameHadErrors, statusHadErrors}}
+        }}
+    """)
+
+    assert outcome == {'nameHadErrors': True, 'statusHadErrors': False}
+    assert Task.objects.get(pk=alpha.pk).name == 'Alpha Task'
+    assert scroll.row_count() == 1
 
 
 def test_a_changed_task_that_no_longer_matches_the_filter_leaves_the_list(

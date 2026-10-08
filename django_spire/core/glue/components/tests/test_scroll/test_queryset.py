@@ -111,20 +111,22 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         assert dict_callables['load_items']['returns_glue'] is False
         assert dict_callables['load_item']['returns_glue'] is False
 
-    def test_a_glue_items_batch_holds_one_more_glue_model_than_the_batch_size(self) -> None:
-        comments = [create_test_comment_example(name=f'Comment {number}') for number in range(4)]
+    def test_a_glue_items_batch_holds_up_to_a_batch_of_glue_models(self) -> None:
+        comments = [create_test_comment_example(name=f'Comment {number}') for number in range(5)]
         component = GlueItemCommentScrollComponent()
 
         batch = component.load_items(offset=0)
-        last_batch = component.load_items(offset=2)
+        last_batch = component.load_items(offset=4)
+        past_the_end = component.load_items(offset=6)
 
         assert isinstance(batch, SequenceGlue)
-        assert [type(item) for item in batch.items] == [ModelGlue, ModelGlue, ModelGlue]
-        assert [item.instance for item in batch.items] == comments[:3]
+        assert [type(item) for item in batch.items] == [ModelGlue, ModelGlue]
+        assert [item.instance for item in batch.items] == comments[:2]
         assert [item.name for item in batch.items] == [
-            f'item_{comment.pk}' for comment in comments[:3]
+            f'item_{comment.pk}' for comment in comments[:2]
         ]
-        assert [item.instance for item in last_batch.items] == comments[2:]
+        assert [item.instance for item in last_batch.items] == comments[4:]
+        assert past_the_end.items == []
 
     def test_a_glue_items_row_is_a_glue_model_or_nothing(self) -> None:
         comment = create_test_comment_example(name='Budget Review')

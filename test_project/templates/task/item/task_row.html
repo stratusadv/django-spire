@@ -36,9 +36,9 @@
             <select
                 class="form-select form-select-sm"
                 aria-label="Task status"
-                x-model="item.status"
+                x-model="item.form.status"
                 @change="
-                    await item.save()
+                    await item.form.save_model_obj()
                     refreshItem(item.$pk)
                 "
             >

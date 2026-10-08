@@ -64,10 +64,14 @@ order is total and offsets are stable. Data rows are dicts of `pk` and
 **`GlueScrollItemsMixin`** sends each item as a Glue object, so the row markup
 can call a model's Glue methods and services and save its fields with no
 callable on the component. A load returns a `SequenceGlue` of up to
-`batch_size + 1` rows; the extra one says there is more, because Glue does not
-allow Glue objects inside a plain result. Each row is named from its key, which
-is how the client reads the key back. The client disposes each batch once it
-has taken the rows out, and each row it later drops.
+`batch_size` rows, and a full batch means there may be more, because Glue does
+not allow Glue objects inside a plain result to say so. A list whose length is
+an exact multiple of the batch size makes one empty request at its end. Each
+row is named from its key, which is how the client reads the key back. The
+client keeps each batch for as long as its rows are shown, because a row's
+address is derived from its batch's and is disposed with it. A reload releases
+the previous batches and rows, and a single row that is removed or replaced is
+released on its own, in each case after Alpine has stopped rendering it.
 
 **Glue rows never arrive with the render.** Glue does not run a child-producing
 property again when its component refreshes (django-glue state-model.md §10),
@@ -100,6 +104,12 @@ so an application can replace any of them or do the same work by hand.
 - **Keep the first batch of Glue rows in a property.** A refresh then resends
   about 3.8 KB per row whether or not the rows changed, against a flat 3.3 KB
   without the property.
+- **A placement that opens the form inside the row.** It needed a special row
+  template and client-side swapping for Alpine rows, a different mechanism for
+  server-rendered rows, and a `cancelled` event on every form component, and
+  nothing needed it. Glue rows already edit in place: a row given a form binds
+  its inputs to `item.form` and saves through it. A row with state of its own
+  can be a component.
 - **A class or an object for each form placement.** A list's form settings went
   through several shapes: loose class variables with guards, a mode enum, and
   one object per action. Two option classes replaced them, because they make an
@@ -123,9 +133,16 @@ so an application can replace any of them or do the same work by hand.
 - Supporting components were added or changed for this: `BaseConfirmationComponent`
   and `ModelDeleteConfirmationComponent`, and a rework of the form components so
   that one can be built from a form class and a template without a subclass.
-- Not built: showing the form inline in a row, a form component that renders
-  any form's fields without a template, and deriving a list's access from the
-  user's permissions.
+- Up to django-glue 1.2.1 the client disposed a record's children by an owner
+  link that was only set once a child was read, so a Glue row dropped before
+  its form was read left the form's record behind, and disposing a batch left
+  its rows alive. django-glue 1.3.0 disposes children by their derived address.
+  The scroll is written for that rule and also behaves correctly under the
+  older one: it never drops a row it has not rendered, which is one reason a
+  batch carries no extra row to signal that there is more, and it releases
+  rows individually as well as by batch.
+- Not built: a form component that renders any form's fields without a
+  template, and deriving a list's access from the user's permissions.
 - Coverage:
   - `django_spire/core/glue/components/tests/test_scroll/` tests each class,
     including one query per batch at any offset and one per single row.

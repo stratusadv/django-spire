@@ -26,6 +26,12 @@ class QuerySetScrollComponent(BaseScrollComponent, ABC):
 
     Behind :class:`GlueScrollItemsMixin`, each row reaches the browser as a
     Glue model of ``fields``, built by ``get_glue_item()``.
+
+    To edit a row in place, override ``get_glue_item()`` to pass the row a
+    ``form``, bind the row's inputs to ``item.form``, and save with the form's
+    own method, such as ``item.form.save_model_obj()``. That runs the form's
+    validation and whatever the application's save does. ``item.save()``
+    writes the model directly instead.
     """
 
     fields: ClassVar[Sequence[str]] = ()

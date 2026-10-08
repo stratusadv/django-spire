@@ -28,6 +28,7 @@
         },
 
         batchSize: {{ component.batch_size }},
+        glueBatches: [],
         hasMore: false,
         isLoading: false,
         items: [],
@@ -71,6 +72,9 @@
 
             sentinelCheck.observe(this.$refs.sentinel)
         },
+        disposeAfterRender(items) {
+            this.$nextTick(() => items.forEach(item => item.$dispose?.()))
+        },
         eventKey(event) {
             const key = event.detail?.key
 
@@ -102,6 +106,10 @@
                 const result = await this.component.load_items({offset: this.loadedCount})
 
                 if (generation !== this.loadGeneration) {
+                    if (!this.rendersRows) {
+                        result.$dispose?.()
+                    }
+
                     return
                 }
 
@@ -133,12 +141,14 @@
             }
 
             const items = [...result.items]
-            const extraItems = items.splice(this.batchSize)
 
-            result.$dispose()
-            extraItems.forEach(item => item.$dispose())
+            this.glueBatches.push(result)
 
-            return {items, keys: items.map(item => this.glueKey(item)), hasMore: extraItems.length > 0}
+            return {
+                items,
+                keys: items.map(item => this.glueKey(item)),
+                hasMore: items.length === this.batchSize,
+            }
         },
         readItem(result) {
             if (typeof result.$dispose !== 'function') {
@@ -169,12 +179,13 @@
 
             if (index !== -1) {
                 const refreshed = this.readItem(result).item
-
-                if (this.items[index] !== refreshed) {
-                    this.items[index].$dispose?.()
-                }
+                const replaced = this.items[index]
 
                 this.items[index] = refreshed
+
+                if (replaced !== refreshed) {
+                    this.disposeAfterRender([replaced])
+                }
             }
         },
         async reloadItems() {
@@ -206,8 +217,7 @@
                 const index = this.indexOfKey(key)
 
                 if (index !== -1) {
-                    this.items[index].$dispose?.()
-                    this.items.splice(index, 1)
+                    this.disposeAfterRender(this.items.splice(index, 1))
                     this.keys.splice(index, 1)
                 }
             }
@@ -228,21 +238,26 @@
             }
 
             const generation = this.loadGeneration
-            const firstBatch = this.readBatch(
-                this.component.first_batch_data ?? await this.component.load_items({offset: 0})
-            )
+            const result = this.component.first_batch_data
+                ?? await this.component.load_items({offset: 0})
 
             if (generation !== this.loadGeneration) {
+                result.$dispose?.()
+
                 return
             }
 
-            this.items
-                .filter(item => !firstBatch.items.includes(item))
-                .forEach(item => item.$dispose?.())
+            const replaced = [...this.items, ...this.glueBatches]
+
+            this.glueBatches = []
+
+            const firstBatch = this.readBatch(result)
+
             this.items = firstBatch.items
             this.keys = firstBatch.keys
             this.hasMore = firstBatch.hasMore
             this.updateCount()
+            this.disposeAfterRender(replaced)
         },
         updateCount() {
             this.loadedCount = this.rendersRows
