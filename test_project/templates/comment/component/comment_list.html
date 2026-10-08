@@ -1,15 +1,15 @@
-{% extends 'django_spire/glue/components/scroll.html' %}
+{% extends 'django_spire/glue/component/scroll/crud.html' %}
 
-{% block item_name %}comment_example{% endblock %}
+{% block scroll_header %}
+    <div class="row pb-3">
+        <div class="col text-end">
+            <button class="btn btn-sm btn-primary text-light" type="button" @click="createItem()">
+                <i class="bi bi-plus"></i> New Comment
+            </button>
+        </div>
+    </div>
+{% endblock %}
 
-{#{% block scroll_content %}#}
-{#    {% for comment_example in component.comment_examples %}#}
-{#        {% include 'comment/item/item2.html' %}#}
-{#    {% empty %}#}
-{#        {% include 'django_spire/item/no_data_item.html' %}#}
-{#    {% endfor %}#}
-{#{% endblock %}#}
-
-{% block scroll_template_item %}
+{% block scroll_item %}
     {% include 'comment/item/item2.html' %}
 {% endblock %}

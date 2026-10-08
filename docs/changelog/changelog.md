@@ -1,5 +1,58 @@
 # Changelog
 
+## v1.3.0 - Unreleased
+
+### Breaking
+
+- `FormComponent` and `ModelFormComponent` are reworked. A subclass that still uses a
+  removed name raises `TypeError` when it is defined:
+  - `form` is renamed `form_class`.
+  - `attr` is removed. The child is always `form` on a `FormComponent` and `model` on a
+    `ModelFormComponent`, so a template that reached it by a custom name, such as
+    `modal.time_entry.form`, reads `modal.model.form`. Templates that use
+    `component.glue_form_path` need no change.
+  - `ModelFormComponent.model_class` is removed; the model is the form's own. `fields` is
+    optional and defaults to the form's fields.
+  - `build_child()` is removed. Override `get_form()`, or the hooks on
+    `ModelFormComponent`, instead.
+  - `ModelFormComponent` no longer inherits from `FormComponent`. Both inherit from the new
+    `BaseFormComponent`.
+  - The modules moved into the `django_spire.core.glue.components.form` package. Importing
+    the classes from `django_spire.core.glue.components` is unchanged.
+
+### Added
+
+- Scroll components, in `django_spire.core.glue.components.scroll`, for infinite lists
+  built as Glue components. The template scroll in `django_spire/glue/scroll/` is unchanged
+  (ADR 0002):
+  - `BaseScrollComponent` lists items of any kind. A subclass writes
+    `get_items(offset, limit)`, `get_item(key)` and `get_item_key(item)`. Setting
+    `item_template` renders rows on the server; leaving it unset sends them as data for the
+    template's `scroll_item` block. Controls are editable attributes the subclass declares,
+    and the template's `reloadItems()` applies them.
+  - `QuerySetScrollComponent` lists the rows of `get_queryset()`, which must be ordered.
+  - `GlueScrollItemsMixin` sends each row as a Glue object, so row markup can call a model's
+    Glue methods and services and save its fields.
+  - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a
+    `ComponentItemFormOptions`, which shows a form component in a modal, or a
+    `PageItemFormOptions`, which sends the user to a page; `delete_component` is the
+    confirmation. The template gains `createItem()`, `editItem(item)` and
+    `deleteItem(item)`.
+  - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
+    `removeItem(key)`, or by firing `item_added`, `item_changed` or `item_removed` from a
+    callable.
+  - Templates are `django_spire/glue/component/scroll/base.html`, `table.html` and
+    `crud.html`, with `item.html` and `table_row.html` for server-rendered rows.
+- Confirmation components, in `django_spire.core.glue.components.confirmation`.
+  `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
+  `cancelled`. `ModelDeleteConfirmationComponent(model_obj=row)` soft-deletes a row of any
+  model with no subclass.
+- `ScrollComponent`, a Playwright helper in `django_spire.testing.playwright` for the new
+  scroll.
+- A form component can be built without a subclass:
+  `ModelFormComponent(form_class=TaskForm, template='task/form.html', pk=pk)`. The form
+  class must be defined at module level.
+
 ## v1.2.0 - October 6, 2026
 
 ### Breaking

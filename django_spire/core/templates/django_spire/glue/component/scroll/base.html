@@ -1,0 +1,295 @@
+<div
+    x-data="{
+        async init() {
+            this.component.$on('item_added', event => this.addItem(this.eventKey(event)))
+            this.component.$on('item_changed', event => this.refreshItem(this.eventKey(event)))
+            this.component.$on('item_removed', event => this.removeItem(this.eventKey(event)))
+
+            const generation = this.loadGeneration
+
+            this.isLoading = true
+
+            try {
+                await this.showFirstBatch()
+            }
+            finally {
+                if (generation === this.loadGeneration) {
+                    this.isLoading = false
+                }
+            }
+
+            const scrollObserver = new IntersectionObserver(entries => {
+                if (entries.some(entry => entry.isIntersecting)) {
+                    this.loadMoreItems()
+                }
+            }, {threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]})
+
+            scrollObserver.observe(this.$refs.sentinel)
+        },
+
+        batchSize: {{ component.batch_size }},
+        hasMore: false,
+        isLoading: false,
+        items: [],
+        keys: [],
+        loadGeneration: 0,
+        loadedCount: 0,
+        rendersRows: {{ component.item_template|yesno:'true,false' }},
+
+        async addItem(key) {
+            if (this.rendersRows ? this.findRow(key) !== null : this.indexOfKey(key) !== -1) {
+                await this.refreshItem(key)
+                return
+            }
+
+            const result = await this.component.load_item({key})
+
+            if (result === null || result === undefined) {
+                return
+            }
+
+            if (this.rendersRows) {
+                await result.renderInsertAdjacentHtmlAfterBegin(this.$refs.list)
+            }
+            else {
+                const added = this.readItem(result)
+
+                this.items.unshift(added.item)
+                this.keys.unshift(added.key)
+            }
+
+            this.updateCount()
+        },
+        checkSentinel() {
+            const sentinelCheck = new IntersectionObserver(entries => {
+                sentinelCheck.disconnect()
+
+                if (entries.some(entry => entry.isIntersecting)) {
+                    this.loadMoreItems()
+                }
+            })
+
+            sentinelCheck.observe(this.$refs.sentinel)
+        },
+        eventKey(event) {
+            const key = event.detail?.key
+
+            if (key === undefined || key === null) {
+                throw new Error(`A scroll item event needs a key: fire it as self.${event.type}(key=...).`)
+            }
+
+            return key
+        },
+        findRow(key) {
+            return this.$refs.list.querySelector(`:scope > [data-scroll-key='${CSS.escape(String(key))}']`)
+        },
+        glueKey(item) {
+            return item._name.replace(/^item_/, '')
+        },
+        indexOfKey(key) {
+            return this.keys.findIndex(existingKey => String(existingKey) === String(key))
+        },
+        async loadMoreItems() {
+            if (this.isLoading || !this.hasMore) {
+                return
+            }
+
+            const generation = this.loadGeneration
+
+            this.isLoading = true
+
+            try {
+                const result = await this.component.load_items({offset: this.loadedCount})
+
+                if (generation !== this.loadGeneration) {
+                    return
+                }
+
+                if (this.rendersRows) {
+                    await result.renderInsertAdjacentHtmlBeforeEnd(this.$refs.list)
+                    this.hasMore = this.renderedHasMore()
+                }
+                else {
+                    const batch = this.readBatch(result)
+
+                    this.items.push(...batch.items)
+                    this.keys.push(...batch.keys)
+                    this.hasMore = batch.hasMore
+                }
+
+                this.updateCount()
+            }
+            finally {
+                if (generation === this.loadGeneration) {
+                    this.isLoading = false
+                }
+            }
+
+            this.checkSentinel()
+        },
+        readBatch(result) {
+            if (typeof result.$dispose !== 'function') {
+                return {items: [...result.items], keys: [...result.keys], hasMore: result.has_more}
+            }
+
+            const items = [...result.items]
+            const extraItems = items.splice(this.batchSize)
+
+            result.$dispose()
+            extraItems.forEach(item => item.$dispose())
+
+            return {items, keys: items.map(item => this.glueKey(item)), hasMore: extraItems.length > 0}
+        },
+        readItem(result) {
+            if (typeof result.$dispose !== 'function') {
+                return {item: result.item, key: result.key}
+            }
+
+            return {item: result, key: this.glueKey(result)}
+        },
+        async refreshItem(key) {
+            const result = await this.component.load_item({key})
+
+            if (result === null || result === undefined) {
+                this.removeItem(key)
+                return
+            }
+
+            if (this.rendersRows) {
+                const row = this.findRow(key)
+
+                if (row !== null) {
+                    await result.renderOuterHtml(row)
+                }
+
+                return
+            }
+
+            const index = this.indexOfKey(key)
+
+            if (index !== -1) {
+                const refreshed = this.readItem(result).item
+
+                if (this.items[index] !== refreshed) {
+                    this.items[index].$dispose?.()
+                }
+
+                this.items[index] = refreshed
+            }
+        },
+        async reloadItems() {
+            const generation = ++this.loadGeneration
+
+            this.isLoading = true
+
+            try {
+                await this.component.$refresh({submit: true})
+
+                if (generation !== this.loadGeneration) {
+                    return
+                }
+
+                await this.showFirstBatch()
+                this.checkSentinel()
+            }
+            finally {
+                if (generation === this.loadGeneration) {
+                    this.isLoading = false
+                }
+            }
+        },
+        removeItem(key) {
+            if (this.rendersRows) {
+                this.findRow(key)?.remove()
+            }
+            else {
+                const index = this.indexOfKey(key)
+
+                if (index !== -1) {
+                    this.items[index].$dispose?.()
+                    this.items.splice(index, 1)
+                    this.keys.splice(index, 1)
+                }
+            }
+
+            this.updateCount()
+        },
+        renderedHasMore() {
+            const batchEnds = this.$refs.list.querySelectorAll(':scope > template[data-scroll-batch-end]')
+
+            return batchEnds[batchEnds.length - 1]?.dataset.scrollHasMore === 'true'
+        },
+        async showFirstBatch() {
+            if (this.rendersRows) {
+                this.hasMore = this.renderedHasMore()
+                this.updateCount()
+
+                return
+            }
+
+            const generation = this.loadGeneration
+            const firstBatch = this.readBatch(
+                this.component.first_batch_data ?? await this.component.load_items({offset: 0})
+            )
+
+            if (generation !== this.loadGeneration) {
+                return
+            }
+
+            this.items
+                .filter(item => !firstBatch.items.includes(item))
+                .forEach(item => item.$dispose?.())
+            this.items = firstBatch.items
+            this.keys = firstBatch.keys
+            this.hasMore = firstBatch.hasMore
+            this.updateCount()
+        },
+        updateCount() {
+            this.loadedCount = this.rendersRows
+                ? this.$refs.list.querySelectorAll(':scope > [data-scroll-key]').length
+                : this.items.length
+        },
+        {% block scroll_data %}{% endblock %}
+    }"
+    class="{% block scroll_container_class %}{% endblock %}"
+>
+    {% block scroll_header %}{% endblock %}
+
+    {% block scroll_list %}
+        <div x-ref="list">
+            {% block scroll_rows %}
+                {% if component.item_template %}
+                    {% include 'django_spire/glue/component/scroll/batch.html' with batch=component.first_batch %}
+                {% else %}
+                    <template x-for="(item, itemIndex) in items" :key="keys[itemIndex]">
+                        {% block scroll_item %}{% endblock %}
+                    </template>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    <div x-show="loadedCount === 0 && !isLoading" x-cloak>
+        {% block scroll_empty %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endblock %}
+    </div>
+
+    <div
+        x-ref="sentinel"
+        style="height: 1200px; margin-top: -1200px; pointer-events: none;"
+    ></div>
+
+    <div x-show="isLoading" x-cloak class="row">
+        {% block scroll_loading %}
+            <div class="col p-3 text-end" aria-live="polite">
+                <span class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading items...</span>
+                </span>
+                Loading items...
+            </div>
+        {% endblock %}
+    </div>
+
+    {% block scroll_footer %}{% endblock %}
+</div>

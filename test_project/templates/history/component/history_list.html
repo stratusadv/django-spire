@@ -1,0 +1,12 @@
+{% extends 'django_spire/glue/component/scroll/base.html' %}
+
+{% load django_glue %}
+
+{% block scroll_item %}
+    <div class="row border-bottom py-2" data-history-row>
+        <div class="col-4">
+            <a :href="{% js_url 'history:detail' pk='item.pk' %}" data-history-name x-text="item.name"></a>
+        </div>
+        <div class="col-8 text-muted" x-text="item.description"></div>
+    </div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'django_spire/glue/component/scroll/item.html' %}
+
+{% block scroll_item_class %}row border-bottom py-2 align-items-center{% endblock %}
+
+{% block scroll_item_content %}
+    <div class="col-5">
+        <a href="{% url 'order:detail' item.pk %}" data-duck-name>{{ item.name }}</a>
+    </div>
+    <div class="col-3 d-flex align-items-center gap-2">
+        <input
+            class="form-control form-control-color"
+            type="color"
+            aria-label="Duck colour"
+            value="{{ item.color }}"
+            @change="component.paint({pk: {{ item.pk }}, color: $event.target.value})"
+        >
+        <span data-duck-color>{{ item.color }}</span>
+    </div>
+    <div class="col-4 text-end">
+        <button
+            class="btn btn-sm btn-outline-primary"
+            type="button"
+            title="Duplicate Duck"
+            @click="component.duplicate({pk: {{ item.pk }}})"
+        >
+            <i class="bi bi-copy"></i>
+        </button>
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            type="button"
+            title="Edit Duck"
+            @click="editItem({{ item.pk }})"
+        >
+            <i class="bi bi-pencil"></i>
+        </button>
+        <button
+            class="btn btn-sm btn-outline-danger"
+            type="button"
+            title="Delete Duck"
+            @click="deleteItem({{ item.pk }})"
+        >
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+{% endblock %}

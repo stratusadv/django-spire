@@ -1,0 +1,60 @@
+{% extends 'django_spire/glue/component/scroll/base.html' %}
+
+{% load django_glue %}
+
+{% block scroll_data %}
+        async createItem() {
+            {% if component.item_form_options.create_url_name %}
+                window.location.href = '{% url component.item_form_options.create_url_name %}'
+            {% elif component.item_form_options.url_name %}
+                window.location.href = '{% url component.item_form_options.url_name pk=0 %}'
+            {% else %}
+                const form = await this.component.item_form()
+
+                form.model.form.$on('saved', ({ detail }) => {
+                    this.addItem(detail.pk)
+                    Spire.modal.close()
+                })
+                await Spire.modal.dispatchGlueComponent(form)
+            {% endif %}
+        },
+        async deleteItem(itemOrKey) {
+            const key = this.resolveKey(itemOrKey)
+            const confirmation = await this.component.delete_confirmation({pk: key})
+
+            confirmation.$on('cancelled', () => Spire.modal.close())
+            confirmation.$on('confirmed', ({ detail }) => {
+                this.removeItem(detail.pk)
+                Spire.modal.close()
+            })
+            await Spire.modal.dispatchGlueComponent(confirmation)
+        },
+        async editItem(itemOrKey) {
+            const key = this.resolveKey(itemOrKey)
+
+            {% if component.item_form_options.url_name %}
+                window.location.href = `{% js_url component.item_form_options.url_name pk='key' template_literal=True %}`
+            {% else %}
+                const form = await this.component.item_form({pk: key})
+
+                form.model.form.$on('saved', ({ detail }) => {
+                    this.refreshItem(detail.pk)
+                    Spire.modal.close()
+                })
+                await Spire.modal.dispatchGlueComponent(form)
+            {% endif %}
+        },
+        resolveKey(itemOrKey) {
+            if (itemOrKey === null || typeof itemOrKey !== 'object') {
+                return itemOrKey
+            }
+
+            const index = this.items.indexOf(itemOrKey)
+
+            if (index === -1) {
+                throw new Error('A scroll action was given an object that is not one of its items.')
+            }
+
+            return this.keys[index]
+        },
+{% endblock %}

@@ -45,11 +45,10 @@ class Task(ActivityMixin, HistoryModelMixin):
         if self.pk is None:
           return False
 
-        return getattr(
-            self,
-            '_has_children',
-            self.children.filter(is_active=True, is_deleted=False).exists()
-        )
+        if hasattr(self, '_has_children'):
+            return self._has_children
+
+        return self.children.filter(is_active=True, is_deleted=False).exists()
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
