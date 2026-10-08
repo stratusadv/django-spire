@@ -1,4 +1,7 @@
-from django_spire.core.glue.components.form_component import FormComponent
-from django_spire.core.glue.components.model_form_component import ModelFormComponent
+from django_spire.core.glue.components.form import (
+    BaseFormComponent,
+    FormComponent,
+    ModelFormComponent,
+)
 
-__all__ = ['FormComponent', 'ModelFormComponent']
+__all__ = ['BaseFormComponent', 'FormComponent', 'ModelFormComponent']

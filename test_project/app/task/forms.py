@@ -37,3 +37,21 @@ class TaskModelForm(ModelForm):
     class Meta:
         model = Task
         fields = ['name', 'description', 'status', 'parent']
+
+
+class TaskModalForm(ModelForm):
+    saved = Glue.event()
+
+    @Glue.attr(required_access=Glue.Access.required_save_access)
+    def save_model_obj(self) -> GlueResponse:
+        if not self.is_valid():
+            return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+        task, _created = self.instance.services.save_model_obj(**self.cleaned_data)
+        self.saved(pk=task.pk)
+
+        return GlueResponse(result={'pk': task.pk})
+
+    class Meta:
+        model = Task
+        fields = ['name', 'description', 'status']
