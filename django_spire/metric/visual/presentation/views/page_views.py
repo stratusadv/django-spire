@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django_glue import Glue
 
+from django_spire.history.activity.enums import ActivityVerb
 from django_spire.history.activity.models import Activity
 from django_spire.metric.visual.presentation import models
 from django_spire.metric.visual.presentation.constants import SLIDE_GRID_COLUMNS
@@ -59,6 +60,11 @@ def _presentation_activity_log(presentation: models.Presentation) -> QuerySet:
         'pk', flat=True
     )
 
+    slide_clause = Q(content_type=slide_ct, object_id__in=slide_pks) & ~Q(verb=ActivityVerb.CREATED)
+    section_clause = Q(content_type=section_ct, object_id__in=section_pks) & ~Q(
+        verb=ActivityVerb.CREATED
+    )
+
     return (
         Activity.objects.prefetch_user()
         .filter(
@@ -66,8 +72,8 @@ def _presentation_activity_log(presentation: models.Presentation) -> QuerySet:
                 content_type=ContentType.objects.get_for_model(models.Presentation),
                 object_id=presentation.pk,
             )
-            | Q(content_type=slide_ct, object_id__in=slide_pks)
-            | Q(content_type=section_ct, object_id__in=section_pks)
+            | slide_clause
+            | section_clause
         )
         .order_by('-created_datetime')[:10]
     )

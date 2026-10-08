@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 from django.db import models, transaction
 from django.utils.timezone import localtime
 
-from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.activity.mixins import ActivityMixin
+from django_spire.history.mixins import HistoryModelMixin
 
 from django_spire.metric.visual import querysets
 from django_spire.metric.visual.choices import (
