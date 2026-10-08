@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Prefetch, Q
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_glue import Glue
@@ -92,11 +92,7 @@ def _visual_activity_log(visual: models.Visual) -> QuerySet:
 @permission_required('django_spire_metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(
-        models.Visual.objects.with_statistic().prefetch_related(
-            Prefetch('conditions', queryset=models.VisualCondition.objects.not_deleted()),
-            Prefetch('references', queryset=models.VisualReference.objects.not_deleted()),
-        ),
-        pk=pk,
+        models.Visual.objects.with_statistic().prefetch_related('conditions', 'references'), pk=pk
     )
 
     nav = VisualNavigation()

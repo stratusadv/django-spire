@@ -141,8 +141,7 @@ class VisualReferenceModelForm(forms.ModelForm):
 
         if self.instance.visual_id:
             duplicate = (
-                self.instance.visual.references.not_deleted()
-                .exclude(pk=self.instance.pk)
+                self.instance.visual.references.exclude(pk=self.instance.pk)
                 .filter(reference=pattern)
                 .exists()
             )

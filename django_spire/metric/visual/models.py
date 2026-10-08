@@ -4,10 +4,10 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.db import models, transaction
+from django.utils.timezone import localtime
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.activity.mixins import ActivityMixin
-from django_spire.history.utils import soft_delete_queryset
 
 from django_spire.metric.visual import querysets
 from django_spire.metric.visual.choices import (
@@ -91,8 +91,8 @@ class Visual(HistoryModelMixin, ActivityMixin):
 
         with transaction.atomic():
             super().set_deleted()
-            soft_delete_queryset(self.conditions.all())
-            soft_delete_queryset(self.references.all())
+            self.conditions.all().delete()
+            self.references.all().delete()
             VisualRegion.objects.filter(visual_id=self.pk, is_deleted=False).update(visual_id=None)
             SlideSection.objects.filter(visual_id=self.pk, is_deleted=False).update(visual_id=None)
 
@@ -192,7 +192,7 @@ class GaugeChartVisual(Visual):
         super().save(*args, **kwargs)
 
 
-class VisualCondition(HistoryModelMixin, ActivityMixin):
+class VisualCondition(ActivityMixin):
     visual = models.ForeignKey(
         Visual, on_delete=models.CASCADE, related_name='conditions', related_query_name='condition'
     )
@@ -210,6 +210,7 @@ class VisualCondition(HistoryModelMixin, ActivityMixin):
     target = models.DecimalField(max_digits=16, decimal_places=4, default=0)
     tolerance = models.DecimalField(max_digits=16, decimal_places=4, default=0)
     order = models.PositiveSmallIntegerField(default=0)
+    created_datetime = models.DateTimeField(default=localtime, editable=False)
 
     objects = querysets.VisualConditionQuerySet().as_manager()
     services = VisualConditionService()
@@ -263,7 +264,7 @@ class VisualCondition(HistoryModelMixin, ActivityMixin):
         ]
 
 
-class VisualReference(HistoryModelMixin, ActivityMixin):
+class VisualReference(ActivityMixin):
     visual = models.ForeignKey(
         Visual, on_delete=models.CASCADE, related_name='references', related_query_name='reference'
     )
@@ -271,6 +272,7 @@ class VisualReference(HistoryModelMixin, ActivityMixin):
     reference = models.CharField(max_length=255)
     label = models.CharField(max_length=255, blank=True, default='')
     order = models.PositiveSmallIntegerField(default=0)
+    created_datetime = models.DateTimeField(default=localtime, editable=False)
 
     objects = querysets.VisualReferenceQuerySet().as_manager()
     services = VisualReferenceService()

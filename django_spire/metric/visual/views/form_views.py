@@ -12,11 +12,21 @@ from django_glue import Glue
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.history.activity.utils import build_activity_information
 from django_spire.metric.visual import forms, models
 from django_spire.metric.visual.navigation import VisualNavigation
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import User
     from django.core.handlers.wsgi import WSGIRequest
+
+    from django_spire.history.activity.mixins import ActivityMixin
+
+
+def _record_child_deletion(visual: models.Visual, child: ActivityMixin, user: User) -> None:
+    visual.add_activity(
+        user=user, verb='deleted', information=build_activity_information(child, user, 'deleted')
+    )
 
 
 @permission_required('django_spire_metric_visual.delete_visual')
@@ -154,7 +164,8 @@ def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
         form = DeleteConfirmationForm(data=request.POST, obj=condition)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=condition.set_deleted)
+            form.save(user=request.user, delete_func=condition.delete)
+            _record_child_deletion(visual, condition, request.user)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -264,7 +275,8 @@ def delete_reference_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
         form = DeleteConfirmationForm(data=request.POST, obj=reference_obj)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=reference_obj.set_deleted)
+            form.save(user=request.user, delete_func=reference_obj.delete)
+            _record_child_deletion(visual, reference_obj, request.user)
 
             return HttpResponseRedirect(return_url)
     else:

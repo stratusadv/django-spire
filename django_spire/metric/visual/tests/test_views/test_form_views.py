@@ -99,8 +99,20 @@ class VisualFormViewsTestCase(BaseTestCase):
         )
 
         assert response.status_code == 302
-        condition.refresh_from_db()
-        assert condition.is_deleted is True
+        assert not models.VisualCondition.objects.filter(pk=condition.pk).exists()
+
+    def test_delete_reference_view(self):
+        reference = self.visual.references.create(reference='/home/', order=0)
+
+        response = self.client.post(
+            reverse(
+                'django_spire:metric:visual:form:delete_reference', kwargs={'pk': reference.pk}
+            ),
+            data={'should_delete': 'on'},
+        )
+
+        assert response.status_code == 302
+        assert not models.VisualReference.objects.filter(pk=reference.pk).exists()
 
     def test_create_reference_view_suggests_statistic_references(self):
         sub_domain = create_test_subdomain(domain=self.domain)
@@ -173,19 +185,6 @@ class VisualFormViewsTestCase(BaseTestCase):
         self._add_reference_value()
         other = create_test_visual(statistic=self.visual.statistic, name='other')
         other.references.create(reference='/home/', order=0)
-
-        form = self._reference_form(
-            data={'visual': self.visual.pk, 'reference': '/home/', 'label': '', 'order': 1},
-            instance=models.VisualReference(visual=self.visual),
-        )
-        form.is_valid()
-
-        assert 'reference' not in form.errors
-
-    def test_reference_form_allows_pattern_of_deleted_reference(self):
-        self._add_reference_value()
-        stale = self.visual.references.create(reference='/home/', order=0)
-        stale.set_deleted()
 
         form = self._reference_form(
             data={'visual': self.visual.pk, 'reference': '/home/', 'label': '', 'order': 1},
