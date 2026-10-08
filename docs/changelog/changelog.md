@@ -19,6 +19,18 @@
     is stamped with `rerender_with_parent`.
   - A formset's `save()` saves nothing when any row is invalid; it previously saved the
     valid rows.
+  - A component is set up in `__post_init__(self, request)`. `get_view_kwargs()` and
+    `get_context_data()` are removed, and a class that still defines one raises
+    `TypeError` when it is defined. `mount()` is deprecated; rename it to `__post_init__`.
+    A component's template reads its values from `component`, and page context such as
+    navigation goes in `self.context_data`.
+  - `layout_template` is renamed `view_template`, as a class attribute and as an
+    `as_view()` argument.
+- `FormComponent` no longer defines `get_context_data()`, so its template context no longer
+  has `glue_form`. A template rendered by a `FormComponent` reads the form's path as
+  `{{ component.glue_form_path }}`. `django_spire/glue/form/modal_form.html` falls back to
+  it, so a template that extends it needs no change. A subclass that overrode
+  `get_context_data()` moves that code to `__post_init__` or onto the component.
 - Removed the `django_spire.contrib.session` package, as it was no longer used. Session
   management is handled by `django-glue` going forward. This removes:
   - `django_spire.contrib.session.controller.SessionController`.

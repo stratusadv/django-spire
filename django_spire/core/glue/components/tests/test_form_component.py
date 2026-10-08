@@ -68,14 +68,9 @@ class FormComponentTestCase(BaseTestCase):
         with pytest.raises(GlueComponentParameterError):
             TaskFormComponent(pk=1)
 
-    def test_context_data_names_the_component_and_glue_form(self) -> None:
-        component = TaskFormComponent()
-
-        context = component.get_context_data()
-
-        assert context['component'] is component
-        assert context['glue_form'] == 'component.entry'
-        assert set(context) == {'component', 'glue_form'}
+    def test_glue_form_path_names_the_form_child(self) -> None:
+        assert TaskFormComponent().glue_form_path() == 'component.entry'
+        assert CustomAttrFormComponent().glue_form_path() == 'component.task_form'
 
     def test_requires_a_form_class(self) -> None:
         with pytest.raises(TypeError, match='form'):
