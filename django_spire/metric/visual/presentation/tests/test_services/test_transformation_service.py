@@ -28,7 +28,7 @@ class PresentationTransformationServiceTestCase(BaseTestCase):
         slide_a = create_test_slide(self.presentation, name='A', order=1)
         create_test_slide(self.presentation, name='B', order=2)
         slide_c = create_test_slide(self.presentation, name='C', order=3)
-        slide_c.set_deleted()
+        slide_c.delete()
 
         slides = self.presentation.services.transformation.slides()
 
@@ -59,7 +59,7 @@ class SlideTransformationServiceTestCase(BaseTestCase):
 
     def test_sections_excludes_deleted(self):
         section = create_test_section(self.slide, row=1, col=1)
-        section.set_deleted()
+        section.delete()
 
         assert self.slide.services.transformation.sections().count() == 0
 

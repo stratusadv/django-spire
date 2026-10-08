@@ -94,7 +94,7 @@ class Visual(HistoryModelMixin, ActivityMixin):
             self.conditions.all().delete()
             self.references.all().delete()
             VisualRegion.objects.filter(visual_id=self.pk, is_deleted=False).update(visual_id=None)
-            SlideSection.objects.filter(visual_id=self.pk, is_deleted=False).update(visual_id=None)
+            SlideSection.objects.filter(visual_id=self.pk).update(visual_id=None)
 
     class Meta:
         verbose_name = 'Visual'

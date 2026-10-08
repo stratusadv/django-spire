@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.history.activity.context import activity_user
 from django_spire.metric.visual.presentation.models import SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
@@ -140,3 +141,26 @@ class SignagePageViewsTestCase(BaseTestCase):
 
         assert response.status_code == 200
         assert 'X-Frame-Options' not in response
+
+    def test_link_add_delete_show_in_signage_activity_log(self):
+        with activity_user(self.super_user):
+            link = create_test_link(self.signage, order=0)
+
+        content = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:page:detail', kwargs={'pk': self.signage.pk}
+            )
+        ).content.decode()
+        assert 'created Signage Presentation' in content
+
+        self.client.post(
+            reverse('django_spire:metric:visual:signage:form:delete_link', kwargs={'pk': link.pk}),
+            data={'should_delete': 'on'},
+        )
+
+        content = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:page:detail', kwargs={'pk': self.signage.pk}
+            )
+        ).content.decode()
+        assert 'deleted Signage Presentation' in content

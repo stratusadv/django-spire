@@ -5,7 +5,8 @@ from decimal import Decimal
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.visual.presentation.models import SlideSection
+from django_spire.history.activity.context import activity_user
+from django_spire.metric.visual.presentation.models import Slide, SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
     create_test_section,
@@ -122,3 +123,43 @@ class PresentationPageViewsTestCase(BaseTestCase):
         assert response.context_data['slides'][0]['sections'][0]['no_matching_data'] is True
 
         assert 'No matching data' in response.content.decode()
+
+    def test_slide_and_section_deletes_show_in_presentation_activity_log(self):
+        with activity_user(self.super_user):
+            slide_a = create_test_slide(self.presentation, name='alpha', order=0)
+            slide_b = create_test_slide(self.presentation, name='beta', order=1)
+            section_b = create_test_section(slide_b, row=0, col=0)
+
+        detail_url = reverse(
+            'django_spire:metric:visual:presentation:page:detail',
+            kwargs={'pk': self.presentation.pk},
+        )
+        activities = [
+            a.information for a in self.client.get(detail_url).context_data['activity_log']
+        ]
+        assert any('created Slide' in info for info in activities)
+        assert any('created Slide Section' in info for info in activities)
+
+        self.client.post(
+            reverse(
+                'django_spire:metric:visual:presentation:form:delete_slide',
+                kwargs={'pk': slide_a.pk},
+            ),
+            data={'should_delete': 'on'},
+        )
+        self.client.post(
+            reverse(
+                'django_spire:metric:visual:presentation:form:delete_section',
+                kwargs={'pk': section_b.pk},
+            ),
+            data={'should_delete': 'on'},
+        )
+
+        assert not Slide.objects.filter(pk=slide_a.pk).exists()
+        assert not SlideSection.objects.filter(pk=section_b.pk).exists()
+
+        activities = [
+            a.information for a in self.client.get(detail_url).context_data['activity_log']
+        ]
+        assert any('deleted Slide "alpha"' in info for info in activities)
+        assert any('deleted Slide Section' in info for info in activities)

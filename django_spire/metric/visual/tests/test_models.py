@@ -112,7 +112,6 @@ class VisualModelTestCase(BaseTestCase):
         assert region.visual_id is None
         assert section.visual_id is None
         assert region.is_deleted is False
-        assert section.is_deleted is False
 
 
 class VisualKindModelTestCase(BaseTestCase):

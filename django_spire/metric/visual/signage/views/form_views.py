@@ -11,13 +11,23 @@ from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.history.activity.utils import build_activity_information
 from django_spire.metric.visual.signage import forms, models
 from django_spire.metric.visual.signage.navigation import SignageNavigation
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import User
     from django.core.handlers.wsgi import WSGIRequest
 
+    from django_spire.history.activity.mixins import ActivityMixin
+
 SIGNAGE_DETAIL_URL = 'django_spire:metric:visual:signage:page:detail'
+
+
+def _record_child_deletion(signage: models.Signage, child: ActivityMixin, user: User) -> None:
+    signage.add_activity(
+        user=user, verb='deleted', information=build_activity_information(child, user, 'deleted')
+    )
 
 
 def _signage_detail_url(signage_pk: int) -> str:
@@ -169,7 +179,8 @@ def delete_link_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRe
         form = DeleteConfirmationForm(data=request.POST, obj=link)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=link.set_deleted)
+            form.save(user=request.user, delete_func=link.delete)
+            _record_child_deletion(signage, link, request.user)
 
             return HttpResponseRedirect(return_url)
     else:

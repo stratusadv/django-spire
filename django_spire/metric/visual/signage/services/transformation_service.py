@@ -28,7 +28,7 @@ class SignageTransformationService(BaseDjangoModelService['Signage']):
     def presentation_links(self) -> QuerySet[SignagePresentation]:
         return (
             self.obj.signage_presentations.select_related('presentation')
-            .filter(is_deleted=False, presentation__is_deleted=False)
+            .filter(presentation__is_deleted=False)
             .order_by('order')
         )
 
@@ -36,7 +36,6 @@ class SignageTransformationService(BaseDjangoModelService['Signage']):
         return (
             Presentation.objects.filter(
                 presentation_link__signage=self.obj,
-                presentation_link__is_deleted=False,
                 presentation_link__presentation__is_deleted=False,
             )
             .order_by('presentation_link__order')

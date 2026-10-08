@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.visual.signage.models import SignagePresentation
 from django_spire.metric.visual.signage.tests.factories import create_test_link, create_test_signage
 
 
@@ -88,5 +89,4 @@ class SignageFormViewsTestCase(BaseTestCase):
         )
 
         assert response.status_code == 302
-        link.refresh_from_db()
-        assert link.is_deleted is True
+        assert not SignagePresentation.objects.filter(pk=link.pk).exists()
