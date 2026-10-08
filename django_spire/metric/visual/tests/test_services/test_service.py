@@ -64,6 +64,16 @@ class VisualReferenceServiceTestCase(BaseTestCase):
 
         assert first.order == 5
 
+    def test_next_order_is_zero_without_references(self):
+        visual = create_test_visual(statistic=self.visual.statistic, with_conditions=False)
+
+        assert VisualReference.services.next_order(visual.references) == 0
+
+    def test_next_order_appends_after_max_order(self):
+        self.visual.references.create(reference='/b/', order=5)
+
+        assert VisualReference.services.next_order(self.visual.references) == 6
+
 
 class VisualConditionServiceTestCase(BaseTestCase):
     def setUp(self) -> None:
@@ -91,3 +101,13 @@ class VisualConditionServiceTestCase(BaseTestCase):
         condition = self._add_condition(order=0)
 
         assert condition.order == 1
+
+    def test_next_order_is_zero_without_conditions(self):
+        visual = create_test_visual(statistic=self.visual.statistic, with_conditions=False)
+
+        assert VisualCondition.services.next_order(visual.conditions) == 0
+
+    def test_next_order_appends_after_max_order(self):
+        self.visual.conditions.create(state='red', order=5)
+
+        assert VisualCondition.services.next_order(self.visual.conditions) == 6

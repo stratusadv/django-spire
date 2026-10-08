@@ -13,7 +13,11 @@ from django_spire.metric.domain.statistic.models import Statistic, StatisticValu
 from django_spire.metric.domain.statistic.querysets import contains_wildcard, reference_matches
 from django_spire.metric.domain.statistic.seeding.seeder import VALUE_REFERENCES
 from django_spire.metric.visual import models
-from django_spire.metric.visual.choices import VisualKindChoices
+from django_spire.metric.visual.choices import (
+    VisualConditionOperatorChoices,
+    VisualConditionStateChoices,
+    VisualKindChoices,
+)
 from django_spire.metric.visual.seeding.constants import VISUAL_REGION_SEEDS, VISUAL_SEEDS
 
 VISUAL_VALUE_POINTS = 30
@@ -89,7 +93,27 @@ class VisualSeeder(Seeder):
             if statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
             else Decimal(100)
         )
-        visual.services.factory.create_default_conditions(target=target, tolerance=Decimal(10))
+
+        visual.conditions.all().delete()
+        visual.conditions.create(
+            state=VisualConditionStateChoices.GREEN,
+            operator=VisualConditionOperatorChoices.GT,
+            target=target,
+            order=0,
+        )
+        visual.conditions.create(
+            state=VisualConditionStateChoices.YELLOW,
+            operator=VisualConditionOperatorChoices.BETWEEN,
+            target=target,
+            tolerance=Decimal(10),
+            order=1,
+        )
+        visual.conditions.create(
+            state=VisualConditionStateChoices.RED,
+            operator=VisualConditionOperatorChoices.LT,
+            target=target,
+            order=2,
+        )
 
     @staticmethod
     def _seed_visual_references(visual: models.Visual, index: int, seed: dict) -> None:

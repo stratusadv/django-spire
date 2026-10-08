@@ -61,9 +61,13 @@
   unless `DJANGO_SPIRE_REMOTE_API_URL`, `DJANGO_SPIRE_REMOTE_API_KEY`,
   `DJANGO_SPIRE_METRIC_STATISTIC_KEY`, and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY` are all
   set.
+- The metric visual "Generate Stoplight" action is removed, with its
+  `set_default_conditions` URL and `visual.services.factory.create_default_conditions()`.
 
 ### Changes
 
+- A metric visual's detail card links to its statistic group and its statistic separately.
+- Monthly chart labels always show the year, as `Jan 26`.
 - `FormComponent` subclasses `Glue.Component` instead of importing `Component` from a
   `django-glue` internal module.
 - `spire_startapp` no longer scaffolds session-backed list filtering. A generated app has:
@@ -79,6 +83,14 @@
 
 - The comment modal no longer crashes on open. Its `Glue.model` call now exposes the
   `information` field at `CHANGE` access, so the comment text is editable.
+- Metric charts and indicators fill their cards on signage displays and presentation
+  slides. Their heights are set by `--spire-chart-height` (default `350px`) and
+  `--spire-indicator-min-height` (default `240px`).
+- A new visual condition, visual reference or signage presentation is added at the next
+  free order position.
+- A visual ignores its deleted conditions when it works out its current condition and
+  gauge maximum.
+- A visual with no conditions no longer shows a "No data" status badge.
 
 ### Chores
 

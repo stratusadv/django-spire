@@ -23,11 +23,8 @@ def _value_date(value_date: Any) -> date | None:
     return date.fromisoformat(value_date) if isinstance(value_date, str) else value_date
 
 
-def _unit_label(unit_start: date, interval: str, first_year: int) -> str:
+def _unit_label(unit_start: date, interval: str) -> str:
     if interval == StatisticIntervalChoices.MONTHLY:
-        if unit_start.year == first_year:
-            return f'{unit_start:%b}'
-
         return f'{unit_start:%b} {unit_start.year % 100}'
 
     return f'{unit_start:%b} {unit_start.day}'
@@ -40,8 +37,7 @@ def _unit_x_axis(visual: Visual, value_date: date | None) -> dict:
     labels = []
     if points:
         interval = visual.statistic.interval
-        first_year = points[0]['timestamp'].year
-        labels = [_unit_label(point['timestamp'], interval, first_year) for point in points]
+        labels = [_unit_label(point['timestamp'], interval) for point in points]
 
     return {'type': 'category', 'data': labels, 'axisLabel': {'hideOverlap': True}}
 
