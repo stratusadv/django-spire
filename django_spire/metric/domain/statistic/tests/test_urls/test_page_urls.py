@@ -97,3 +97,9 @@ class StatisticUrlTestCase(BaseTestCase):
             )
         )
         assert response.status_code == 200
+
+    def test_storage_view_url_path(self):
+        response = self.client.get(
+            path=reverse('django_spire:metric:domain:statistic:page:storage')
+        )
+        assert response.status_code == 200

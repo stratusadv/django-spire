@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils import timezone
 from django_glue import Glue
 
+from django_spire.conf import settings
 from django_spire.constants import BASE_URL_NAME
 from django_spire.metric.domain.statistic import models
 from django_spire.metric.domain.statistic.constants import STATISTIC_VALUE_COUNT_MAX
@@ -100,4 +104,61 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         context=context,
         template='django_spire/metric/domain/statistic/page/detail_page.html',
+    )
+
+
+@permission_required('django_spire_metric_domain.view_statistic')
+def list_view(request: WSGIRequest) -> TemplateResponse:
+    statistics = (
+        models.Statistic.objects.active()
+        .not_deleted()
+        .bulk_filter(filter_data=request.GET.dict())
+        .select_related('group__domain')
+        .order_by('name')
+    )
+
+    nav = StatisticNavigation()
+    nav.page_title = 'Statistic'
+    context = nav.as_context()
+    context['statistics'] = statistics
+    return TemplateResponse(
+        request,
+        context=context,
+        template='django_spire/metric/domain/statistic/page/list_page.html',
+    )
+
+
+@permission_required('django_spire_metric_domain.view_statistic')
+def storage_view(request: WSGIRequest) -> TemplateResponse:
+    retention_days = getattr(settings, 'DJANGO_SPIRE_METRIC_RETENTION_DAYS', 90)
+
+    if retention_days and retention_days > 0:
+        cutoff = timezone.now() - timedelta(days=retention_days)
+        prune_eligible_count = models.StatisticValue.objects.filter(timestamp__lt=cutoff).count()
+    else:
+        prune_eligible_count = 0
+
+    nav = StatisticNavigation()
+    nav.page_title = 'Storage'
+    nav.breadcrumbs.add(
+        name='Storage', view_name='django_spire:metric:domain:statistic:page:storage'
+    )
+
+    context = nav.as_context()
+    context['value_total'] = models.StatisticValue.objects.count()
+    context['value_size_gb'] = models.StatisticValue.services.stored_size_bytes() / (1024**3)
+    context['statistics'] = (
+        models.Statistic.objects.annotate(value_count=Count('value'))
+        .select_related('group__domain')
+        .order_by('-value_count', 'name')
+    )
+    context['retention_days'] = retention_days
+    context['tracking_values_max'] = getattr(
+        settings, 'DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX', 1000
+    )
+    context['prune_eligible_count'] = prune_eligible_count
+    return TemplateResponse(
+        request,
+        context=context,
+        template='django_spire/metric/domain/statistic/page/storage_page.html',
     )
