@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.1 - October 8, 2026
+
+### Changed
+
+- Migrated from `django-glue` v1.2.0 to v1.2.1. It fixes a formset refusing a new
+  `ModelForm` row, with "Submitted form token does not belong to this formset row", after
+  that row had made a call of its own, such as loading a field's choices or validating.
+
 ## v1.2.0 - October 6, 2026
 
 ### Breaking
