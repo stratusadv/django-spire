@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from django.template.loader import render_to_string
 from django_glue import Glue
 from django_glue.exceptions import GlueComponentParameterError
 from django_glue.glue.components import component_registry
@@ -71,6 +72,22 @@ class FormComponentTestCase(BaseTestCase):
     def test_glue_form_path_names_the_form_child(self) -> None:
         assert TaskFormComponent().glue_form_path() == 'component.entry'
         assert CustomAttrFormComponent().glue_form_path() == 'component.task_form'
+
+    def test_modal_form_binds_the_glue_form_a_view_passes(self) -> None:
+        html = render_to_string(
+            'django_spire/glue/form/modal_form.html',
+            {'glue_form': 'Glue.form.task_form'},
+        )
+
+        assert 'glue_form: Glue.form.task_form,' in html
+
+    def test_modal_form_falls_back_to_the_components_glue_form_path(self) -> None:
+        html = render_to_string(
+            'django_spire/glue/form/modal_form.html',
+            {'component': TaskFormComponent()},
+        )
+
+        assert 'glue_form: component.entry,' in html
 
     def test_requires_a_form_class(self) -> None:
         with pytest.raises(TypeError, match='form'):

@@ -17,7 +17,7 @@
 {# core/modal/content/delete_modal_content.html's same onSaved/updated-item          #}
 {# convention for delete.                                                            #}
 
-{% block glue_form_binding %}glue_form: {{ glue_form|default:component.glue_form_path }},{% endblock %}
+{% block glue_form_binding %}glue_form: {% firstof glue_form component.glue_form_path %},{% endblock %}
 
 {% block glue_form_on_saved %}
     if (result?.pk) {
