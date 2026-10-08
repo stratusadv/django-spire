@@ -8,6 +8,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.visual import forms, models
 from django_spire.metric.visual.choices import VisualKindChoices
 from django_spire.metric.visual.tests.factories import (
+    create_test_condition,
     create_test_domain,
     create_test_statistic,
     create_test_statistic_group,
@@ -56,6 +57,29 @@ class VisualFormViewsTestCase(BaseTestCase):
         )
         assert response.status_code == 200
 
+    def test_create_condition_view_prefills_order_zero_without_conditions(self):
+        visual = create_test_visual(statistic=self.visual.statistic, with_conditions=False)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:form:create_condition', kwargs={'visual_pk': visual.pk}
+            )
+        )
+
+        assert response.context['condition'].order == 0
+
+    def test_create_condition_view_prefills_next_order(self):
+        visual = create_test_visual(statistic=self.visual.statistic, with_conditions=False)
+        create_test_condition(visual, order=5)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:form:create_condition', kwargs={'visual_pk': visual.pk}
+            )
+        )
+
+        assert response.context['condition'].order == 6
+
     def test_update_condition_view(self):
         condition = self.visual.conditions.first()
 
@@ -78,19 +102,6 @@ class VisualFormViewsTestCase(BaseTestCase):
         condition.refresh_from_db()
         assert condition.is_deleted is True
 
-    def test_set_default_conditions_view(self):
-        self.visual.conditions.all().delete()
-
-        response = self.client.post(
-            reverse(
-                'django_spire:metric:visual:form:set_default_conditions',
-                kwargs={'pk': self.visual.pk},
-            )
-        )
-
-        assert response.status_code == 302
-        assert self.visual.conditions.count() == 3
-
     def test_create_reference_view_suggests_statistic_references(self):
         sub_domain = create_test_subdomain(domain=self.domain)
         self.visual.statistic.services.processor.add_value(
@@ -112,6 +123,28 @@ class VisualFormViewsTestCase(BaseTestCase):
         assert 'id="reference-datalist"' in html
         assert '<option value="/home/">' in html
         assert '<option value="/dashboard/">' in html
+
+    def test_create_reference_view_prefills_order_zero_without_references(self):
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:form:create_reference',
+                kwargs={'visual_pk': self.visual.pk},
+            )
+        )
+
+        assert response.context['reference'].order == 0
+
+    def test_create_reference_view_prefills_next_order(self):
+        self.visual.references.create(reference='/home/', order=5)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:form:create_reference',
+                kwargs={'visual_pk': self.visual.pk},
+            )
+        )
+
+        assert response.context['reference'].order == 6
 
     def _reference_form(
         self, data: dict, instance: models.VisualReference

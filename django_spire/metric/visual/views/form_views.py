@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django_glue import Glue
@@ -90,23 +90,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     return TemplateResponse(request, 'django_spire/metric/visual/page/form_page.html', context)
 
 
-@permission_required('django_spire_metric_visual.change_visual')
-def set_default_conditions_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect:
-    visual = get_object_or_404(models.Visual, pk=pk)
-
-    if request.method == 'POST':
-        current_value = visual.services.transformation.current_value()
-        target = current_value or 100
-        visual.services.factory.create_default_conditions(target=target)
-
-    return redirect(
-        request.GET.get(
-            'return_url',
-            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}),
-        )
-    )
-
-
 @permission_required('django_spire_metric_visual.add_visual')
 def create_condition_view(request: WSGIRequest, visual_pk: int) -> TemplateResponse:
     return _condition_form_view(request, visual_pk=visual_pk)
@@ -125,6 +108,7 @@ def _condition_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
     else:
         visual = get_object_or_404(models.Visual, pk=visual_pk)
         condition.visual = visual
+        condition.order = models.VisualCondition.services.next_order(visual.conditions)
 
     form = forms.VisualConditionModelForm(request.POST or None, instance=condition)
 
@@ -135,7 +119,7 @@ def _condition_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
     nav.breadcrumbs.add(
         name=str(visual),
         view_name='django_spire:metric:visual:page:detail',
-        view_kwargs={'pk': visual.pk}
+        view_kwargs={'pk': visual.pk},
     )
 
     if condition.pk:
@@ -181,7 +165,7 @@ def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
     nav.breadcrumbs.add(
         name=str(visual),
         view_name='django_spire:metric:visual:page:detail',
-        view_kwargs={'pk': visual.pk}
+        view_kwargs={'pk': visual.pk},
     )
     nav.breadcrumbs.add(
         name=str(condition),
@@ -234,6 +218,7 @@ def _reference_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) 
     else:
         visual = get_object_or_404(models.Visual, pk=visual_pk)
         reference_obj.visual = visual
+        reference_obj.order = models.VisualReference.services.next_order(visual.references)
 
     form = forms.VisualReferenceModelForm(request.POST or None, instance=reference_obj)
 
@@ -290,7 +275,8 @@ def delete_reference_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
     nav.breadcrumbs.add(
         name=str(visual),
         view_name='django_spire:metric:visual:page:detail',
-        view_kwargs={'pk': visual.pk})
+        view_kwargs={'pk': visual.pk},
+    )
     nav.breadcrumbs.add(
         name=str(reference_obj),
         view_name='django_spire:metric:visual:page:detail',

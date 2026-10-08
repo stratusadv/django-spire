@@ -28,8 +28,12 @@
                         <tr>
                             <td>
                                 <a class='text-decoration-none'
+                                   href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk %}">
+                                    {% if show_group_prefix %}{{ statistic.group }} / {% endif %}
+                                </a>
+                                <a class='text-decoration-none'
                                    href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
-                                    {% if show_group_prefix %}{{ statistic.group }} / {% endif %}{{ statistic.name }}
+                                    {{ statistic.name }}
                                 </a>
                             </td>
                             <td>{{ statistic.get_interval_display }}</td>

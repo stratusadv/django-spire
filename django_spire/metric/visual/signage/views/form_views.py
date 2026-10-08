@@ -116,7 +116,7 @@ def update_link_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def _link_form_view(
-        request: WSGIRequest, pk: int = 0, signage_pk: int = 0
+    request: WSGIRequest, pk: int = 0, signage_pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     link = get_object_or_null_obj(models.SignagePresentation, pk=pk)
 
@@ -125,6 +125,7 @@ def _link_form_view(
     else:
         signage = get_object_or_404(models.Signage, pk=signage_pk)
         link.signage_id = signage.pk
+        link.order = models.SignagePresentation.services.next_order(signage.signage_presentations)
 
     form = forms.SignagePresentationModelForm(request.POST or None, instance=link)
 
