@@ -32,15 +32,30 @@
 
         .kiosk-section {
             container-type: size;
+            --spire-chart-height: 0;
+            --spire-indicator-min-height: 0;
         }
 
         .kiosk-section .card {
             display: flex;
             flex-direction: column;
+            height: 100%;
+        }
+
+        .kiosk-section .card .card-body {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .kiosk-section .card [data-chart-glue-name] {
-            min-height: 0 !important;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .kiosk-section .card .card-body .position-relative {
+            flex: 1 1 auto;
+            min-height: 0;
         }
     </style>
 {% endblock %}

@@ -18,9 +18,9 @@ class FormComponent(Glue.Component):
     The form is exposed as a ``Glue.property`` child named by ``attr``, built
     by ``build_child()`` from ``get_form()`` —
     override ``get_form()`` when the form needs constructor arguments from
-    the component's parameters. The context carries ``component`` and
-    ``glue_form``, the dot path to the form for the template and its
-    partials. Whether the component renders in a modal or on a page is a
+    the component's parameters. ``glue_form_path()`` is the dot path to the
+    form, read by the template and its partials as
+    ``component.glue_form_path``. Whether the component renders in a modal or on a page is a
     template and client-side choice, not part of this base. The class must
     be importable at module level: policy-token reconstruction re-imports it
     by its signed ``module.qualname`` on any worker.
@@ -65,6 +65,3 @@ class FormComponent(Glue.Component):
 
     def glue_form_path(self) -> str:
         return f'component.{self.attr}'
-
-    def get_context_data(self) -> dict[str, Any]:
-        return {'component': self, 'glue_form': self.glue_form_path()}
