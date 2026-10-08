@@ -2,7 +2,7 @@
 {% load django_spire_string_formatting %}
 
 {% if visual.is_chart %}
-    <div class="card h-100 px-3 pt-3">
+    <div class="card px-3 pt-3">
         <div class="d-flex align-items-start justify-content-between">
             <div>
                 <div class="fs--1 text-uppercase text-secondary fw-semibold">
@@ -51,7 +51,7 @@
         {% endif %}
     </div>
 {% else %}
-    <div class="card h-100 {% block visual_render_card_class %}{% endblock %}">
+    <div class="card {% block visual_render_card_class %}{% endblock %}">
         <div class="card-body {% block visual_render_body_class %}p-3{% endblock %}">
             <div class="d-flex align-items-start justify-content-between">
                 <div>
@@ -86,7 +86,7 @@
             </div>
 
             {% if visual.statistic %}
-                <div class="position-relative" style="flex: 1 1 auto; min-height: 95%; width: 100%;">
+                <div class="position-relative" style="min-height: var(--spire-indicator-min-height, 240px); width: 100%;">
                     <span class="badge rounded-pill d-flex align-items-center justify-content-center position-absolute"
                           style="top: 45%; left: 50%; transform: translate(-50%, -50%);
                                  height: 60%; aspect-ratio: 1; max-width: 100%;
