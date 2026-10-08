@@ -1,0 +1,63 @@
+{% extends 'django_spire/card/title_card.html' %}
+{% load humanize %}
+
+{% block card_title %}
+    <span class="text-start">Stored Values</span>
+    <br>
+    <span class="text-muted fs-6">Total: {{ value_total|intcomma }}</span>
+    <span class="ms-3 text-muted fs-6">
+        Retention:
+        {% if retention_days %}
+            {{ retention_days|intcomma }} day(s)
+        {% else %}
+            disabled
+        {% endif %}
+    </span>
+    <span class="ms-3 text-muted fs-6">Per-reference cap: {{ tracking_values_max|intcomma }}</span>
+    {% if retention_days %}
+        <span class="ms-3 text-muted fs-6">Eligible for prune: {{ prune_eligible_count|intcomma }}</span>
+    {% endif %}
+    <span class="ms-3 text-muted fs-6">Estimated Size: {{ value_size_gb|floatformat:6|intcomma }} GB</span>
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body">
+        {% if statistics %}
+            <div class="table-responsive">
+                <table class="table table-light table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th class="fw-medium">Domain</th>
+                        <th class="fw-medium">Group</th>
+                        <th class="fw-medium">Statistic</th>
+                        <th class="text-end fw-medium">Values Stored</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for statistic in statistics %}
+                        <tr>
+                            <td>
+                                {% url 'django_spire:metric:domain:page:detail' pk=statistic.group.domain.pk as domain_detail_url %}
+                                <a class="text-decoration-none" href="{{ domain_detail_url }}">{{ statistic.group.domain.name }}</a>
+                            </td>
+                            <td>
+                                {% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk as group_detail_url %}
+                                <a class="text-decoration-none" href="{{ group_detail_url }}">{{ statistic.group.name }}</a>
+                            </td>
+                            <td>
+                                {% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk as detail_url %}
+                                <a class="text-decoration-none" href="{{ detail_url }}">{{ statistic.name }}</a>
+                            </td>
+                            <td class="text-end">{{ statistic.value_count|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="ps-2">
+                {% include 'django_spire/item/no_data_item.html' %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

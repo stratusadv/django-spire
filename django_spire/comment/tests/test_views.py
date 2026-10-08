@@ -10,6 +10,40 @@ from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.task.models import Task
 
 
+class CommentModalFormContentViewTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.task = Task.objects.create(name='One')
+
+        self.comment = Comment.objects.create(
+            content_type=ContentType.objects.get_for_model(Task),
+            object_id=self.task.pk,
+            user=self.super_user,
+            information='hello',
+        )
+
+    def form_content_url(self, comment_pk: int) -> str:
+        kwargs = {
+            'comment_pk': comment_pk,
+            'obj_pk': self.task.pk,
+            'app_label': 'test_project_task',
+            'model_name': 'task',
+        }
+
+        return reverse('django_spire:comment:form_content', kwargs=kwargs)
+
+    def test_get_renders_new_comment_form(self) -> None:
+        response = self.client.get(self.form_content_url(0))
+
+        assert response.status_code == 200
+
+    def test_get_renders_existing_comment_form(self) -> None:
+        response = self.client.get(self.form_content_url(self.comment.pk))
+
+        assert response.status_code == 200
+
+
 class CommentDeleteFormViewTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()

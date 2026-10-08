@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
+from django.test import RequestFactory
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.visual.presentation.models import SlideSection
+from django_spire.history.activity.context import activity_user
+from django_spire.metric.visual.presentation.forms import SlideModelForm, SlideSectionModelForm
+from django_spire.metric.visual.presentation.models import Slide, SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
     create_test_section,
@@ -18,6 +22,9 @@ from django_spire.metric.visual.tests.factories import (
     create_test_subdomain,
     create_test_visual,
 )
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 class PresentationPageViewsTestCase(BaseTestCase):
@@ -122,3 +129,64 @@ class PresentationPageViewsTestCase(BaseTestCase):
         assert response.context_data['slides'][0]['sections'][0]['no_matching_data'] is True
 
         assert 'No matching data' in response.content.decode()
+
+    def _glue_request(self) -> WSGIRequest:
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+        return request
+
+    def _save_slide_form(self, name: str, order: int) -> Slide:
+        form = SlideModelForm(
+            data={'presentation': self.presentation.pk, 'name': name, 'order': order}
+        )
+        form.save_model_obj(self._glue_request())
+        return Slide.objects.get(presentation=self.presentation, name=name)
+
+    def _save_section_form(self, slide: Slide, row: int, col: int) -> SlideSection:
+        form = SlideSectionModelForm(
+            data={'slide': slide.pk, 'visual': '', 'row': str(row), 'col': str(col)}
+        )
+        form.save_model_obj(self._glue_request())
+        return SlideSection.objects.get(slide=slide, row=row, col=col)
+
+    def test_slide_and_section_deletes_show_in_presentation_activity_log(self):
+        with activity_user(self.super_user):
+            slide_a = self._save_slide_form(name='alpha', order=0)
+            slide_b = self._save_slide_form(name='beta', order=1)
+            section_b = self._save_section_form(slide_b, row=0, col=0)
+
+        detail_url = reverse(
+            'django_spire:metric:visual:presentation:page:detail',
+            kwargs={'pk': self.presentation.pk},
+        )
+        activities = [
+            a.information for a in self.client.get(detail_url).context_data['activity_log']
+        ]
+        assert any('created Slide' in info for info in activities)
+        assert any('created Slide Section' in info for info in activities)
+
+        self.client.post(
+            reverse(
+                'django_spire:metric:visual:presentation:form:delete_slide',
+                kwargs={'pk': slide_a.pk},
+            ),
+            data={'should_delete': 'on'},
+        )
+        self.client.post(
+            reverse(
+                'django_spire:metric:visual:presentation:form:delete_section',
+                kwargs={'pk': section_b.pk},
+            ),
+            data={'should_delete': 'on'},
+        )
+
+        assert not Slide.objects.filter(pk=slide_a.pk).exists()
+        assert not SlideSection.objects.filter(pk=section_b.pk).exists()
+
+        activities = [
+            a.information for a in self.client.get(detail_url).context_data['activity_log']
+        ]
+        assert any('deleted Slide "alpha"' in info for info in activities)
+        assert any('deleted Slide Section' in info for info in activities)
+        assert any('created Slide' in info for info in activities)
+        assert any('created Slide Section' in info for info in activities)

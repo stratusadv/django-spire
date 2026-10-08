@@ -34,7 +34,7 @@ def comment_modal_form_content(
     else:
         comment = get_object_or_404(models.Comment, pk=comment_pk, user__id=request.user.pk)
 
-    Glue.model(request, 'comment', comment)
+    Glue.model(request, 'comment', comment, Glue.Access.CHANGE, fields=['information'])
 
     nav = CommentNavigation()
     nav.page_title = 'Add Comment'

@@ -1,11 +1,102 @@
 # Changelog
 
-## Unreleased
+## v1.2.0 - October 6, 2026
 
-### Change
+### Breaking
 
-- Removed the `django_spire.contrib.SessionController` as it was not being used anymore. Session management will be 
-  handled by `Django Glue` going forward in this project.
+- Migrated from `django-glue` v1.1.0 to v1.2.0. The changes a project is most likely to
+  meet (the [django-glue changelog](https://django-glue.stratusadv.com) has the full list):
+  - `DJANGO_GLUE_COMPONENTS_ROOT` is removed. Replace it with
+    `DJANGO_GLUE_COMPONENTS = {'DIRS': [<root>], 'APP_DIRS': True}`, which is shaped like
+    Django's `TEMPLATES`. A project that still sets the old name fails the system check
+    `django_glue.E004`.
+  - The component modules moved into the `django_glue.glue.components` package.
+    `django_glue.glue.component` and `django_glue.glue.component_registry` no longer
+    exist; import `Component` and `component_registry` from `django_glue.glue.components`,
+    or subclass `Glue.Component`.
+  - A component's re-render keeps the child components already on the page instead of
+    re-stamping them. A child that must redraw with its parent declares `rerender_on` or
+    is stamped with `rerender_with_parent`.
+  - A formset's `save()` saves nothing when any row is invalid; it previously saved the
+    valid rows.
+  - A component is set up in `__post_init__(self, request)`. `get_view_kwargs()` and
+    `get_context_data()` are removed, and a class that still defines one raises
+    `TypeError` when it is defined. `mount()` is deprecated; rename it to `__post_init__`.
+    A component's template reads its values from `component`, and page context such as
+    navigation goes in `self.context_data`.
+  - `layout_template` is renamed `view_template`, as a class attribute and as an
+    `as_view()` argument.
+- `FormComponent` no longer defines `get_context_data()`, so its template context no longer
+  has `glue_form`. A template rendered by a `FormComponent` reads the form's path as
+  `{{ component.glue_form_path }}`. `django_spire/glue/form/modal_form.html` falls back to
+  it, so a template that extends it needs no change. A subclass that overrode
+  `get_context_data()` moves that code to `__post_init__` or onto the component.
+- Removed the `django_spire.contrib.session` package, as it was no longer used. Session
+  management is handled by `django-glue` going forward. This removes:
+  - `django_spire.contrib.session.controller.SessionController`.
+  - The `session_controller_to_json` template tag
+    (`django_spire.contrib.session.templatetags.session_tags`).
+  - The client `Spire.session.Controller` class. `django_spire/js/session.js` is deleted
+    and no longer loaded by `django_spire/base/base.html`.
+- `django_spire.testing.playwright.components.base_session_filter_form` is renamed to
+  `django_spire.testing.playwright.components.filter_form`. `FilterForm` is still exported
+  from `django_spire.testing.playwright.components`, so only imports of the module path
+  need updating.
+- `DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY` and
+  `DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY` are renamed to
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`, the
+  statistic and sub-domain that metric click tracking records against. A project that
+  still sets the old names silently loses its tracking target; rename them in settings.
+
+### Features
+
+- New `RemoteClickMiddleware`
+  (`django_spire.metric.domain.statistic.middleware.remote`) for sites that track clicks
+  without running the metric database themselves: each tracked click (same rules as the
+  local `LocalClickMiddleware`: GET, 200, `text/html`, skipping `/admin/`, `/api/`,
+  and XHR) is POSTed to
+  `{DJANGO_SPIRE_REMOTE_API_URL}/api/v1/metric/domain/statistic/{statistic_key}/record`
+  with an `X-API-Key` header. It dispatches on a background thread by default, imports
+  no `django_spire` modules (stdlib + `requests` + `django.conf` only), and is a no-op
+  unless `DJANGO_SPIRE_REMOTE_API_URL`, `DJANGO_SPIRE_REMOTE_API_KEY`,
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY`, and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY` are all
+  set.
+- The metric visual "Generate Stoplight" action is removed, with its
+  `set_default_conditions` URL and `visual.services.factory.create_default_conditions()`.
+
+### Changes
+
+- A metric visual's detail card links to its statistic group and its statistic separately.
+- Monthly chart labels always show the year, as `Jan 26`.
+- `FormComponent` subclasses `Glue.Component` instead of importing `Component` from a
+  `django-glue` internal module.
+- `spire_startapp` no longer scaffolds session-backed list filtering. A generated app has:
+  - no `constants.py` (it only held `LIST_FILTERING_SESSION_KEY`), no
+    `<Model>ListFilterForm`, and no list filter form template;
+  - a queryset that subclasses `HistoryQuerySet` alone, without `SearchQuerySetMixin`,
+    `SessionFilterQuerySetMixin`, or a `bulk_filter` method;
+  - list page and list items views that load `objects.active()` instead of calling
+    `process_session_filter`, and no `filter_session` in the page context.
+- The knowledge entry form view no longer glues an unused `entry` model.
+
+### Fixes
+
+- The comment modal no longer crashes on open. Its `Glue.model` call now exposes the
+  `information` field at `CHANGE` access, so the comment text is editable.
+- Metric charts and indicators fill their cards on signage displays and presentation
+  slides. Their heights are set by `--spire-chart-height` (default `350px`) and
+  `--spire-indicator-min-height` (default `240px`).
+- A new visual condition, visual reference or signage presentation is added at the next
+  free order position.
+- A visual ignores its deleted conditions when it works out its current condition and
+  gauge maximum.
+- A visual with no conditions no longer shows a "No data" status badge.
+
+### Chores
+
+- Removed the "QuerySet Utilities" guide (`docs/app_guides/contrib/queryset.md`) from the
+  docs. It described `django_spire.contrib.queryset`, which no longer exists.
+- `.backplan/` is ignored by git.
 
 ## v1.1.0 - September 27, 2026
 

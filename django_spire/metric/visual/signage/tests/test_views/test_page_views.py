@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from django.test import RequestFactory
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.visual.presentation.models import SlideSection
+from django_spire.history.activity.context import activity_user
+from django_spire.metric.visual.presentation.models import Presentation, SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
     create_test_slide,
 )
+from django_spire.metric.visual.signage.forms import SignagePresentationModelForm
+from django_spire.metric.visual.signage.models import SignagePresentation
 from django_spire.metric.visual.signage.tests.factories import (
     create_test_link,
     create_test_signage,
@@ -19,6 +25,9 @@ from django_spire.metric.visual.tests.factories import (
     create_test_statistic_group,
     create_test_visual,
 )
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 class SignagePageViewsTestCase(BaseTestCase):
@@ -140,3 +149,40 @@ class SignagePageViewsTestCase(BaseTestCase):
 
         assert response.status_code == 200
         assert 'X-Frame-Options' not in response
+
+    def _glue_request(self) -> WSGIRequest:
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+        return request
+
+    def _save_link_form(self, presentation: Presentation, order: int) -> SignagePresentation:
+        form = SignagePresentationModelForm(
+            data={'signage': self.signage.pk, 'presentation': presentation.pk, 'order': order}
+        )
+        form.save_model_obj(self._glue_request())
+        return SignagePresentation.objects.get(signage=self.signage, order=order)
+
+    def test_link_add_delete_show_in_signage_activity_log(self):
+        presentation = create_test_presentation()
+        with activity_user(self.super_user):
+            link = self._save_link_form(presentation=presentation, order=0)
+
+        content = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:page:detail', kwargs={'pk': self.signage.pk}
+            )
+        ).content.decode()
+        assert 'created Signage Presentation' in content
+
+        self.client.post(
+            reverse('django_spire:metric:visual:signage:form:delete_link', kwargs={'pk': link.pk}),
+            data={'should_delete': 'on'},
+        )
+
+        content = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:page:detail', kwargs={'pk': self.signage.pk}
+            )
+        ).content.decode()
+        assert 'deleted Signage Presentation' in content
+        assert 'created Signage Presentation' in content
