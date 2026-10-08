@@ -42,6 +42,25 @@
   `django_spire.testing.playwright.components.filter_form`. `FilterForm` is still exported
   from `django_spire.testing.playwright.components`, so only imports of the module path
   need updating.
+- `DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY` and
+  `DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY` are renamed to
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`, the
+  statistic and sub-domain that metric click tracking records against. A project that
+  still sets the old names silently loses its tracking target; rename them in settings.
+
+### Features
+
+- New `RemoteClickMiddleware`
+  (`django_spire.metric.domain.statistic.middleware.remote`) for sites that track clicks
+  without running the metric database themselves: each tracked click (same rules as the
+  local `LocalClickMiddleware`: GET, 200, `text/html`, skipping `/admin/`, `/api/`,
+  and XHR) is POSTed to
+  `{DJANGO_SPIRE_REMOTE_API_URL}/api/v1/metric/domain/statistic/{statistic_key}/record`
+  with an `X-API-Key` header. It dispatches on a background thread by default, imports
+  no `django_spire` modules (stdlib + `requests` + `django.conf` only), and is a no-op
+  unless `DJANGO_SPIRE_REMOTE_API_URL`, `DJANGO_SPIRE_REMOTE_API_KEY`,
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY`, and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY` are all
+  set.
 
 ### Changes
 

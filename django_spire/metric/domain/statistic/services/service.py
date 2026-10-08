@@ -151,3 +151,23 @@ class StatisticValueService(BaseDjangoModelService['StatisticValue']):
     processor = StatisticValueProcessorService()
     factory = StatisticValueFactoryService()
     transformation = StatisticValueTransformationService()
+
+    ESTIMATED_BYTES_PER_ROW = 256
+
+    @classmethod
+    def stored_size_bytes(cls) -> int:
+        from django.db import connection  # noqa: PLC0415
+
+        from django_spire.metric.domain.statistic.models import (  # noqa: PLC0415
+            StatisticValue,
+        )
+
+        if connection.vendor == 'postgresql':
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT pg_total_relation_size(%s)', [StatisticValue._meta.db_table])
+                row = cursor.fetchone()
+
+            if row and row[0] is not None:
+                return int(row[0])
+
+        return StatisticValue.objects.count() * cls.ESTIMATED_BYTES_PER_ROW
