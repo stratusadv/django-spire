@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:pk>/detail/', page_views.detail_view, name='detail'),
     path('group/list/', page_views.group_list_view, name='group_list'),
     path('group/<int:pk>/detail/', page_views.group_detail_view, name='group_detail'),
+    path('storage/', page_views.storage_view, name='storage'),
 ]

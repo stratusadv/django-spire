@@ -20,8 +20,17 @@
                 <option value="description">Description</option>
             </select>
         </div>
+        {% if perms.django_spire_metric_domain.view_statistic %}
+            <div class="col-auto ps-0">
+                {% url 'django_spire:metric:domain:statistic:page:storage' as storage_url %}
+                <a class="btn btn-sm btn-outline-primary" href="{{ storage_url }}">
+                    <i class="bi bi-database"></i>
+                    Storage Details
+                </a>
+            </div>
+        {% endif %}
         {% if perms.django_spire_metric_domain.add_statisticgroup %}
-            <div class="col-auto">
+            <div class="col-auto ps-0">
                 {% url 'django_spire:metric:domain:statistic:form:group_create' as new_group_url %}
                 <a class="btn btn-sm btn-primary text-white" href="{{ new_group_url }}">
                     <i class="bi bi-plus-lg"></i>

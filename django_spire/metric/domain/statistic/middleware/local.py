@@ -11,11 +11,10 @@ if TYPE_CHECKING:
 
     from django.http import HttpRequest, HttpResponse
 
-_ADMIN_PATHS = ('/admin/',)
-_API_PATHS = ('/api/',)
+_EXCLUDED_PATHS = ('/admin/', '/api/')
 
 
-class StatisticClickMiddleware:
+class LocalClickMiddleware:
     def __init__(
         self, get_response: Callable[[HttpRequest], HttpResponse], *, threaded: bool = True
     ) -> None:
@@ -37,7 +36,7 @@ class StatisticClickMiddleware:
         if response.status_code != 200:
             return False
 
-        if request.path.startswith(_ADMIN_PATHS) or request.path.startswith(_API_PATHS):
+        if request.path.startswith(_EXCLUDED_PATHS):
             return False
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -46,10 +45,10 @@ class StatisticClickMiddleware:
         return 'text/html' in response.get('Content-Type', '')
 
     def _dispatch_click(self, request: HttpRequest) -> None:
-        if not settings.DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY:
+        if not settings.DJANGO_SPIRE_METRIC_STATISTIC_KEY:
             return
 
-        if not settings.DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY:
+        if not settings.DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY:
             return
 
         resolver_match = getattr(request, 'resolver_match', None)
