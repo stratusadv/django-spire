@@ -6,17 +6,20 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
+from django.test import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
 
 if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
     from django.http import HttpResponse
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.history.activity.context import activity_user
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.visual.charts import VisualLineChart
-from django_spire.metric.visual.models import Visual, VisualRegion
+from django_spire.metric.visual.forms import VisualConditionModelForm, VisualReferenceModelForm
+from django_spire.metric.visual.models import Visual, VisualCondition, VisualReference, VisualRegion
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -235,10 +238,8 @@ class VisualPageViewsTestCase(BaseTestCase):
         reference = self.visual.references.create(reference='/home/', order=0)
         region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
 
-        with activity_user(self.super_user):
-            condition.set_deleted()
-
-        reference.add_activity(self.super_user, 'created', 'reference created')
+        condition.add_activity(self.super_user, 'updated', 'condition updated')
+        reference.add_activity(self.super_user, 'updated', 'reference updated')
         region.add_activity(self.super_user, 'updated', 'region updated')
 
         response = self.client.get(
@@ -248,15 +249,76 @@ class VisualPageViewsTestCase(BaseTestCase):
         assert response.status_code == 200
         activity_log = response.context_data['activity_log']
         assert set(activity_log.values_list('pk', flat=True)) == {
-            condition.activities.get(verb='deleted').pk,
+            condition.activities.first().pk,
             reference.activities.first().pk,
             region.activities.first().pk,
         }
 
         content = response.content.decode()
-        assert 'deleted Visual Condition' in content
-        assert 'reference created' in content
+        assert 'condition updated' in content
+        assert 'reference updated' in content
         assert 'region updated' in content
+
+    def _glue_request(self) -> WSGIRequest:
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+        return request
+
+    def _save_condition_form(self, order: int) -> VisualCondition:
+        form = VisualConditionModelForm(
+            data={
+                'visual': self.visual.pk,
+                'state': 'green',
+                'operator': 'gt',
+                'target': '50',
+                'tolerance': '0',
+                'order': order,
+            }
+        )
+        form.save_model_obj(self._glue_request())
+        return VisualCondition.objects.get(visual=self.visual, order=order)
+
+    def _save_reference_form(self, reference: str, order: int) -> VisualReference:
+        form = VisualReferenceModelForm(
+            data={'visual': self.visual.pk, 'reference': reference, 'order': order}
+        )
+        form.save_model_obj(self._glue_request())
+        return VisualReference.objects.get(visual=self.visual, reference=reference)
+
+    def test_condition_and_reference_add_delete_show_in_activity_log(self):
+        with activity_user(self.super_user):
+            condition = self._save_condition_form(order=9)
+            reference = self._save_reference_form(reference='/home/', order=0)
+
+        content = self.client.get(
+            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': self.visual.pk})
+        ).content.decode()
+        assert 'created Visual Condition' in content
+        assert 'created Visual Reference' in content
+
+        self.client.post(
+            reverse(
+                'django_spire:metric:visual:form:delete_condition', kwargs={'pk': condition.pk}
+            ),
+            data={'should_delete': 'on'},
+        )
+        self.client.post(
+            reverse(
+                'django_spire:metric:visual:form:delete_reference', kwargs={'pk': reference.pk}
+            ),
+            data={'should_delete': 'on'},
+        )
+
+        assert not VisualCondition.objects.filter(pk=condition.pk).exists()
+        assert not VisualReference.objects.filter(pk=reference.pk).exists()
+
+        content = self.client.get(
+            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': self.visual.pk})
+        ).content.decode()
+        assert 'deleted Visual Condition' in content
+        assert 'deleted Visual Reference' in content
+        assert 'created Visual Condition' in content
+        assert 'created Visual Reference' in content
 
 
 class VisualChartExecuteTestCase(BaseTestCase):

@@ -51,9 +51,5 @@ class SignageSeeder(Seeder):
                 or presentations[order % len(presentations)]
             )
             models.SignagePresentation.objects.create(
-                signage=signage,
-                order=order,
-                presentation=presentation,
-                is_active=True,
-                is_deleted=False,
+                signage=signage, order=order, presentation=presentation
             )

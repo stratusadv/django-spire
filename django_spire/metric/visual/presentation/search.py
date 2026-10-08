@@ -40,6 +40,6 @@ class PresentationSearch(Search):
         return obj.name
 
     def result_description(self, obj: models.Presentation) -> str:
-        slides = ' - '.join(slide.name for slide in obj.slides.not_deleted())
+        slides = ' - '.join(slide.name for slide in obj.slides.all())
 
         return f'{slides} - {obj.description}'

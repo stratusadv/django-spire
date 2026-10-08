@@ -18,17 +18,17 @@ class PresentationTransformationService(BaseDjangoModelService['Presentation']):
     obj: Presentation
 
     def slides(self) -> QuerySet[Slide]:
-        return self.obj.slides.with_sections().filter(is_deleted=False)
+        return self.obj.slides.with_sections()
 
     def slide_count(self) -> int:
-        return self.obj.slides.filter(is_deleted=False).count()
+        return self.obj.slides.count()
 
 
 class SlideTransformationService(BaseDjangoModelService['Slide']):
     obj: Slide
 
     def sections(self) -> QuerySet[SlideSection]:
-        return self.obj.sections.filter(is_deleted=False, visual__is_deleted=False)
+        return self.obj.sections.filter(visual__is_deleted=False)
 
 
 class SlideSectionTransformationService(BaseDjangoModelService['SlideSection']):

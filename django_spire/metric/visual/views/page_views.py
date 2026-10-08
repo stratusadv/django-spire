@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Prefetch, Q
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_glue import Glue
 
+from django_spire.history.activity.enums import ActivityVerb
 from django_spire.history.activity.models import Activity
 from django_spire.metric.visual import models
 from django_spire.metric.visual.navigation import VisualNavigation
@@ -77,12 +78,19 @@ def _visual_activity_log(visual: models.Visual) -> QuerySet:
     )
     region_pks = models.VisualRegion.objects.filter(visual=visual).values_list('pk', flat=True)
 
+    condition_clause = Q(content_type=condition_ct, object_id__in=condition_pks) & ~Q(
+        verb=ActivityVerb.CREATED
+    )
+    reference_clause = Q(content_type=reference_ct, object_id__in=reference_pks) & ~Q(
+        verb=ActivityVerb.CREATED
+    )
+
     return (
         Activity.objects.prefetch_user()
         .filter(
             Q(content_type=ContentType.objects.get_for_model(models.Visual), object_id=visual.pk)
-            | Q(content_type=condition_ct, object_id__in=condition_pks)
-            | Q(content_type=reference_ct, object_id__in=reference_pks)
+            | condition_clause
+            | reference_clause
             | Q(content_type=region_ct, object_id__in=region_pks)
         )
         .order_by('-created_datetime')[:10]
@@ -92,14 +100,12 @@ def _visual_activity_log(visual: models.Visual) -> QuerySet:
 @permission_required('django_spire_metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(
-        models.Visual.objects.with_statistic().prefetch_related(
-            Prefetch('conditions', queryset=models.VisualCondition.objects.not_deleted()),
-            Prefetch('references', queryset=models.VisualReference.objects.not_deleted()),
-        ),
-        pk=pk,
+        models.Visual.objects.with_statistic().prefetch_related('conditions', 'references'), pk=pk
     )
 
     nav = VisualNavigation()
+    nav.page_title = str(visual)
+    context = nav.as_context()
     nav.breadcrumbs.add(
         name=str(visual), view_name='django_spire:metric:visual:page:detail', view_kwargs={'pk': pk}
     )

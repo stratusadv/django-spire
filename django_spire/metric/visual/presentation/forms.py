@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.history.activity.utils import log_child_creation
 from django_spire.metric.visual import models as visual_models
 from django_spire.metric.visual.presentation import models
 
@@ -41,7 +42,10 @@ class SlideModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            slide, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+            slide, created = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if created:
+                log_child_creation(slide.presentation, slide)
 
             return GlueResponse(
                 redirect={'url': _presentation_detail_url(slide.presentation_id)}
@@ -92,7 +96,10 @@ class SlideSectionModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            section, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+            section, created = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if created:
+                log_child_creation(section.slide.presentation, section)
 
             return GlueResponse(
                 redirect={'url': _presentation_detail_url(section.slide.presentation_id)}

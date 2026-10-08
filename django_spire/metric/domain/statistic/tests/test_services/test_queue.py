@@ -24,8 +24,8 @@ class StatisticTrackingQueueTestCase(BaseTestCase):
 
     def _tracking_settings(self) -> override_settings:
         return override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY=str(self.statistic.key),
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY=str(self.statistic.key),
+            DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
         )
 
     def test_enqueue_accepts_references(self) -> None:

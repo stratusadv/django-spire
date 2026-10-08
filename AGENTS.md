@@ -216,7 +216,7 @@ MIDDLEWARE = [
 ]
 ```
 
-See `django_spire/history/activity/mixins.py`, `signals.py`, and `middleware.py`.
+See `django_spire/history/activity/mixins.py`, `signals.py`, and `local.py`.
 
 ## Service Layer
 
@@ -655,7 +655,14 @@ For the full, current list use `constellation files contrib/` (or `ls django_spi
 | `django_spire/settings.py` | `DJANGO_SPIRE_*` default settings |
 | `django_spire/conf.py` | `settings` wrapper (project + default values) |
 
-Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`, `DJANGO_SPIRE_SEARCH_REGISTRY` (search palette class mapping), and a metric/remote group (`DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`, `DJANGO_SPIRE_INTERNAL_METRIC_*`, `DJANGO_SPIRE_REMOTE_API_URL`/`KEY`).
+Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`, `DJANGO_SPIRE_SEARCH_REGISTRY` (search palette class mapping), and a metric/remote group (`DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`, `DJANGO_SPIRE_METRIC_STATISTIC_KEY`/`SUB_DOMAIN_KEY`, `DJANGO_SPIRE_REMOTE_API_URL`/`KEY`).
+
+## Metric Click Tracking
+
+`DJANGO_SPIRE_METRIC_STATISTIC_KEY` + `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY` identify the statistic and sub-domain that click tracking records against. Two middlewares in `django_spire/metric/domain/statistic/middleware/` track a click (a GET that returns 200 `text/html`, skipping `/admin/`, `/api/`, and XHR requests) with `view_name` (or the path) as the reference:
+
+- `local.LocalClickMiddleware` — records into this project's database through `StatisticTrackingService` (queued by default).
+- `remote.RemoteClickMiddleware` — records into another site's Spire installation over REST: `POST {DJANGO_SPIRE_REMOTE_API_URL}/api/v1/metric/domain/statistic/{statistic_key}/record` with an `X-API-Key` header. It imports no `django_spire` modules (stdlib + `requests` + `django.conf` only) so any site can drop it in. It is a no-op unless `DJANGO_SPIRE_REMOTE_API_URL` and `DJANGO_SPIRE_REMOTE_API_KEY` are also configured. Both take `threaded=True` by default (background dispatch).
 
 ## Environment
 

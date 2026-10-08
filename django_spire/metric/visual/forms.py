@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.history.activity.utils import log_child_creation
 from django_spire.metric.domain import models as domain_models
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
@@ -70,7 +71,10 @@ class VisualConditionModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            condition, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+            condition, created = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if created:
+                log_child_creation(condition.visual, condition)
 
             return GlueResponse(
                 redirect={
@@ -110,7 +114,10 @@ class VisualReferenceModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            reference_obj, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+            reference_obj, created = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if created:
+                log_child_creation(reference_obj.visual, reference_obj)
 
             return GlueResponse(
                 redirect={
@@ -141,8 +148,7 @@ class VisualReferenceModelForm(forms.ModelForm):
 
         if self.instance.visual_id:
             duplicate = (
-                self.instance.visual.references.not_deleted()
-                .exclude(pk=self.instance.pk)
+                self.instance.visual.references.exclude(pk=self.instance.pk)
                 .filter(reference=pattern)
                 .exists()
             )

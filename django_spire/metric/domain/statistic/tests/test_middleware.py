@@ -7,7 +7,7 @@ from django.http import HttpRequest, HttpResponse
 from django.test import RequestFactory, override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.middleware import StatisticClickMiddleware
+from django_spire.metric.domain.statistic.middleware import LocalClickMiddleware
 from django_spire.metric.domain.statistic.models import StatisticValue
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
@@ -17,7 +17,7 @@ from django_spire.metric.domain.statistic.tests.factories import (
 )
 
 
-class StatisticClickMiddlewareTestCase(BaseTestCase):
+class LocalClickMiddlewareTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -28,8 +28,8 @@ class StatisticClickMiddlewareTestCase(BaseTestCase):
 
     def _tracking_settings(self) -> override_settings:
         return override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY=str(self.statistic.key),
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY=str(self.statistic.key),
+            DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
         )
 
     def _run(
@@ -38,7 +38,7 @@ class StatisticClickMiddlewareTestCase(BaseTestCase):
         def view(_request: HttpRequest) -> HttpResponse:
             return response
 
-        return StatisticClickMiddleware(view, threaded=threaded)(request)
+        return LocalClickMiddleware(view, threaded=threaded)(request)
 
     def test_get_html_page_tracks_click(self) -> None:
         request = RequestFactory().get('/metric/domain/statistic/page/1/detail/')
@@ -125,7 +125,7 @@ class StatisticClickMiddlewareTestCase(BaseTestCase):
         with (
             self._tracking_settings(),
             patch(
-                'django_spire.metric.domain.statistic.middleware.tracking_queue.enqueue'
+                'django_spire.metric.domain.statistic.middleware.local.tracking_queue.enqueue'
             ) as enqueue_mock,
         ):
             self._run(request, response, threaded=True)
