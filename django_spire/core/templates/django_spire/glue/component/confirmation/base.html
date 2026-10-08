@@ -1,0 +1,20 @@
+<div>
+    <div class="fs-5 fw-semibold mb-3">
+        {% block confirmation_title %}Are you sure?{% endblock %}
+    </div>
+
+    {% block confirmation_message %}{% endblock %}
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-outline-secondary" type="button" @click="component.cancel()">
+            Cancel
+        </button>
+        <button
+            class="btn {% block confirmation_button_class %}btn-primary text-light{% endblock %}"
+            type="button"
+            @click="component.confirm()"
+        >
+            {% block confirmation_button %}Confirm{% endblock %}
+        </button>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+{% extends 'django_spire/glue/component/confirmation/base.html' %}
+
+{% block confirmation_title %}
+    <i class="bi bi-trash text-danger me-2"></i>Delete {{ component.model_name|title }}
+{% endblock %}
+
+{% block confirmation_message %}
+    <p>
+        Are you sure you want to delete the {{ component.model_name|lower }}
+        "<strong>{{ component.model_obj }}</strong>"?
+    </p>
+{% endblock %}
+
+{% block confirmation_button_class %}btn-danger{% endblock %}
+
+{% block confirmation_button %}<i class="bi bi-trash me-1"></i>Delete{% endblock %}
