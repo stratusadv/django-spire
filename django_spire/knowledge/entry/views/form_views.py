@@ -30,8 +30,6 @@ def form_view(
     entry = get_object_or_null_obj(Entry, pk=pk)
     collection = Collection.objects.get(pk=collection_pk)
 
-    Glue.model(request, 'entry', entry, fields=['name'])
-
     if request.method == 'POST':
         form = EntryForm(request.POST, instance=entry)
 

@@ -100,11 +100,17 @@ class SubDomainViewTestCase(BaseTestCase):
         assert statistic in response.context['statistics']
         assert response.context['group'].pk == 0
 
+        html = response.content.decode()
+        group_href = reverse(
+            'django_spire:metric:domain:statistic:page:group_detail', kwargs={'pk': group.pk}
+        )
         href = reverse(
             'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': statistic.pk}
         )
-        assert f'href="{href}"' in response.content.decode()
-        assert f'{group.name} / {statistic.name}' in response.content.decode()
+        assert f'href="{group_href}"' in html
+        assert f'href="{href}"' in html
+        assert f'{group.name} /' in html
+        assert statistic.name in html
 
     def test_subdomain_detail_view_group_uses_create_url(self):
         response = self.client.get(
