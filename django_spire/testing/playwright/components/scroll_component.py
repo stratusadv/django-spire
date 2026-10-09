@@ -53,8 +53,30 @@ class ScrollComponent:
 
         return self.page.locator(self.root_selector).locator(self.row_selector)
 
-    def reload_items(self) -> None:
-        self.page.evaluate(f'async () => {{ await {self.data_expression}.reloadItems() }}')
+    @property
+    def state_expression(self) -> str:
+        """
+        JavaScript for the scroll's state, to embed in an evaluate that must
+        read it in the same turn as something else.
+        """
+        return f"""
+            (scroll => ({{
+                hasMore: scroll.hasMore,
+                isLoading: scroll.isLoading,
+                items: [...scroll.items],
+                loadedCount: scroll.loadedCount,
+            }}))({self.data_expression})
+        """.strip()
+
+    def reload_items(self) -> dict[str, Any]:
+        """Reload the list and return its state before it loads any further batch."""
+        return self.page.evaluate(f"""
+            async () => {{
+                await {self.data_expression}.reloadItems()
+
+                return {self.state_expression}
+            }}
+        """)
 
     def row_count(self) -> int:
         return self.rows.count()
@@ -74,18 +96,7 @@ class ScrollComponent:
         self.wait_until_idle()
 
     def state(self) -> dict[str, Any]:
-        return self.page.evaluate(f"""
-            () => {{
-                const scroll = {self.data_expression}
-
-                return {{
-                    hasMore: scroll.hasMore,
-                    isLoading: scroll.isLoading,
-                    items: [...scroll.items],
-                    loadedCount: scroll.loadedCount,
-                }}
-            }}
-        """)
+        return self.page.evaluate(f'() => {self.state_expression}')
 
     def wait_for_row_count(self, count: int) -> None:
         expect(self.rows).to_have_count(count)

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.urls import reverse
 
-from django_spire.testing.playwright.components.glue_scroll import GlueScroll
+from django_spire.testing.playwright.components.scroll_component import ScrollComponent
 
 from test_project.app.comment.models import CommentExample
 from test_project.app.comment.tests.factories import create_test_comment_example
@@ -22,27 +22,6 @@ pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
 ROW_SELECTOR = '.row.border-bottom'
 
-SCROLL = """
-    [...document.querySelectorAll('[x-data]')]
-        .map(element => Alpine.$data(element))
-        .find(data => data && 'loadGeneration' in data && 'rendersRows' in data)
-"""
-
-SCROLL_STATE = f"""
-    () => {{
-        const scroll = {SCROLL}
-
-        return {{
-            names: scroll.items.map(item => item.name),
-            hasMore: scroll.hasMore,
-            isLoading: scroll.isLoading,
-            loadedCount: scroll.loadedCount,
-        }}
-    }}
-"""
-
-SCROLL_IS_IDLE = f'() => !({SCROLL}).isLoading'
-
 
 def _create_comments(count: int) -> list[str]:
     names = [f'Comment {number:02d}' for number in range(1, count + 1)]
@@ -53,16 +32,19 @@ def _create_comments(count: int) -> list[str]:
     return names
 
 
-def _scroll_until_row_count(page: Page, scroll: GlueScroll, count: int) -> None:
-    scroll.wait_for_rows()
-    shown = scroll.row_count()
+def _open_comment_list(page: Page, demo_start: Callable[..., Demo]) -> ScrollComponent:
+    demo = demo_start()
+    demo.goto('comment:page:list2')
 
-    while shown < count:
-        scroll.scroll_to_bottom()
-        scroll.wait_for_row_count_to_increase(shown)
-        shown = scroll.row_count()
+    scroll = ScrollComponent(page, row_selector=ROW_SELECTOR)
+    scroll.rows.first.wait_for()
+    scroll.wait_until_idle()
 
-    page.wait_for_function(SCROLL_IS_IDLE)
+    return scroll
+
+
+def _names(state: dict[str, Any]) -> list[str]:
+    return [item['name'] for item in state['items']]
 
 
 def test_scrolling_appends_every_batch_once_and_in_order(
@@ -72,17 +54,13 @@ def test_scrolling_appends_every_batch_once_and_in_order(
 
     names = _create_comments(60)
 
-    demo = demo_start()
-    demo.goto('comment:page:list2')
-
-    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
-    _scroll_until_row_count(page, scroll, 60)
-
+    scroll = _open_comment_list(page, demo_start)
+    scroll.scroll_until_row_count(60)
     scroll.scroll_to_bottom()
-    page.wait_for_function(SCROLL_IS_IDLE)
-    state = page.evaluate(SCROLL_STATE)
+    scroll.wait_until_idle()
+    state = scroll.state()
 
-    assert state['names'] == names
+    assert _names(state) == names
     assert state['loadedCount'] == 60
     assert state['hasMore'] is False
     assert scroll.row_count() == 60
@@ -95,24 +73,14 @@ def test_reloading_shows_the_current_first_batch(
 
     names = _create_comments(30)
 
-    demo = demo_start()
-    demo.goto('comment:page:list2')
-
-    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
-    _scroll_until_row_count(page, scroll, 30)
+    scroll = _open_comment_list(page, demo_start)
+    scroll.scroll_until_row_count(30)
 
     CommentExample.objects.filter(name=names[0]).delete()
 
-    state = page.evaluate(f"""
-        async () => {{
-            await ({SCROLL}).reloadItems()
+    state = scroll.reload_items()
 
-            return ({SCROLL_STATE})()
-        }}
-    """)
-
-    assert state['names'] == names[1:26]
-    assert names[0] not in state['names']
+    assert _names(state) == names[1:26]
     assert state['loadedCount'] == 25
     assert state['hasMore'] is True
     assert state['isLoading'] is False
@@ -125,12 +93,7 @@ def test_a_batch_in_flight_when_a_reload_begins_is_never_shown(
 
     names = _create_comments(60)
 
-    demo = demo_start()
-    demo.goto('comment:page:list2')
-
-    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
-    scroll.wait_for_rows()
-    page.wait_for_function(SCROLL_IS_IDLE)
+    scroll = _open_comment_list(page, demo_start)
 
     held_routes: list[Route] = []
 
@@ -144,7 +107,7 @@ def test_a_batch_in_flight_when_a_reload_begins_is_never_shown(
 
     held_batch_first_name = page.evaluate(f"""
         (names) => {{
-            const scroll = {SCROLL}
+            const scroll = {scroll.data_expression}
             const heldBatchFirstName = names[scroll.items.length]
 
             window.heldBatchWasShown = false
@@ -167,7 +130,7 @@ def test_a_batch_in_flight_when_a_reload_begins_is_never_shown(
     assert len(held_routes) == 1
     assert held_batch_first_name in names[25:]
 
-    page.evaluate(f'() => {{ window.heldReload = ({SCROLL}).reloadItems() }}')
+    page.evaluate(f'() => {{ window.heldReload = {scroll.data_expression}.reloadItems() }}')
     held_routes[0].continue_()
     page.unroute('**/__dg__/**', hold_load_items)
 
@@ -175,12 +138,12 @@ def test_a_batch_in_flight_when_a_reload_begins_is_never_shown(
         async () => {{
             await Promise.all([window.heldLoad, window.heldReload])
 
-            return {{...({SCROLL_STATE})(), heldBatchWasShown: window.heldBatchWasShown}}
+            return {{...{scroll.state_expression}, heldBatchWasShown: window.heldBatchWasShown}}
         }}
     """)
 
     assert state['heldBatchWasShown'] is False
-    assert state['names'] == names[:25]
+    assert _names(state) == names[:25]
     assert state['loadedCount'] == 25
     assert state['isLoading'] is False
     assert state['hasMore'] is True
@@ -193,16 +156,14 @@ def test_a_viewport_taller_than_the_list_still_loads_every_batch(
 
     names = _create_comments(60)
 
-    demo = demo_start()
     page.set_viewport_size({'width': 1280, 'height': 6000})
-    demo.goto('comment:page:list2')
 
-    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
+    scroll = _open_comment_list(page, demo_start)
     scroll.wait_for_row_count(60)
-    page.wait_for_function(SCROLL_IS_IDLE)
-    state = page.evaluate(SCROLL_STATE)
+    scroll.wait_until_idle()
+    state = scroll.state()
 
-    assert state['names'] == names
+    assert _names(state) == names
     assert state['loadedCount'] == 60
     assert state['hasMore'] is False
 
@@ -215,12 +176,8 @@ def test_creating_and_editing_go_to_the_one_form_route(
     _create_comments(2)
     first_comment = CommentExample.objects.order_by('id').first()
 
-    demo = demo_start()
-    demo.goto('comment:page:list2')
-
-    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
+    scroll = _open_comment_list(page, demo_start)
     scroll.wait_for_row_count(2)
-    page.wait_for_function(SCROLL_IS_IDLE)
     page.route(
         '**/comment/page/*/form/',
         lambda route: route.fulfill(status=200, content_type='text/html', body='Comment form'),
@@ -230,7 +187,7 @@ def test_creating_and_editing_go_to_the_one_form_route(
     page.wait_for_url(f'**{reverse("comment:page:form", kwargs={"pk": 0})}')
     page.go_back()
     scroll.wait_for_row_count(2)
-    page.wait_for_function(SCROLL_IS_IDLE)
+    scroll.wait_until_idle()
 
     scroll.rows.first.get_by_title('Edit Comment').click()
     page.wait_for_url(f'**{reverse("comment:page:form", kwargs={"pk": first_comment.pk})}')
