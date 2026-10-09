@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "test": "bun test",
     "vendor": "node scripts/vendor_frontend.mjs"
   },
   "devDependencies": {
@@ -10,6 +11,8 @@
     "@alpinejs/mask": "3.15.12",
     "@alpinejs/persist": "3.15.12",
     "@alpinejs/sort": "3.15.12",
+    "@happy-dom/global-registrator": "20.7.0",
+    "alpinejs": "3.15.12",
     "bootstrap": "5.3.8",
     "bootstrap-icons": "1.13.1",
     "echarts": "6.1.0",
