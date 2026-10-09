@@ -99,8 +99,13 @@ def test_deleting_a_duck_is_confirmed_and_uses_the_overridden_delete(
 
     _row(page, alpha).get_by_title('Delete Duck').click()
     expect(modal).to_contain_text('Alpha Duck')
+
+    requests_while_cancelling: list[str] = []
+    page.on('request', lambda request: requests_while_cancelling.append(request.url))
     modal.get_by_role('button', name='Cancel').click()
     expect(modal).to_be_hidden()
+
+    assert requests_while_cancelling == []
 
     assert scroll.row_count() == 2
     assert Duck.objects.get(pk=alpha.pk).is_active is True

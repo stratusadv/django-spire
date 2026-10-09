@@ -39,12 +39,14 @@ class BaseConfirmationComponentTestCase(BaseTestCase):
             {'name': 'confirmed', 'detail': {'greeting': 'hello'}},
         ]
 
-    def test_cancelling_fires_cancelled_and_nothing_else(self) -> None:
-        component = GreetingConfirmationComponent()
+    def test_cancelling_is_raised_in_the_browser_and_has_no_callable(self) -> None:
+        html = render_to_string(
+            GreetingConfirmationComponent.template,
+            {'component': GreetingConfirmationComponent()},
+        )
 
-        component.cancel()
-
-        assert component.__dict__['_pending_events'] == [{'name': 'cancelled', 'detail': {}}]
+        assert "component.$dispatch('cancelled')" in html
+        assert not hasattr(GreetingConfirmationComponent, 'cancel')
 
     def test_the_prompt_keeps_the_templates_wording_when_none_is_given(self) -> None:
         html = ' '.join(render_to_string(

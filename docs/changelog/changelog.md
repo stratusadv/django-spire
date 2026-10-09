@@ -69,7 +69,8 @@
 - Confirmation components, in `django_spire.core.components`.
   `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
   `cancelled`. Its prompt is worded with `title`, `message` and `confirm_label` when it is
-  built.
+  built. Cancelling makes no request: the template raises `cancelled` in the browser with
+  Glue's `$dispatch`, which needs `django-glue` 1.2.3.
   - `BaseModelActionConfirmationComponent` confirms one action on one model row, built as
     `(instance=row)`. A subclass writes `perform_action()`, and `confirmed` carries the
     row's `pk`.
