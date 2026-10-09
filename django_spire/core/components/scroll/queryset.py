@@ -5,6 +5,7 @@ from collections.abc import Sequence  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from django.core.exceptions import ValidationError
+from django_glue.exceptions import GlueModelInstanceNotFoundError
 
 from django_spire.core.components.scroll.base import BaseScrollComponent
 
@@ -57,3 +58,16 @@ class QuerySetScrollComponent(BaseScrollComponent, ABC):
             return item['pk']
 
         return item.pk
+
+    def get_instance(self, pk: Any) -> Model:
+        """
+        Return the row of ``get_queryset()`` with this primary key, for a
+        callable that acts on one row. A row that is not in the list is
+        reported as Glue's ``model_instance_not_found``, a 404.
+        """
+        queryset = self.get_queryset()
+
+        try:
+            return queryset.get(pk=pk)
+        except queryset.model.DoesNotExist as error:
+            raise GlueModelInstanceNotFoundError(queryset.model._meta.label, pk) from error

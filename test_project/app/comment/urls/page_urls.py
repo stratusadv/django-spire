@@ -11,9 +11,9 @@ urlpatterns = [
     path('list/', views.comment_list_view, name='list'),
     path('<int:pk>/detail/', views.comment_detail_view, name='detail'),
     path('<int:pk>/form/', views.comment_detail_view, name='form'),
-    path('list2/',
+    path('list/component/',
          permission_required('project.view_project')(
             CommentListComponent.as_view(),
          ),
-         name='list2'),
+         name='list_component'),
 ]

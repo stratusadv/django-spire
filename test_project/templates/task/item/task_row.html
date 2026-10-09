@@ -52,11 +52,11 @@
                 class="btn btn-sm btn-outline-success"
                 type="button"
                 title="Complete Task"
-                x-show="item.status !== 'com'"
-                @click="
+                x-show="item.status !== '{{ component.done_status }}'"
+                x-bind="asyncButton(async () => {
                     await item.complete()
                     refreshItem(item.$pk)
-                "
+                })"
             >
                 <i class="bi bi-check-lg"></i>
             </button>
@@ -64,11 +64,11 @@
                 class="btn btn-sm btn-outline-primary"
                 type="button"
                 title="Duplicate Task"
-                @click="
+                x-bind="asyncButton(async () => {
                     const duplicated = await item.services.factory.duplicate()
 
                     addItem(duplicated.new_task_id)
-                "
+                })"
             >
                 <i class="bi bi-copy"></i>
             </button>
@@ -77,7 +77,7 @@
                     class="btn btn-sm btn-outline-warning"
                     type="button"
                     title="Detach From Parent"
-                    @click="component.detach({pk: item.$pk})"
+                    x-bind="asyncButton(() => component.detach({pk: item.$pk}))"
                 >
                     <i class="bi bi-box-arrow-up-left"></i>
                 </button>

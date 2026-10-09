@@ -37,7 +37,7 @@ def _create_comments(count: int) -> list[str]:
 
 def _open_comment_list(page: Page, demo_start: Callable[..., Demo]) -> ScrollComponent:
     demo = demo_start()
-    demo.goto('comment:page:list2')
+    demo.goto('comment:page:list_component')
 
     scroll = ScrollComponent(page, row_selector=ROW_SELECTOR)
     scroll.rows.first.wait_for()
@@ -108,32 +108,29 @@ def test_a_batch_in_flight_when_a_reload_begins_is_never_shown(
 
     page.route('**/__dg__/**', hold_load_items)
 
-    held_batch_first_name = page.evaluate(f"""
-        (names) => {{
-            const scroll = {scroll.data_expression}
-            const heldBatchFirstName = names[scroll.items.length]
+    with page.expect_request(lambda request: 'load_items' in (request.post_data or '')):
+        held_batch_first_name = page.evaluate(f"""
+            (names) => {{
+                const scroll = {scroll.data_expression}
+                const heldBatchFirstName = names[scroll.items.length]
 
-            window.heldBatchWasShown = false
-            Alpine.effect(() => {{
-                if (scroll.items.some(item => item.name === heldBatchFirstName)) {{
-                    window.heldBatchWasShown = true
-                }}
-            }})
-            window.heldLoad = scroll.loadMoreItems()
+                window.heldBatchWasShown = false
+                Alpine.effect(() => {{
+                    if (scroll.items.some(item => item.name === heldBatchFirstName)) {{
+                        window.heldBatchWasShown = true
+                    }}
+                }})
+                window.heldLoad = scroll.loadMoreItems()
 
-            return heldBatchFirstName
-        }}
-    """, names)
+                return heldBatchFirstName
+            }}
+        """, names)
 
-    for _ in range(100):
-        if held_routes:
-            break
-        page.wait_for_timeout(50)
+    page.evaluate(f'() => {{ window.heldReload = {scroll.data_expression}.reloadItems() }}')
 
     assert len(held_routes) == 1
     assert held_batch_first_name in names[25:]
 
-    page.evaluate(f'() => {{ window.heldReload = {scroll.data_expression}.reloadItems() }}')
     held_routes[0].continue_()
     page.unroute('**/__dg__/**', hold_load_items)
 
@@ -186,7 +183,7 @@ def test_creating_and_editing_go_to_the_one_form_route(
         lambda route: route.fulfill(status=200, content_type='text/html', body='Comment form'),
     )
     returning_to_the_list = r'\?return_url=' + re.escape(
-        quote(reverse('comment:page:list2'), safe='')
+        quote(reverse('comment:page:list_component'), safe='')
     )
 
     page.get_by_role('button', name='New Comment').click()

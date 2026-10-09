@@ -1,7 +1,7 @@
 /**
  * A button that runs one awaited call, and is off until that call settles.
  *
- *     <button x-data="asyncButton(() => component.save())" x-bind="button">Save</button>
+ *     <button x-bind="asyncButton(() => component.save())">Save</button>
  *
  * `isRunning` is true for the length of this button's own call.
  *
@@ -10,12 +10,27 @@
  * same flag take turns:
  *
  *     <div x-data="{ isSettling: false }">
- *         <button x-data="asyncButton(() => component.cancel(), 'isSettling')" x-bind="button">
- *         <button x-data="asyncButton(() => component.confirm(), 'isSettling')" x-bind="button">
+ *         <button x-bind="asyncButton(() => component.cancel(), 'isSettling')">
+ *         <button x-bind="asyncButton(() => component.confirm(), 'isSettling')">
  *     </div>
+ *
+ * The binding gives the element its own x-data. An element that needs to set
+ * x-data itself uses the data component and binds its `button`:
+ *
+ *     <button x-data="asyncButton(() => component.save())" x-bind="button">
  */
 document.addEventListener('alpine:init', () => {
-    Alpine.data('asyncButton', (call, busyName = null) => ({
+    const button = {
+        ['@click']() {
+            return this.run();
+        },
+        [':disabled']() {
+            return this.isBusy;
+        },
+    };
+
+    const asyncButton = (call, busyName = null) => ({
+        button,
         isRunning: false,
 
         get isBusy() {
@@ -43,14 +58,14 @@ document.addEventListener('alpine:init', () => {
                 }
             }
         },
+    });
 
-        button: {
-            ['@click']() {
-                return this.run();
-            },
-            [':disabled']() {
-                return this.isBusy;
-            },
+    Alpine.data('asyncButton', asyncButton);
+
+    Alpine.bind('asyncButton', (call, busyName = null) => ({
+        ['x-data']() {
+            return asyncButton(call, busyName);
         },
+        ...button,
     }));
 });

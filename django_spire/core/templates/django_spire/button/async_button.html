@@ -12,8 +12,7 @@
     class="btn {{ button_class|default:'btn-primary text-light' }}"
     type="button"
     {% if button_title %}title="{{ button_title }}"{% endif %}
-    x-data="asyncButton(() => {{ x_button_click }}{% if x_busy %}, '{{ x_busy }}'{% endif %})"
-    x-bind="button"
+    x-bind="asyncButton(() => {{ x_button_click }}{% if x_busy %}, '{{ x_busy }}'{% endif %})"
 >
     <span x-show="isRunning" x-cloak class="spinner-border spinner-border-sm me-1" role="status"></span>
     {% if button_icon %}<i x-show="!isRunning" class="{{ button_icon }} me-1"></i>{% endif %}{{ button_text }}

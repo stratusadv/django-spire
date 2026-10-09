@@ -45,17 +45,17 @@ class RenderedNumberScrollComponent(NumberScrollComponent):
 
 class ClientItemTemplateScrollComponent(NumberScrollComponent):
     template = 'django_spire/component/scroll/base.html'
-    item_template = 'comment/item/item2.html'
+    item_template = 'comment/item/comment_row.html'
 
 
 class UnextendedTemplateScrollComponent(NumberScrollComponent):
-    template = 'comment/item/item2.html'
+    template = 'comment/item/comment_row.html'
 
 
 class UnextendedItemTemplateScrollComponent(NumberScrollComponent):
     template = 'django_spire/component/scroll/base.html'
     item_render_mode = ScrollItemRenderMode.SERVER
-    item_template = 'comment/item/item2.html'
+    item_template = 'comment/item/comment_row.html'
 
 
 class ServerItemTemplateOnClientScrollComponent(NumberScrollComponent):

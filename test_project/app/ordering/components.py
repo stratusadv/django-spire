@@ -31,7 +31,7 @@ class DuckListComponent(ModelCrudScrollComponent):
     template = 'ordering/component/duck_list.html'
     item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'ordering/item/duck_row.html'
-    view_template = 'ordering/page/duck_list_component_page.html'
+    view_template = 'django_spire/component/page/full_page.html'
 
     item_delete_options = ComponentDeleteOptions(component=DuckDeleteConfirmationComponent)
     item_form_options = PageFormOptions('order:update', create_url_name='order:create')
@@ -41,6 +41,7 @@ class DuckListComponent(ModelCrudScrollComponent):
     def __post_init__(self, request: HttpRequest) -> None:
         super().__post_init__(request)
 
+        # Stands in for a permission check: a real list sets this from what the user may do.
         self.access = Glue.Access.DELETE
         self.context_data.update({
             'page_title': 'Duck',
@@ -53,7 +54,7 @@ class DuckListComponent(ModelCrudScrollComponent):
 
     @Glue.attr(required_access=Glue.Access.CHANGE, skip_rerender=True)
     def duplicate(self, pk: int) -> None:
-        duck = Duck.objects.active().get(pk=pk)
+        duck = self.get_instance(pk)
         duplicated, _created = Duck().services.save_model_obj(
             name=f'{duck.name} (Copy)',
             color=duck.color,
@@ -70,5 +71,5 @@ class DuckListComponent(ModelCrudScrollComponent):
                 details={'color': color},
             )
 
-        Duck.objects.active().get(pk=pk).services.save_model_obj(color=color)
+        self.get_instance(pk).services.save_model_obj(color=color)
         self.item_changed(key=pk)

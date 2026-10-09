@@ -8,6 +8,7 @@ from django.db import connection
 from django.test import RequestFactory
 from django.test.utils import CaptureQueriesContext
 from django_glue import Glue
+from django_glue.exceptions import GlueModelInstanceNotFoundError
 from django_glue.glue.objects.django.model.object import ModelGlue
 from django_glue.glue.sequence import SequenceGlue
 
@@ -169,7 +170,7 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
 
     def test_glue_items_take_a_client_item_template(self) -> None:
         class TemplatedGlueItemScrollComponent(GlueItemCommentScrollComponent):
-            item_template = 'comment/item/item2.html'
+            item_template = 'comment/item/comment_row.html'
 
         assert TemplatedGlueItemScrollComponent().renders_items_on_server is False
 
@@ -240,6 +241,20 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         assert component.get_item(dropped.pk) is None
         assert component.get_item(kept.pk + dropped.pk + 1) is None
         assert component.get_item('not-a-key') is None
+
+    def test_get_instance_returns_a_row_of_the_queryset_or_reports_it_not_found(self) -> None:
+        kept = create_test_comment_example(name='Kept Notes')
+        dropped = create_test_comment_example(name='Dropped Notes')
+        component = KeptCommentScrollComponent()
+
+        with self.assertNumQueries(1):
+            assert component.get_instance(kept.pk) == kept
+
+        with pytest.raises(GlueModelInstanceNotFoundError) as error:
+            component.get_instance(dropped.pk)
+
+        assert error.value.status == 404
+        assert error.value.pk == dropped.pk
 
     def test_a_batch_costs_one_query_wherever_it_starts(self) -> None:
         for number in range(7):

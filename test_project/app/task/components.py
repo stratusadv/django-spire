@@ -11,7 +11,7 @@ from django_spire.core.components import (
     ModelFormComponent,
     PageDeleteOptions,
 )
-from test_project.app.task.choices import TaskStatusChoices
+from test_project.app.task.choices import TaskOrderingChoices, TaskStatusChoices
 from test_project.app.task.forms import TaskModalForm
 from test_project.app.task.models import Task
 from test_project.app.task.navigation import TaskNavigation
@@ -22,18 +22,10 @@ if TYPE_CHECKING:
     from django_glue.glue.objects.django.model.object import ModelGlue
 
 
-ORDERINGS = {
-    'name': 'Name',
-    '-name': 'Name, descending',
-    'status': 'Status',
-    '-created_datetime': 'Newest first',
-}
-
-
 class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
     template = 'task/component/task_list.html'
     item_template = 'task/item/task_row.html'
-    view_template = 'task/page/task_list_page.html'
+    view_template = 'django_spire/component/page/full_page.html'
     fields = ('name', 'status')
 
     item_form_options = ComponentFormOptions(
@@ -41,16 +33,18 @@ class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
         template='task/component/task_form_modal.html',
     )
 
-    ordering_choices = tuple(ORDERINGS.items())
+    done_status = TaskStatusChoices.DONE
+    ordering_choices = tuple(TaskOrderingChoices.choices)
     status_choices = tuple(TaskStatusChoices.choices)
 
     search: str = Glue.attr('', editable=True)
     status: str = Glue.attr('', editable=True)
-    ordering: str = Glue.attr('name', editable=True)
+    ordering: str = Glue.attr(TaskOrderingChoices.NAME, editable=True)
 
     def __post_init__(self, request: HttpRequest) -> None:
         super().__post_init__(request)
 
+        # Stands in for a permission check: a real list sets this from what the user may do.
         self.access = Glue.Access.DELETE
 
         nav = TaskNavigation()
@@ -64,7 +58,10 @@ class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
         if self.status in TaskStatusChoices.values:
             queryset = queryset.filter(status=self.status)
 
-        return queryset.order_by(self.ordering if self.ordering in ORDERINGS else 'name')
+        if self.ordering in TaskOrderingChoices.values:
+            return queryset.order_by(self.ordering)
+
+        return queryset.order_by(TaskOrderingChoices.NAME)
 
     def get_glue_item(self, item: Task, name: str, **kwargs: Any) -> ModelGlue:
         return super().get_glue_item(item, name, form=TaskModalForm, **kwargs)
@@ -98,5 +95,5 @@ class TaskChildListComponent(TaskListComponent):
 
     @Glue.attr(required_access=Glue.Access.CHANGE, skip_rerender=True)
     def detach(self, pk: int) -> None:
-        self.get_queryset().get(pk=pk).services.save_model_obj(parent=None)
+        self.get_instance(pk).services.save_model_obj(parent=None)
         self.item_removed(key=pk)

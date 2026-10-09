@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class HistoryListComponent(QuerySetScrollComponent):
     template = 'history/component/history_list.html'
-    view_template = 'history/page/history_list_component_page.html'
+    view_template = 'django_spire/component/page/full_page.html'
     fields = ('name', 'description')
 
     def __post_init__(self, request: HttpRequest) -> None:

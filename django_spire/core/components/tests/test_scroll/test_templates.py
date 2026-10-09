@@ -55,13 +55,13 @@ class TemplateExtendsTestCase(BaseTestCase):
 
     def test_a_template_without_extends_does_not_extend_an_ancestor(self) -> None:
         assert not template_extends(
-            'comment/item/item2.html',
+            'comment/item/comment_row.html',
             ITEM_TEMPLATES,
         )
 
     def test_a_template_that_extends_something_else_does_not_extend_an_ancestor(self) -> None:
         assert not template_extends(
-            'comment/page/comment_list_page2.html',
+            'django_spire/component/page/full_page.html',
             SCROLL_TEMPLATES,
         )
 

@@ -5,7 +5,6 @@ from typing import Any, ClassVar
 
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django_glue import Glue
-from django_glue.exceptions import GlueModelInstanceNotFoundError
 
 from django_spire.core.components.confirmation import (
     BaseModelDeleteConfirmationComponent,
@@ -80,14 +79,10 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             message = f'{type(self).__name__} has no confirmation component to delete a row with.'
             raise PermissionDenied(message)
 
-        queryset = self.get_queryset()
-
-        try:
-            instance = queryset.get(pk=pk)
-        except queryset.model.DoesNotExist as error:
-            raise GlueModelInstanceNotFoundError(queryset.model._meta.label, pk) from error
-
-        return self.item_delete_options.component(instance=instance, access=self.access)
+        return self.item_delete_options.component(
+            instance=self.get_instance(pk),
+            access=self.access,
+        )
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def load_item_form(self, pk: int | None = None) -> ModelFormComponent:
@@ -96,11 +91,6 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             raise PermissionDenied(message)
 
         if pk is not None:
-            queryset = self.get_queryset()
-
-            try:
-                queryset.values_list('pk', flat=True).get(pk=pk)
-            except queryset.model.DoesNotExist as error:
-                raise GlueModelInstanceNotFoundError(queryset.model._meta.label, pk) from error
+            self.get_instance(pk)
 
         return self.item_form_options.build_component(pk=pk, access=self.access)

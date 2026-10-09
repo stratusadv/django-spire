@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 
 class CommentListComponent(ModelCrudScrollComponent):
     template = 'comment/component/comment_list.html'
-    item_template = 'comment/item/item2.html'
-    view_template = 'comment/page/comment_list_page2.html'
+    item_template = 'comment/item/comment_row.html'
+    view_template = 'django_spire/component/page/full_page.html'
     fields = ('name', 'description')
     item_form_options = PageFormOptions('comment:page:form')
 

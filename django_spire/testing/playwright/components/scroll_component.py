@@ -8,11 +8,7 @@ if TYPE_CHECKING:
     from playwright.sync_api import Locator, Page
 
 
-FIRST_SCROLL = """
-    [...document.querySelectorAll('[x-data]')]
-        .map(element => Alpine.$data(element))
-        .find(data => data && 'loadGeneration' in data && 'rendersRows' in data)
-"""
+SCROLL_SELECTOR = '[data-scroll-component]'
 
 
 class ScrollComponent:
@@ -41,10 +37,9 @@ class ScrollComponent:
 
     @property
     def data_expression(self) -> str:
-        if self.root_selector is None:
-            return f'({FIRST_SCROLL})'
+        selector = self.root_selector or SCROLL_SELECTOR
 
-        return f"Alpine.$data(document.querySelector('{self.root_selector}'))"
+        return f"Alpine.$data(document.querySelector('{selector}'))"
 
     @property
     def rows(self) -> Locator:

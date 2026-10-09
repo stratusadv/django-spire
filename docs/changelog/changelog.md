@@ -57,8 +57,9 @@
 - `django_spire/button/async_button.html`, a button that runs one awaited call and is off,
   showing a spinner, until it settles. It takes `x_button_click`, `button_text`,
   `button_class`, `button_icon` and `button_title`. Buttons given the same `x_busy` flag
-  take turns. The behaviour is the `asyncButton` Alpine component in
-  `django_spire/js/components/async_button.js`, which any element can use directly.
+  take turns. The behaviour is `asyncButton` in
+  `django_spire/js/components/async_button.js`, which any element can use directly with
+  one attribute: `x-bind="asyncButton(() => component.save())"`.
 - A project that does not extend Spire's `base.html` must load the scripts in
   `django_spire/js/components/` itself.
 - Confirmation components, in `django_spire.core.components`.
@@ -74,6 +75,10 @@
     Both work for any model with no subclass.
 - `ScrollComponent`, a Playwright helper in `django_spire.testing.playwright` for the new
   scroll.
+- `django_spire/component/page/full_page.html`, a full page whose content is one Glue
+  component. A component served as a page names it as its `view_template`.
+- `QuerySetScrollComponent.get_instance(pk)` returns one row of the list's queryset for a
+  callable that acts on it, and reports a row outside the list as a 404.
 - A form component can be built without a subclass:
   `ModelFormComponent(form_class=TaskForm, template='task/form.html', pk=pk)`. The form
   class must be defined at module level.
