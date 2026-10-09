@@ -13,6 +13,7 @@ from django_glue.glue.sequence import SequenceGlue
 
 from django_spire.api.models import ApiAccess
 from django_spire.core.components.scroll import (
+    BaseScrollComponent,
     GlueScrollItemsMixin,
     QuerySetScrollComponent,
     ScrollItemRenderMode,
@@ -171,6 +172,12 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
             item_template = 'comment/item/item2.html'
 
         assert TemplatedGlueItemScrollComponent().renders_items_on_server is False
+
+    def test_glue_items_on_a_scroll_that_is_not_a_queryset_scroll_are_refused(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='without a QuerySetScrollComponent'):
+
+            class GlueItemBaseScrollComponent(GlueScrollItemsMixin, BaseScrollComponent):
+                pass
 
     def test_glue_items_rendered_on_the_server_are_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='item_render_mode SERVER'):

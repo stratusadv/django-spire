@@ -75,7 +75,8 @@ callable on the component. A load returns a `SequenceGlue` of up to
 `batch_size` rows, and a full batch means there may be more, because Glue does
 not allow Glue objects inside a plain result to say so. A list whose length is
 an exact multiple of the batch size makes one empty request at its end. Each
-row is named from its key, which is how the client reads the key back. The
+row is named from its key, so that names are unique, and the client reads the
+key from the Glue model's own `$pk`. The
 client keeps each batch for as long as its rows are shown, because a row's
 address is derived from its batch's and is disposed with it. A reload releases
 the previous batches and rows, and a single row that is removed or replaced is

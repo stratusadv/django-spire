@@ -8,6 +8,7 @@ from django_glue.glue.objects.django.model.object import ModelGlue  # noqa: TC00
 from django_glue.glue.sequence import SequenceGlue
 
 from django_spire.core.components.scroll.base import ScrollItemRenderMode
+from django_spire.core.components.scroll.queryset import QuerySetScrollComponent
 
 if TYPE_CHECKING:
     from django.db.models import Model
@@ -40,7 +41,14 @@ class GlueScrollItemsMixin:
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
-        if getattr(cls, 'item_render_mode', None) is ScrollItemRenderMode.SERVER:
+        if not issubclass(cls, QuerySetScrollComponent):
+            message = (
+                f'{cls.__name__} uses GlueScrollItemsMixin without a QuerySetScrollComponent: '
+                'list the mixin ahead of one, since it builds each row from a model instance.'
+            )
+            raise ImproperlyConfigured(message)
+
+        if cls.item_render_mode is ScrollItemRenderMode.SERVER:
             message = (
                 f'{cls.__name__} uses GlueScrollItemsMixin with item_render_mode SERVER: '
                 'rows rendered on the server have no item in the browser to be a Glue object.'
@@ -54,8 +62,8 @@ class GlueScrollItemsMixin:
     def get_glue_item(self, item: Model, name: str, **kwargs: Any) -> ModelGlue:
         """
         Return the Glue model the browser receives for ``item``, built with
-        ``name`` as its unique name, which carries the item's key. An override
-        passes further ``Glue.model`` options through ``super()``.
+        ``name`` as its unique name. An override passes further ``Glue.model``
+        options through ``super()``.
         """
         options = {'access': self.access, 'fields': self.fields, **kwargs}
 

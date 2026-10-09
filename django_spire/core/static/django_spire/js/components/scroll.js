@@ -100,9 +100,6 @@ document.addEventListener('alpine:init', () => {
         findRow(key) {
             return this.$refs.list.querySelector(`:scope > [data-scroll-key='${CSS.escape(String(key))}']`);
         },
-        glueKey(item) {
-            return item._name.replace(/^item_/, '');
-        },
         indexOfKey(key) {
             return this.keys.findIndex(existingKey => String(existingKey) === String(key));
         },
@@ -159,7 +156,7 @@ document.addEventListener('alpine:init', () => {
 
             return {
                 items,
-                keys: items.map(item => this.glueKey(item)),
+                keys: items.map(item => item.$pk),
                 hasMore: items.length === this.batchSize,
             };
         },
@@ -168,7 +165,7 @@ document.addEventListener('alpine:init', () => {
                 return {item: result.item, key: result.key};
             }
 
-            return {item: result, key: this.glueKey(result)};
+            return {item: result, key: result.$pk};
         },
         async refreshItem(key) {
             const result = await this.component.load_item({key});
