@@ -17,9 +17,9 @@
     `ModelFormComponent`, instead.
   - `ModelFormComponent` no longer inherits from `FormComponent`. Both inherit from the new
     `BaseFormComponent`.
-  - The components moved from `django_spire.core.glue.components` to
-    `django_spire.core.components`, with no alias at the old path. Import every component
-    from there: `from django_spire.core.components import ModelFormComponent`.
+- The components moved from `django_spire.core.glue.components` to
+  `django_spire.core.components`, with no alias at the old path. Import every component
+  from there: `from django_spire.core.components import ModelFormComponent`.
 - `django_spire/js/search_palette.js` moved to `django_spire/js/components/search_palette.js`,
   beside the other scripts that register an Alpine component. Spire's `base.html` loads it
   from there; a project that loads it by path updates the path.
@@ -33,20 +33,24 @@
     `get_items(offset, limit)`, `get_item(key)` and `get_item_key(item)`.
     `item_template` is the markup for one row, and `item_render_mode` is a
     `ScrollItemRenderMode`: `CLIENT`, the default, sends rows as data and draws them in the
-    template's `scroll_item` block, and `SERVER` renders them on the server. Controls are editable attributes the subclass declares,
-    and the template's `reloadItems()` applies them.
+    template's `scroll_item` block, and `SERVER` renders them on the server. Controls are
+    editable attributes the subclass declares, and the template's `reloadItems()` applies
+    them.
   - `QuerySetScrollComponent` lists the rows of `get_queryset()`, by primary key when it has
-    no ordering.
-  - `GlueScrollItemsMixin` sends each row as a Glue object, so row markup can call a model's
-    Glue methods and services and save its fields.
+    no ordering. `get_instance(pk)` returns one row of that queryset for a callable that
+    acts on it, and reports a row outside the list as a 404.
+  - `GlueScrollItemsMixin` sends each row of a queryset scroll as a Glue model, so row
+    markup can call the model's Glue methods and services and save its fields.
   - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a
     `ComponentFormOptions`, which shows a form component in a modal, or a
     `PageFormOptions`, which sends the user to a page. `item_delete_options` is a
     `ComponentDeleteOptions`, which shows a confirmation component in a modal and
     soft-deletes by default, or a `PageDeleteOptions`, which sends the user to a delete
     page. A page link carries a `return_url`: the route named by the options'
-    `return_url_name`, or the address the list is shown at. The template gains `createItem()`, `editItem(item)` and
-    `deleteItem(item)`.
+    `return_url_name`, or the address the list is shown at. The template gains
+    `createItem()`, `editItem(item)` and `deleteItem(item)`. The browser fetches the modal
+    components with the `load_item_form` and `load_item_delete_confirmation` callables,
+    which check the user's access and that the row is in the list.
   - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
     `removeItem(key)`, or by firing `item_added`, `item_changed` or `item_removed` from a
     callable.
@@ -77,8 +81,6 @@
   scroll.
 - `django_spire/component/page/full_page.html`, a full page whose content is one Glue
   component. A component served as a page names it as its `view_template`.
-- `QuerySetScrollComponent.get_instance(pk)` returns one row of the list's queryset for a
-  callable that acts on it, and reports a row outside the list as a 404.
 - A form component can be built without a subclass:
   `ModelFormComponent(form_class=TaskForm, template='task/form.html', pk=pk)`. The form
   class must be defined at module level.

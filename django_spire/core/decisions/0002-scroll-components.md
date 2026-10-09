@@ -64,22 +64,23 @@ that finishes after a newer reload began is discarded.
 **`QuerySetScrollComponent`** takes its items from `get_queryset()`. It
 appends the primary key to the queryset's ordering, so that the order is total
 and offsets are stable. An unordered queryset is therefore listed by primary
-key. Data rows are dicts of `pk` and
-`fields`.
+key. Data rows are dicts of `pk` and `fields`. `get_instance(pk)` returns one
+row of the queryset for a callable that acts on it, and reports a row outside
+the list as Glue's 404.
 
 **`GlueScrollItemsMixin`** sends each row of a queryset scroll as a Glue model.
 It holds everything about Glue rows, including `get_glue_item()`, so the
-queryset scroll does not know it exists. The row markup
-can call a model's Glue methods and services and save its fields with no
-callable on the component. A load returns a `SequenceGlue` of up to
-`batch_size` rows, and a full batch means there may be more, because Glue does
-not allow Glue objects inside a plain result to say so. A list whose length is
-an exact multiple of the batch size makes one empty request at its end. Each
-row is named from its key, so that names are unique, and the client reads the
-key from the Glue model's own `$pk`. The
-client keeps each batch for as long as its rows are shown, because a row's
-address is derived from its batch's and is disposed with it. A reload releases
-the previous batches and rows, and a single row that is removed or replaced is
+queryset scroll does not know it exists, and it refuses to be mixed into any
+other kind of scroll. The row markup can call a model's Glue methods and
+services and save its fields with no callable on the component. A load returns
+a `SequenceGlue` of up to `batch_size` rows, and a full batch means there may
+be more, because Glue does not allow Glue objects inside a plain result to say
+so. A list whose length is an exact multiple of the batch size makes one empty
+request at its end. Each row is named from its key, so that names are unique,
+and the client reads the key from the Glue model's own `$pk`. The client keeps
+each batch for as long as its rows are shown, because a row's address is
+derived from its batch's and is disposed with it. A reload releases the
+previous batches and rows, and a single row that is removed or replaced is
 released on its own, in each case after Alpine has stopped rendering it.
 
 **Glue rows never arrive with the render.** Glue does not run a child-producing
@@ -95,18 +96,28 @@ in the form package, since nothing in them is about lists.
 `item_delete_options` says how a row is deleted in the same two ways:
 `ComponentDeleteOptions` shows a confirmation component in a modal, which
 soft-deletes by default, and `PageDeleteOptions` sends the user to a delete
-page, so a list can use the delete view its app already has. A page link
-carries a `return_url`, the route named by `return_url_name` or else the
-address the list is shown at, which a page following Spire's convention sends
-the user back to. The
-browser fetches the modal components with the `load_item_form` and
-`load_item_delete_confirmation` callables, named like `load_items` and
-`load_item`: a `load_` method is what the browser calls and carries the access
-and scope checks, and a `get_` method is what an application overrides. The
-template's `createItem()`, `editItem(item)` and `deleteItem(item)` perform them
-and take the item or its key. Only rows in `get_queryset()` can be edited or
-deleted. The helpers use only the scroll's public callables and row operations,
-so an application can replace any of them or do the same work by hand.
+page, so a list can use the delete view its app already has. The kind of
+options object is the mode, so there is no mode setting that could disagree
+with the others. A page link carries a `return_url`, the route named by
+`return_url_name` or else the address the list is shown at, which a page
+following Spire's convention sends the user back to.
+
+The template's `createItem()`, `editItem(item)` and `deleteItem(item)` perform
+the actions and take the item or its key. The browser fetches the modal
+components with the `load_item_form` and `load_item_delete_confirmation`
+callables, named like `load_items` and `load_item`: a `load_` method is what
+the browser calls, and a `get_` method is what an application overrides. The
+`load_` callables check the user's access and that the row is in
+`get_queryset()`, so an action is customised through the two settings and the
+queryset, which keep those checks, and not by overriding the callables.
+
+**A prompt acts on the row it was opened for.** A form or confirmation is
+built after the list has checked that the row is in its queryset, and Glue
+signs the row's key for that user and session for 24 hours. The check is not
+repeated when the user saves or confirms, so a row that leaves the queryset
+while a prompt is open can still be acted on from that prompt. A list whose
+queryset is a permission rule scopes the lookup in its own form or
+confirmation component.
 
 ## Alternatives considered
 
@@ -132,8 +143,23 @@ so an application can replace any of them or do the same work by hand.
   can be a component.
 - **A class or an object for each form placement.** A list's form settings went
   through several shapes: loose class variables with guards, a mode enum, and
-  one object per action. Two option classes replaced them, because they make an
-  invalid combination impossible to write or refuse it where it is built.
+  one object per action. Two option classes for the form, and two for delete,
+  replaced them, because they make an invalid combination impossible to write
+  or refuse it where it is built.
+- **Named constructors or a builder for the options**, such as
+  `FormOptions.page(...)`. Each would be a one-line pass-through to a
+  constructor that already takes keyword arguments, on a base class that names
+  its own subclasses.
+- **A mixin for server-rendered rows**, to match the Glue rows mixin. It would
+  have removed the base's branches on the render mode, at the cost of a second
+  name in every server-rendered list's class line. A setting was preferred for
+  being one explicit line.
+- **Hooks for building the form and confirmation components.** Nothing passes
+  parameters from a list into the component it opens yet. When something does,
+  the hook is a `get_` method the `load_` callable calls.
+- **Repeating the queryset check when a prompt is confirmed**, by fingerprinting
+  the row or expiring the prompt. The window is narrow and bounded by Glue's
+  token, and the lists it matters for can scope their own lookup.
 
 ## Consequences
 
@@ -153,13 +179,16 @@ so an application can replace any of them or do the same work by hand.
   that does not extend Spire's `base.html` loads that script itself.
 - The sizes and timings above come from single runs on one machine and are
   indicative. Database queries were counted in tests, not in those runs.
-- Supporting components were added or changed for this: `BaseConfirmationComponent`
-  and the model action and delete confirmations built on it, and a rework of the form components so
-  that one can be built from a form class and a template without a subclass.
+- Supporting pieces were added or changed for this: `BaseConfirmationComponent`
+  and the model action and delete confirmations built on it, a rework of the
+  form components so that one can be built from a form class and a template
+  without a subclass, the `asyncButton` Alpine component, and
+  `django_spire/component/page/full_page.html` for serving a component as a
+  page.
 - Up to django-glue 1.2.1 the client disposed a record's children by an owner
   link that was only set once a child was read, so a Glue row dropped before
   its form was read left the form's record behind, and disposing a batch left
-  its rows alive. django-glue 1.3.0 disposes children by their derived address.
+  its rows alive. django-glue 1.2.2 disposes children by their derived address.
   The scroll is written for that rule and also behaves correctly under the
   older one: it never drops a row it has not rendered, which is one reason a
   batch carries no extra row to signal that there is more, and it releases
@@ -167,12 +196,14 @@ so an application can replace any of them or do the same work by hand.
 - Not built: a form component that renders any form's fields without a
   template, and deriving a list's access from the user's permissions.
 - Coverage:
-  - `django_spire/core/components/tests/test_scroll/` tests each class,
-    including one query per batch at any offset and one per single row.
+  - `django_spire/core/components/tests/` tests each class in `test_scroll/`,
+    `test_form/` and `test_confirmation/`, including one query per batch at any
+    offset and one per single row.
   - `test_project/app/history`, `rest`, `comment`, `ordering` and `task` each
     hold a demo and its browser tests: a read-only list, a table with search,
-    page-mode forms on one route and on two, and Glue rows with modal forms,
-    nested lists and a disposal check across reloads.
+    page-mode forms on one route and on two, a custom delete, a delete page,
+    async buttons, and Glue rows with modal forms, nested lists and a disposal
+    check across reloads.
   - `rest` also lists pirates from the DummyJSON API on `BaseScrollComponent`
     directly, passing each batch's offset and limit to the API. Its tests
     replace the API, so they do not use the network; the page itself does.
