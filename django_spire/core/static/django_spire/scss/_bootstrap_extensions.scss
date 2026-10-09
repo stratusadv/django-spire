@@ -290,6 +290,10 @@ body.darken-background::before {
     text-overflow: ellipsis;
 }
 
+.tabular-nums {
+    font-variant-numeric: tabular-nums !important;
+}
+
 .text-200 {
     font-weight: 200 !important;
 }

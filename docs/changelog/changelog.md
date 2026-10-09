@@ -88,8 +88,8 @@
 
 ### Changes
 
-- Migrated from `django-glue` v1.2.1 to v1.2.3. The scroll is written for the disposal fix
-  in 1.2.2, and a confirmation's Cancel uses `$dispatch`, which arrived in 1.2.3.
+- Migrated from `django-glue` v1.2.2 to v1.2.3. A confirmation's Cancel uses `$dispatch`,
+  which arrived in 1.2.3.
 - A `ModelFormComponent` whose row no longer exists reports Glue's
   `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
   edit and delete actions report the same for a row outside its queryset.
@@ -99,6 +99,28 @@
   application's `Glue.onError`, replaces it.
 - A CRUD scroll removes a row from the list when editing or deleting it finds the row is
   gone.
+
+## v1.2.2 - Unreleased
+
+### Breaking
+
+- Migrated from `django-glue` v1.2.1 to v1.2.2. A Glue component in a directory inside a
+  `components` package now has that directory in its tag: a class in
+  `app/components/cards/fancy.py` is `app/cards/fancy`, where it was `app/fancy`, and the
+  old tag raises `GlueComponentRegistrationError`. Add the directory to the tag, or import
+  the class in `components/__init__.py` to keep the short one. A component in a module
+  directly inside `components/` is unaffected, and Spire's own components need no change.
+  The [django-glue changelog](https://django-glue.stratusadv.com) has the full list.
+
+### Added
+
+- `tabular-nums`, a utility class that sets `font-variant-numeric: tabular-nums` so the
+  digits in a column of amounts line up.
+- A stepper, for a numbered sequence of steps with done, current and upcoming states. It
+  is a set of classes with no template: `stepper` on the list, `stepper-step` on each
+  step with `is-done` or `is-current`, and `stepper-mark` on the circle. `stepper-vertical`
+  stacks the steps and `stepper-connected` draws a line between them. See
+  [Stepper](../components/stepper.md).
 
 ## v1.2.1 - October 8, 2026
 
