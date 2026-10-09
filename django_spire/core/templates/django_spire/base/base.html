@@ -114,6 +114,7 @@
                         Spire.notify.dispatch({type: message.level_tag, message: message.message})
                     })
                 })
+                Glue.onError(({error}) => Spire.notify.glueError(error))
             </script>
         {% endblock %}
 

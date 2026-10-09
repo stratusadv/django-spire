@@ -317,6 +317,34 @@ def test_a_task_edited_through_the_modal_updates_its_row(
     assert Task.objects.get(pk=alpha.pk).name == 'Alpha Task Renamed'
 
 
+@pytest.mark.console_error_expected('status of 404')
+def test_editing_or_deleting_a_task_that_is_gone_says_so_and_removes_its_row(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    alpha = create_test_task(name='Alpha Task', status=TaskStatusChoices.NEW)
+    bravo = create_test_task(name='Bravo Task', status=TaskStatusChoices.NEW)
+    charlie = create_test_task(name='Charlie Task', status=TaskStatusChoices.NEW)
+
+    scroll = _open_task_list(page, demo_start, row_count=3)
+    modal = page.locator('#baseDispatchModal')
+    gone_message = page.get_by_text('That item no longer exists.')
+
+    Task.objects.filter(pk__in=[alpha.pk, bravo.pk]).update(is_deleted=True)
+
+    _row(page, alpha).get_by_title('Edit Task').click()
+    expect(gone_message.first).to_be_visible()
+    scroll.wait_for_row_count(2)
+
+    _row(page, bravo).get_by_title('Delete Task').click()
+    expect(gone_message).to_have_count(2)
+    scroll.wait_for_row_count(1)
+
+    expect(modal).to_be_hidden()
+    expect(_row(page, charlie)).to_be_visible()
+
+
 def test_expanding_a_task_loads_its_children_as_a_nested_list(
     page: Page, demo_start: Callable[..., Demo], transactional_db: None
 ) -> None:

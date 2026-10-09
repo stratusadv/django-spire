@@ -90,6 +90,12 @@
 - A `ModelFormComponent` whose row no longer exists reports Glue's
   `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
   edit and delete actions report the same for a row outside its queryset.
+- A failed Glue call tells the user. Spire's `base.html` registers `Glue.onError`, which
+  shows one of three fixed messages as an error toast: the item no longer exists, the user
+  lacks permission, or something went wrong. A component's own `onError`, or an
+  application's `Glue.onError`, replaces it.
+- A CRUD scroll removes a row from the list when editing or deleting it finds the row is
+  gone.
 
 ## v1.2.1 - October 8, 2026
 

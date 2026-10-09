@@ -228,6 +228,7 @@ def test_a_confirmation_that_fails_can_be_tried_again(
     expect(modal).to_be_visible()
 
     assert page.evaluate('() => window.rejectedWith') == 'GlueHttpError'
+    expect(page.get_by_text('Something went wrong. Please try again.')).to_be_visible()
 
     page.unroute('**/__dg__/**', fail_confirm)
     delete_button.click()

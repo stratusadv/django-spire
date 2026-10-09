@@ -312,7 +312,14 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const confirmation = await this.component.load_item_delete_confirmation({pk: key});
+            const confirmation = await this.loadForItem(
+                key,
+                () => this.component.load_item_delete_confirmation({pk: key}),
+            );
+
+            if (confirmation === null) {
+                return;
+            }
 
             confirmation.$on('cancelled', () => Spire.modal.close());
             confirmation.$on('confirmed', ({detail}) => {
@@ -329,13 +336,35 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const form = await this.component.load_item_form({pk: key});
+            const form = await this.loadForItem(
+                key,
+                () => this.component.load_item_form({pk: key}),
+            );
+
+            if (form === null) {
+                return;
+            }
 
             form.model.form.$on('saved', ({detail}) => {
                 this.refreshItem(detail.pk);
                 Spire.modal.close();
             });
             await Spire.modal.dispatchGlueComponent(form);
+        },
+        // A row the server no longer has is taken out of the list, and the
+        // failed load, which the user has already been told about, ends there.
+        async loadForItem(key, load) {
+            try {
+                return await load();
+            } catch (error) {
+                if (error?.code !== 'model_instance_not_found') {
+                    throw error;
+                }
+
+                this.removeItem(key);
+
+                return null;
+            }
         },
         goToPage(url, returnUrl) {
             const destination = returnUrl ?? `${window.location.pathname}${window.location.search}`;
