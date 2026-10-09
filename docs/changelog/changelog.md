@@ -99,6 +99,10 @@
   application's `Glue.onError`, replaces it.
 - A CRUD scroll removes a row from the list when editing or deleting it finds the row is
   gone.
+- The `--primary` custom property is defined again, as Bootstrap's `--bs-primary`. Its
+  definition was removed with the theme picker while the loader, the item hover, the
+  panel borders, the button focus outline and the stepper went on using it, so those
+  rules were dropped by the browser. A project gets it by compiling its theme again.
 
 ## v1.2.2 - Unreleased
 
