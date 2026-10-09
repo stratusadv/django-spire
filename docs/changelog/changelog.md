@@ -59,8 +59,14 @@
 - Confirmation components, in `django_spire.core.components`.
   `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
   `cancelled`. Its prompt is worded with `title`, `message` and `confirm_label` when it is
-  built. `ModelDeleteConfirmationComponent(model_obj=row)` soft-deletes a row of any
-  model with no subclass.
+  built.
+  - `BaseModelActionConfirmationComponent` confirms one action on one model row, built as
+    `(instance=row)`. A subclass writes `perform_action()`, and `confirmed` carries the
+    row's `pk`.
+  - `BaseModelDeleteConfirmationComponent` words that as a delete and requires `DELETE`
+    access. `ModelSetDeletedConfirmationComponent` soft-deletes the row with
+    `set_deleted()`, and `ModelDeleteConfirmationComponent` deletes it from the database.
+    Both work for any model with no subclass.
 - `ScrollComponent`, a Playwright helper in `django_spire.testing.playwright` for the new
   scroll.
 - A form component can be built without a subclass:

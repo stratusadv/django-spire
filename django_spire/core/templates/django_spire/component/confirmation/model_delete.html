@@ -11,7 +11,7 @@
             {{ component.message }}
         {% else %}
             Are you sure you want to delete the {{ component.model_name|lower }}
-            "<strong>{{ component.model_obj }}</strong>"?
+            "<strong>{{ component.instance }}</strong>"?
         {% endif %}
     </p>
 {% endblock %}

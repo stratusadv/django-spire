@@ -134,7 +134,7 @@ so an application can replace any of them or do the same work by hand.
 - The sizes and timings above come from single runs on one machine and are
   indicative. Database queries were counted in tests, not in those runs.
 - Supporting components were added or changed for this: `BaseConfirmationComponent`
-  and `ModelDeleteConfirmationComponent`, and a rework of the form components so
+  and the model action and delete confirmations built on it, and a rework of the form components so
   that one can be built from a form class and a template without a subclass.
 - Up to django-glue 1.2.1 the client disposed a record's children by an owner
   link that was only set once a child was read, so a Glue row dropped before

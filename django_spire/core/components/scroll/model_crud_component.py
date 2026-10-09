@@ -7,7 +7,10 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
 
-from django_spire.core.components.confirmation import ModelDeleteConfirmationComponent
+from django_spire.core.components.confirmation import (
+    BaseModelDeleteConfirmationComponent,
+    ModelSetDeletedConfirmationComponent,
+)
 from django_spire.core.components.form import ModelFormComponent  # noqa: TC001
 from django_spire.core.components.scroll.item_form_options import (
     ComponentItemFormOptions,
@@ -27,19 +30,19 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
     a :class:`PageItemFormOptions` sends the user to a page. Left as ``None``,
     the list has no create or edit.
 
-    ``delete_component`` is the confirmation shown before a row is deleted;
-    confirming it soft-deletes the row. ``None`` turns deleting off.
+    ``delete_component`` is the confirmation shown before a row is deleted, a
+    :class:`BaseModelDeleteConfirmationComponent`. The default soft-deletes
+    the row with ``set_deleted()``; ``ModelDeleteConfirmationComponent``
+    deletes it from the database. ``None`` turns deleting off.
 
     Only rows in ``get_queryset()`` can be edited or deleted. Each action is
     built from the scroll's own callables and row operations, so application
-    code can replace any one of them or call them itself. A template that
-    adds to the ``scroll_data`` block keeps these actions with
-    ``{{ block.super }}``.
+    code can replace any one of them or call them itself.
     """
 
     template = 'django_spire/component/scroll/crud.html'
-    delete_component: ClassVar[type[ModelDeleteConfirmationComponent] | None] = (
-        ModelDeleteConfirmationComponent
+    delete_component: ClassVar[type[BaseModelDeleteConfirmationComponent] | None] = (
+        ModelSetDeletedConfirmationComponent
     )
     item_form_options: ClassVar[ComponentItemFormOptions | PageItemFormOptions | None] = None
 
@@ -57,7 +60,7 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             raise ImproperlyConfigured(message)
 
     @Glue.attr(required_access=Glue.Access.DELETE)
-    def delete_confirmation(self, pk: int) -> ModelDeleteConfirmationComponent:
+    def delete_confirmation(self, pk: int) -> BaseModelDeleteConfirmationComponent:
         if self.delete_component is None:
             message = f'{type(self).__name__} does not allow its rows to be deleted.'
             raise PermissionDenied(message)
@@ -65,11 +68,11 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
         queryset = self.get_queryset()
 
         try:
-            model_obj = queryset.get(pk=pk)
+            instance = queryset.get(pk=pk)
         except queryset.model.DoesNotExist as error:
             raise GlueModelInstanceNotFoundError(queryset.model._meta.label, pk) from error
 
-        return self.delete_component(model_obj=model_obj, access=self.access)
+        return self.delete_component(instance=instance, access=self.access)
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def item_form(self, pk: int | None = None) -> ModelFormComponent:

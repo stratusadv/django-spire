@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import re
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django_glue import Glue
 from django_glue.exceptions import GlueRequestError, GlueRequestErrorCode
 
 from django_spire.core.components import (
+    BaseModelDeleteConfirmationComponent,
     ModelCrudScrollComponent,
-    ModelDeleteConfirmationComponent,
     PageItemFormOptions,
 )
 from test_project.app.ordering.models import Duck
@@ -19,12 +19,10 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
 
 
-class DuckDeleteConfirmationComponent(ModelDeleteConfirmationComponent):
-    def on_confirm(self) -> dict[str, Any]:
-        self.model_obj.ordering_services.processor.remove_from_objects(Duck.objects.active())
-        self.model_obj.set_inactive()
-
-        return {'pk': self.model_obj.pk}
+class DuckDeleteConfirmationComponent(BaseModelDeleteConfirmationComponent):
+    def perform_action(self) -> None:
+        self.instance.ordering_services.processor.remove_from_objects(Duck.objects.active())
+        self.instance.set_inactive()
 
 
 class DuckListComponent(ModelCrudScrollComponent):

@@ -1,6 +1,9 @@
 from django_spire.core.components.confirmation import (
     BaseConfirmationComponent,
+    BaseModelActionConfirmationComponent,
+    BaseModelDeleteConfirmationComponent,
     ModelDeleteConfirmationComponent,
+    ModelSetDeletedConfirmationComponent,
 )
 from django_spire.core.components.form import (
     BaseFormComponent,
@@ -19,6 +22,8 @@ from django_spire.core.components.scroll import (
 __all__ = [
     'BaseConfirmationComponent',
     'BaseFormComponent',
+    'BaseModelActionConfirmationComponent',
+    'BaseModelDeleteConfirmationComponent',
     'BaseScrollComponent',
     'ComponentItemFormOptions',
     'FormComponent',
@@ -26,6 +31,7 @@ __all__ = [
     'ModelCrudScrollComponent',
     'ModelDeleteConfirmationComponent',
     'ModelFormComponent',
+    'ModelSetDeletedConfirmationComponent',
     'PageItemFormOptions',
     'QuerySetScrollComponent',
 ]

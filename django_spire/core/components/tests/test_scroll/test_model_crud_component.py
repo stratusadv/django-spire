@@ -10,7 +10,7 @@ from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
 
 from django_spire.core.components import ModelFormComponent
-from django_spire.core.components.confirmation import ModelDeleteConfirmationComponent
+from django_spire.core.components.confirmation import ModelSetDeletedConfirmationComponent
 from django_spire.core.components.scroll import (
     ComponentItemFormOptions,
     ModelCrudScrollComponent,
@@ -47,7 +47,7 @@ class PagedCommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
     item_form_options = PageItemFormOptions('order:update', create_url_name='order:create')
 
 
-class ArchiveCommentConfirmationComponent(ModelDeleteConfirmationComponent):
+class ArchiveCommentConfirmationComponent(ModelSetDeletedConfirmationComponent):
     pass
 
 
@@ -70,8 +70,8 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
 
         confirmation = CommentCrudScrollComponent().delete_confirmation(pk=comment.pk)
 
-        assert type(confirmation) is ModelDeleteConfirmationComponent
-        assert confirmation.model_obj == comment
+        assert type(confirmation) is ModelSetDeletedConfirmationComponent
+        assert confirmation.instance == comment
 
     def test_confirming_the_delete_confirmation_soft_deletes_the_row(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
@@ -88,7 +88,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
         confirmation = ArchivingCommentCrudScrollComponent().delete_confirmation(pk=comment.pk)
 
         assert type(confirmation) is ArchiveCommentConfirmationComponent
-        assert confirmation.model_obj == comment
+        assert confirmation.instance == comment
 
     def test_no_delete_component_refuses_to_delete(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
@@ -126,7 +126,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
         dropped = create_test_comment_example(name='Dropped Notes')
         component = KeptCommentCrudScrollComponent()
 
-        assert component.delete_confirmation(pk=kept.pk).model_obj == kept
+        assert component.delete_confirmation(pk=kept.pk).instance == kept
         assert component.item_form(pk=kept.pk).model.instance == kept
 
         with pytest.raises(GlueModelInstanceNotFoundError) as delete_error:

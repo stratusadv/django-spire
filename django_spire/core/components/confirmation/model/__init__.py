@@ -1,13 +1,13 @@
-from django_spire.core.components.confirmation.base import BaseConfirmationComponent
-from django_spire.core.components.confirmation.model import (
+from django_spire.core.components.confirmation.model.action import (
     BaseModelActionConfirmationComponent,
+)
+from django_spire.core.components.confirmation.model.delete import (
     BaseModelDeleteConfirmationComponent,
     ModelDeleteConfirmationComponent,
     ModelSetDeletedConfirmationComponent,
 )
 
 __all__ = [
-    'BaseConfirmationComponent',
     'BaseModelActionConfirmationComponent',
     'BaseModelDeleteConfirmationComponent',
     'ModelDeleteConfirmationComponent',
