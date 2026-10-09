@@ -60,7 +60,13 @@ class PageFormOptions:
     route that takes the row's key as ``pk``. Creating a row goes to
     ``create_url_name``, which takes no arguments, or when that is left out,
     to ``url_name`` with a ``pk`` of ``0``.
+
+    Each link carries a ``return_url`` for the page to send the user to
+    afterwards: the route named by ``return_url_name``, or when that is left
+    out, the address the list is shown at. A page that does not read
+    ``return_url`` goes wherever it always does.
     """
 
     url_name: str
     create_url_name: str | None = None
+    return_url_name: str | None = None

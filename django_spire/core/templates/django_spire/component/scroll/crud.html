@@ -13,4 +13,13 @@
     {% if component.item_form_options.url_name %}
         editUrl: key => `{% js_url component.item_form_options.url_name pk='key' template_literal=True %}`,
     {% endif %}
+    {% if component.item_form_options.return_url_name %}
+        formReturnUrl: '{% url component.item_form_options.return_url_name %}',
+    {% endif %}
+    {% if component.item_delete_options.url_name %}
+        deleteUrl: key => `{% js_url component.item_delete_options.url_name pk='key' template_literal=True %}`,
+    {% endif %}
+    {% if component.item_delete_options.return_url_name %}
+        deleteReturnUrl: '{% url component.item_delete_options.return_url_name %}',
+    {% endif %}
 {% endblock %}

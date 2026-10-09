@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from typing import TYPE_CHECKING
+from urllib.parse import quote
 
 from django.urls import reverse
 from playwright.sync_api import expect
@@ -242,12 +245,18 @@ def test_creating_and_editing_go_to_their_own_pages(
 
     _open_duck_list(page, demo_start, row_count=1)
 
+    returning_to_the_list = r'\?return_url=' + re.escape(
+        quote(reverse('order:list_component'), safe='')
+    )
+
     page.get_by_role('button', name='Add Duck').click()
-    page.wait_for_url(f'**{reverse("order:create")}')
+    page.wait_for_url(re.compile(re.escape(reverse('order:create')) + returning_to_the_list))
     page.go_back()
 
     _row(page, alpha).get_by_title('Edit Duck').click()
-    page.wait_for_url(f'**{reverse("order:update", kwargs={"pk": alpha.pk})}')
+    page.wait_for_url(re.compile(
+        re.escape(reverse('order:update', kwargs={'pk': alpha.pk})) + returning_to_the_list
+    ))
 
 
 def test_searching_reloads_the_list_with_the_matching_ducks(

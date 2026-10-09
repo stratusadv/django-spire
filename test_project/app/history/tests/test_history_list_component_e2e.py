@@ -77,7 +77,7 @@ def test_a_plain_queryset_scroll_has_no_create_edit_or_delete(
 
             return {{
                 helpers: ['createItem', 'editItem', 'deleteItem'].filter(name => name in scroll),
-                callables: ['item_form', 'delete_confirmation'].filter(
+                callables: ['load_item_form', 'load_item_delete_confirmation'].filter(
                     name => typeof scroll.component[name] === 'function'
                 ),
                 rowOperations: ['addItem', 'refreshItem', 'removeItem', 'reloadItems'].filter(

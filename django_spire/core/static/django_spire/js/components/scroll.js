@@ -8,8 +8,10 @@
  * as data and the template draws `items`.
  *
  * crudScrollComponent adds createItem(), editItem() and deleteItem(). It takes
- * the same options, and two more for a list whose form is a page:
- * `createUrl`, and `editUrl`, a function from a row's key to its URL.
+ * the same options, and more for a list whose form or delete is a page:
+ * `createUrl`, and `editUrl` and `deleteUrl`, each a function from a row's key
+ * to its URL. A page link carries a `return_url`: `formReturnUrl` or
+ * `deleteReturnUrl` when given, and otherwise the address the list is shown at.
  */
 document.addEventListener('alpine:init', () => {
     const scrollComponent = ({batchSize, rendersRows}) => ({
@@ -278,16 +280,23 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('scrollComponent', scrollComponent);
 
-    Alpine.data('crudScrollComponent', ({createUrl = null, editUrl = null, ...options}) => ({
+    Alpine.data('crudScrollComponent', ({
+        createUrl = null,
+        deleteReturnUrl = null,
+        deleteUrl = null,
+        editUrl = null,
+        formReturnUrl = null,
+        ...options
+    }) => ({
         ...scrollComponent(options),
 
         async createItem() {
             if (createUrl !== null) {
-                window.location.href = createUrl;
+                this.goToPage(createUrl, formReturnUrl);
                 return;
             }
 
-            const form = await this.component.item_form();
+            const form = await this.component.load_item_form();
 
             form.model.form.$on('saved', ({detail}) => {
                 this.addItem(detail.pk);
@@ -297,7 +306,13 @@ document.addEventListener('alpine:init', () => {
         },
         async deleteItem(itemOrKey) {
             const key = this.resolveKey(itemOrKey);
-            const confirmation = await this.component.delete_confirmation({pk: key});
+
+            if (deleteUrl !== null) {
+                this.goToPage(deleteUrl(key), deleteReturnUrl);
+                return;
+            }
+
+            const confirmation = await this.component.load_item_delete_confirmation({pk: key});
 
             confirmation.$on('cancelled', () => Spire.modal.close());
             confirmation.$on('confirmed', ({detail}) => {
@@ -310,17 +325,23 @@ document.addEventListener('alpine:init', () => {
             const key = this.resolveKey(itemOrKey);
 
             if (editUrl !== null) {
-                window.location.href = editUrl(key);
+                this.goToPage(editUrl(key), formReturnUrl);
                 return;
             }
 
-            const form = await this.component.item_form({pk: key});
+            const form = await this.component.load_item_form({pk: key});
 
             form.model.form.$on('saved', ({detail}) => {
                 this.refreshItem(detail.pk);
                 Spire.modal.close();
             });
             await Spire.modal.dispatchGlueComponent(form);
+        },
+        goToPage(url, returnUrl) {
+            const destination = returnUrl ?? `${window.location.pathname}${window.location.search}`;
+            const separator = url.includes('?') ? '&' : '?';
+
+            window.location.href = `${url}${separator}return_url=${encodeURIComponent(destination)}`;
         },
         resolveKey(itemOrKey) {
             if (itemOrKey === null || typeof itemOrKey !== 'object') {

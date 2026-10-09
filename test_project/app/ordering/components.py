@@ -9,6 +9,7 @@ from django_glue.exceptions import GlueRequestError, GlueRequestErrorCode
 
 from django_spire.core.components import (
     BaseModelDeleteConfirmationComponent,
+    ComponentDeleteOptions,
     ModelCrudScrollComponent,
     PageFormOptions,
     ScrollItemRenderMode,
@@ -32,7 +33,7 @@ class DuckListComponent(ModelCrudScrollComponent):
     item_template = 'ordering/item/duck_row.html'
     view_template = 'ordering/page/duck_list_component_page.html'
 
-    delete_component = DuckDeleteConfirmationComponent
+    item_delete_options = ComponentDeleteOptions(component=DuckDeleteConfirmationComponent)
     item_form_options = PageFormOptions('order:update', create_url_name='order:create')
 
     search: str = Glue.attr('', editable=True)

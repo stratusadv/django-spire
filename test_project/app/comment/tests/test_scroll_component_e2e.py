@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from typing import TYPE_CHECKING, Any
+from urllib.parse import quote
 
 from django.urls import reverse
 
@@ -179,15 +182,23 @@ def test_creating_and_editing_go_to_the_one_form_route(
     scroll = _open_comment_list(page, demo_start)
     scroll.wait_for_row_count(2)
     page.route(
-        '**/comment/page/*/form/',
+        re.compile(r'/comment/page/\d+/form/'),
         lambda route: route.fulfill(status=200, content_type='text/html', body='Comment form'),
+    )
+    returning_to_the_list = r'\?return_url=' + re.escape(
+        quote(reverse('comment:page:list2'), safe='')
     )
 
     page.get_by_role('button', name='New Comment').click()
-    page.wait_for_url(f'**{reverse("comment:page:form", kwargs={"pk": 0})}')
+    page.wait_for_url(re.compile(
+        re.escape(reverse('comment:page:form', kwargs={'pk': 0})) + returning_to_the_list
+    ))
     page.go_back()
     scroll.wait_for_row_count(2)
     scroll.wait_until_idle()
 
     scroll.rows.first.get_by_title('Edit Comment').click()
-    page.wait_for_url(f'**{reverse("comment:page:form", kwargs={"pk": first_comment.pk})}')
+    page.wait_for_url(re.compile(
+        re.escape(reverse('comment:page:form', kwargs={'pk': first_comment.pk}))
+        + returning_to_the_list
+    ))

@@ -92,7 +92,17 @@ by a load.
 says how a row is created and edited: `ComponentFormOptions` shows a form
 component in a modal, and `PageFormOptions` sends the user to a page. Both live
 in the form package, since nothing in them is about lists.
-`delete_component` is the confirmation shown before a row is deleted. The
+`item_delete_options` says how a row is deleted in the same two ways:
+`ComponentDeleteOptions` shows a confirmation component in a modal, which
+soft-deletes by default, and `PageDeleteOptions` sends the user to a delete
+page, so a list can use the delete view its app already has. A page link
+carries a `return_url`, the route named by `return_url_name` or else the
+address the list is shown at, which a page following Spire's convention sends
+the user back to. The
+browser fetches the modal components with the `load_item_form` and
+`load_item_delete_confirmation` callables, named like `load_items` and
+`load_item`: a `load_` method is what the browser calls and carries the access
+and scope checks, and a `get_` method is what an application overrides. The
 template's `createItem()`, `editItem(item)` and `deleteItem(item)` perform them
 and take the item or its key. Only rows in `get_queryset()` can be edited or
 deleted. The helpers use only the scroll's public callables and row operations,

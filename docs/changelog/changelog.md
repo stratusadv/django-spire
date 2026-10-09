@@ -41,8 +41,11 @@
     Glue methods and services and save its fields.
   - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a
     `ComponentFormOptions`, which shows a form component in a modal, or a
-    `PageFormOptions`, which sends the user to a page; `delete_component` is the
-    confirmation. The template gains `createItem()`, `editItem(item)` and
+    `PageFormOptions`, which sends the user to a page. `item_delete_options` is a
+    `ComponentDeleteOptions`, which shows a confirmation component in a modal and
+    soft-deletes by default, or a `PageDeleteOptions`, which sends the user to a delete
+    page. A page link carries a `return_url`: the route named by the options'
+    `return_url_name`, or the address the list is shown at. The template gains `createItem()`, `editItem(item)` and
     `deleteItem(item)`.
   - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
     `removeItem(key)`, or by firing `item_added`, `item_changed` or `item_removed` from a

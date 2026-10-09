@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from typing import TYPE_CHECKING
+from urllib.parse import quote
 
+from django.urls import reverse
 from playwright.sync_api import expect
 
 from django_spire.testing.playwright.components.scroll_component import ScrollComponent
@@ -435,6 +439,30 @@ def test_an_action_given_something_that_is_not_an_item_says_so(
 
     assert message == 'A scroll action was given an object that is not one of its items.'
     expect(page.locator('#baseDispatchModal')).to_be_hidden()
+
+
+def test_deleting_a_child_task_goes_to_its_delete_page_and_returns_to_the_list(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    parent, children = _open_child_list(page, demo_start, child_count=2)
+    list_path = reverse('task:page:list_component')
+    delete_path = reverse('task:form:delete', kwargs={'pk': children[0].pk})
+
+    _row(page, children[0]).get_by_title('Delete Task').click()
+    page.wait_for_url(re.compile(
+        re.escape(delete_path) + r'\?return_url=' + re.escape(quote(list_path, safe=''))
+    ))
+
+    expect(page.locator('#baseDispatchModal')).to_be_hidden()
+
+    page.get_by_role('button', name='Delete').click()
+    page.wait_for_url(re.compile(re.escape(list_path) + '$'))
+
+    assert Task.objects.get(pk=children[0].pk).is_deleted is True
+    assert Task.objects.get(pk=children[1].pk).is_deleted is False
+    assert Task.objects.get(pk=parent.pk).is_deleted is False
 
 
 def test_deleting_a_task_removes_its_row(

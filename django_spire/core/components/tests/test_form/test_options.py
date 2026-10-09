@@ -76,3 +76,9 @@ class PageFormOptionsTestCase(BaseTestCase):
 
         assert (shared.url_name, shared.create_url_name) == ('task:form:form', None)
         assert (split.url_name, split.create_url_name) == ('order:update', 'order:create')
+
+    def test_the_return_route_is_optional(self) -> None:
+        returning = PageFormOptions('order:update', return_url_name='order:list')
+
+        assert PageFormOptions('order:update').return_url_name is None
+        assert returning.return_url_name == 'order:list'

@@ -9,6 +9,7 @@ from django_spire.core.components import (
     GlueScrollItemsMixin,
     ModelCrudScrollComponent,
     ModelFormComponent,
+    PageDeleteOptions,
 )
 from test_project.app.task.choices import TaskStatusChoices
 from test_project.app.task.forms import TaskModalForm
@@ -82,6 +83,7 @@ class TaskChildListComponent(TaskListComponent):
     template = 'task/component/task_child_list.html'
     batch_size = 10
 
+    item_delete_options = PageDeleteOptions('task:form:delete')
     item_form_options = ComponentFormOptions(component=TaskFormComponent)
 
     parent_id: int = Glue.attr(parameter=True)

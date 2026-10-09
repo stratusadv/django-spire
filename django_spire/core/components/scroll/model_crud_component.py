@@ -9,7 +9,8 @@ from django_glue.exceptions import GlueModelInstanceNotFoundError
 
 from django_spire.core.components.confirmation import (
     BaseModelDeleteConfirmationComponent,
-    ModelSetDeletedConfirmationComponent,
+    ComponentDeleteOptions,
+    PageDeleteOptions,
 )
 from django_spire.core.components.form import (
     ComponentFormOptions,
@@ -30,24 +31,38 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
     a :class:`PageFormOptions` sends the user to a page. Left as ``None``,
     the list has no create or edit.
 
-    ``delete_component`` is the confirmation shown before a row is deleted, a
-    :class:`BaseModelDeleteConfirmationComponent`. The default soft-deletes
-    the row with ``set_deleted()``; ``ModelDeleteConfirmationComponent``
-    deletes it from the database. ``None`` turns deleting off.
+    ``item_delete_options`` says how a row is deleted: a
+    :class:`ComponentDeleteOptions` shows a confirmation component in a
+    modal, and a :class:`PageDeleteOptions` sends the user to a page. The
+    default is a confirmation that soft-deletes the row with
+    ``set_deleted()``. Left as ``None``, the list has no delete.
 
-    Only rows in ``get_queryset()`` can be edited or deleted. Each action is
-    built from the scroll's own callables and row operations, so application
-    code can replace any one of them or call them itself.
+    Only rows in ``get_queryset()`` can be edited or deleted. The browser
+    fetches the form and the confirmation with ``load_item_form()`` and
+    ``load_item_delete_confirmation()``, which check the user's access and
+    that the row is in the list. Customise an action through the two settings
+    and ``get_queryset()``, which keep those checks, and not by overriding the
+    callables.
     """
 
     template = 'django_spire/component/scroll/crud.html'
-    delete_component: ClassVar[type[BaseModelDeleteConfirmationComponent] | None] = (
-        ModelSetDeletedConfirmationComponent
+    item_delete_options: ClassVar[ComponentDeleteOptions | PageDeleteOptions | None] = (
+        ComponentDeleteOptions()
     )
     item_form_options: ClassVar[ComponentFormOptions | PageFormOptions | None] = None
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
+
+        if cls.item_delete_options is not None and not isinstance(
+            cls.item_delete_options,
+            ComponentDeleteOptions | PageDeleteOptions,
+        ):
+            message = (
+                f'{cls.__name__}.item_delete_options must be a ComponentDeleteOptions, a '
+                'PageDeleteOptions, or None.'
+            )
+            raise ImproperlyConfigured(message)
 
         if cls.item_form_options is not None and not isinstance(
             cls.item_form_options,
@@ -60,9 +75,9 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             raise ImproperlyConfigured(message)
 
     @Glue.attr(required_access=Glue.Access.DELETE)
-    def delete_confirmation(self, pk: int) -> BaseModelDeleteConfirmationComponent:
-        if self.delete_component is None:
-            message = f'{type(self).__name__} does not allow its rows to be deleted.'
+    def load_item_delete_confirmation(self, pk: int) -> BaseModelDeleteConfirmationComponent:
+        if not isinstance(self.item_delete_options, ComponentDeleteOptions):
+            message = f'{type(self).__name__} has no confirmation component to delete a row with.'
             raise PermissionDenied(message)
 
         queryset = self.get_queryset()
@@ -72,10 +87,10 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
         except queryset.model.DoesNotExist as error:
             raise GlueModelInstanceNotFoundError(queryset.model._meta.label, pk) from error
 
-        return self.delete_component(instance=instance, access=self.access)
+        return self.item_delete_options.component(instance=instance, access=self.access)
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def item_form(self, pk: int | None = None) -> ModelFormComponent:
+    def load_item_form(self, pk: int | None = None) -> ModelFormComponent:
         if not isinstance(self.item_form_options, ComponentFormOptions):
             message = f'{type(self).__name__} has no form component to create or edit a row with.'
             raise PermissionDenied(message)
