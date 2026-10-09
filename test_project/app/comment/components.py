@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 class CommentListComponent(ModelCrudScrollComponent):
     template = 'comment/component/comment_list.html'
+    item_template = 'comment/item/item2.html'
     view_template = 'comment/page/comment_list_page2.html'
     fields = ('name', 'description')
     item_form_options = PageItemFormOptions('comment:page:form')

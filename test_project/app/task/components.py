@@ -31,6 +31,7 @@ ORDERINGS = {
 
 class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
     template = 'task/component/task_list.html'
+    item_template = 'task/item/task_row.html'
     view_template = 'task/page/task_list_page.html'
     fields = ('name', 'status')
 

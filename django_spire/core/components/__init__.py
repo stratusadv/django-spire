@@ -17,6 +17,7 @@ from django_spire.core.components.scroll import (
     ModelCrudScrollComponent,
     PageItemFormOptions,
     QuerySetScrollComponent,
+    ScrollItemRenderMode,
 )
 
 __all__ = [
@@ -34,4 +35,5 @@ __all__ = [
     'ModelSetDeletedConfirmationComponent',
     'PageItemFormOptions',
     'QuerySetScrollComponent',
+    'ScrollItemRenderMode',
 ]

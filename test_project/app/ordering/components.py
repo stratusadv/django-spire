@@ -11,6 +11,7 @@ from django_spire.core.components import (
     BaseModelDeleteConfirmationComponent,
     ModelCrudScrollComponent,
     PageItemFormOptions,
+    ScrollItemRenderMode,
 )
 from test_project.app.ordering.models import Duck
 
@@ -27,6 +28,7 @@ class DuckDeleteConfirmationComponent(BaseModelDeleteConfirmationComponent):
 
 class DuckListComponent(ModelCrudScrollComponent):
     template = 'ordering/component/duck_list.html'
+    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'ordering/item/duck_row.html'
     view_template = 'ordering/page/duck_list_component_page.html'
 

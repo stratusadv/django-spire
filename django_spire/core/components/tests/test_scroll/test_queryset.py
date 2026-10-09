@@ -12,7 +12,11 @@ from django_glue.glue.objects.django.model.object import ModelGlue
 from django_glue.glue.sequence import SequenceGlue
 
 from django_spire.api.models import ApiAccess
-from django_spire.core.components.scroll import GlueScrollItemsMixin, QuerySetScrollComponent
+from django_spire.core.components.scroll import (
+    GlueScrollItemsMixin,
+    QuerySetScrollComponent,
+    ScrollItemRenderMode,
+)
 from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.comment.models import CommentExample
 from test_project.app.comment.tests.factories import create_test_comment_example
@@ -32,6 +36,7 @@ class CommentScrollComponent(QuerySetScrollComponent):
 
 class RenderedCommentScrollComponent(CommentScrollComponent):
     template = 'django_spire/component/scroll/base.html'
+    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'comment/item/scroll_item.html'
 
 
@@ -65,6 +70,7 @@ class KeptCommentScrollComponent(CommentScrollComponent):
 
 class DefaultOrderingScrollComponent(QuerySetScrollComponent):
     template = 'django_spire/component/scroll/base.html'
+    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'comment/item/scroll_item.html'
 
     def get_queryset(self) -> QuerySet[ApiAccess]:
@@ -160,8 +166,14 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
 
         assert CommentScrollComponent().first_batch_data['keys'] != []
 
-    def test_glue_items_with_an_item_template_is_refused(self) -> None:
-        with pytest.raises(ImproperlyConfigured, match='with an item_template'):
+    def test_glue_items_take_a_client_item_template(self) -> None:
+        class TemplatedGlueItemScrollComponent(GlueItemCommentScrollComponent):
+            item_template = 'comment/item/item2.html'
+
+        assert TemplatedGlueItemScrollComponent().renders_items_on_server is False
+
+    def test_glue_items_rendered_on_the_server_are_refused(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='item_render_mode SERVER'):
 
             class RenderedGlueItemScrollComponent(
                 GlueScrollItemsMixin,
@@ -169,13 +181,15 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
             ):
                 pass
 
-    def test_an_unordered_queryset_is_refused(self) -> None:
-        create_test_comment_example(name='Budget Review')
+    def test_an_unordered_queryset_is_listed_by_primary_key(self) -> None:
+        first = create_test_comment_example(name='Zebra Notes')
+        second = create_test_comment_example(name='Alpha Notes')
+        third = create_test_comment_example(name='Mango Notes')
+        component = UnorderedCommentScrollComponent()
 
-        with pytest.raises(ImproperlyConfigured, match='ordered'):
-            UnorderedCommentScrollComponent().get_items(0, 3)
-
-        assert len(CommentScrollComponent().get_items(0, 3)) == 1
+        assert UnorderedCommentScrollComponent().get_queryset().ordered is False
+        assert [item['pk'] for item in component.get_items(0, 2)] == [first.pk, second.pk]
+        assert [item['pk'] for item in component.get_items(2, 2)] == [third.pk]
 
     def test_rows_that_tie_on_the_ordering_are_each_returned_once(self) -> None:
         comments = [create_test_comment_example(name='Same Name') for _ in range(5)]

@@ -2,7 +2,7 @@
 <div
     x-data="{% block scroll_data_name %}scrollComponent{% endblock %}({
         batchSize: {{ component.batch_size }},
-        rendersRows: {{ component.item_template|yesno:'true,false' }},
+        rendersRows: {{ component.renders_items_on_server|yesno:'true,false' }},
         {% block scroll_options %}{% endblock %}
     })"
     class="{% block scroll_container_class %}{% endblock %}"
@@ -12,11 +12,13 @@
     {% block scroll_list %}
         <div x-ref="list">
             {% block scroll_rows %}
-                {% if component.item_template %}
+                {% if component.renders_items_on_server %}
                     {% include 'django_spire/component/scroll/batch.html' with batch=component.first_batch %}
                 {% else %}
                     <template x-for="(item, itemIndex) in items" :key="keys[itemIndex]">
-                        {% block scroll_item %}{% endblock %}
+                        {% block scroll_item %}
+                            {% if component.item_template %}{% include component.item_template %}{% endif %}
+                        {% endblock %}
                     </template>
                 {% endif %}
             {% endblock %}

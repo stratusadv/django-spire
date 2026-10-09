@@ -4,11 +4,12 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 from django.core.exceptions import ImproperlyConfigured
+from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django_glue import Glue
 from django_glue.exceptions import GlueRequestError
 
-from django_spire.core.components.scroll import BaseScrollComponent
+from django_spire.core.components.scroll import BaseScrollComponent, ScrollItemRenderMode
 from django_spire.core.tests.test_cases import BaseTestCase
 
 if TYPE_CHECKING:
@@ -38,7 +39,13 @@ class NumberScrollComponent(BaseScrollComponent):
 
 class RenderedNumberScrollComponent(NumberScrollComponent):
     template = 'django_spire/component/scroll/base.html'
+    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'comment/item/scroll_item.html'
+
+
+class ClientItemTemplateScrollComponent(NumberScrollComponent):
+    template = 'django_spire/component/scroll/base.html'
+    item_template = 'comment/item/item2.html'
 
 
 class UnextendedTemplateScrollComponent(NumberScrollComponent):
@@ -47,7 +54,23 @@ class UnextendedTemplateScrollComponent(NumberScrollComponent):
 
 class UnextendedItemTemplateScrollComponent(NumberScrollComponent):
     template = 'django_spire/component/scroll/base.html'
+    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'comment/item/item2.html'
+
+
+class ServerItemTemplateOnClientScrollComponent(NumberScrollComponent):
+    template = 'django_spire/component/scroll/base.html'
+    item_template = 'comment/item/scroll_item.html'
+
+
+class TemplatelessServerScrollComponent(NumberScrollComponent):
+    template = 'django_spire/component/scroll/base.html'
+    item_render_mode = ScrollItemRenderMode.SERVER
+
+
+class StringRenderModeScrollComponent(NumberScrollComponent):
+    template = 'django_spire/component/scroll/base.html'
+    item_render_mode = 'server'
 
 
 class SkippedSuperScrollComponent(NumberScrollComponent):
@@ -174,12 +197,36 @@ class BaseScrollComponentTestCase(BaseTestCase):
 
         assert UnextendedItemTemplateScrollComponent not in BaseScrollComponent._validated_classes
 
+    def test_a_server_row_template_on_a_client_rendered_list_is_refused(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='item_template'):
+            self._introduce(ServerItemTemplateOnClientScrollComponent())
+
+    def test_rendering_on_the_server_needs_an_item_template(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='needs an item_template'):
+            self._introduce(TemplatelessServerScrollComponent())
+
+    def test_a_render_mode_that_is_not_the_enum_is_refused(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='ScrollItemRenderMode'):
+            self._introduce(StringRenderModeScrollComponent())
+
+    def test_a_client_rendered_list_draws_its_item_template_in_the_item_block(self) -> None:
+        component = self._introduce(ClientItemTemplateScrollComponent(count=2))
+
+        html = render_to_string(component.template, {'component': component})
+
+        assert component.renders_items_on_server is False
+        assert component.first_batch_data['keys'] == [0, 1]
+        assert 'x-text="item.name"' in html
+        assert 'rendersRows: false' in html
+
     def test_valid_templates_are_accepted_and_recorded(self) -> None:
         self._introduce(NumberScrollComponent())
         self._introduce(RenderedNumberScrollComponent())
+        self._introduce(ClientItemTemplateScrollComponent())
 
         assert NumberScrollComponent in BaseScrollComponent._validated_classes
         assert RenderedNumberScrollComponent in BaseScrollComponent._validated_classes
+        assert ClientItemTemplateScrollComponent in BaseScrollComponent._validated_classes
 
     def test_post_init_that_skips_super_is_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match=r'super\(\)\.__post_init__'):

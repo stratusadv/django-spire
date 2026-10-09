@@ -35,11 +35,16 @@ supplies `get_items(offset, limit)` in a stable order, `get_item(key)` and
 holds. The base asks for `batch_size + 1` items, trims, and reports whether
 there are more. The limit never comes from the client.
 
-**Rows are rendered one of two ways.** With `item_template` set, each item is
-rendered on the server and a batch arrives as HTML. Left unset, items are sent
-as data and rendered by the `scroll_item` block. This is one branch in the base
-and its template, taken deliberately: making rendering a class would cross it
-with the item source and need a class for each pair.
+**Rows are rendered one of two ways**, chosen by `item_render_mode`. `SERVER`
+renders each item on the server and a batch arrives as HTML. `CLIENT`, the
+default, sends items as data and renders them in the `scroll_item` block.
+`item_template` is the markup for one row in either mode, so the two settings
+are independent: the template is always the row, and the mode says only where
+it is drawn. A row template is written for one mode, Django tags for the server
+and Alpine attributes for the browser, and the base refuses one used in the
+other. This is one branch in the base and its template, taken deliberately:
+making rendering a class would cross it with the item source and need a class
+for each pair.
 
 **Controls belong to the application.** A subclass declares any it wants as
 editable attributes and reads them where it selects its items. A control
@@ -56,12 +61,15 @@ registration data travels with HTML responses and not inside an event.
 **Loads are ordered by generation**, as in ADR 0001. A batch or first batch
 that finishes after a newer reload began is discarded.
 
-**`QuerySetScrollComponent`** takes its items from `get_queryset()`. It refuses
-an unordered queryset and appends the primary key to the ordering, so that the
-order is total and offsets are stable. Data rows are dicts of `pk` and
+**`QuerySetScrollComponent`** takes its items from `get_queryset()`. It
+appends the primary key to the queryset's ordering, so that the order is total
+and offsets are stable. An unordered queryset is therefore listed by primary
+key. Data rows are dicts of `pk` and
 `fields`.
 
-**`GlueScrollItemsMixin`** sends each item as a Glue object, so the row markup
+**`GlueScrollItemsMixin`** sends each row of a queryset scroll as a Glue model.
+It holds everything about Glue rows, including `get_glue_item()`, so the
+queryset scroll does not know it exists. The row markup
 can call a model's Glue methods and services and save its fields with no
 callable on the component. A load returns a `SequenceGlue` of up to
 `batch_size` rows, and a full batch means there may be more, because Glue does

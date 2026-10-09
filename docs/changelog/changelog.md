@@ -30,11 +30,13 @@
   built as Glue components. The template scroll in `django_spire/glue/scroll/` is unchanged
   (ADR 0002):
   - `BaseScrollComponent` lists items of any kind. A subclass writes
-    `get_items(offset, limit)`, `get_item(key)` and `get_item_key(item)`. Setting
-    `item_template` renders rows on the server; leaving it unset sends them as data for the
-    template's `scroll_item` block. Controls are editable attributes the subclass declares,
+    `get_items(offset, limit)`, `get_item(key)` and `get_item_key(item)`.
+    `item_template` is the markup for one row, and `item_render_mode` is a
+    `ScrollItemRenderMode`: `CLIENT`, the default, sends rows as data and draws them in the
+    template's `scroll_item` block, and `SERVER` renders them on the server. Controls are editable attributes the subclass declares,
     and the template's `reloadItems()` applies them.
-  - `QuerySetScrollComponent` lists the rows of `get_queryset()`, which must be ordered.
+  - `QuerySetScrollComponent` lists the rows of `get_queryset()`, by primary key when it has
+    no ordering.
   - `GlueScrollItemsMixin` sends each row as a Glue object, so row markup can call a model's
     Glue methods and services and save its fields.
   - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a

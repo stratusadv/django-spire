@@ -4,45 +4,35 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from django.core.exceptions import ImproperlyConfigured, ValidationError
-from django_glue import Glue
+from django.core.exceptions import ValidationError
 
 from django_spire.core.components.scroll.base import BaseScrollComponent
-from django_spire.core.components.scroll.glue_items import GlueScrollItemsMixin
 
 if TYPE_CHECKING:
     from django.db.models import Model, QuerySet
-    from django_glue.glue.objects.django.model.object import ModelGlue
 
 
 class QuerySetScrollComponent(BaseScrollComponent, ABC):
     """
     A :class:`BaseScrollComponent` whose items are the rows of a queryset.
 
-    Subclasses return the rows from ``get_queryset()``, which must be
-    ordered; the primary key is appended to the ordering so that it is total,
-    and identifies each row. With ``item_template`` set the items are model
-    instances. Left unset they are dicts of ``pk`` and ``fields``.
+    Subclasses return the rows from ``get_queryset()``. The primary key
+    identifies each row and is appended to the queryset's ordering, so that
+    the order is total; a queryset with no ordering is listed by primary key.
 
-    Behind :class:`GlueScrollItemsMixin`, each row reaches the browser as a
-    Glue model of ``fields``, built by ``get_glue_item()``.
-
-    To edit a row in place, override ``get_glue_item()`` to pass the row a
-    ``form``, bind the row's inputs to ``item.form``, and save with the form's
-    own method, such as ``item.form.save_model_obj()``. That runs the form's
-    validation and whatever the application's save does. ``item.save()``
-    writes the model directly instead.
+    Items rendered on the server are model instances. Items rendered in the
+    browser are dicts of ``pk`` and ``fields``.
     """
 
     fields: ClassVar[Sequence[str]] = ()
 
     @abstractmethod
     def get_queryset(self) -> QuerySet:
-        """Return the ordered rows this scroll lists."""
+        """Return the rows this scroll lists, in the order it lists them."""
 
     @property
     def _sends_dicts(self) -> bool:
-        return self.item_template is None and not isinstance(self, GlueScrollItemsMixin)
+        return not self.renders_items_on_server
 
     def _as_items(self, queryset: QuerySet) -> QuerySet:
         if self._sends_dicts:
@@ -50,32 +40,8 @@ class QuerySetScrollComponent(BaseScrollComponent, ABC):
 
         return queryset
 
-    def get_glue_item(self, item: Model, name: str, **kwargs: Any) -> ModelGlue:
-        """
-        Return the Glue model the browser receives for ``item``. An override
-        passes further ``Glue.model`` options through ``super()``.
-        """
-        options = {'access': self.access, 'fields': self.fields, **kwargs}
-
-        if not options['fields'] and not options.get('exclude'):
-            message = (
-                f'{type(self).__name__} sends its rows as Glue models, which need to know '
-                'what to expose: set fields on the class.'
-            )
-            raise ImproperlyConfigured(message)
-
-        return Glue.model(target=item, unique_name=name, **options)
-
     def get_items(self, offset: int, limit: int) -> list[Model | dict[str, Any]]:
         queryset = self.get_queryset()
-
-        if not queryset.ordered:
-            message = (
-                f'{type(self).__name__}.get_queryset() must return an ordered queryset: '
-                'unordered rows can repeat or go missing between batches.'
-            )
-            raise ImproperlyConfigured(message)
-
         ordering = queryset.query.order_by or queryset.model._meta.ordering
 
         return list(self._as_items(queryset.order_by(*ordering, 'pk'))[offset:offset + limit])

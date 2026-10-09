@@ -1,4 +1,4 @@
-from django_spire.core.components.scroll.base import BaseScrollComponent
+from django_spire.core.components.scroll.base import BaseScrollComponent, ScrollItemRenderMode
 from django_spire.core.components.scroll.glue_items import GlueScrollItemsMixin
 from django_spire.core.components.scroll.item_form_options import (
     ComponentItemFormOptions,
@@ -14,4 +14,5 @@ __all__ = [
     'ModelCrudScrollComponent',
     'PageItemFormOptions',
     'QuerySetScrollComponent',
+    'ScrollItemRenderMode',
 ]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from enum import StrEnum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -25,6 +26,11 @@ ITEM_TEMPLATES = frozenset({
 BATCH_TEMPLATE = 'django_spire/component/scroll/batch.html'
 
 
+class ScrollItemRenderMode(StrEnum):
+    CLIENT = 'client'
+    SERVER = 'server'
+
+
 @dataclass(frozen=True)
 class ScrollBatch:
     items: list[Any]
@@ -45,10 +51,13 @@ class BaseScrollComponent(Glue.Component, ABC):
     The server keeps no position: the client sends the number of items it
     holds, and a render always shows the first batch.
 
-    With ``item_template`` set, each item is rendered on the server through
-    that template, which must extend the scroll's ``item.html`` or
-    ``table_row.html``. Left unset, items are sent as data and rendered by
-    the ``scroll_item`` block of the component template.
+    ``item_template`` is the markup for one item, and ``item_render_mode``
+    says where it is rendered. ``CLIENT``, the default, sends items as data:
+    the template is Alpine markup that reads ``item``, drawn by the
+    ``scroll_item`` block of the component template, which a list may fill in
+    itself instead. ``SERVER`` renders each item on the server: the template
+    is required and must extend the scroll's ``item.html`` or
+    ``table_row.html``.
 
     A callable that changes an item fires ``item_added``, ``item_changed`` or
     ``item_removed`` with ``key=``, and the list updates that one row.
@@ -56,6 +65,7 @@ class BaseScrollComponent(Glue.Component, ABC):
 
     template = 'django_spire/component/scroll/base.html'
     item_template: ClassVar[str | None] = None
+    item_render_mode: ClassVar[ScrollItemRenderMode] = ScrollItemRenderMode.CLIENT
     batch_size: ClassVar[int] = 25
 
     item_added = Glue.event()
@@ -111,17 +121,33 @@ class BaseScrollComponent(Glue.Component, ABC):
             )
             raise ImproperlyConfigured(message)
 
-        if scroll_class.item_template is not None and not template_extends(
+        if not isinstance(scroll_class.item_render_mode, ScrollItemRenderMode):
+            message = f'{scroll_class.__name__}.item_render_mode must be a ScrollItemRenderMode.'
+            raise ImproperlyConfigured(message)
+
+        if scroll_class.item_template is None:
+            if self.renders_items_on_server:
+                message = (
+                    f'{scroll_class.__name__} renders its items on the server, which needs '
+                    'an item_template.'
+                )
+                raise ImproperlyConfigured(message)
+        elif self.renders_items_on_server != template_extends(
             scroll_class.item_template,
             ITEM_TEMPLATES,
         ):
             message = (
                 f'{scroll_class.__name__}.item_template {scroll_class.item_template!r} must '
-                f'extend one of {sorted(ITEM_TEMPLATES)}.'
+                f'extend one of {sorted(ITEM_TEMPLATES)} when item_render_mode is SERVER, '
+                'and none of them when it is CLIENT.'
             )
             raise ImproperlyConfigured(message)
 
         self._validated_classes.add(scroll_class)
+
+    @property
+    def renders_items_on_server(self) -> bool:
+        return self.item_render_mode is ScrollItemRenderMode.SERVER
 
     def _get_batch(self, offset: int) -> ScrollBatch:
         items = self.get_items(offset, self.batch_size + 1)
@@ -139,7 +165,7 @@ class BaseScrollComponent(Glue.Component, ABC):
 
     @Glue.property
     def first_batch_data(self) -> dict[str, Any] | None:
-        if self.item_template is not None:
+        if self.renders_items_on_server:
             return None
 
         return {
@@ -162,7 +188,7 @@ class BaseScrollComponent(Glue.Component, ABC):
 
         batch = self._get_batch(offset)
 
-        if self.item_template is None:
+        if not self.renders_items_on_server:
             return {
                 'items': batch.items,
                 'keys': batch.keys,
@@ -189,7 +215,7 @@ class BaseScrollComponent(Glue.Component, ABC):
         if item is None:
             return None
 
-        if self.item_template is None:
+        if not self.renders_items_on_server:
             return {
                 'item': item,
                 'key': self.get_item_key(item),

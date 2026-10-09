@@ -1,23 +1,35 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ImproperlyConfigured
 from django_glue import Glue
-from django_glue.glue.base import BaseGlue  # noqa: TC002
+from django_glue.glue.objects.django.model.object import ModelGlue  # noqa: TC002
 from django_glue.glue.sequence import SequenceGlue
+
+from django_spire.core.components.scroll.base import ScrollItemRenderMode
+
+if TYPE_CHECKING:
+    from django.db.models import Model
 
 ITEM_NAME_PREFIX = 'item_'
 
 
 class GlueScrollItemsMixin:
     """
-    Sends each item of a scroll to the browser as a Glue object.
+    Sends each row of a queryset scroll to the browser as a Glue model.
 
-    Listed ahead of a :class:`BaseScrollComponent` subclass, it replaces plain
-    data items with whatever ``get_glue_item(item, name)`` returns, so the row
-    markup can call the object's Glue methods. That hook must build its Glue
-    object with ``name`` as its unique name, which carries the item's key.
+    Listed ahead of a :class:`QuerySetScrollComponent` subclass, it replaces
+    dict rows with the Glue model ``get_glue_item(item, name)`` builds from
+    ``fields``, so the row markup can call the model's Glue methods. The rows
+    are drawn in the browser, so the list's ``item_render_mode`` must be
+    ``CLIENT``.
+
+    To edit a row in place, override ``get_glue_item()`` to pass the row a
+    ``form``, bind the row's inputs to ``item.form``, and save with the form's
+    own method, such as ``item.form.save_model_obj()``. That runs the form's
+    validation and whatever the application's save does. ``item.save()``
+    writes the model directly instead.
 
     The items never arrive with the render: a Glue child is not derived again
     when its component refreshes, so every batch comes from ``load_items()``.
@@ -28,14 +40,35 @@ class GlueScrollItemsMixin:
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
-        if getattr(cls, 'item_template', None) is not None:
+        if getattr(cls, 'item_render_mode', None) is ScrollItemRenderMode.SERVER:
             message = (
-                f'{cls.__name__} uses GlueScrollItemsMixin with an item_template: rows '
-                'rendered on the server have no item in the browser to be a Glue object.'
+                f'{cls.__name__} uses GlueScrollItemsMixin with item_render_mode SERVER: '
+                'rows rendered on the server have no item in the browser to be a Glue object.'
             )
             raise ImproperlyConfigured(message)
 
-    def _get_named_glue_item(self, item: Any) -> BaseGlue:
+    @property
+    def _sends_dicts(self) -> bool:
+        return False
+
+    def get_glue_item(self, item: Model, name: str, **kwargs: Any) -> ModelGlue:
+        """
+        Return the Glue model the browser receives for ``item``, built with
+        ``name`` as its unique name, which carries the item's key. An override
+        passes further ``Glue.model`` options through ``super()``.
+        """
+        options = {'access': self.access, 'fields': self.fields, **kwargs}
+
+        if not options['fields'] and not options.get('exclude'):
+            message = (
+                f'{type(self).__name__} sends its rows as Glue models, which need to know '
+                'what to expose: set fields on the class.'
+            )
+            raise ImproperlyConfigured(message)
+
+        return Glue.model(target=item, unique_name=name, **options)
+
+    def _get_named_glue_item(self, item: Model) -> ModelGlue:
         return self.get_glue_item(item, f'{ITEM_NAME_PREFIX}{self.get_item_key(item)}')
 
     @Glue.property
@@ -43,7 +76,7 @@ class GlueScrollItemsMixin:
         return None
 
     @Glue.attr
-    def load_item(self, key: int | str) -> BaseGlue | None:
+    def load_item(self, key: int | str) -> ModelGlue | None:
         item = self.get_item(key)
 
         if item is None:
