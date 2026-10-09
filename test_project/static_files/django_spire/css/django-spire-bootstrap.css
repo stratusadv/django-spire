@@ -12910,6 +12910,96 @@ textarea.form-control-lg {
   margin-bottom: 1.5rem;
 }
 
+.stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stepper-vertical {
+  flex-direction: column;
+}
+
+.stepper-step {
+  align-items: center;
+  color: var(--bs-secondary-color);
+  display: flex;
+  font-weight: 600;
+  gap: 0.6rem;
+}
+
+.stepper-mark {
+  align-items: center;
+  border: 2px solid var(--bs-border-color);
+  border-radius: 50%;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 1.75rem;
+  justify-content: center;
+  width: 1.75rem;
+}
+
+.stepper-step.is-done {
+  color: var(--bs-body-color);
+}
+
+.stepper-step.is-done .stepper-mark {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+  color: var(--bs-white);
+}
+
+.stepper-step.is-current {
+  color: var(--primary);
+}
+
+.stepper-step.is-current .stepper-mark {
+  border-color: var(--primary);
+}
+
+.stepper-connected {
+  flex-wrap: nowrap;
+  gap: 0.6rem;
+}
+
+.stepper-connected .stepper-step:not(:last-child) {
+  flex: 1 1 0;
+}
+
+.stepper-connected .stepper-step:not(:last-child)::after {
+  background-color: var(--bs-border-color);
+  content: '';
+  flex: 1 1 0;
+  height: 2px;
+  min-width: 1rem;
+}
+
+.stepper-connected .stepper-step.is-done:not(:last-child)::after {
+  background-color: var(--bs-success);
+}
+
+.stepper-vertical.stepper-connected {
+  gap: 1rem;
+}
+
+.stepper-vertical.stepper-connected .stepper-step:not(:last-child) {
+  flex: none;
+  position: relative;
+}
+
+.stepper-vertical.stepper-connected .stepper-step:not(:last-child)::after {
+  flex: none;
+  height: 1rem;
+  left: calc(1.75rem / 2 - 2px / 2);
+  min-width: 0;
+  position: absolute;
+  top: 100%;
+  width: 2px;
+}
+
 .transition-fast {
   transition: 0.1s ease;
 }
@@ -13345,6 +13435,10 @@ body.darken-background::before {
 .table-fixed td {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums !important;
 }
 
 .text-200 {
