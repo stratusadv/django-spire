@@ -150,3 +150,6 @@ so an application can replace any of them or do the same work by hand.
     hold a demo and its browser tests: a read-only list, a table with search,
     page-mode forms on one route and on two, and Glue rows with modal forms,
     nested lists and a disposal check across reloads.
+  - `rest` also lists pirates from the DummyJSON API on `BaseScrollComponent`
+    directly, passing each batch's offset and limit to the API. Its tests
+    replace the API, so they do not use the network; the page itself does.

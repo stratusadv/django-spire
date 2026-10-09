@@ -1,16 +1,43 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django_glue import Glue
 
-from django_spire.core.glue.components.scroll import QuerySetScrollComponent
+from django_spire.contrib.rest.connector.exceptions import RestConnectorError
+from django_spire.core.glue.components.scroll import BaseScrollComponent, QuerySetScrollComponent
 from test_project.app.rest.models import Pirate
 from test_project.app.rest.navigation import RestNavigation
+from test_project.app.rest.rest import PirateRestSchema
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
     from django.http import HttpRequest
+
+
+class PirateApiListComponent(BaseScrollComponent):
+    item_template = 'rest/item/pirate_api_row.html'
+    view_template = 'rest/page/pirate_table_page.html'
+
+    def __post_init__(self, request: HttpRequest) -> None:
+        super().__post_init__(request)
+
+        nav = RestNavigation()
+        nav.page_title = 'Pirate API List'
+        nav.breadcrumbs.add('API List')
+        self.context_data.update(nav.as_context())
+
+    def get_items(self, offset: int, limit: int) -> list[PirateRestSchema]:
+        return list(PirateRestSchema.objects.with_request_params(skip=offset, limit=limit))
+
+    def get_item(self, key: Any) -> PirateRestSchema | None:
+        try:
+            return PirateRestSchema.objects.get(id=key)
+        except (LookupError, RestConnectorError):
+            return None
+
+    def get_item_key(self, item: PirateRestSchema) -> int:
+        return item.id
 
 
 class PirateTableComponent(QuerySetScrollComponent):
