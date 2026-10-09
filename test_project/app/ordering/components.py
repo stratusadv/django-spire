@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING, Any
 from django_glue import Glue
 from django_glue.exceptions import GlueRequestError, GlueRequestErrorCode
 
-from django_spire.core.glue.components.confirmation import ModelDeleteConfirmationComponent
-from django_spire.core.glue.components.scroll import (
+from django_spire.core.components import (
     ModelCrudScrollComponent,
+    ModelDeleteConfirmationComponent,
     PageItemFormOptions,
 )
 from test_project.app.ordering.models import Duck

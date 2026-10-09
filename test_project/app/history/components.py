@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.core.glue.components.scroll import QuerySetScrollComponent
+from django_spire.core.components import QuerySetScrollComponent
 from test_project.app.history.models import HistoryExample
 
 if TYPE_CHECKING:

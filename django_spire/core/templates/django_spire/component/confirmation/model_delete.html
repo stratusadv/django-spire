@@ -1,0 +1,21 @@
+{% extends 'django_spire/component/confirmation/base.html' %}
+
+{% block confirmation_title %}
+    <i class="bi bi-trash text-danger me-2"></i>
+    {% if component.title %}{{ component.title }}{% else %}Delete {{ component.model_name|title }}{% endif %}
+{% endblock %}
+
+{% block confirmation_message %}
+    <p>
+        {% if component.message %}
+            {{ component.message }}
+        {% else %}
+            Are you sure you want to delete the {{ component.model_name|lower }}
+            "<strong>{{ component.model_obj }}</strong>"?
+        {% endif %}
+    </p>
+{% endblock %}
+
+{% block confirmation_button %}
+    {% include 'django_spire/button/async_button.html' with x_button_click='component.confirm()' x_busy='isSettling' button_text=component.confirm_label|default:'Delete' button_class='btn-danger' button_icon='bi bi-trash' %}
+{% endblock %}

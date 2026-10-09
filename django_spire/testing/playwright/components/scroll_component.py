@@ -17,7 +17,7 @@ FIRST_SCROLL = """
 
 class ScrollComponent:
     """
-    Playwright component for django_spire/glue/component/scroll/base.html, the
+    Playwright component for django_spire/component/scroll/base.html, the
     scroll a BaseScrollComponent renders.
 
     Row markup belongs to the consumer, so pass the selector matching one row

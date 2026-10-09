@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from django_glue import Glue
 
 from django_spire.contrib.rest.connector.exceptions import RestConnectorError
-from django_spire.core.glue.components.scroll import BaseScrollComponent, QuerySetScrollComponent
+from django_spire.core.components import BaseScrollComponent, QuerySetScrollComponent
 from test_project.app.rest.models import Pirate
 from test_project.app.rest.navigation import RestNavigation
 from test_project.app.rest.rest import PirateRestSchema

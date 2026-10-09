@@ -1,0 +1,18 @@
+<div>
+    <div class="fs-5 fw-semibold mb-3">
+        {% block confirmation_title %}{{ component.title|default:'Are you sure?' }}{% endblock %}
+    </div>
+
+    {% block confirmation_message %}
+        {% if component.message %}<p>{{ component.message }}</p>{% endif %}
+    {% endblock %}
+
+    {# The two buttons share one flag, so neither can be clicked while the other's call is in flight. #}
+    <div class="d-flex justify-content-end gap-2 mt-3" x-data="{ isSettling: false }">
+        {% include 'django_spire/button/async_button.html' with x_button_click='component.cancel()' x_busy='isSettling' button_text='Cancel' button_class='btn-outline-secondary' %}
+
+        {% block confirmation_button %}
+            {% include 'django_spire/button/async_button.html' with x_button_click='component.confirm()' x_busy='isSettling' button_text=component.confirm_label|default:'Confirm' %}
+        {% endblock %}
+    </div>
+</div>

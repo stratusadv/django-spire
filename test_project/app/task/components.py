@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Any
 
 from django_glue import Glue
 
-from django_spire.core.glue.components import ModelFormComponent
-from django_spire.core.glue.components.scroll import (
+from django_spire.core.components import (
     ComponentItemFormOptions,
     GlueScrollItemsMixin,
     ModelCrudScrollComponent,
+    ModelFormComponent,
 )
 from test_project.app.task.choices import TaskStatusChoices
 from test_project.app.task.forms import TaskModalForm

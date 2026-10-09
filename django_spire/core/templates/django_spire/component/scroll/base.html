@@ -1,0 +1,49 @@
+{# The behaviour is the Alpine component named by scroll_data_name, in django_spire/js/scroll_component.js. #}
+<div
+    x-data="{% block scroll_data_name %}scrollComponent{% endblock %}({
+        batchSize: {{ component.batch_size }},
+        rendersRows: {{ component.item_template|yesno:'true,false' }},
+        {% block scroll_options %}{% endblock %}
+    })"
+    class="{% block scroll_container_class %}{% endblock %}"
+>
+    {% block scroll_header %}{% endblock %}
+
+    {% block scroll_list %}
+        <div x-ref="list">
+            {% block scroll_rows %}
+                {% if component.item_template %}
+                    {% include 'django_spire/component/scroll/batch.html' with batch=component.first_batch %}
+                {% else %}
+                    <template x-for="(item, itemIndex) in items" :key="keys[itemIndex]">
+                        {% block scroll_item %}{% endblock %}
+                    </template>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    <div x-show="loadedCount === 0 && !isLoading" x-cloak>
+        {% block scroll_empty %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endblock %}
+    </div>
+
+    <div
+        x-ref="sentinel"
+        style="height: 1200px; margin-top: -1200px; pointer-events: none;"
+    ></div>
+
+    <div x-show="isLoading" x-cloak class="row">
+        {% block scroll_loading %}
+            <div class="col p-3 text-end" aria-live="polite">
+                <span class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading items...</span>
+                </span>
+                Loading items...
+            </div>
+        {% endblock %}
+    </div>
+
+    {% block scroll_footer %}{% endblock %}
+</div>

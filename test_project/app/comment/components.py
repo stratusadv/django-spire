@@ -3,10 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.comment.navigation import CommentNavigation
-from django_spire.core.glue.components.scroll import (
-    ModelCrudScrollComponent,
-    PageItemFormOptions,
-)
+from django_spire.core.components import ModelCrudScrollComponent, PageItemFormOptions
 from test_project.app.comment.models import CommentExample
 
 if TYPE_CHECKING:

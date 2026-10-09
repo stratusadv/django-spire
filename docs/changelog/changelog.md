@@ -17,12 +17,13 @@
     `ModelFormComponent`, instead.
   - `ModelFormComponent` no longer inherits from `FormComponent`. Both inherit from the new
     `BaseFormComponent`.
-  - The modules moved into the `django_spire.core.glue.components.form` package. Importing
-    the classes from `django_spire.core.glue.components` is unchanged.
+  - The components moved from `django_spire.core.glue.components` to
+    `django_spire.core.components`, with no alias at the old path. Import every component
+    from there: `from django_spire.core.components import ModelFormComponent`.
 
 ### Added
 
-- Scroll components, in `django_spire.core.glue.components.scroll`, for infinite lists
+- Scroll components, in `django_spire.core.components`, for infinite lists
   built as Glue components. The template scroll in `django_spire/glue/scroll/` is unchanged
   (ADR 0002):
   - `BaseScrollComponent` lists items of any kind. A subclass writes
@@ -41,17 +42,33 @@
   - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
     `removeItem(key)`, or by firing `item_added`, `item_changed` or `item_removed` from a
     callable.
-  - Templates are `django_spire/glue/component/scroll/base.html`, `table.html` and
+  - Templates are `django_spire/component/scroll/base.html`, `table.html` and
     `crud.html`, with `item.html` and `table_row.html` for server-rendered rows.
-- Confirmation components, in `django_spire.core.glue.components.confirmation`.
+  - The client behaviour is the `scrollComponent` and `crudScrollComponent` Alpine
+    components in `django_spire/js/scroll_component.js`, which Spire's `base.html` loads.
+- `django_spire/button/async_button.html`, a button that runs one awaited call and is off,
+  showing a spinner, until it settles. It takes `x_button_click`, `button_text`,
+  `button_class`, `button_icon` and `button_title`. Buttons given the same `x_busy` flag
+  take turns. The behaviour is the `asyncButton` Alpine component in
+  `django_spire/js/async_button.js`, which any element can use directly.
+- A project that does not extend Spire's `base.html` must load `async_button.js` and
+  `scroll_component.js` itself.
+- Confirmation components, in `django_spire.core.components`.
   `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
-  `cancelled`. `ModelDeleteConfirmationComponent(model_obj=row)` soft-deletes a row of any
+  `cancelled`. Its prompt is worded with `title`, `message` and `confirm_label` when it is
+  built. `ModelDeleteConfirmationComponent(model_obj=row)` soft-deletes a row of any
   model with no subclass.
 - `ScrollComponent`, a Playwright helper in `django_spire.testing.playwright` for the new
   scroll.
 - A form component can be built without a subclass:
   `ModelFormComponent(form_class=TaskForm, template='task/form.html', pk=pk)`. The form
   class must be defined at module level.
+
+### Changes
+
+- A `ModelFormComponent` whose row no longer exists reports Glue's
+  `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
+  edit and delete actions report the same for a row outside its queryset.
 
 ## v1.2.1 - October 8, 2026
 

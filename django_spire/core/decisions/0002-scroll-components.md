@@ -24,7 +24,7 @@ component the natural owner of all three.
 
 ## Decision
 
-A new family of components in `django_spire.core.glue.components.scroll`,
+A new family of components in `django_spire.core.components.scroll`,
 beside the template scroll, which is unchanged.
 
 **The base is agnostic about its items.** A `BaseScrollComponent` subclass
@@ -125,9 +125,12 @@ so an application can replace any of them or do the same work by hand.
 - Offset paging can repeat or skip a row when rows are inserted while a user
   scrolls. Continuation paging (ADR 0001) does not, and stays available in the
   template scroll.
-- `base.html` has a `scroll_data` block at the end of its Alpine data, which is
-  how `crud.html` adds its helpers. A template that adds its own keeps them with
-  `{{ block.super }}`.
+- The scroll's client behaviour is two Alpine components in
+  `django_spire/js/scroll_component.js`, not script in the template, so a list
+  renders only its markup. `base.html` names its component in the
+  `scroll_data_name` block and passes it options in `scroll_options`, which is
+  how `crud.html` swaps in `crudScrollComponent` and its page URLs. A project
+  that does not extend Spire's `base.html` loads that script itself.
 - The sizes and timings above come from single runs on one machine and are
   indicative. Database queries were counted in tests, not in those runs.
 - Supporting components were added or changed for this: `BaseConfirmationComponent`
@@ -144,7 +147,7 @@ so an application can replace any of them or do the same work by hand.
 - Not built: a form component that renders any form's fields without a
   template, and deriving a list's access from the user's permissions.
 - Coverage:
-  - `django_spire/core/glue/components/tests/test_scroll/` tests each class,
+  - `django_spire/core/components/tests/test_scroll/` tests each class,
     including one query per batch at any offset and one per single row.
   - `test_project/app/history`, `rest`, `comment`, `ordering` and `task` each
     hold a demo and its browser tests: a read-only list, a table with search,

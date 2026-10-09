@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from limelight import Demo
-    from playwright.sync_api import Locator, Page
+    from playwright.sync_api import Locator, Page, Route
 
 
 pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
@@ -113,6 +113,124 @@ def test_deleting_a_duck_is_confirmed_and_uses_the_overridden_delete(
 
     assert deleted.is_active is False
     assert deleted.is_deleted is False
+
+
+def test_confirming_twice_in_quick_succession_sends_one_request(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    alpha = create_test_duck(name='Alpha Duck', order=1)
+    create_test_duck(name='Bravo Duck', order=2)
+
+    scroll = _open_duck_list(page, demo_start, row_count=2)
+    modal = page.locator('#baseDispatchModal')
+
+    _row(page, alpha).get_by_title('Delete Duck').click()
+    expect(modal).to_contain_text('Alpha Duck')
+
+    confirm_requests: list[str] = []
+    page.on(
+        'request',
+        lambda request: confirm_requests.append(request.url)
+        if '"confirm"' in (request.post_data or '') else None,
+    )
+
+    modal.get_by_role('button', name='Delete').evaluate(
+        'button => { button.click(); button.click() }'
+    )
+    scroll.wait_for_row_count(1)
+
+    expect(modal).to_be_hidden()
+
+    assert len(confirm_requests) == 1
+
+
+def test_both_buttons_are_off_while_a_confirmation_is_in_flight(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    alpha = create_test_duck(name='Alpha Duck', order=1)
+    create_test_duck(name='Bravo Duck', order=2)
+
+    scroll = _open_duck_list(page, demo_start, row_count=2)
+    modal = page.locator('#baseDispatchModal')
+
+    _row(page, alpha).get_by_title('Delete Duck').click()
+    expect(modal).to_contain_text('Alpha Duck')
+
+    held_routes: list[Route] = []
+
+    def hold_confirm(route: Route) -> None:
+        if '"confirm"' in (route.request.post_data or ''):
+            held_routes.append(route)
+        else:
+            route.continue_()
+
+    page.route('**/__dg__/**', hold_confirm)
+
+    cancel_button = modal.get_by_role('button', name='Cancel')
+    delete_button = modal.get_by_role('button', name='Delete')
+    delete_button.click()
+
+    expect(delete_button).to_be_disabled()
+    expect(cancel_button).to_be_disabled()
+    expect(delete_button.locator('.spinner-border')).to_be_visible()
+    expect(cancel_button.locator('.spinner-border')).to_be_hidden()
+
+    assert len(held_routes) == 1
+
+    held_routes[0].continue_()
+    scroll.wait_for_row_count(1)
+
+    expect(modal).to_be_hidden()
+
+
+@pytest.mark.console_error_expected('status of 500')
+def test_a_confirmation_that_fails_can_be_tried_again(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    alpha = create_test_duck(name='Alpha Duck', order=1)
+
+    scroll = _open_duck_list(page, demo_start, row_count=1)
+    modal = page.locator('#baseDispatchModal')
+
+    _row(page, alpha).get_by_title('Delete Duck').click()
+    expect(modal).to_contain_text('Alpha Duck')
+
+    def fail_confirm(route: Route) -> None:
+        if '"confirm"' in (route.request.post_data or ''):
+            route.fulfill(status=500, body='')
+        else:
+            route.continue_()
+
+    page.route('**/__dg__/**', fail_confirm)
+    page.evaluate("""
+        () => window.addEventListener('unhandledrejection', event => {
+            window.rejectedWith = event.reason?.name
+            event.preventDefault()
+        })
+    """)
+
+    delete_button = modal.get_by_role('button', name='Delete')
+
+    with page.expect_response('**/__dg__/**'):
+        delete_button.click()
+
+    expect(delete_button).to_be_enabled()
+    expect(modal.get_by_role('button', name='Cancel')).to_be_enabled()
+    expect(modal).to_be_visible()
+
+    assert page.evaluate('() => window.rejectedWith') == 'GlueHttpError'
+
+    page.unroute('**/__dg__/**', fail_confirm)
+    delete_button.click()
+    scroll.wait_for_row_count(0)
+
+    expect(modal).to_be_hidden()
 
 
 def test_creating_and_editing_go_to_their_own_pages(
