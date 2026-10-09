@@ -147,6 +147,100 @@
     margin-bottom: 1.5rem;
 }
 
+$stepper-mark-size: 1.75rem;
+$stepper-connector-width: 2px;
+$stepper-gap: 1rem;
+
+.stepper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $stepper-gap 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.stepper-vertical {
+    flex-direction: column;
+}
+
+.stepper-step {
+    align-items: center;
+    color: var(--bs-secondary-color);
+    display: flex;
+    font-weight: 600;
+    gap: 0.6rem;
+}
+
+.stepper-mark {
+    align-items: center;
+    border: $stepper-connector-width solid var(--bs-border-color);
+    border-radius: 50%;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: $stepper-mark-size;
+    justify-content: center;
+    width: $stepper-mark-size;
+}
+
+.stepper-step.is-done {
+    color: var(--bs-body-color);
+}
+
+.stepper-step.is-done .stepper-mark {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+    color: var(--bs-white);
+}
+
+.stepper-step.is-current {
+    color: var(--primary);
+}
+
+.stepper-step.is-current .stepper-mark {
+    border-color: var(--primary);
+}
+
+.stepper-connected {
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+}
+
+.stepper-connected .stepper-step:not(:last-child) {
+    flex: 1 1 0;
+}
+
+.stepper-connected .stepper-step:not(:last-child)::after {
+    background-color: var(--bs-border-color);
+    content: '';
+    flex: 1 1 0;
+    height: $stepper-connector-width;
+    min-width: 1rem;
+}
+
+.stepper-connected .stepper-step.is-done:not(:last-child)::after {
+    background-color: var(--bs-success);
+}
+
+.stepper-vertical.stepper-connected {
+    gap: $stepper-gap;
+}
+
+.stepper-vertical.stepper-connected .stepper-step:not(:last-child) {
+    flex: none;
+    position: relative;
+}
+
+.stepper-vertical.stepper-connected .stepper-step:not(:last-child)::after {
+    flex: none;
+    height: $stepper-gap;
+    left: calc(#{$stepper-mark-size} / 2 - #{$stepper-connector-width} / 2);
+    min-width: 0;
+    position: absolute;
+    top: 100%;
+    width: $stepper-connector-width;
+}
+
 .transition-fast {
     transition: $transition-fast;
 }

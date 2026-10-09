@@ -98,6 +98,7 @@ nav:
       - Navigation: components/navigation.md
       - Notification: components/notification.md
       - Page: components/page.md
+      - Stepper: components/stepper.md
       - Tab: components/tab.md
   - API Reference: reference/
   - Roadmap:

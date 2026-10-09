@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.2 - Unreleased
+
+### Added
+
+- `tabular-nums`, a utility class that sets `font-variant-numeric: tabular-nums` so the
+  digits in a column of amounts line up.
+- A stepper, for a numbered sequence of steps with done, current and upcoming states. It
+  is a set of classes with no template: `stepper` on the list, `stepper-step` on each
+  step with `is-done` or `is-current`, and `stepper-mark` on the circle. `stepper-vertical`
+  stacks the steps and `stepper-connected` draws a line between them. See
+  [Stepper](../components/stepper.md).
+
 ## v1.2.1 - October 8, 2026
 
 ### Changed
