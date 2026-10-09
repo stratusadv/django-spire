@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import pytest
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django_glue import Glue
+from django_glue.exceptions import GlueModelInstanceNotFoundError
 
 from django_spire.core.components.confirmation import (
     ModelDeleteConfirmationComponent,
@@ -40,6 +42,26 @@ class ModelSetDeletedConfirmationComponentTestCase(BaseTestCase):
         assert component.__dict__['_pending_events'] == [
             {'name': 'confirmed', 'detail': {'pk': comment.pk}},
         ]
+
+
+class KeptCommentDeleteConfirmationComponent(ModelSetDeletedConfirmationComponent):
+    @Glue.ComponentParameter
+    def instance(self, pk: int) -> CommentExample:
+        return CommentExample.objects.filter(name__startswith='Kept').get(pk=pk)
+
+
+class ScopedInstanceTestCase(BaseTestCase):
+    def test_a_subclass_can_scope_the_row_it_looks_up_again(self) -> None:
+        kept = create_test_comment_example(name='Kept Notes')
+        dropped = create_test_comment_example(name='Dropped Notes')
+        component_class = KeptCommentDeleteConfirmationComponent
+        kept_parameters = component_class(instance=kept).identity['parameters']
+        dropped_parameters = component_class(instance=dropped).identity['parameters']
+
+        assert component_class(**kept_parameters).instance == kept
+
+        with pytest.raises(GlueModelInstanceNotFoundError):
+            component_class(**dropped_parameters).instance  # noqa: B018
 
 
 class BaseModelDeleteConfirmationComponentTestCase(BaseTestCase):

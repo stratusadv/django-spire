@@ -1,0 +1,9 @@
+<button
+    class="btn btn-primary text-light"
+    type="button"
+    x-data="asyncButton(() => component.publish())"
+    x-bind="button"
+>
+    <span x-show="isRunning" class="spinner-border spinner-border-sm me-1" role="status"></span>
+    Publish
+</button>

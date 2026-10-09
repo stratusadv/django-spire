@@ -1,0 +1,12 @@
+<button
+    class="btn btn-sm btn-outline-secondary"
+    type="button"
+    @click="
+        const form = await component.task_form({pk: {{ task.pk }}})
+
+        form.model.form.$on('saved', () => Spire.modal.close())
+        await Spire.modal.dispatchGlueComponent(form)
+    "
+>
+    Edit
+</button>
