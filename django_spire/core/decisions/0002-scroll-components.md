@@ -126,7 +126,7 @@ so an application can replace any of them or do the same work by hand.
   scrolls. Continuation paging (ADR 0001) does not, and stays available in the
   template scroll.
 - The scroll's client behaviour is two Alpine components in
-  `django_spire/js/scroll_component.js`, not script in the template, so a list
+  `django_spire/js/components/scroll.js`, not script in the template, so a list
   renders only its markup. `base.html` names its component in the
   `scroll_data_name` block and passes it options in `scroll_options`, which is
   how `crud.html` swaps in `crudScrollComponent` and its page URLs. A project

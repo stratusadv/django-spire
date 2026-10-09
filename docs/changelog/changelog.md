@@ -20,6 +20,9 @@
   - The components moved from `django_spire.core.glue.components` to
     `django_spire.core.components`, with no alias at the old path. Import every component
     from there: `from django_spire.core.components import ModelFormComponent`.
+- `django_spire/js/search_palette.js` moved to `django_spire/js/components/search_palette.js`,
+  beside the other scripts that register an Alpine component. Spire's `base.html` loads it
+  from there; a project that loads it by path updates the path.
 
 ### Added
 
@@ -45,14 +48,14 @@
   - Templates are `django_spire/component/scroll/base.html`, `table.html` and
     `crud.html`, with `item.html` and `table_row.html` for server-rendered rows.
   - The client behaviour is the `scrollComponent` and `crudScrollComponent` Alpine
-    components in `django_spire/js/scroll_component.js`, which Spire's `base.html` loads.
+    components in `django_spire/js/components/scroll.js`, which Spire's `base.html` loads.
 - `django_spire/button/async_button.html`, a button that runs one awaited call and is off,
   showing a spinner, until it settles. It takes `x_button_click`, `button_text`,
   `button_class`, `button_icon` and `button_title`. Buttons given the same `x_busy` flag
   take turns. The behaviour is the `asyncButton` Alpine component in
-  `django_spire/js/async_button.js`, which any element can use directly.
-- A project that does not extend Spire's `base.html` must load `async_button.js` and
-  `scroll_component.js` itself.
+  `django_spire/js/components/async_button.js`, which any element can use directly.
+- A project that does not extend Spire's `base.html` must load the scripts in
+  `django_spire/js/components/` itself.
 - Confirmation components, in `django_spire.core.components`.
   `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
   `cancelled`. Its prompt is worded with `title`, `message` and `confirm_label` when it is
