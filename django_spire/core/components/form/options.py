@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ImproperlyConfigured
 
-from django_spire.core.components.form import ModelFormComponent
+from django_spire.core.components.form.model import ModelFormComponent
 
 if TYPE_CHECKING:
     from django.forms import ModelForm
 
 
 @dataclass(frozen=True, kw_only=True)
-class ComponentItemFormOptions:
+class ComponentFormOptions:
     """
     A row is created and edited in a form component, shown in a modal. Give
     the application's own ``component``, or a ``form_class`` with the
@@ -30,14 +30,14 @@ class ComponentItemFormOptions:
             self.form_class is not None or self.template is not None
         ):
             message = (
-                'ComponentItemFormOptions takes a component, or a form_class with a template, '
+                'ComponentFormOptions takes a component, or a form_class with a template, '
                 'not both: a component declares its own form and template.'
             )
             raise ImproperlyConfigured(message)
 
         if self.component is None and (self.form_class is None or self.template is None):
             message = (
-                'ComponentItemFormOptions needs a component, or a form_class together with a '
+                'ComponentFormOptions needs a component, or a form_class together with a '
                 'template.'
             )
             raise ImproperlyConfigured(message)
@@ -54,7 +54,7 @@ class ComponentItemFormOptions:
 
 
 @dataclass(frozen=True)
-class PageItemFormOptions:
+class PageFormOptions:
     """
     A row is created and edited on a page of its own. ``url_name`` is the
     route that takes the row's key as ``pk``. Creating a row goes to

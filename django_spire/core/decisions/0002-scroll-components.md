@@ -89,8 +89,9 @@ batch comes from the `load_items` callable, and a reload is a refresh followed
 by a load.
 
 **`ModelCrudScrollComponent`** adds ready-made actions. `item_form_options`
-says how a row is created and edited: `ComponentItemFormOptions` shows a form
-component in a modal, and `PageItemFormOptions` sends the user to a page.
+says how a row is created and edited: `ComponentFormOptions` shows a form
+component in a modal, and `PageFormOptions` sends the user to a page. Both live
+in the form package, since nothing in them is about lists.
 `delete_component` is the confirmation shown before a row is deleted. The
 template's `createItem()`, `editItem(item)` and `deleteItem(item)` perform them
 and take the item or its key. Only rows in `get_queryset()` can be edited or

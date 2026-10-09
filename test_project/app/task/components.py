@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from django_glue import Glue
 
 from django_spire.core.components import (
-    ComponentItemFormOptions,
+    ComponentFormOptions,
     GlueScrollItemsMixin,
     ModelCrudScrollComponent,
     ModelFormComponent,
@@ -35,7 +35,7 @@ class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
     view_template = 'task/page/task_list_page.html'
     fields = ('name', 'status')
 
-    item_form_options = ComponentItemFormOptions(
+    item_form_options = ComponentFormOptions(
         form_class=TaskModalForm,
         template='task/component/task_form_modal.html',
     )
@@ -82,7 +82,7 @@ class TaskChildListComponent(TaskListComponent):
     template = 'task/component/task_child_list.html'
     batch_size = 10
 
-    item_form_options = ComponentItemFormOptions(component=TaskFormComponent)
+    item_form_options = ComponentFormOptions(component=TaskFormComponent)
 
     parent_id: int = Glue.attr(parameter=True)
 

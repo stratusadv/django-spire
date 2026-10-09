@@ -9,13 +9,13 @@ from django.test import RequestFactory
 from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
 
-from django_spire.core.components import ModelFormComponent
-from django_spire.core.components.confirmation import ModelSetDeletedConfirmationComponent
-from django_spire.core.components.scroll import (
-    ComponentItemFormOptions,
-    ModelCrudScrollComponent,
-    PageItemFormOptions,
+from django_spire.core.components import (
+    ComponentFormOptions,
+    ModelFormComponent,
+    PageFormOptions,
 )
+from django_spire.core.components.confirmation import ModelSetDeletedConfirmationComponent
+from django_spire.core.components.scroll import ModelCrudScrollComponent
 from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.comment.models import CommentExample
 from test_project.app.comment.tests.factories import create_test_comment_example
@@ -40,11 +40,11 @@ class FormlessCommentCrudScrollComponent(ModelCrudScrollComponent):
 
 
 class CommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
-    item_form_options = ComponentItemFormOptions(form_class=CommentForm, template=FORM_TEMPLATE)
+    item_form_options = ComponentFormOptions(form_class=CommentForm, template=FORM_TEMPLATE)
 
 
 class PagedCommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
-    item_form_options = PageItemFormOptions('order:update', create_url_name='order:create')
+    item_form_options = PageFormOptions('order:update', create_url_name='order:create')
 
 
 class ArchiveCommentConfirmationComponent(ModelSetDeletedConfirmationComponent):

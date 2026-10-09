@@ -40,8 +40,8 @@
   - `GlueScrollItemsMixin` sends each row as a Glue object, so row markup can call a model's
     Glue methods and services and save its fields.
   - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a
-    `ComponentItemFormOptions`, which shows a form component in a modal, or a
-    `PageItemFormOptions`, which sends the user to a page; `delete_component` is the
+    `ComponentFormOptions`, which shows a form component in a modal, or a
+    `PageFormOptions`, which sends the user to a page; `delete_component` is the
     confirmation. The template gains `createItem()`, `editItem(item)` and
     `deleteItem(item)`.
   - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
