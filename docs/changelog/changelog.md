@@ -88,6 +88,8 @@
 
 ### Changes
 
+- Migrated from `django-glue` v1.2.1 to v1.2.3. The scroll is written for the disposal fix
+  in 1.2.2, and a confirmation's Cancel uses `$dispatch`, which arrived in 1.2.3.
 - A `ModelFormComponent` whose row no longer exists reports Glue's
   `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
   edit and delete actions report the same for a row outside its queryset.
