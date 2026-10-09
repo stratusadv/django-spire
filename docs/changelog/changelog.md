@@ -2,6 +2,16 @@
 
 ## v1.2.2 - Unreleased
 
+### Breaking
+
+- Migrated from `django-glue` v1.2.1 to v1.2.2. A Glue component in a directory inside a
+  `components` package now has that directory in its tag: a class in
+  `app/components/cards/fancy.py` is `app/cards/fancy`, where it was `app/fancy`, and the
+  old tag raises `GlueComponentRegistrationError`. Add the directory to the tag, or import
+  the class in `components/__init__.py` to keep the short one. A component in a module
+  directly inside `components/` is unaffected, and Spire's own components need no change.
+  The [django-glue changelog](https://django-glue.stratusadv.com) has the full list.
+
 ### Added
 
 - `tabular-nums`, a utility class that sets `font-variant-numeric: tabular-nums` so the
