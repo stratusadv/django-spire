@@ -142,7 +142,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return bool(self.obj.statistic_id and self.obj.statistic.is_deleted)
 
     def _datasets(self) -> list[VisualReference]:
-        return list(self.obj.references.not_deleted())
+        return list(self.obj.references.all())
 
     def _values_for(self, reference: str) -> Any:
         return self.obj.statistic.values.for_reference_pattern(reference)

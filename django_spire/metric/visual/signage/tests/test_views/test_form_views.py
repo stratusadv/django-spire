@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.visual.signage.models import SignagePresentation
 from django_spire.metric.visual.signage.tests.factories import create_test_link, create_test_signage
 
 
@@ -48,6 +49,28 @@ class SignageFormViewsTestCase(BaseTestCase):
 
         assert response.status_code == 200
 
+    def test_create_link_view_prefills_order_zero_without_links(self):
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:form:create_link',
+                kwargs={'signage_pk': self.signage.pk},
+            )
+        )
+
+        assert response.context['link'].order == 0
+
+    def test_create_link_view_prefills_next_order(self):
+        create_test_link(self.signage, order=5)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:form:create_link',
+                kwargs={'signage_pk': self.signage.pk},
+            )
+        )
+
+        assert response.context['link'].order == 6
+
     def test_update_link_view(self):
         link = create_test_link(self.signage)
 
@@ -66,5 +89,4 @@ class SignageFormViewsTestCase(BaseTestCase):
         )
 
         assert response.status_code == 302
-        link.refresh_from_db()
-        assert link.is_deleted is True
+        assert not SignagePresentation.objects.filter(pk=link.pk).exists()

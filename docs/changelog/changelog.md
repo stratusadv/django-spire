@@ -53,6 +53,14 @@
   `ModelFormComponent(form_class=TaskForm, template='task/form.html', pk=pk)`. The form
   class must be defined at module level.
 
+## v1.2.1 - October 8, 2026
+
+### Changed
+
+- Migrated from `django-glue` v1.2.0 to v1.2.1. It fixes a formset refusing a new
+  `ModelForm` row, with "Submitted form token does not belong to this formset row", after
+  that row had made a call of its own, such as loading a field's choices or validating.
+
 ## v1.2.0 - October 6, 2026
 
 ### Breaking
@@ -95,9 +103,32 @@
   `django_spire.testing.playwright.components.filter_form`. `FilterForm` is still exported
   from `django_spire.testing.playwright.components`, so only imports of the module path
   need updating.
+- `DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY` and
+  `DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY` are renamed to
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`, the
+  statistic and sub-domain that metric click tracking records against. A project that
+  still sets the old names silently loses its tracking target; rename them in settings.
+
+### Features
+
+- New `RemoteClickMiddleware`
+  (`django_spire.metric.domain.statistic.middleware.remote`) for sites that track clicks
+  without running the metric database themselves: each tracked click (same rules as the
+  local `LocalClickMiddleware`: GET, 200, `text/html`, skipping `/admin/`, `/api/`,
+  and XHR) is POSTed to
+  `{DJANGO_SPIRE_REMOTE_API_URL}/api/v1/metric/domain/statistic/{statistic_key}/record`
+  with an `X-API-Key` header. It dispatches on a background thread by default, imports
+  no `django_spire` modules (stdlib + `requests` + `django.conf` only), and is a no-op
+  unless `DJANGO_SPIRE_REMOTE_API_URL`, `DJANGO_SPIRE_REMOTE_API_KEY`,
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY`, and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY` are all
+  set.
+- The metric visual "Generate Stoplight" action is removed, with its
+  `set_default_conditions` URL and `visual.services.factory.create_default_conditions()`.
 
 ### Changes
 
+- A metric visual's detail card links to its statistic group and its statistic separately.
+- Monthly chart labels always show the year, as `Jan 26`.
 - `FormComponent` subclasses `Glue.Component` instead of importing `Component` from a
   `django-glue` internal module.
 - `spire_startapp` no longer scaffolds session-backed list filtering. A generated app has:
@@ -113,6 +144,14 @@
 
 - The comment modal no longer crashes on open. Its `Glue.model` call now exposes the
   `information` field at `CHANGE` access, so the comment text is editable.
+- Metric charts and indicators fill their cards on signage displays and presentation
+  slides. Their heights are set by `--spire-chart-height` (default `350px`) and
+  `--spire-indicator-min-height` (default `240px`).
+- A new visual condition, visual reference or signage presentation is added at the next
+  free order position.
+- A visual ignores its deleted conditions when it works out its current condition and
+  gauge maximum.
+- A visual with no conditions no longer shows a "No data" status badge.
 
 ### Chores
 

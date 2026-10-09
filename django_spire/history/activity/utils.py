@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 
+from django_spire.history.activity.context import get_current_user
 from django_spire.history.activity.enums import ActivityVerb
 from django_spire.history.activity.models import Activity
 
@@ -36,6 +37,28 @@ def build_activity_information(instance: ActivityMixin, user: User, verb: str) -
 def add_activity(instance: ActivityMixin, user: User, verb: str) -> Activity:
     information = build_activity_information(instance, user, verb)
     return instance.add_activity(user=user, verb=verb, information=information)
+
+
+def log_child_creation(parent: ActivityMixin, child: ActivityMixin) -> None:
+    user = get_current_user()
+
+    if user:
+        parent.add_activity(
+            user=user,
+            verb=ActivityVerb.CREATED,
+            information=build_activity_information(child, user, ActivityVerb.CREATED),
+        )
+
+
+def log_child_deletion(parent: ActivityMixin, child: ActivityMixin) -> None:
+    user = get_current_user()
+
+    if user:
+        parent.add_activity(
+            user=user,
+            verb=ActivityVerb.DELETED,
+            information=build_activity_information(child, user, ActivityVerb.DELETED),
+        )
 
 
 def add_bulk_activity(

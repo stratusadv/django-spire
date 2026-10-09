@@ -78,6 +78,11 @@ class VisualConditionService(BaseDjangoModelService['VisualCondition']):
     processor = VisualConditionProcessorService()
     factory = VisualConditionFactoryService()
 
+    @classmethod
+    def next_order(cls, related: QuerySet[VisualCondition]) -> int:
+        max_order = related.aggregate(max_order=Max('order'))['max_order']
+        return (max_order + 1) if max_order is not None else 0
+
     def save_model_obj(self, **field_data: dict | None) -> tuple[VisualCondition, bool]:
         if self.obj.pk is None and self.obj.visual_id:
             with transaction.atomic():
@@ -102,13 +107,17 @@ class VisualConditionService(BaseDjangoModelService['VisualCondition']):
             field_data['order'] = order
             return field_data
 
-        max_order = related.aggregate(max_order=Max('order'))['max_order']
-        field_data['order'] = (max_order + 1) if max_order is not None else 0
+        field_data['order'] = self.next_order(related)
         return field_data
 
 
 class VisualReferenceService(BaseDjangoModelService['VisualReference']):
     obj: VisualReference
+
+    @classmethod
+    def next_order(cls, related: QuerySet[VisualReference]) -> int:
+        max_order = related.aggregate(max_order=Max('order'))['max_order']
+        return (max_order + 1) if max_order is not None else 0
 
     def save_model_obj(self, **field_data: dict | None) -> tuple[VisualReference, bool]:
         if self.obj.pk is None and self.obj.visual_id:
@@ -134,8 +143,7 @@ class VisualReferenceService(BaseDjangoModelService['VisualReference']):
             field_data['order'] = order
             return field_data
 
-        max_order = related.aggregate(max_order=Max('order'))['max_order']
-        field_data['order'] = (max_order + 1) if max_order is not None else 0
+        field_data['order'] = self.next_order(related)
         return field_data
 
 
