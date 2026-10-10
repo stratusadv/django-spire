@@ -6,7 +6,6 @@ from django.db.models import Model  # noqa: TC002
 from django.forms import ModelForm
 from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
-from django_glue.glue.objects.django.model.object import ModelGlue  # noqa: TC002
 
 from django_spire.core.components.form.base import BaseFormComponent
 
@@ -32,8 +31,8 @@ class ModelFormComponent(BaseFormComponent):
 
     pk: int | None = Glue.ComponentParameter(None)
 
-    @Glue.property
-    def model(self) -> ModelGlue:
+    @Glue.child
+    def model(self) -> Glue.Model:
         instance = self.get_model()
         options: dict[str, Any] = {
             'target': instance,

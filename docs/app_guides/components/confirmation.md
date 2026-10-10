@@ -222,5 +222,5 @@ The method takes the primary key and its return annotation names the model. Do t
 
 ## Things to Know
 
-- **Events can be raised by the browser.** `cancelled` is raised in the browser, with Glue's `$dispatch`, and needs django-glue 1.2.3. A listener on the server must not treat any event as proof that an action happened.
+- **Events can be raised by the browser.** `cancelled` is raised in the browser, with Glue's `$dispatch`, and needs django-glue 1.3.0. A listener on the server must not treat any event as proof that an action happened.
 - **A confirmation needs `ModelSetDeletedConfirmationComponent`'s model to have `set_deleted()`.** A model without Spire's history mixin fails when the user confirms. Use `ModelDeleteConfirmationComponent`, or a subclass, for those.

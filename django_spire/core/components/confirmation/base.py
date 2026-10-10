@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from typing import Any, ClassVar
 
 from django_glue import Glue
-from django_glue.access import GlueAccess  # noqa: TC002
 
 
 class BaseConfirmationComponent(Glue.Component, ABC):
@@ -32,7 +31,7 @@ class BaseConfirmationComponent(Glue.Component, ABC):
     """
 
     template = 'django_spire/component/confirmation/base.html'
-    confirm_access: ClassVar[GlueAccess] = Glue.Access.VIEW
+    confirm_access: ClassVar[Glue.Access] = Glue.Access.VIEW
 
     title: str | None = Glue.ComponentParameter(None)
     message: str | None = Glue.ComponentParameter(None)

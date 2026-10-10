@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_glue import Glue
-from django_glue.glue.objects.django.form.object import FormGlue  # noqa: TC002
 
 from django_spire.core.components.form.base import BaseFormComponent
 
@@ -18,8 +17,8 @@ class FormComponent(BaseFormComponent):
     from the component's parameters.
     """
 
-    @Glue.property
-    def form(self) -> FormGlue:
+    @Glue.child
+    def form(self) -> Glue.Form:
         return Glue.form(target=self.get_form(), access=self.access)
 
     def get_form(self) -> BaseForm:

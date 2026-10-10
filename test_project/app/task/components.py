@@ -19,7 +19,6 @@ from test_project.app.task.navigation import TaskNavigation
 if TYPE_CHECKING:
     from django.db.models import QuerySet
     from django.http import HttpRequest
-    from django_glue.glue.objects.django.model.object import ModelGlue
 
 
 class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
@@ -63,7 +62,7 @@ class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
 
         return queryset.order_by(TaskOrderingChoices.NAME)
 
-    def get_glue_item(self, item: Task, name: str, **kwargs: Any) -> ModelGlue:
+    def get_glue_item(self, item: Task, name: str, **kwargs: Any) -> Glue.Model:
         return super().get_glue_item(item, name, form=TaskModalForm, **kwargs)
 
     @Glue.attr

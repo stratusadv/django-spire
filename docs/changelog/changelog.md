@@ -90,6 +90,11 @@
 
 - Migrated from `django-glue` v1.2.2 to v1.3.0. A confirmation's Cancel uses `$dispatch`,
   which arrived in 1.3.0.
+- `FormComponent.form` and `ModelFormComponent.model` are declared with Glue's
+  `Glue.child`, which replaces a `Glue.property` that returns a Glue object. A child
+  declared this way is sent with each call its component makes, so a callable on a
+  subclass can read `self.form` or `self.model` with what the user typed. Those calls are
+  larger as a result; nothing else changes.
 - A `ModelFormComponent` whose row no longer exists reports Glue's
   `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
   edit and delete actions report the same for a row outside its queryset.

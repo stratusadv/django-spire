@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ImproperlyConfigured
 from django_glue import Glue
-from django_glue.glue.objects.django.model.object import ModelGlue  # noqa: TC002
-from django_glue.glue.sequence import SequenceGlue
 
 from django_spire.core.components.scroll.base import ScrollItemRenderMode
 from django_spire.core.components.scroll.queryset import QuerySetScrollComponent
@@ -59,7 +57,7 @@ class GlueScrollItemsMixin:
     def _sends_dicts(self) -> bool:
         return False
 
-    def get_glue_item(self, item: Model, name: str, **kwargs: Any) -> ModelGlue:
+    def get_glue_item(self, item: Model, name: str, **kwargs: Any) -> Glue.Model:
         """
         Return the Glue model the browser receives for ``item``, built with
         ``name`` as its unique name. An override passes further ``Glue.model``
@@ -76,7 +74,7 @@ class GlueScrollItemsMixin:
 
         return Glue.model(target=item, unique_name=name, **options)
 
-    def _get_named_glue_item(self, item: Model) -> ModelGlue:
+    def _get_named_glue_item(self, item: Model) -> Glue.Model:
         return self.get_glue_item(item, f'{ITEM_NAME_PREFIX}{self.get_item_key(item)}')
 
     @Glue.property
@@ -84,7 +82,7 @@ class GlueScrollItemsMixin:
         return None
 
     @Glue.attr
-    def load_item(self, key: int | str) -> ModelGlue | None:
+    def load_item(self, key: int | str) -> Glue.Model | None:
         item = self.get_item(key)
 
         if item is None:
@@ -93,10 +91,10 @@ class GlueScrollItemsMixin:
         return self._get_named_glue_item(item)
 
     @Glue.attr
-    def load_items(self, offset: int) -> SequenceGlue:
+    def load_items(self, offset: int) -> Glue.Sequence:
         self._validate_offset(offset)
 
-        return SequenceGlue(
+        return Glue.Sequence(
             [self._get_named_glue_item(item) for item in self.get_items(offset, self.batch_size)],
             name=f'batch_{offset}',
             access=self.access,
