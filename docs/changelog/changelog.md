@@ -70,7 +70,7 @@
   `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
   `cancelled`. Its prompt is worded with `title`, `message` and `confirm_label` when it is
   built. Cancelling makes no request: the template raises `cancelled` in the browser with
-  Glue's `$dispatch`, which needs `django-glue` 1.2.3.
+  Glue's `$dispatch`, which needs `django-glue` 1.3.0.
   - `BaseModelActionConfirmationComponent` confirms one action on one model row, built as
     `(instance=row)`. A subclass writes `perform_action()`, and `confirmed` carries the
     row's `pk`.
@@ -88,8 +88,8 @@
 
 ### Changes
 
-- Migrated from `django-glue` v1.2.2 to v1.2.3. A confirmation's Cancel uses `$dispatch`,
-  which arrived in 1.2.3.
+- Migrated from `django-glue` v1.2.2 to v1.3.0. A confirmation's Cancel uses `$dispatch`,
+  which arrived in 1.3.0.
 - A `ModelFormComponent` whose row no longer exists reports Glue's
   `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
   edit and delete actions report the same for a row outside its queryset.
