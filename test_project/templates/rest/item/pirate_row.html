@@ -1,0 +1,9 @@
+{% extends 'django_spire/component/scroll/table_row.html' %}
+
+{% block scroll_item_content %}
+    <td>
+        <a href="{% url 'rest:page:detail' pk=item.pk %}">{{ item.name }}</a>
+    </td>
+    <td>{{ item.username }}</td>
+    <td>{{ item.email }}</td>
+{% endblock %}

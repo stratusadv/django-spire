@@ -44,6 +44,11 @@ nav:
           - Basics: app_guides/comment/basics.md
           - Comments: app_guides/comment/comments.md
           - Tagging: app_guides/comment/tagging.md
+      - Glue Components:
+          - Scroll Components: app_guides/components/scroll.md
+          - Form Components: app_guides/components/form.md
+          - Confirmation Components: app_guides/components/confirmation.md
+          - Async Button: app_guides/components/async_button.md
       - Help Desk:
           - Tickets: app_guides/help_desk/tickets.md
           - Notifications: app_guides/help_desk/notifications.md

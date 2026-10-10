@@ -1,0 +1,56 @@
+{% extends 'django_spire/component/scroll/crud.html' %}
+
+{% block scroll_header %}
+    <div class="row g-2 pb-3">
+        <div class="col-12 text-end">
+            <button
+                class="btn btn-sm btn-primary text-light"
+                type="button"
+                @click="createItem()"
+            >
+                <i class="bi bi-plus"></i> New Task
+            </button>
+        </div>
+        <div class="col-6">
+            <input
+                class="form-control"
+                placeholder="Search tasks ..."
+                type="search"
+                x-model="component.search"
+                @input.debounce="reloadItems()"
+            >
+        </div>
+        <div class="col-3">
+            <select
+                class="form-select"
+                aria-label="Status"
+                x-model="component.status"
+                @change="reloadItems()"
+            >
+                <option value="">Any status</option>
+                {% for value, label in component.status_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-3">
+            <select
+                class="form-select"
+                aria-label="Order"
+                x-model="component.ordering"
+                @change="reloadItems()"
+            >
+                {% for value, label in component.ordering_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row py-2 fw-bold">
+        <div class="col-6">Name</div>
+        <div class="col-3">Status</div>
+        <div class="col-3 text-end">Actions</div>
+    </div>
+{% endblock %}
+

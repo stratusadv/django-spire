@@ -1,0 +1,4 @@
+<div class="d-flex gap-2" x-data="{ isSaving: false }">
+    {% include 'django_spire/button/async_button.html' with x_button_click='component.save_draft()' x_busy='isSaving' button_text='Save Draft' button_class='btn-outline-secondary' %}
+    {% include 'django_spire/button/async_button.html' with x_button_click='component.publish()' x_busy='isSaving' button_text='Publish' %}
+</div>

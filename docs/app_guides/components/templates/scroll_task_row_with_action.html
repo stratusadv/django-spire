@@ -1,0 +1,13 @@
+<div class="row border-bottom py-2 align-items-center">
+    <div class="col" x-text="item.name"></div>
+    <div class="col-auto">
+        <button
+            class="btn btn-sm btn-outline-success"
+            type="button"
+            title="Complete Task"
+            x-bind="asyncButton(() => component.complete({pk: item.pk}))"
+        >
+            <i class="bi bi-check-lg"></i>
+        </button>
+    </div>
+</div>

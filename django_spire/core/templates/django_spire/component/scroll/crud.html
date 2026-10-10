@@ -1,0 +1,25 @@
+{% extends 'django_spire/component/scroll/base.html' %}
+
+{% load django_glue %}
+
+{% block scroll_data_name %}crudScrollComponent{% endblock %}
+
+{% block scroll_options %}
+    {% if component.item_form_options.create_url_name %}
+        createUrl: '{% url component.item_form_options.create_url_name %}',
+    {% elif component.item_form_options.url_name %}
+        createUrl: '{% url component.item_form_options.url_name pk=0 %}',
+    {% endif %}
+    {% if component.item_form_options.url_name %}
+        editUrl: key => `{% js_url component.item_form_options.url_name pk='key' template_literal=True %}`,
+    {% endif %}
+    {% if component.item_form_options.return_url_name %}
+        formReturnUrl: '{% url component.item_form_options.return_url_name %}',
+    {% endif %}
+    {% if component.item_delete_options.url_name %}
+        deleteUrl: key => `{% js_url component.item_delete_options.url_name pk='key' template_literal=True %}`,
+    {% endif %}
+    {% if component.item_delete_options.return_url_name %}
+        deleteReturnUrl: '{% url component.item_delete_options.return_url_name %}',
+    {% endif %}
+{% endblock %}

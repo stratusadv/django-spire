@@ -1,0 +1,20 @@
+{% extends 'django_spire/component/scroll/crud.html' %}
+
+{% block scroll_header %}
+    <div class="row g-2 pb-3">
+        <div class="col">
+            <input
+                class="form-control"
+                placeholder="Search ducks ..."
+                type="search"
+                x-model="component.search"
+                @input.debounce="reloadItems()"
+            >
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary text-light" type="button" @click="createItem()">
+                <i class="bi bi-plus"></i> Add Duck
+            </button>
+        </div>
+    </div>
+{% endblock %}

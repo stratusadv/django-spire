@@ -1,5 +1,114 @@
 # Changelog
 
+## v1.3.0 - Unreleased
+
+### Breaking
+
+- `FormComponent` and `ModelFormComponent` are reworked. A subclass that still uses a
+  removed name raises `TypeError` when it is defined:
+  - `form` is renamed `form_class`.
+  - `attr` is removed. The child is always `form` on a `FormComponent` and `model` on a
+    `ModelFormComponent`, so a template that reached it by a custom name, such as
+    `modal.time_entry.form`, reads `modal.model.form`. Templates that use
+    `component.glue_form_path` need no change.
+  - `ModelFormComponent.model_class` is removed; the model is the form's own. `fields` is
+    optional and defaults to the form's fields.
+  - `build_child()` is removed. Override `get_form()`, or the hooks on
+    `ModelFormComponent`, instead.
+  - `ModelFormComponent` no longer inherits from `FormComponent`. Both inherit from the new
+    `BaseFormComponent`.
+- The components moved from `django_spire.core.glue.components` to
+  `django_spire.core.components`, with no alias at the old path. Import every component
+  from there: `from django_spire.core.components import ModelFormComponent`.
+- `django_spire/js/search_palette.js` moved to `django_spire/js/components/search_palette.js`,
+  beside the other scripts that register an Alpine component. Spire's `base.html` loads it
+  from there; a project that loads it by path updates the path.
+
+### Added
+
+- Scroll components, in `django_spire.core.components`, for infinite lists
+  built as Glue components. The template scroll in `django_spire/glue/scroll/` is unchanged
+  (ADR 0002):
+  - `BaseScrollComponent` lists items of any kind. A subclass writes
+    `get_items(offset, limit)`, `get_item(key)` and `get_item_key(item)`.
+    `item_template` is the markup for one row, and `item_render_mode` is a
+    `ScrollItemRenderMode`: `CLIENT`, the default, sends rows as data and draws them in the
+    template's `scroll_item` block, and `SERVER` renders them on the server. Controls are
+    editable attributes the subclass declares, and the template's `reloadItems()` applies
+    them.
+  - `QuerySetScrollComponent` lists the rows of `get_queryset()`, by primary key when it has
+    no ordering. `get_instance(pk)` returns one row of that queryset for a callable that
+    acts on it, and reports a row outside the list as a 404.
+  - `GlueScrollItemsMixin` sends each row of a queryset scroll as a Glue model, so row
+    markup can call the model's Glue methods and services and save its fields.
+  - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a
+    `ComponentFormOptions`, which shows a form component in a modal, or a
+    `PageFormOptions`, which sends the user to a page. `item_delete_options` is a
+    `ComponentDeleteOptions`, which shows a confirmation component in a modal and
+    soft-deletes by default, or a `PageDeleteOptions`, which sends the user to a delete
+    page. A page link carries a `return_url`: the route named by the options'
+    `return_url_name`, or the address the list is shown at. The template gains
+    `createItem()`, `editItem(item)` and `deleteItem(item)`. The browser fetches the modal
+    components with the `load_item_form` and `load_item_delete_confirmation` callables,
+    which check the user's access and that the row is in the list.
+  - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
+    `removeItem(key)`, or by firing `item_added`, `item_changed` or `item_removed` from a
+    callable.
+  - Templates are `django_spire/component/scroll/base.html`, `table.html` and
+    `crud.html`, with `item.html` and `table_row.html` for server-rendered rows.
+  - The client behaviour is the `scrollComponent` and `crudScrollComponent` Alpine
+    components in `django_spire/js/components/scroll.js`, which Spire's `base.html` loads.
+- `django_spire/button/async_button.html`, a button that runs one awaited call and is off,
+  showing a spinner, until it settles. It takes `x_button_click`, `button_text`,
+  `button_class`, `button_icon` and `button_title`. Buttons given the same `x_busy` flag
+  take turns. The behaviour is `asyncButton` in
+  `django_spire/js/components/async_button.js`, which any element can use directly with
+  one attribute: `x-bind="asyncButton(() => component.save())"`.
+- A project that does not extend Spire's `base.html` must load the scripts in
+  `django_spire/js/components/` itself.
+- Confirmation components, in `django_spire.core.components`.
+  `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
+  `cancelled`. Its prompt is worded with `title`, `message` and `confirm_label` when it is
+  built. Cancelling makes no request: the template raises `cancelled` in the browser with
+  Glue's `$dispatch`, which needs `django-glue` 1.3.0.
+  - `BaseModelActionConfirmationComponent` confirms one action on one model row, built as
+    `(instance=row)`. A subclass writes `perform_action()`, and `confirmed` carries the
+    row's `pk`.
+  - `BaseModelDeleteConfirmationComponent` words that as a delete and requires `DELETE`
+    access. `ModelSetDeletedConfirmationComponent` soft-deletes the row with
+    `set_deleted()`, and `ModelDeleteConfirmationComponent` deletes it from the database.
+    Both work for any model with no subclass.
+- `ScrollComponent`, a Playwright helper in `django_spire.testing.playwright` for the new
+  scroll.
+- `django_spire/component/page/full_page.html`, a full page whose content is one Glue
+  component. A component served as a page names it as its `view_template`.
+- A form component can be built without a subclass:
+  `ModelFormComponent(form_class=TaskForm, template='task/form.html', pk=pk)`. The form
+  class must be defined at module level.
+
+### Changes
+
+- Migrated from `django-glue` v1.2.2 to v1.3.0. A confirmation's Cancel uses `$dispatch`,
+  which arrived in 1.3.0.
+- `FormComponent.form` and `ModelFormComponent.model` are declared with Glue's
+  `Glue.child`, which replaces a `Glue.property` that returns a Glue object. A child
+  declared this way is sent with each call its component makes, so a callable on a
+  subclass can read `self.form` or `self.model` with what the user typed. Those calls are
+  larger as a result; nothing else changes.
+- A `ModelFormComponent` whose row no longer exists reports Glue's
+  `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
+  edit and delete actions report the same for a row outside its queryset.
+- A failed Glue call tells the user. Spire's `base.html` registers `Glue.onError`, which
+  shows one of three fixed messages as an error toast: the item no longer exists, the user
+  lacks permission, or something went wrong. A component's own `onError`, or an
+  application's `Glue.onError`, replaces it.
+- A CRUD scroll removes a row from the list when editing or deleting it finds the row is
+  gone.
+- The `--primary` custom property is defined again, as Bootstrap's `--bs-primary`. Its
+  definition was removed with the theme picker while the loader, the item hover, the
+  panel borders, the button focus outline and the stepper went on using it, so those
+  rules were dropped by the browser. A project gets it by compiling its theme again.
+
 ## v1.2.2 - Unreleased
 
 ### Breaking

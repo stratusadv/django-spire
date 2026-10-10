@@ -91,7 +91,11 @@
             <script type="application/javascript"
                     src="{% static 'django_spire/js/date.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript"
-                    src="{% static 'django_spire/js/search_palette.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+                    src="{% static 'django_spire/js/components/search_palette.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/components/async_button.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/components/scroll.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.15.x/dist/cdn.min.js"></script>
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.15.x/dist/cdn.min.js"></script>
@@ -110,6 +114,7 @@
                         Spire.notify.dispatch({type: message.level_tag, message: message.message})
                     })
                 })
+                Glue.onError(({error}) => Spire.notify.glueError(error))
             </script>
         {% endblock %}
 
