@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import patch
+import pickle
+import uuid
+from unittest.mock import MagicMock, patch
 
 from celery import states
 from django.contrib.auth.models import User
-from django.test import RequestFactory, TestCase
+from django.template.loader import render_to_string
+from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import reverse
 
 from django_spire.celery.models import CeleryTask
+from django_spire.celery.result import CeleryExceptionResult, CeleryNoResult
 from django_spire.celery.tests.factories import create_test_celery_task
 from django_spire.celery.views.task_views import (
     task_item_view,
@@ -23,7 +27,9 @@ class BaseTaskViewTestCase(TestCase):
         self.factory = RequestFactory()
         self.celery_task = create_test_celery_task()
         self.super_user = User.objects.create_superuser(
-            username='admin', email='admin@test.com', password='test'
+            username='admin',
+            email='admin@test.com',
+            password='test',  # noqa: S106
         )
 
 
@@ -36,7 +42,7 @@ class TaskItemViewTestCase(BaseTaskViewTestCase):
         assert response.status_code == 302
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    def test_task_item_view_retrieves_task(self, mock_get_object_or_404) -> None:
+    def test_task_item_view_retrieves_task(self, mock_get_object_or_404: MagicMock) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
         request = self.factory.get(f'/celery/task/item/{self.celery_task.task_id}/')
@@ -50,7 +56,7 @@ class TaskItemViewTestCase(BaseTaskViewTestCase):
         assert response.status_code == 200
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    def test_task_item_view_uses_correct_template(self, mock_get_object_or_404) -> None:
+    def test_task_item_view_uses_correct_template(self, mock_get_object_or_404: MagicMock) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
         request = self.factory.get(f'/celery/task/item/{self.celery_task.task_id}/')
@@ -61,7 +67,7 @@ class TaskItemViewTestCase(BaseTaskViewTestCase):
         assert response.template_name == 'django_spire/celery/item/task_item.html'
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    def test_task_item_view_passes_task_to_context(self, mock_get_object_or_404) -> None:
+    def test_task_item_view_passes_task_to_context(self, mock_get_object_or_404: MagicMock) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
         request = self.factory.get(f'/celery/task/item/{self.celery_task.task_id}/')
@@ -72,9 +78,9 @@ class TaskItemViewTestCase(BaseTaskViewTestCase):
         assert response.context_data['celery_task'] == self.celery_task
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    @patch.object(CeleryTask.services.__class__, 'update_from_async_result_and_save_if_change')
-    def test_task_item_view_updates_task_from_async_result(
-        self, mock_update, mock_get_object_or_404
+    @patch.object(CeleryTask.services.__class__, 'update_from_backend')
+    def test_task_item_view_updates_task_from_backend(
+        self, mock_update: MagicMock, mock_get_object_or_404: MagicMock
     ) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
@@ -95,7 +101,7 @@ class TaskToastViewTestCase(BaseTaskViewTestCase):
         assert response.status_code == 302
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    def test_task_toast_view_retrieves_task(self, mock_get_object_or_404) -> None:
+    def test_task_toast_view_retrieves_task(self, mock_get_object_or_404: MagicMock) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
         request = self.factory.get(f'/celery/task/toast/{self.celery_task.task_id}/')
@@ -109,7 +115,7 @@ class TaskToastViewTestCase(BaseTaskViewTestCase):
         assert response.status_code == 200
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    def test_task_toast_view_uses_correct_template(self, mock_get_object_or_404) -> None:
+    def test_task_toast_view_uses_correct_template(self, mock_get_object_or_404: MagicMock) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
         request = self.factory.get(f'/celery/task/toast/{self.celery_task.task_id}/')
@@ -120,7 +126,9 @@ class TaskToastViewTestCase(BaseTaskViewTestCase):
         assert response.template_name == 'django_spire/celery/toast/task_toast.html'
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    def test_task_toast_view_passes_task_to_context(self, mock_get_object_or_404) -> None:
+    def test_task_toast_view_passes_task_to_context(
+        self, mock_get_object_or_404: MagicMock
+    ) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
         request = self.factory.get(f'/celery/task/toast/{self.celery_task.task_id}/')
@@ -131,9 +139,9 @@ class TaskToastViewTestCase(BaseTaskViewTestCase):
         assert response.context_data['celery_task'] == self.celery_task
 
     @patch('django_spire.celery.views.task_views.get_object_or_404')
-    @patch.object(CeleryTask.services.__class__, 'update_from_async_result_and_save_if_change')
-    def test_task_toast_view_updates_task_from_async_result(
-        self, mock_update, mock_get_object_or_404
+    @patch.object(CeleryTask.services.__class__, 'update_from_backend')
+    def test_task_toast_view_updates_task_from_backend(
+        self, mock_update: MagicMock, mock_get_object_or_404: MagicMock
     ) -> None:
         mock_get_object_or_404.return_value = self.celery_task
 
@@ -143,13 +151,51 @@ class TaskToastViewTestCase(BaseTaskViewTestCase):
         task_toast_view(request, str(self.celery_task.task_id))
 
         mock_update.assert_called_once()
+        mock_update.assert_called_once()
+
+
+class TaskContentFailureDisplayTestCase(SimpleTestCase):
+    def _failed_row(self, _result: bytes) -> CeleryTask:
+        return CeleryTask(
+            task_id=uuid.uuid4(),
+            task_name='test_task',
+            display_name='Test Task',
+            reference_key='test_reference_key',
+            state=states.FAILURE,
+            _task_meta={},
+            _result=_result,
+        )
+
+    def _render_content(self, celery_task: CeleryTask) -> str:
+        return render_to_string(
+            'django_spire/celery/content/task_content.html',
+            {'celery_task': celery_task, 'task_header_class': '', 'task_body_class': ''},
+        )
+
+    def test_failure_block_shows_exception_message(self) -> None:
+        celery_task = self._failed_row(
+            pickle.dumps(CeleryExceptionResult(ValueError('boom'), None, 'traceback'))
+        )
+
+        html = self._render_content(celery_task)
+
+        assert 'Task Encountered an Error: boom' in html
+
+    def test_failure_block_falls_back_for_legacy_rows(self) -> None:
+        celery_task = self._failed_row(pickle.dumps(CeleryNoResult()))
+
+        html = self._render_content(celery_task)
+
+        assert 'Task Encountered an Error or Took to Long' in html
 
 
 class TaskItemListViewTestCase(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
         self.super_user = User.objects.create_superuser(
-            username='admin', email='admin@test.com', password='test'
+            username='admin',
+            email='admin@test.com',
+            password='test',  # noqa: S106
         )
         self.reference_key = 'test_reference_key'
         self.task1 = create_test_celery_task(reference_key=self.reference_key, state=states.PENDING)
@@ -220,10 +266,7 @@ class TaskItemListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/item_list/',
             data=json.dumps(
-                {
-                    'django_spire_celery_task_key_pairs': self.reference_key,
-                    'show_all': True,
-                }
+                {'django_spire_celery_task_key_pairs': self.reference_key, 'show_all': True}
             ),
             content_type='application/json',
         )
@@ -254,7 +297,9 @@ class TaskToastListViewTestCase(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
         self.super_user = User.objects.create_superuser(
-            username='admin2', email='admin2@test.com', password='test'
+            username='admin2',
+            email='admin2@test.com',
+            password='test',  # noqa: S106
         )
         self.reference_key = 'test_reference_key'
         self.task1 = create_test_celery_task(reference_key=self.reference_key, state=states.PENDING)
@@ -325,10 +370,7 @@ class TaskToastListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/toast_list/',
             data=json.dumps(
-                {
-                    'django_spire_celery_task_key_pairs': self.reference_key,
-                    'show_all': True,
-                }
+                {'django_spire_celery_task_key_pairs': self.reference_key, 'show_all': True}
             ),
             content_type='application/json',
         )

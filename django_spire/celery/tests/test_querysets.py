@@ -162,3 +162,20 @@ class CeleryTaskQuerySetByUnreadyTestCase(TestCase):
         assert task1 in result
         assert task2 not in result
         assert result.count() == 1
+
+
+class CeleryTaskQuerySetByCompletedTestCase(TestCase):
+    def setUp(self) -> None:
+        self.task_success = create_test_celery_task(state=states.SUCCESS)
+        self.task_failure = create_test_celery_task(state=states.FAILURE)
+        self.task_pending = create_test_celery_task(state=states.PENDING)
+
+    def test_by_completed_returns_success_tasks(self) -> None:
+        result = CeleryTask.objects.by_completed()
+
+        assert self.task_success in result
+        assert self.task_failure not in result
+        assert self.task_pending not in result
+
+    def test_by_completed_count(self) -> None:
+        assert CeleryTask.objects.by_completed().count() == 1

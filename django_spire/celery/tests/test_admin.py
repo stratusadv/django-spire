@@ -4,9 +4,11 @@ import pickle
 from typing import TYPE_CHECKING
 
 from celery import states
+from django.test import SimpleTestCase
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.celery.admin import CeleryTaskAdmin
 from django_spire.celery.tests.factories import create_test_celery_task
 
 if TYPE_CHECKING:
@@ -76,3 +78,9 @@ class CeleryTaskAdminCustomStateTestCase(BaseTestCase):
         content = response.content.decode()
         assert f'celerytask/{noise_task.pk}/change/' in content
         assert f'celerytask/{quiet_task.pk}/change/' not in content
+
+
+class CeleryTaskAdminExceptionResultTestCase(SimpleTestCase):
+    def test_exception_result_is_readonly_and_listed(self) -> None:
+        assert 'exception_result' in CeleryTaskAdmin.readonly_fields
+        assert 'exception_result' in CeleryTaskAdmin.fields

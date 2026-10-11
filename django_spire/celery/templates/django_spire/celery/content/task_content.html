@@ -73,7 +73,11 @@
         <div class="fs-8">Took {{ celery_task.completion_time_verbose }}</div>
 
     {% elif celery_task.is_failed %}
-        Task Encountered an Error or Took to Long
+        {% if celery_task.exception_result %}
+            Task Encountered an Error: {{ celery_task.exception_result.message }}
+        {% else %}
+            Task Encountered an Error or Took to Long
+        {% endif %}
         <div class="fs-8">Please try again, if the issues persists contact support</div>
     {% endif %}
 </div>

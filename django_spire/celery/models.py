@@ -1,4 +1,4 @@
-from django_spire.celery.result import set_pickled_no_result, CeleryNoResult
+from django_spire.celery.result import set_pickled_no_result, CeleryNoResult, CeleryExceptionResult
 import pickle
 from typing import Any
 
@@ -18,7 +18,7 @@ def _celery_state_choices() -> list:
 
 
 class CeleryTask(models.Model):
-    task_id = models.UUIDField(editable=False, verbose_name='Celery Task ID')
+    task_id = models.UUIDField(editable=False, unique=True, verbose_name='Celery Task ID')
     task_name = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
 
@@ -34,7 +34,6 @@ class CeleryTask(models.Model):
     completed_datetime = models.DateTimeField(null=True, blank=True)
 
     _result = models.BinaryField(default=set_pickled_no_result)
-    result_capture_attempts = models.PositiveSmallIntegerField(default=0)
 
     objects = CeleryTaskQuerySet.as_manager()
 
@@ -82,6 +81,20 @@ class CeleryTask(models.Model):
         return not self.has_result
 
     @property
+    def has_exception_result(self) -> bool:
+        if self.state != states.FAILURE:
+            return False
+
+        return isinstance(pickle.loads(self._result), CeleryExceptionResult)
+
+    @property
+    def exception_result(self) -> CeleryExceptionResult | None:
+        if self.has_exception_result:
+            return pickle.loads(self._result)
+
+        return None
+
+    @property
     def is_estimated_complete_soon(self) -> bool:
         if self.meta.estimated_remaining_seconds:
             return 10 > self.meta.estimated_remaining_seconds >= 0
@@ -101,7 +114,11 @@ class CeleryTask(models.Model):
 
     @property
     def is_processing(self) -> bool:
-        return self.state not in states.READY_STATES and self.state not in states.EXCEPTION_STATES
+        return (
+            self.state not in states.READY_STATES
+            and self.state not in states.EXCEPTION_STATES
+            and self.state not in (states.REJECTED, states.IGNORED)
+        )
 
     @property
     def is_successful(self) -> bool:
@@ -141,11 +158,8 @@ class CeleryTask(models.Model):
 
     @property
     def result(self) -> Any:
-        if self.state == states.FAILURE and not self.send_failed:
+        if self.send_failed or self.state == states.FAILURE:
             return None
-
-        if self.has_no_result and not self.send_failed:
-            self.services.update_result(self.async_result)
 
         if self.has_result:
             return pickle.loads(self._result)
@@ -168,30 +182,49 @@ class CeleryTask(models.Model):
     def send_failed(self) -> bool:
         if self.has_result and self._result:
             result_data = pickle.loads(self._result)
-            return isinstance(result_data, dict) and result_data.get('error') == 'SEND_FAILED'
+
+            if isinstance(result_data, dict):
+                return result_data.get('error') == 'SEND_FAILED'
+
+            return isinstance(result_data, CeleryExceptionResult) and (
+                result_data.exc_type == 'SendFailedError'
+            )
 
         return False
 
     @property
     def send_error_message(self) -> str | None:
-        if self.send_failed:
-            result_data = pickle.loads(self._result)
-            return result_data.get('message')
+        if not self.send_failed:
+            return None
 
-        return None
+        result_data = pickle.loads(self._result)
+
+        if isinstance(result_data, CeleryExceptionResult):
+            return result_data.message
+
+        return result_data.get('message')
 
     @property
     def send_error_details(self) -> dict | None:
-        if self.send_failed:
-            result_data = pickle.loads(self._result)
+        if not self.send_failed:
+            return None
+
+        result_data = pickle.loads(self._result)
+
+        if isinstance(result_data, CeleryExceptionResult):
             return {
-                'task_name': result_data.get('task_name'),
-                'args': result_data.get('args'),
-                'kwargs': result_data.get('kwargs'),
-                'message': result_data.get('message'),
+                'task_name': self.task_name,
+                'args': None,
+                'kwargs': None,
+                'message': result_data.message,
             }
 
-        return None
+        return {
+            'task_name': result_data.get('task_name'),
+            'args': result_data.get('args'),
+            'kwargs': result_data.get('kwargs'),
+            'message': result_data.get('message'),
+        }
 
     @property
     def state_verbose(self) -> str:

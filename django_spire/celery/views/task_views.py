@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def _task_view(request: WSGIRequest, template: str, task_id: str) -> TemplateResponse:
     celery_task = get_object_or_404(CeleryTask, task_id=task_id)
 
-    celery_task.services.update_from_async_result_and_save_if_change()
+    celery_task.services.update_from_backend()
 
     context = {'celery_task': celery_task}
 
@@ -38,9 +38,7 @@ def task_toast_view(request: WSGIRequest, task_id: str) -> TemplateResponse:
 
 
 @login_required
-def _list_view(
-        request: WSGIRequest, template: str
-) -> TemplateResponse:
+def _list_view(request: WSGIRequest, template: str) -> TemplateResponse:
     data = json.loads(request.body)
 
     reference_keys_model_keys = {}

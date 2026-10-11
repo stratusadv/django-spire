@@ -410,6 +410,58 @@ class TaskSearch(Search):
 
 Required attributes (`model_class`, `searchable_fields`, `search_key`) raise `ValueError` in `__init_subclass__` if unset. `search_key` must match the registry key or the registry raises `ValueError`. Reference implementations: `django_spire/knowledge/entry/search.py` (`EntrySearch`) and `test_project/app/task/search.py` (`TaskSearch`). Registry logic in `core/search/registry.py`, palette view in `core/search/views.py`, client JS in `core/static/django_spire/js/search_palette.js`.
 
+## Celery
+
+Task execution splits worker and web: **the worker writes only the result backend; the web is the single writer of `CeleryTask` records.** Views sync records on every request via `CeleryTaskService.update_from_backend()` → `_apply_backend_snapshot()`, which runs under `select_for_update` + `CeleryTaskStateMachine`, keeps progress monotonic, and fires the terminal metric (`celery_task_success` / `celery_task_failure` / `celery_task_retry`) exactly once per transition. The native tracer owns the terminal backend writes (`task_track_started=True`); the tracker only mirrors mid-run meta. Workers make zero web-DB calls.
+
+Terms used throughout this section (defined once here, used bare elsewhere):
+
+- **backend** (result backend): Celery's per-task result storage (state, meta, result) keyed by task id; the worker's only write target.
+- **CeleryTask record**: the app-DB row, one per task id, owned by the web; never a generic "any row in any DB" concept.
+- **single writer**: the record is mutated only by `CeleryTaskService._apply_backend_snapshot()` under `select_for_update`.
+- **poll**: one `update_from_backend()` call (views sync on every request).
+- **flusher**: a per-task daemon thread that pushes the latest mid-run snapshot to the backend at the update interval (>= 5 s), so task code never blocks on backend I/O.
+- **pending snapshot** (`_pending_snapshot` / `_pending_event`): the single-slot handoff from task thread to flusher; only the newest snapshot is kept. Unrelated to Celery's `PENDING` state.
+- **snapshot**: a consistent state+meta copy: worker `_TrackerSnapshot`, web `_SnapshotValues` (meta, result, completed, started).
+- **native tracer**: Celery's own terminal writes (`mark_as_done` / `mark_as_failure` / `mark_as_retry`); the tracker never writes terminal.
+- **mid-run**: any meta/progress update while the task executes (as opposed to the terminal write).
+- **untracked**: direct/unnamed calls have no task id, so there is nothing to push to the backend.
+- **stale**: a dropped backwards/outdated transition (state machine), or, in the reaper, a STARTED record with no meta update past `--threshold`.
+- **anchor**: a custom progress state resolves to `STARTED` for the transition-table lookup.
+- **monotonic**: progress never decreases; `_apply_meta_snapshot` clamps a regressed meta.
+
+Author tasks use the `celery_task` decorator + `CeleryTaskRunner`; track progress with `self.tracker` (never touch the DB from the worker):
+
+```python
+from pydantic import BaseModel
+
+from django_spire.celery.runner import CeleryTaskRunner, celery_task
+
+
+class TaskData(BaseModel):
+    counted_seconds: int | None = None
+
+
+@celery_task(display_name='Pirate Noise', data_model=TaskData)
+def pirate_noise_task(self: CeleryTaskRunner, length: int) -> str:
+    self.tracker.set_started()
+    for i in range(length):
+        self.tracker.set_data(counted_seconds=i + 1)
+    return 'The pirate says YAR'
+```
+
+Tracker API: `set_started`, `set_completed`, `set_started_and_completing_soon`, `update_state` (custom progress states), `update_count_progress`, `set_cumulative_progress_target_value` / `update_cumulative_progress`, `set_data(**kwargs)` (validated against `data_model`), `set_retries`. Meta updates are coalesced by a single-writer flusher thread (5 s interval) and pushed to the backend; direct/unnamed calls run untracked. Terminal handling (retry/failure/success) is the runner's job — tasks just `execute`.
+
+State machine (`celery/state_machine.py`): explicit transition table; terminals are sticky; PENDING/RECEIVED are unreachable after leaving; custom states anchor to `STARTED` (custom→terminal allowed, custom→plain STARTED not). Illegal transitions are dropped with a warning instead of corrupting the CeleryTask.
+
+`BaseCeleryTaskManager.send_task` (per-model managers): validates kwargs, retries sends with exponential backoff (`send_task_retries`), stamps `spire_reference_key`/`spire_display_name`/`spire_model_key` headers, and on send failure creates a FAILURE CeleryTask carrying `CeleryExceptionResult(SendFailedError)` (surfaced via `send_error_message` / `send_error_details`). Opt in `dedupe_unready = True` (e.g. `PirateSongCeleryTaskManager`) to reuse an existing unready CeleryTask instead of re-sending; pair with `worker_deduplicate_successful_tasks=True`, which needs `task_acks_late=True` + a persistent result backend (see `test_project/celery.py`).
+
+Results: SUCCESS CeleryTasks pickle the return value; FAILURE CeleryTasks pickle `CeleryExceptionResult` (`exc_type` / `message` / `traceback` + pickled exception when available) and render it in the task UI and admin; `CeleryNoResult` is the no-result sentinel.
+
+Reaper: `python manage.py prune_stale_started_celery_tasks [--threshold 600] [--dry-run]` resolves stale STARTED CeleryTasks with no meta update past the threshold: CeleryTasks whose backend already reached a terminal state are synced via `update_from_backend()` (real terminal + metric), CeleryTasks still active on any worker (one `inspect().active()` broadcast) are skipped, and the rest are marked FAILURE with a `StaleStartedError` stamp. CeleryTasks are skipped, never marked FAILURE, when the backend read fails or the workers are unreachable. Schedule it only where the web process has broker access.
+
+Key files: `celery/runner.py` (`CeleryTaskRunner`, `celery_task`), `celery/tracker.py`, `celery/state_machine.py`, `celery/services/service.py`, `celery/result.py`, `celery/management/commands/prune_stale_started_celery_tasks.py`. Example app: `test_project/app/celery/`.
+
 ## Access Control
 
 Guard views with the permission decorator (redirects anonymous users to login, raises `PermissionDenied` otherwise; supports `all_required=False`):

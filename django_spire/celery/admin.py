@@ -66,6 +66,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'completed_datetime',
         '_task_meta',
         'result_verbose',
+        'exception_result',
     )
     fields = (
         'task_id',
@@ -79,6 +80,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'completed_datetime',
         '_task_meta',
         'result_verbose',
+        'exception_result',
     )
 
     @admin.display(description='State', ordering='state')

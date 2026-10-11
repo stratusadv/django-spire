@@ -16,6 +16,9 @@ class CeleryTaskMeta(BaseModel):
     last_update_time: float | None = None
     estimated_completed_time: float | None = None
     completed_time: float | None = None
+    retries: int = 0
+    error: str | None = None
+    failed_time: float | None = None
     _progress_updates_count: int = 0
 
     @property
@@ -108,6 +111,10 @@ class CeleryTaskMeta(BaseModel):
         self.progress = 1.0
         self.completed_time = time.time()
 
+    def set_failed(self, error: str) -> None:
+        self.error = error
+        self.failed_time = time.time()
+
     def set_started(self) -> None:
         self.progress = 0.02
         self.started_time = time.time()
@@ -116,17 +123,34 @@ class CeleryTaskMeta(BaseModel):
         self.set_started()
         self.progress = 1.0
         self.estimated_completed_time = time.time() + 5
-        self.last_update_time = time.time() + 1
+        self.last_update_time = time.time()
+
+    @staticmethod
+    def _deep_merge_data(base: dict, other: dict) -> dict:
+        merged = {**base}
+
+        for key, value in other.items():
+            if isinstance(value, dict) and isinstance(merged.get(key), dict):
+                merged[key] = CeleryTaskMeta._deep_merge_data(merged[key], value)
+            else:
+                merged[key] = value
+
+        return merged
 
     def merge(self, other: Self) -> Self:
-        for field in type(self).model_fields:
-            value = getattr(other, field)
-
-            if field == 'data':
-                value = {**self.data, **value}
-            elif value is None:
+        for field, value in other.model_dump().items():
+            if value is None:
                 continue
 
-            object.__setattr__(self, field, value)
+            if field == 'data':
+                value = self._deep_merge_data(self.data, value)
+
+            if field in type(self).model_fields:
+                object.__setattr__(self, field, value)
+            else:
+                if self.__pydantic_extra__ is None:
+                    self.__pydantic_extra__ = {}
+
+                self.__pydantic_extra__[field] = value
 
         return self

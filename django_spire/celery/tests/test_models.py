@@ -11,7 +11,7 @@ from django.utils.timezone import now
 
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.tests.factories import create_test_celery_task
-from django_spire.celery.result import CeleryNoResult
+from django_spire.celery.result import CeleryExceptionResult, CeleryNoResult, SendFailedError
 
 
 class CeleryTaskModelTestCase(TestCase):
@@ -46,9 +46,6 @@ class CeleryTaskModelTestCase(TestCase):
 
     def test_completed_datetime_null_by_default(self) -> None:
         assert self.celery_task.completed_datetime is None
-
-    def test_result_capture_attempts_zero_by_default(self) -> None:
-        assert self.celery_task.result_capture_attempts == 0
 
     def test_async_result_property(self) -> None:
         result = self.celery_task.async_result
@@ -101,6 +98,14 @@ class CeleryTaskModelTestCase(TestCase):
 
     def test_is_processing_false(self) -> None:
         task = create_test_celery_task(state=states.SUCCESS)
+        assert task.is_processing is False
+
+    def test_is_processing_false_for_rejected(self) -> None:
+        task = create_test_celery_task(state=states.REJECTED)
+        assert task.is_processing is False
+
+    def test_is_processing_false_for_ignored(self) -> None:
+        task = create_test_celery_task(state=states.IGNORED)
         assert task.is_processing is False
 
     def test_is_pending_property(self) -> None:
@@ -223,3 +228,56 @@ class CeleryTaskSendFailedPropertiesTestCase(TestCase):
         task.save()
         result_data = pickle.loads(task._result)
         assert result_data['error'] == 'SEND_FAILED'
+
+
+class CeleryTaskSendFailedExceptionResultTestCase(TestCase):
+    def _create_new_shape_task(self) -> CeleryTask:
+        exception = SendFailedError('broker down')
+        task = create_test_celery_task(state=states.FAILURE)
+        task._result = pickle.dumps(
+            CeleryExceptionResult(exc=exception, einfo_pickle=None, traceback_text=None)
+        )
+        task.save()
+        return task
+
+    def test_send_failed_true_for_exception_result_shape(self) -> None:
+        assert self._create_new_shape_task().send_failed is True
+
+    def test_send_error_message_returns_message(self) -> None:
+        assert self._create_new_shape_task().send_error_message == 'broker down'
+
+    def test_send_error_details_returns_row_task_name(self) -> None:
+        task = self._create_new_shape_task()
+        details = task.send_error_details
+
+        assert details['task_name'] == task.task_name
+        assert details['args'] is None
+        assert details['kwargs'] is None
+        assert details['message'] == 'broker down'
+
+    def test_result_is_none(self) -> None:
+        assert self._create_new_shape_task().result is None
+
+    def test_legacy_dict_shape_still_detected(self) -> None:
+        task = create_test_celery_task(state=states.FAILURE)
+        task._result = pickle.dumps(
+            {
+                'error': 'SEND_FAILED',
+                'message': 'legacy failure',
+                'args': (),
+                'kwargs': {},
+                'task_name': 'legacy_task',
+            }
+        )
+        task.save()
+
+        assert task.send_failed is True
+        assert task.send_error_message == 'legacy failure'
+        assert task.result is None
+        assert task.send_error_details['task_name'] == 'legacy_task'
+
+    def test_success_result_unaffected(self) -> None:
+        task = create_test_celery_task(state=states.SUCCESS, has_result=True)
+
+        assert task.send_failed is False
+        assert task.result == {'test': 'data'}
