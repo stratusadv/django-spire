@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+from django.contrib.staticfiles import finders
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -28,6 +30,10 @@ from django_spire.metric.visual.tests.factories import (
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+
+
+def _static_file(name: str) -> str:
+    return Path(finders.find(name)).read_text()
 
 
 class SignagePageViewsTestCase(BaseTestCase):
@@ -86,7 +92,11 @@ class SignagePageViewsTestCase(BaseTestCase):
         content = response.content.decode()
         assert self.signage.name in content
         assert ':root { --signage-zoom: 1; }' in content
-        assert 'font-size: calc(100vh / (50 / var(--signage-zoom)))' in content
+        assert 'django_spire/metric/visual/signage/css/signage.css' in content
+        assert (
+            'font-size: calc(100vh / (50 / var(--signage-zoom)))'
+            in _static_file('django_spire/metric/visual/signage/css/signage.css')
+        )
 
     def test_display_view_uses_display_title(self):
         self.signage.title = 'Lobby Display'
@@ -115,7 +125,7 @@ class SignagePageViewsTestCase(BaseTestCase):
 
         assert response.status_code == 200
         assert response.context_data['slide_timer_seconds'] == 45
-        assert 'delay: 45 * 1000' in response.content.decode()
+        assert 'signageKiosk(2, 45 * 1000)' in response.content.decode()
 
     def test_display_view_forwards_chart_update_interval(self):
         presentation = create_test_presentation(name='chart_board')
@@ -136,7 +146,7 @@ class SignagePageViewsTestCase(BaseTestCase):
         assert response.status_code == 200
         content = response.content.decode()
         assert 'data-chart-update-interval="15"' in content
-        assert '_update_interval: 15' in content
+        assert 'get _update_interval()' in _static_file('django_spire/js/chart.js')
 
     def test_display_view_allows_framing(self):
         create_test_signage_links(self.signage, count=1)

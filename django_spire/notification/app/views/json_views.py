@@ -15,9 +15,11 @@ if TYPE_CHECKING:
 
 @login_required()
 def check_for_new_notifications_view(request: WSGIRequest) -> JsonResponse:
-    notifications = AppNotification.objects.active().is_sent().exclude_viewed_by_user(request.user)
+    has_new_notifications = (
+        AppNotification.objects.active().is_sent().exclude_viewed_by_user(request.user).exists()
+    )
 
-    return JsonResponse({'status': 200, 'has_new_notifications': bool(notifications)})
+    return JsonResponse({'status': 200, 'has_new_notifications': has_new_notifications})
 
 
 @login_required()

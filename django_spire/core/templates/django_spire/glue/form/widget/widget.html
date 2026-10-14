@@ -1,29 +1,6 @@
 {% load django_glue %}
 <div
-    x-data="{
-        field: {{ glue_field|glue_field_metadata_path }},
-        get value() {
-            return {{ glue_field|glue_field_value_path }};
-        },
-        set value(newValue) {
-            {{ glue_field|glue_field_value_path }} = newValue;
-        },
-        committedValue: undefined,
-        init() {
-            this.committedValue = this.value;
-        },
-        dispatchFieldEvent(name) {
-            this.$dispatch(name, {
-                field: this.field,
-                value: this.value,
-                previousValue: this.committedValue,
-            });
-
-            if (name === 'field-change') {
-                this.committedValue = this.value;
-            }
-        },
-    }"
+    x-data="glueField({{ glue_field|glue_field_metadata_path }}, () => {{ glue_field|glue_field_value_path }}, (newValue) => {{ glue_field|glue_field_value_path }} = newValue)"
     @input="dispatchFieldEvent('field-input')"
     @change="dispatchFieldEvent('field-change')"
     @focusin="if (!$el.contains($event.relatedTarget)) dispatchFieldEvent('field-focus')"

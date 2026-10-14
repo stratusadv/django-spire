@@ -1,4 +1,9 @@
 {% extends 'django_spire/page/full_page.html' %}
+{% load static %}
+
+{% block base_head_additional_css %}
+    <link href="{% static 'django_spire/ai/chat/css/chat.css' %}?v={{ DJANGO_SPIRE_VERSION }}" rel="stylesheet">
+{% endblock %}
 
 {% block full_page_content_class %}{% endblock %}
 

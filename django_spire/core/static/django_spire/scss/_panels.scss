@@ -5,6 +5,16 @@
     top: calc(var(--top-navigation-height) + var(--command-bar-height));
 }
 
+.side-panel-header {
+    height: 52px;
+}
+
+.side-panel-close-button {
+    height: 28px;
+    transition: background-color 0.15s ease;
+    width: 28px;
+}
+
 .panel-toggle-container {
     cursor: pointer;
     height: calc(100dvh - var(--top-navigation-height));

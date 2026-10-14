@@ -1,0 +1,45 @@
+html {
+    font-size: calc(100vh / (50 / var(--signage-zoom)));
+}
+
+body {
+    overflow: hidden;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: var(--signage-padding);
+}
+
+.kiosk-grid {
+    display: grid;
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 1rem;
+    height: calc(100vh - 6.5rem - var(--signage-padding) * 2);
+}
+
+.kiosk-section {
+    container-type: size;
+    --spire-chart-height: 0;
+    --spire-indicator-min-height: 0;
+}
+
+.kiosk-section .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.kiosk-section .card .card-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.kiosk-section .card [data-chart-glue-name] {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.kiosk-section .card .card-body .position-relative {
+    flex: 1 1 auto;
+    min-height: 0;
+}
