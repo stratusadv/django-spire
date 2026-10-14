@@ -1,6 +1,12 @@
 # Changelog
 
-## v1.2.2 - Unreleased
+## v1.2.3
+
+### Fixes
+
+- Moved as much inline CSS, JS and Alpine into separate files reducing base HTML size by 40% on average.
+
+## v1.2.2
 
 ### Breaking
 
