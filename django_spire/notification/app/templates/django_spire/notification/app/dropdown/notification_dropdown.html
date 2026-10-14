@@ -1,48 +1,12 @@
 {% extends "django_spire/dropdown/dropdown.html" %}
 
 {% block dropdown_attributes %}
-    x-data="{
-        hasContent: false,
-        hasNewNotification: false,
-        isLoading: false,
-
-        async init() {
-            await this.checkForNewNotifications();
-            setInterval(() => this.checkForNewNotifications(), 30000);
-        },
-
-        async checkForNewNotifications() {
-            let response = await Glue.fetch('{% url "django_spire:notification:app:json:check_new" %}');
-            this.hasNewNotification = response.has_new_notifications;
-        },
-
-        async renderDropdown() {
-            if (this.isLoading) {
-                return;
-            }
-
-            this.isLoading = true;
-
-            try {
-                let dropdownContent = Glue.view(
-                    '{% url "django_spire:notification:app:template:notification_dropdown" %}',
-                    {app_notification_list_url: `{{ app_notification_list_url|default:'' }}`}
-                );
-
-                await dropdownContent.renderInnerHtml(this.$refs.appNotificationDropdownContent);
-                await this.markNotificationsAsViewed();
-                this.hasContent = true;
-            }
-            finally {
-                this.isLoading = false;
-            }
-        },
-
-        async markNotificationsAsViewed() {
-            await Glue.fetch('{% url "django_spire:notification:app:json:set_viewed" %}');
-            this.hasNewNotification = false;
-        }
-    }"
+    x-data="notificationDropdown(
+        '{% url 'django_spire:notification:app:json:check_new' %}',
+        '{% url 'django_spire:notification:app:template:notification_dropdown' %}',
+        '{% url 'django_spire:notification:app:json:set_viewed' %}',
+        '{{ app_notification_list_url|default:''|escapejs }}'
+    )"
 {% endblock %}
 
 {% block dropdown_menu_class %}dropdown-menu-end overflow-hidden p-0{% endblock %}

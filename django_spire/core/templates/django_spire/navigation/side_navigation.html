@@ -2,42 +2,7 @@
 
 <div
     class="sticky-top bg-side-navigation d-flex flex-column vh-100 w-100"
-    x-data="{
-        collapsed: JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false'),
-        show_top_fade: false,
-        show_bottom_fade: false,
-
-        check_scroll() {
-            let element = this.$refs.scroll_container;
-            let has_scroll = element.scrollHeight > element.clientHeight;
-            let is_at_top = element.scrollTop <= 20;
-            let is_at_bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 20;
-            this.show_top_fade = has_scroll && !is_at_top;
-            this.show_bottom_fade = has_scroll && !is_at_bottom;
-        },
-
-        save_scroll() {
-            localStorage.setItem('side_nav_scroll', this.$refs.scroll_container.scrollTop);
-        },
-
-        toggle_collapse() {
-            this.collapsed = !this.collapsed;
-            localStorage.setItem('side_nav_collapsed', JSON.stringify(this.collapsed));
-            document.documentElement.style.setProperty(
-                '--side-navigation-width',
-                this.collapsed ? '68px' : '240px'
-            );
-
-            if (this.collapsed) {
-                document.documentElement.classList.add('side-nav-collapsed');
-            } else {
-                document.documentElement.classList.remove('side-nav-collapsed');
-            }
-
-            this.$nextTick(() => this.check_scroll());
-        }
-    }"
-    x-init="$nextTick(() => { check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
+    x-data="sideNavigation()"
 >
     <div class="{% block side_navigation_top_content_container_class %}px-3 d-flex align-items-center gap-2 flex-shrink-0 border-bottom{% endblock %}" style="height: 64px;">
         {% block side_navigation_top_content %}
@@ -74,6 +39,7 @@
 
         <div
             class="navbar-nav-scroll scrollbar-hidden px-2 py-2 h-100"
+            data-side-navigation-scroll
             x-ref="scroll_container"
             @scroll.debounce="check_scroll(); save_scroll()"
         >
@@ -83,17 +49,6 @@
                 {% endblock %}
             </nav>
         </div>
-
-        <script>
-            (function () {
-                let container = document.currentScript.previousElementSibling;
-                let position = parseFloat(localStorage.getItem('side_nav_scroll') || '0');
-
-                if (position > 0) {
-                    container.scrollTop = position;
-                }
-            })();
-        </script>
 
         <div
             class="position-absolute bottom-0 start-0 w-100 z-1 side-navigation-fade-bottom"

@@ -1,0 +1,17 @@
+.chat-bubble p {
+    margin-bottom: 0;
+}
+
+.chat-bubble hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin: 8px 0;
+}
+
+.chat-bubble-user {
+    border-radius: 16px 16px 4px 16px;
+}
+
+.chat-bubble-response {
+    border-radius: 16px 16px 16px 4px;
+}
