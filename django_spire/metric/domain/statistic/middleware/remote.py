@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 _EXCLUDED_PATHS = ('/admin/', '/api/')
 
-_RECORD_API_PATH = 'api/v1/metric/domain/statistic'
+_RECORD_API_PATH = 'ds/api/v1/metric/domain/statistic'
 _RECORD_TIMEOUT = 10
 _WORKER_NAME = 'django-spire-remote-statistic-click'
 

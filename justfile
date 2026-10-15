@@ -56,6 +56,24 @@ python *ARGS:
 run-server:
     {{ PYTHON }} ./manage.py runserver
 
+[windows]
+run-server-remote:
+    docker stop django-spire 2>$null | Out-Null
+    docker rm -f spire-remote-pg 2>$null | Out-Null
+    docker run -d --name spire-remote-pg -p 5433:5432 -v django-spire:/var/lib/postgresql/data stratus:shared | Out-Null
+    while($true){ docker exec spire-remote-pg pg_isready -U stratus 2>$null | Out-Null; if($LASTEXITCODE -eq 0){break}; Start-Sleep -Seconds 1 }
+    $env:DATABASE_PORT='5433'; {{ PYTHON }} ./manage.py runserver 8008
+    docker rm -f spire-remote-pg 2>$null | Out-Null
+
+[unix]
+run-server-remote:
+    docker stop django-spire >/dev/null 2>&1 || true
+    docker rm -f spire-remote-pg >/dev/null 2>&1 || true
+    docker run -d --name spire-remote-pg -p 5433:5432 -v django-spire:/var/lib/postgresql/data stratus:shared >/dev/null
+    until docker exec spire-remote-pg pg_isready -U stratus >/dev/null 2>&1; do sleep 1; done
+    DATABASE_PORT=5433 {{ PYTHON }} ./manage.py runserver 8008
+    docker rm -f spire-remote-pg >/dev/null 2>&1 || true
+
 scss:
     {{ PYTHON }} ./manage.py spire_compile_scss
 
