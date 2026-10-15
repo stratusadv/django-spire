@@ -69,7 +69,7 @@ class Chart:
 
         if cls.chart_type not in ('pie', 'gauge'):
             option['xAxis'] = {'type': 'category', 'data': []}
-            option['yAxis'] = {'type': 'value'}
+            option['yAxis'] = {'type': 'value', 'axisLabel': {'hideOverlap': True}}
 
         data = cls.build_option_body(**kwargs)
         series = [

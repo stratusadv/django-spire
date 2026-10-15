@@ -59,6 +59,10 @@ run-server:
 scss:
     {{ PYTHON }} ./manage.py spire_compile_scss
 
+vendor-frontend:
+    npm ci --ignore-scripts
+    npm run vendor
+
 test:
     {{ PYTHON }} -m pytest . --reuse-db
 

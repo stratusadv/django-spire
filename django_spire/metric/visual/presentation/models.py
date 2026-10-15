@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from django.db import models, transaction
+from django.utils.timezone import localtime
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
-from django_spire.history.utils import soft_delete_queryset
 
 from django_spire.metric.visual.presentation import querysets
 from django_spire.metric.visual.presentation.services.service import (
@@ -27,11 +27,7 @@ class Presentation(HistoryModelMixin, ActivityMixin):
     def set_deleted(self) -> None:
         with transaction.atomic():
             super().set_deleted()
-            slide_pks = soft_delete_queryset(self.slides.all())
-            SlideSection.objects.filter(slide_id__in=slide_pks, is_deleted=False).update(
-                visual_id=None
-            )
-            soft_delete_queryset(SlideSection.objects.filter(slide_id__in=slide_pks))
+            self.slides.all().delete()
 
     class Meta:
         verbose_name = 'Presentation'
@@ -39,24 +35,19 @@ class Presentation(HistoryModelMixin, ActivityMixin):
         db_table = 'django_spire_metric_visual_presentation'
 
 
-class Slide(HistoryModelMixin, ActivityMixin):
+class Slide(ActivityMixin):
     presentation = models.ForeignKey(
         Presentation, on_delete=models.CASCADE, related_name='slides', related_query_name='slide'
     )
     name = models.CharField(max_length=255)
     order = models.PositiveSmallIntegerField(default=0)
+    created_datetime = models.DateTimeField(default=localtime, editable=False)
 
     objects = querysets.SlideQuerySet().as_manager()
     services = SlideService()
 
     def __str__(self) -> str:
         return self.name
-
-    def set_deleted(self) -> None:
-        with transaction.atomic():
-            super().set_deleted()
-            SlideSection.objects.filter(slide_id=self.pk, is_deleted=False).update(visual_id=None)
-            soft_delete_queryset(self.sections.all())
 
     class Meta:
         verbose_name = 'Slide'
@@ -70,7 +61,7 @@ class Slide(HistoryModelMixin, ActivityMixin):
         ]
 
 
-class SlideSection(HistoryModelMixin, ActivityMixin):
+class SlideSection(ActivityMixin):
     slide = models.ForeignKey(
         Slide, on_delete=models.CASCADE, related_name='sections', related_query_name='section'
     )
@@ -84,6 +75,7 @@ class SlideSection(HistoryModelMixin, ActivityMixin):
     )
     row = models.PositiveSmallIntegerField(default=0)
     col = models.PositiveSmallIntegerField(default=0)
+    created_datetime = models.DateTimeField(default=localtime, editable=False)
 
     objects = querysets.SlideSectionQuerySet().as_manager()
     services = SlideSectionService()

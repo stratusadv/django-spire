@@ -38,11 +38,7 @@ class PresentationSeeder(Seeder):
         for order in range(SLIDE_COUNT):
             slide_title = SLIDE_TITLES[(start + order) % len(SLIDE_TITLES)]
             slide = models.Slide.objects.create(
-                presentation=presentation,
-                name=slide_title,
-                order=order,
-                is_active=True,
-                is_deleted=False,
+                presentation=presentation, name=slide_title, order=order
             )
             cls._seed_sections(slide)
 
@@ -59,10 +55,5 @@ class PresentationSeeder(Seeder):
         for order, visual_name in enumerate(visual_names):
             visual = visuals_by_name.get(visual_name) or visuals[order % len(visuals)]
             models.SlideSection.objects.create(
-                slide=slide,
-                row=order // 2,
-                col=order % 2,
-                visual=visual,
-                is_active=True,
-                is_deleted=False,
+                slide=slide, row=order // 2, col=order % 2, visual=visual
             )

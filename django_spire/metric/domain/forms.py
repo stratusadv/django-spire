@@ -22,10 +22,10 @@ class DomainForm(ModelForm):
             domain, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(viewname='django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk})
-                    }
+                redirect={
+                    'url': reverse(
+                        viewname='django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
+                    )
                 }
             )
 
@@ -66,13 +66,11 @@ class SubDomainForm(ModelForm):
             subdomain, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            viewname='django_spire:metric:domain:page:detail',
-                            kwargs={'pk': subdomain.domain.id},
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        viewname='django_spire:metric:domain:page:detail',
+                        kwargs={'pk': subdomain.domain.id},
+                    )
                 }
             )
 

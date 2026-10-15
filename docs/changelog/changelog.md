@@ -1,5 +1,198 @@
 # Changelog
 
+## v1.2.3
+
+### Fixes
+
+- Moved as much inline CSS, JS and Alpine into separate files reducing base HTML size by 40% on average.
+
+## v1.2.2
+
+### Breaking
+
+- Migrated from `django-glue` v1.2.1 to v1.2.2. A Glue component in a directory inside a
+  `components` package now has that directory in its tag: a class in
+  `app/components/cards/fancy.py` is `app/cards/fancy`, where it was `app/fancy`, and the
+  old tag raises `GlueComponentRegistrationError`. Add the directory to the tag, or import
+  the class in `components/__init__.py` to keep the short one. A component in a module
+  directly inside `components/` is unaffected, and Spire's own components need no change.
+  The [django-glue changelog](https://django-glue.stratusadv.com) has the full list.
+
+### Added
+
+- `tabular-nums`, a utility class that sets `font-variant-numeric: tabular-nums` so the
+  digits in a column of amounts line up.
+- A stepper, for a numbered sequence of steps with done, current and upcoming states. It
+  is a set of classes with no template: `stepper` on the list, `stepper-step` on each
+  step with `is-done` or `is-current`, and `stepper-mark` on the circle. `stepper-vertical`
+  stacks the steps and `stepper-connected` draws a line between them. See
+  [Stepper](../components/stepper.md).
+
+## v1.2.1 - October 8, 2026
+
+### Changed
+
+- Migrated from `django-glue` v1.2.0 to v1.2.1. It fixes a formset refusing a new
+  `ModelForm` row, with "Submitted form token does not belong to this formset row", after
+  that row had made a call of its own, such as loading a field's choices or validating.
+
+## v1.2.0 - October 6, 2026
+
+### Breaking
+
+- Migrated from `django-glue` v1.1.0 to v1.2.0. The changes a project is most likely to
+  meet (the [django-glue changelog](https://django-glue.stratusadv.com) has the full list):
+  - `DJANGO_GLUE_COMPONENTS_ROOT` is removed. Replace it with
+    `DJANGO_GLUE_COMPONENTS = {'DIRS': [<root>], 'APP_DIRS': True}`, which is shaped like
+    Django's `TEMPLATES`. A project that still sets the old name fails the system check
+    `django_glue.E004`.
+  - The component modules moved into the `django_glue.glue.components` package.
+    `django_glue.glue.component` and `django_glue.glue.component_registry` no longer
+    exist; import `Component` and `component_registry` from `django_glue.glue.components`,
+    or subclass `Glue.Component`.
+  - A component's re-render keeps the child components already on the page instead of
+    re-stamping them. A child that must redraw with its parent declares `rerender_on` or
+    is stamped with `rerender_with_parent`.
+  - A formset's `save()` saves nothing when any row is invalid; it previously saved the
+    valid rows.
+  - A component is set up in `__post_init__(self, request)`. `get_view_kwargs()` and
+    `get_context_data()` are removed, and a class that still defines one raises
+    `TypeError` when it is defined. `mount()` is deprecated; rename it to `__post_init__`.
+    A component's template reads its values from `component`, and page context such as
+    navigation goes in `self.context_data`.
+  - `layout_template` is renamed `view_template`, as a class attribute and as an
+    `as_view()` argument.
+- `FormComponent` no longer defines `get_context_data()`, so its template context no longer
+  has `glue_form`. A template rendered by a `FormComponent` reads the form's path as
+  `{{ component.glue_form_path }}`. `django_spire/glue/form/modal_form.html` falls back to
+  it, so a template that extends it needs no change. A subclass that overrode
+  `get_context_data()` moves that code to `__post_init__` or onto the component.
+- Removed the `django_spire.contrib.session` package, as it was no longer used. Session
+  management is handled by `django-glue` going forward. This removes:
+  - `django_spire.contrib.session.controller.SessionController`.
+  - The `session_controller_to_json` template tag
+    (`django_spire.contrib.session.templatetags.session_tags`).
+  - The client `Spire.session.Controller` class. `django_spire/js/session.js` is deleted
+    and no longer loaded by `django_spire/base/base.html`.
+- `django_spire.testing.playwright.components.base_session_filter_form` is renamed to
+  `django_spire.testing.playwright.components.filter_form`. `FilterForm` is still exported
+  from `django_spire.testing.playwright.components`, so only imports of the module path
+  need updating.
+- `DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY` and
+  `DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY` are renamed to
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`, the
+  statistic and sub-domain that metric click tracking records against. A project that
+  still sets the old names silently loses its tracking target; rename them in settings.
+
+### Features
+
+- New `RemoteClickMiddleware`
+  (`django_spire.metric.domain.statistic.middleware.remote`) for sites that track clicks
+  without running the metric database themselves: each tracked click (same rules as the
+  local `LocalClickMiddleware`: GET, 200, `text/html`, skipping `/admin/`, `/api/`,
+  and XHR) is POSTed to
+  `{DJANGO_SPIRE_REMOTE_API_URL}/api/v1/metric/domain/statistic/{statistic_key}/record`
+  with an `X-API-Key` header. It dispatches on a background thread by default, imports
+  no `django_spire` modules (stdlib + `requests` + `django.conf` only), and is a no-op
+  unless `DJANGO_SPIRE_REMOTE_API_URL`, `DJANGO_SPIRE_REMOTE_API_KEY`,
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY`, and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY` are all
+  set.
+- The metric visual "Generate Stoplight" action is removed, with its
+  `set_default_conditions` URL and `visual.services.factory.create_default_conditions()`.
+
+### Changes
+
+- A metric visual's detail card links to its statistic group and its statistic separately.
+- Monthly chart labels always show the year, as `Jan 26`.
+- `FormComponent` subclasses `Glue.Component` instead of importing `Component` from a
+  `django-glue` internal module.
+- `spire_startapp` no longer scaffolds session-backed list filtering. A generated app has:
+  - no `constants.py` (it only held `LIST_FILTERING_SESSION_KEY`), no
+    `<Model>ListFilterForm`, and no list filter form template;
+  - a queryset that subclasses `HistoryQuerySet` alone, without `SearchQuerySetMixin`,
+    `SessionFilterQuerySetMixin`, or a `bulk_filter` method;
+  - list page and list items views that load `objects.active()` instead of calling
+    `process_session_filter`, and no `filter_session` in the page context.
+- The knowledge entry form view no longer glues an unused `entry` model.
+
+### Fixes
+
+- The comment modal no longer crashes on open. Its `Glue.model` call now exposes the
+  `information` field at `CHANGE` access, so the comment text is editable.
+- Metric charts and indicators fill their cards on signage displays and presentation
+  slides. Their heights are set by `--spire-chart-height` (default `350px`) and
+  `--spire-indicator-min-height` (default `240px`).
+- A new visual condition, visual reference or signage presentation is added at the next
+  free order position.
+- A visual ignores its deleted conditions when it works out its current condition and
+  gauge maximum.
+- A visual with no conditions no longer shows a "No data" status badge.
+
+### Chores
+
+- Removed the "QuerySet Utilities" guide (`docs/app_guides/contrib/queryset.md`) from the
+  docs. It described `django_spire.contrib.queryset`, which no longer exists.
+- `.backplan/` is ignored by git.
+
+## v1.1.0 - September 27, 2026
+
+### Breaking
+
+- Migrated from `django-glue` v1.0.1 to v1.1.0. The most visible changes:
+  - `django_glue.middleware.GlueViewMiddleware` is now required as the **last** entry in
+    `MIDDLEWARE` (a system check errors if it is missing or misordered).
+  - Sub-services are exposed with `Glue.namespace(...)` instead of `Glue.attr(...)`;
+    `@Glue.attr` now marks individual service methods the client may call.
+  - `GlueResponse` takes the redirect directly (`GlueResponse(redirect={'url': ...})`)
+    instead of nesting it under `result`.
+  - The Alpine core is no longer loaded from the CDN: `django-glue` bundles it (with its
+    morph plugin) and owns Alpine startup. The `@alpinejs/*` plugin scripts stay in
+    `base.html` and register against the runtime Glue exposes.
+
+### Features
+
+- New `FormComponent` / `ModelFormComponent` (in `django_spire.core.glue.components`) for
+  exposing a single form as a Glue component, with `Spire.modal.dispatchGlueComponent()`
+  and `Spire.modal.dispatchGlueHtml()` client helpers that show Glue-rendered content in
+  the dispatch modal and resolve when it closes.
+- Choice fields can render HTML labels: pass `label_formatter` to `Glue.choices(...)` to
+  pre-render each choice label (see the showcase `formatted_category` widget).
+- Glue scroll lists (notification dropdown/list, task list, and the shared
+  `glue/scroll/scroll.html`) now load pages through the queryset's own continuation with
+  generation-ordered loads, so an overtaken reset or a page load in flight can no longer
+  overwrite newer results. Querysets bound for scrolling accept `batch_size`.
+- Metric visuals: charts now display a unit-based window (`display_unit_count` on the
+  visual, defaulting to 8 days / 12 weeks / 13 months) with period labels ("Today",
+  "Week to date", "Month to date"), a `value_date` browse parameter on the detail page
+  for historical dates, and a distinct "no matching data" state instead of a false zero.
+  Gauge, pie, and line/bar rendering were reworked (unit x-axis labels, overlapping
+  labels hidden, nicer axis ceilings). The signage display page was updated to match.
+- Celery admin: a state filter (standard plus observed states), human-readable state
+  display, and a readable result column on the `CeleryTask` change form.
+
+### Changes
+
+- The `Visual.date` field was removed; visuals are always computed as of today, and the
+  detail page's `value_date` parameter browses history (migrations `0007_remove_visual_date`,
+  `0008_visual_display_unit_count`).
+- Celery race-condition fixes: the tracker pushes state/meta to the Celery backend instead
+  of writing the `CeleryTask` row directly, and `CeleryTaskService` merges the completed
+  meta into the row when it polls a ready result (meta `data` is merged, not replaced).
+- The help desk ticket list now exposes explicit Glue fields instead of `__all__`.
+- Test project Celery app now runs with `task_acks_late`, `task_reject_on_worker_lost`,
+  soft/hard time limits, and broker retry on startup.
+
+### Fixes
+
+- `CeleryTaskTracker.update_cumulative_progress` now raises `ValueError` (instead of
+  `TypeError`) when no cumulative target was set, and clamps progress at the target.
+- The Celery admin change form no longer crashes on task rows with an empty or corrupt
+  result blob.
+
+### Chores
+
+- `playwright-limelight` (dev) is pinned from PyPI instead of a git revision.
+
 ## v1.0.4 - September 21, 2026
 
 ### Fixes

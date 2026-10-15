@@ -16,7 +16,10 @@ from django_spire.metric.domain.statistic.constants import (
     StatisticValueTypeChoices,
 )
 from django_spire.metric.domain.statistic.models import Statistic, StatisticValue
-from django_spire.metric.domain.statistic.services.service import StatisticService
+from django_spire.metric.domain.statistic.services.service import (
+    StatisticService,
+    StatisticValueService,
+)
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -618,3 +621,24 @@ class StatisticRecordServiceTestCase(BaseTestCase):
         assert insert['sql'].startswith('INSERT')
         assert 'SELECT' in insert['sql']
         assert len(context) == 2
+
+
+class StatisticValueServiceTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.domain = create_test_domain()
+        self.sub_domain = create_test_subdomain(domain=self.domain)
+        self.group = create_test_statistic_group(domain=self.domain)
+        self.statistic = create_test_statistic(group=self.group)
+
+    def test_stored_size_bytes_is_positive(self):
+        for _ in range(3):
+            self.statistic.services.processor.add_value(
+                reference='/home/', value=1, sub_domain=self.sub_domain
+            )
+
+        size_bytes = StatisticValueService.stored_size_bytes()
+
+        assert isinstance(size_bytes, int)
+        assert size_bytes > 0

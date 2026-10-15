@@ -35,6 +35,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
             'description',
         ],
         form=forms.TaskModelForm(),
+        batch_size=25,
     )
 
     nav = TaskNavigation()

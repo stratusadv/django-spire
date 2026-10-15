@@ -45,7 +45,7 @@ class CollectionForm(forms.ModelForm):
         else:
             return_url = reverse('django_spire:knowledge:page:home')
 
-        return GlueResponse(result={'redirect': {'url': return_url}})
+        return GlueResponse(redirect={'url': return_url})
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)

@@ -24,6 +24,5 @@ class SignageAdmin(admin.ModelAdmin):
 @admin.register(SignagePresentation)
 class SignagePresentationAdmin(admin.ModelAdmin):
     list_display = ('pk', 'signage', 'presentation', 'order')
-    list_filter = ('is_active', 'is_deleted')
     ordering = ('signage', 'order')
     search_fields = ('signage__name', 'presentation__name')

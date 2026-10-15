@@ -13,11 +13,6 @@ urlpatterns = [
     path('<int:pk>/update/', form_views.update_view, name='update'),
     path('<int:pk>/delete/', form_views.delete_view, name='delete'),
     path(
-        '<int:pk>/conditions/default/',
-        form_views.set_default_conditions_view,
-        name='set_default_conditions',
-    ),
-    path(
         'condition/<int:visual_pk>/create/',
         form_views.create_condition_view,
         name='create_condition',

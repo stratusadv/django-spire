@@ -65,8 +65,8 @@ class StatisticTrackingService(BaseDjangoModelService['Statistic']):
             StatisticValue,
         )
 
-        statistic_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY
-        sub_domain_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY
+        statistic_key = settings.DJANGO_SPIRE_METRIC_STATISTIC_KEY
+        sub_domain_key = settings.DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY
 
         if (not statistic_key) or (not sub_domain_key):
             return
@@ -105,8 +105,8 @@ class StatisticTrackingService(BaseDjangoModelService['Statistic']):
         from django_spire.metric.domain.models import SubDomain  # noqa: PLC0415
         from django_spire.metric.domain.statistic.models import Statistic  # noqa: PLC0415
 
-        statistic_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY
-        sub_domain_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY
+        statistic_key = settings.DJANGO_SPIRE_METRIC_STATISTIC_KEY
+        sub_domain_key = settings.DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY
 
         if (not statistic_key) or (not sub_domain_key):
             return None

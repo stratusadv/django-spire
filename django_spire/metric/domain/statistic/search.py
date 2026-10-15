@@ -23,7 +23,15 @@ class StatisticSearch(Search):
             action=Search.Command.Action.OPEN_URL_CURRENT_TAB,
             description='Create a new statistic',
             permission_required='django_spire_metric_domain.add_statistic',
-        )
+        ),
+        Search.Command(
+            name='Storage',
+            icon='bi-database',
+            url=reverse('django_spire:metric:domain:statistic:page:storage'),
+            action=Search.Command.Action.OPEN_URL_CURRENT_TAB,
+            description='View stored statistic values',
+            permission_required='django_spire_metric_domain.view_statistic',
+        ),
     ]
 
     def base_queryset(self, request: HttpRequest) -> QuerySet:

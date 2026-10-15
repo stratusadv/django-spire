@@ -1,38 +1,34 @@
 <div class="card">
     <div class="card-body">
-        <div class="row pb-2 align-items-center">
-            <div class="col">
-                <span class="fs-5">Visual</span>
-            </div>
-            <div class="col-auto">
-                {% if perms.django_spire_metric_visual.change_visual %}
-                    {% url 'django_spire:metric:visual:form:update' pk=visual.pk as visual_edit_url %}
-                    <a class="btn btn-sm btn-primary text-white" href="{{ visual_edit_url }}">
-                        <i class="bi bi-pencil"></i>
-                        Edit
-                    </a>
-                {% endif %}
-
-                {% if perms.django_spire_metric_visual.delete_visual %}
-                    {% url 'django_spire:metric:visual:form:delete' pk=visual.pk as visual_delete_url %}
-                    <a class="btn btn-sm btn-outline-danger"
-                       href="{{ visual_delete_url }}?return_url={% url 'django_spire:metric:visual:page:list' %}">
-                        <i class="bi bi-eraser"></i>
-                        Delete
-                    </a>
-                {% endif %}
-            </div>
-        </div>
         <div class="row g-3">
             <div class="col-lg-6">
-                {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition period_start=period_start period_end=period_end %}
+                {% include 'django_spire/metric/visual/render/visual.html' %}
             </div>
 
             <div class="col-lg-6">
                 <div class="row g-3">
-                    <div class="col-12">
+                    <div class="col">
                         <div class="attribute-label">Name</div>
                         <div>{{ visual.name }}</div>
+                    </div>
+
+                    <div class="col-auto">
+                        {% if perms.django_spire_metric_visual.change_visual %}
+                            {% url 'django_spire:metric:visual:form:update' pk=visual.pk as visual_edit_url %}
+                            <a class="btn btn-sm btn-primary text-white" href="{{ visual_edit_url }}">
+                                <i class="bi bi-pencil"></i>
+                                <span class="d-none d-md-inline">Edit</span>
+                            </a>
+                        {% endif %}
+
+                        {% if perms.django_spire_metric_visual.delete_visual %}
+                            {% url 'django_spire:metric:visual:form:delete' pk=visual.pk as visual_delete_url %}
+                            <a class="btn btn-sm btn-outline-danger"
+                               href="{{ visual_delete_url }}?return_url={% url 'django_spire:metric:visual:page:list' %}">
+                                <i class="bi bi-eraser"></i>
+                                <span class="d-none d-md-inline">Delete</span>
+                            </a>
+                        {% endif %}
                     </div>
 
                     <div class="col-12">
@@ -46,21 +42,22 @@
                     </div>
 
                     <div class="col-md-8">
-                        <div class="attribute-label">Statistic</div>
+                        <div class="attribute-label">Statistic Group > Statistic</div>
                         {% if visual.statistic %}
                             <div>
-                                <a class="text-decoration-none" href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=visual.statistic.pk %}">
-                                    {{ visual.statistic.group }} - {{ visual.statistic }}
+                                <a class="text-decoration-none"
+                                   href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=visual.statistic.group.pk %}">
+                                    {{ visual.statistic.group }}
+                                </a>
+                                >
+                                <a class="text-decoration-none"
+                                   href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=visual.statistic.pk %}">
+                                    {{ visual.statistic }}
                                 </a>
                             </div>
                         {% else %}
                             <div class="text-muted">None</div>
                         {% endif %}
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="attribute-label">Evaluation Date</div>
-                        <div>{{ visual.date }}</div>
                     </div>
 
                     <div class="col-md-8">
@@ -69,6 +66,30 @@
                             {{ period_start|date:'M j, Y' }} - {{ period_end|date:'M j, Y' }}
                         </div>
                     </div>
+
+                    {% if visual.statistic %}
+                        <div class="col-md-4">
+                            <div class="attribute-label">Display Units</div>
+                            <div>{{ display_unit_label }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if visual.statistic %}
+                        <div class="col-12">
+                            <form method="get" class="row g-2 align-items-end">
+                                <div class="col-auto">
+                                    <label class="attribute-label" for="value-date-input">Browse Date</label>
+                                    <input class="form-control form-control-sm" type="date"
+                                           name="value_date" id="value-date-input"
+                                           max="{{ today|date:'Y-m-d' }}"
+                                           value="{{ value_date|date:'Y-m-d' }}">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Go</button>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

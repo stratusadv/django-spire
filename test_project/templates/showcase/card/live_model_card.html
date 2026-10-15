@@ -3,26 +3,9 @@
     class="card sticky-top"
     style="top: 1rem;"
     x-data="{
-        // Bind straight to the model proxy -- no need to copy fields into a
-        // local values object. Alpine's reactivity wraps the shared
-        // singleton Glue.model.widget_showcase_model instance once and
-        // memoizes that wrapper by object identity, so this component and
-        // the form's component both read through the same reactive proxy.
-        // load_state() refreshes fields by mutating the proxy's internal
-        // state key-by-key (see _mergeState in django-glue's base.js) rather
-        // than replacing the whole state object, which is what lets that
-        // mutation reach Alpine's dependency tracking and re-render this
-        // table -- even though load_state() is called from the form's
-        // separate x-data scope via the widget-showcase-saved event, not
-        // from this one. Verified directly: the live-update e2e test fails
-        // if load_state() here is skipped, and passes with a bare
-        // model.<field> binding and no copy step.
         model: Glue.model.widget_showcase_model,
         async onSaved() {
-            await this.model.load_state()
-        },
-        async init() {
-            await this.model.load_state()
+            await this.model.$refresh()
         },
     }"
     @widget-showcase-saved.window="await onSaved()"

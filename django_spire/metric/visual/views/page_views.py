@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Prefetch, Q
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django_glue import Glue
 
+from django_spire.history.activity.enums import ActivityVerb
 from django_spire.history.activity.models import Activity
 from django_spire.metric.visual import models
 from django_spire.metric.visual.navigation import VisualNavigation
@@ -20,16 +23,41 @@ if TYPE_CHECKING:
 from django.template.response import TemplateResponse
 
 
-def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
+def _browse_value_date(request: WSGIRequest) -> date | None:
+    raw_value = request.GET.get('value_date')
+    if not raw_value:
+        return None
+
+    try:
+        value_date = date.fromisoformat(raw_value)
+    except ValueError:
+        return None
+
+    if value_date > timezone.localdate():
+        return None
+
+    return value_date
+
+
+def _visual_context(
+    request: WSGIRequest, visual: models.Visual, value_date: date | None = None
+) -> dict:
+    transformation = visual.services.transformation
+    period_start, period_end = transformation.display_window(value_date)
+    no_match = transformation.no_matching_data()
+
     context = {
         'visual': visual,
-        'current_value': visual.services.transformation.current_value(),
-        'current_condition': visual.services.transformation.current_condition(),
-        'period_start': visual.services.transformation.date_range()[0],
-        'period_end': visual.services.transformation.date_range()[1],
+        'current_value': transformation.current_value(value_date),
+        'current_condition': None if no_match else transformation.current_condition(value_date),
+        'no_matching_data': no_match,
+        'period_start': period_start,
+        'period_end': period_end,
+        'display_unit_label': transformation.display_unit_label(),
+        'display_period_label': transformation.display_period_label(),
     }
 
-    chart = visual.services.transformation.chart()
+    chart = transformation.chart(value_date=value_date)
     if chart is not None:
         chart.glue(request)
         context['chart'] = chart
@@ -50,12 +78,19 @@ def _visual_activity_log(visual: models.Visual) -> QuerySet:
     )
     region_pks = models.VisualRegion.objects.filter(visual=visual).values_list('pk', flat=True)
 
+    condition_clause = Q(content_type=condition_ct, object_id__in=condition_pks) & ~Q(
+        verb=ActivityVerb.CREATED
+    )
+    reference_clause = Q(content_type=reference_ct, object_id__in=reference_pks) & ~Q(
+        verb=ActivityVerb.CREATED
+    )
+
     return (
         Activity.objects.prefetch_user()
         .filter(
             Q(content_type=ContentType.objects.get_for_model(models.Visual), object_id=visual.pk)
-            | Q(content_type=condition_ct, object_id__in=condition_pks)
-            | Q(content_type=reference_ct, object_id__in=reference_pks)
+            | condition_clause
+            | reference_clause
             | Q(content_type=region_ct, object_id__in=region_pks)
         )
         .order_by('-created_datetime')[:10]
@@ -65,21 +100,22 @@ def _visual_activity_log(visual: models.Visual) -> QuerySet:
 @permission_required('django_spire_metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(
-        models.Visual.objects.with_statistic().prefetch_related(
-            Prefetch('conditions', queryset=models.VisualCondition.objects.not_deleted()),
-            Prefetch('references', queryset=models.VisualReference.objects.not_deleted()),
-        ),
-        pk=pk,
+        models.Visual.objects.with_statistic().prefetch_related('conditions', 'references'), pk=pk
     )
 
     nav = VisualNavigation()
+    nav.page_title = str(visual)
+    context = nav.as_context()
     nav.breadcrumbs.add(
         name=str(visual), view_name='django_spire:metric:visual:page:detail', view_kwargs={'pk': pk}
     )
 
+    value_date = _browse_value_date(request)
+
     context = nav.as_context()
-    context.update(_visual_context(request, visual))
-    context['period_start'], context['period_end'] = visual.services.transformation.date_range()
+    context.update(_visual_context(request, visual, value_date))
+    context['value_date'] = value_date
+    context['today'] = timezone.localdate()
     context['activity_log'] = _visual_activity_log(visual)
 
     return TemplateResponse(

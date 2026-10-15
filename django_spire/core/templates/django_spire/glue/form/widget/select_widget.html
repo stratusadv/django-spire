@@ -22,7 +22,7 @@
             <option
                 :value="choice.value"
                 :selected="choice.value == value"
-                x-text="choice.label"
+                x-html="field.choiceLabelHtml(choice)"
             ></option>
         </template>
     </select>

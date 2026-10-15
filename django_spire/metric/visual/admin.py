@@ -26,7 +26,7 @@ class VisualRegionInline(admin.TabularInline):
 @admin.register(Visual)
 class VisualAdmin(admin.ModelAdmin):
     inlines = (VisualReferenceInline, VisualConditionInline, VisualRegionInline)
-    list_display = ('pk', 'name', 'statistic', 'date', 'created_datetime')
+    list_display = ('pk', 'name', 'statistic', 'created_datetime')
     list_filter = ('is_active', 'is_deleted')
     list_select_related = ('statistic',)
     ordering = ('-created_datetime',)

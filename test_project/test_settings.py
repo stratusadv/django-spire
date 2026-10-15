@@ -17,5 +17,5 @@ CELERY_BROKER_URL = 'memory://'
 CELERY_RESULT_BACKEND = 'cache+memory://'
 
 # Keep metric click tracking off during tests (no background threads / DB writes).
-DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY = ''
-DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY = ''
+DJANGO_SPIRE_METRIC_STATISTIC_KEY = ''
+DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY = ''

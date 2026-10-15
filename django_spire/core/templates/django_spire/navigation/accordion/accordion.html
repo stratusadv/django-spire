@@ -1,13 +1,6 @@
 <div
     class="{% block accordion_root_class %}{% endblock %}"
-    x-data="{
-        show_accordion: $el.classList.contains('side-nav-accordion-open'),
-
-        toggle() {
-            this.show_accordion = !this.show_accordion
-            this.$root.classList.toggle('side-nav-accordion-open', this.show_accordion)
-        }
-    }"
+    x-data="sideNavAccordion()"
 >
     <div @click="toggle()" class="cursor-pointer text-primary">
         {% block accordion_toggle %}

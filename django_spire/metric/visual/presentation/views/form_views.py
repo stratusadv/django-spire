@@ -11,6 +11,7 @@ from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.history.activity.utils import log_child_deletion
 from django_spire.metric.visual.presentation import forms, models
 from django_spire.metric.visual.presentation.navigation import PresentationNavigation
 
@@ -25,7 +26,7 @@ def _presentation_detail_url(presentation_pk: int) -> str:
 
 
 def _occupied_cells(slide: models.Slide, *, exclude_pk: int | None = None) -> list[list[int]]:
-    sections = slide.sections.filter(is_deleted=False)
+    sections = slide.sections.all()
     if exclude_pk:
         sections = sections.exclude(pk=exclude_pk)
 
@@ -64,7 +65,9 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
     context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html', context
+        request,
+        'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html',
+        context,
     )
 
 
@@ -118,13 +121,14 @@ def update_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def _slide_form_view(
-        request: WSGIRequest, pk: int = 0, presentation_pk: int = 0
+    request: WSGIRequest, pk: int = 0, presentation_pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     slide = get_object_or_null_obj(models.Slide, pk=pk)
 
     if not slide.pk:
         presentation = get_object_or_404(models.Presentation, pk=presentation_pk)
         slide.presentation_id = presentation.pk
+        slide.order = models.Slide.services.next_order(presentation.slides)
     else:
         presentation = slide.presentation
 
@@ -161,7 +165,8 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
         form = DeleteConfirmationForm(data=request.POST, obj=slide)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=slide.set_deleted)
+            form.save(user=request.user, delete_func=slide.delete)
+            log_child_deletion(presentation, slide)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -178,7 +183,9 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
     context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html', context
+        request,
+        'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html',
+        context,
     )
 
 
@@ -193,7 +200,7 @@ def update_section_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def _section_form_view(
-        request: WSGIRequest, pk: int = 0, slide_pk: int = 0
+    request: WSGIRequest, pk: int = 0, slide_pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     section = get_object_or_null_obj(models.SlideSection, pk=pk)
 
@@ -245,7 +252,8 @@ def delete_section_view(request: WSGIRequest, pk: int) -> TemplateResponse | Htt
         form = DeleteConfirmationForm(data=request.POST, obj=section)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=section.set_deleted)
+            form.save(user=request.user, delete_func=section.delete)
+            log_child_deletion(presentation, section)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -264,5 +272,7 @@ def delete_section_view(request: WSGIRequest, pk: int) -> TemplateResponse | Htt
     context['return_url'] = return_url
 
     return TemplateResponse(
-        request, 'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html', context
+        request,
+        'django_spire/metric/visual/presentation/form/delete_confirmation_form_page.html',
+        context,
     )

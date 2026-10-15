@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, Prefetch
 
 from django_spire.core.querysets import SearchQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
@@ -26,19 +26,15 @@ class PresentationQuerySet(HistoryQuerySet, SearchQuerySetMixin):
 
     def with_slides(self) -> QuerySet[Presentation]:
         sections = (
-            models.SlideSection.objects.filter(is_deleted=False)
+            models.SlideSection.objects.all()
             .select_related('visual__statistic')
             .prefetch_related('visual__conditions')
         )
-        slides = models.Slide.objects.filter(is_deleted=False).prefetch_related(
-            Prefetch('sections', queryset=sections)
-        )
+        slides = models.Slide.objects.prefetch_related(Prefetch('sections', queryset=sections))
         return self.prefetch_related(Prefetch('slides', queryset=slides))
 
     def with_slide_count(self) -> QuerySet[Presentation]:
-        return self.annotate(
-            slide_count=Count('slide', filter=Q(slide__is_deleted=False), distinct=True)
-        )
+        return self.annotate(slide_count=Count('slide', distinct=True))
 
 
 class SlideQuerySet(HistoryQuerySet):
@@ -47,7 +43,7 @@ class SlideQuerySet(HistoryQuerySet):
 
     def with_sections(self) -> QuerySet:
         sections = (
-            models.SlideSection.objects.filter(is_deleted=False)
+            models.SlideSection.objects.all()
             .select_related('visual__statistic')
             .prefetch_related('visual__conditions')
         )

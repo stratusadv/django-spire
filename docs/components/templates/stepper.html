@@ -1,0 +1,37 @@
+<ol class="stepper">
+    <li class="stepper-step is-done">
+        <span class="stepper-mark"><i class="bi bi-check-lg"></i></span>
+        <span>Transactions</span>
+    </li>
+    <li class="stepper-step is-current">
+        <span class="stepper-mark">2</span>
+        <span>Receipts</span>
+    </li>
+    <li class="stepper-step">
+        <span class="stepper-mark">3</span>
+        <span>Books balanced</span>
+    </li>
+</ol>
+
+<ol class="stepper stepper-vertical">
+    {% for step in steps %}
+        <li class="stepper-step {% if step.is_done %}is-done{% elif step.is_current %}is-current{% endif %}">
+            <span class="stepper-mark">
+                {% if step.is_done %}<i class="bi bi-check-lg"></i>{% else %}{{ forloop.counter }}{% endif %}
+            </span>
+            <span>{{ step.name }}</span>
+        </li>
+    {% endfor %}
+</ol>
+
+<ol class="stepper stepper-connected">
+    <li class="stepper-step is-done">
+        <span class="stepper-mark"><i class="bi bi-check-lg"></i></span>
+    </li>
+    <li class="stepper-step is-current">
+        <span class="stepper-mark">2</span>
+    </li>
+    <li class="stepper-step">
+        <span class="stepper-mark">3</span>
+    </li>
+</ol>

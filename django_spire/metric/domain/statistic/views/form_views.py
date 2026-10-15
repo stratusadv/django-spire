@@ -80,7 +80,11 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     statistic = get_object_or_404(models.Statistic, pk=pk)
     return_url = safe_redirect_url(
-        request, fallback=reverse('django_spire:metric:domain:statistic:page:list')
+        request,
+        fallback=reverse(
+            'django_spire:metric:domain:statistic:page:group_detail',
+            kwargs={'pk': statistic.group.pk},
+        ),
     )
 
     form = DeleteConfirmationForm(request.POST, obj=statistic)

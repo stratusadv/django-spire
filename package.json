@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "scripts": {
+    "vendor": "node scripts/vendor_frontend.mjs"
+  },
+  "devDependencies": {
+    "@alpinejs/collapse": "3.15.12",
+    "@alpinejs/focus": "3.15.12",
+    "@alpinejs/intersect": "3.15.12",
+    "@alpinejs/mask": "3.15.12",
+    "@alpinejs/persist": "3.15.12",
+    "@alpinejs/sort": "3.15.12",
+    "bootstrap": "5.3.8",
+    "bootstrap-icons": "1.13.1",
+    "echarts": "6.1.0",
+    "pulltorefreshjs": "0.1.22"
+  }
+}

@@ -16,7 +16,3 @@ class ${form_class_name}(forms.ModelForm):
     class Meta:
         model = models.${model_class_name}
         exclude: ClassVar = []
-
-
-class ${model_class_name}ListFilterForm(forms.Form):
-    search = forms.CharField(required=False)

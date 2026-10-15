@@ -25,7 +25,7 @@
                                 }
                             "
                             :disabled="field.disabled">
-                        <label class="form-check-label" :for="field.id + '-' + choice.value" x-text="choice.label"></label>
+                        <label class="form-check-label" :for="field.id + '-' + choice.value" x-html="field.choiceLabelHtml(choice)"></label>
                     </div>
                 </div>
             </template>

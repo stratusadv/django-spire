@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.forms import ModelForm
 from django.http import HttpRequest
 from django.urls import reverse
@@ -22,10 +23,9 @@ class TaskModelForm(ModelForm):
 
             task.users.create(user=request.user)
 
+            messages.success(request, f'{task.name} saved')
             return GlueResponse(
-                result={'redirect': {
-                    'url': reverse('task:page:detail', kwargs={'pk': task.pk})}
-                }
+                redirect={'url': reverse('task:page:detail', kwargs={'pk': task.pk})}
             )
 
         return GlueResponse(

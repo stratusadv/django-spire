@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.visual.presentation.models import Slide, SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
     create_test_section,
@@ -54,6 +55,19 @@ class PresentationFormViewsTestCase(BaseTestCase):
 
         assert response.status_code == 200
 
+    def test_create_slide_view_prefills_next_order(self):
+        create_test_slide(self.presentation, order=5)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:presentation:form:create_slide',
+                kwargs={'presentation_pk': self.presentation.pk},
+            )
+        )
+
+        assert response.status_code == 200
+        assert response.context['form']['order'].value() == 6
+
     def test_update_slide_view(self):
         slide = create_test_slide(self.presentation)
 
@@ -76,8 +90,7 @@ class PresentationFormViewsTestCase(BaseTestCase):
         )
 
         assert response.status_code == 302
-        slide.refresh_from_db()
-        assert slide.is_deleted is True
+        assert not Slide.objects.filter(pk=slide.pk).exists()
 
     def test_create_section_view(self):
         slide = create_test_slide(self.presentation)
@@ -117,5 +130,4 @@ class PresentationFormViewsTestCase(BaseTestCase):
         )
 
         assert response.status_code == 302
-        section.refresh_from_db()
-        assert section.is_deleted is True
+        assert not SlideSection.objects.filter(pk=section.pk).exists()

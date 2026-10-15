@@ -27,13 +27,11 @@ class StatisticGroupForm(forms.ModelForm):
             group, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            viewname='django_spire:metric:domain:statistic:page:group_detail',
-                            kwargs={'pk': group.pk},
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        viewname='django_spire:metric:domain:statistic:page:group_detail',
+                        kwargs={'pk': group.pk},
+                    )
                 }
             )
 
@@ -81,13 +79,11 @@ class StatisticForm(forms.ModelForm):
             statistic, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            viewname='django_spire:metric:domain:statistic:page:group_detail',
-                            kwargs={'pk': statistic.group.pk},
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        viewname='django_spire:metric:domain:statistic:page:group_detail',
+                        kwargs={'pk': statistic.group.pk},
+                    )
                 }
             )
 

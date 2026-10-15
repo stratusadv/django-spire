@@ -43,3 +43,18 @@ class SignagePresentationServiceTestCase(BaseTestCase):
 
         orders = set(self.signage.signage_presentations.values_list('order', flat=True))
         assert orders == {0, 1, 2, 3, 4, 5}
+
+    def test_next_order_is_zero_without_links(self):
+        signage = create_test_signage()
+
+        assert SignagePresentation.services.next_order(signage.signage_presentations) == 0
+
+    def test_next_order_appends_after_max_order(self):
+        create_test_link(self.signage, order=5)
+
+        assert SignagePresentation.services.next_order(self.signage.signage_presentations) == 6
+
+    def test_next_order_ignores_gaps_below_max(self):
+        create_test_link(self.signage, order=2)
+
+        assert SignagePresentation.services.next_order(self.signage.signage_presentations) == 3

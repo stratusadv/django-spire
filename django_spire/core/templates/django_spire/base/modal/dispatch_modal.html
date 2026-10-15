@@ -1,43 +1,5 @@
 <div
-    x-data="{
-        eventData: {},
-        modal: null,
-        dialogClasses: '',
-        removeContentScope: null,
-        init() {
-            this.modal = bootstrap.Modal.getOrCreateInstance($el)
-            $el.addEventListener('show.bs.modal', () => $el.removeAttribute('inert'));
-            $el.addEventListener('hide.bs.modal', () => $el.setAttribute('inert', ''));
-
-        },
-        setUp(event) {
-            this.dialogClasses = event.detail.dialogClasses || ''
-            this.eventData = event.detail.eventData
-            const contentElement = document.getElementById(
-                event.detail.renderToBody ? 'baseDispatchModalBody' : 'baseDispatchModalContent'
-            )
-
-            this.removeContentScope?.()
-            contentElement.innerHTML = event.detail.htmlContent
-
-            if (event.detail.scopeData) {
-                this.removeContentScope = Alpine.addScopeToNode(
-                    contentElement,
-                    event.detail.scopeData
-                )
-            } else {
-                this.removeContentScope = null
-            }
-
-            this.showModal()
-        },
-        hideModal() {
-            this.modal.hide()
-        },
-        showModal() {
-            this.modal.show()
-        }
-    }"
+    x-data="dispatchModal()"
     class="modal fade"
     id="baseDispatchModal"
     @dispatch-modal.window="setUp($event)"

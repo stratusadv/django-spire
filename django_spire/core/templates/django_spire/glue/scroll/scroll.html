@@ -1,108 +1,5 @@
 <div
-        x-data="{
-        searchQuery: '',
-        sliceStart: 0,
-        sliceStop: 0,
-        orderBy: '{% block scroll_queryset_order_by_field %}{% endblock %}',
-        filterField: '{% block scroll_queryset_filter_field %}{% endblock %}',
-        scrollQuerySet: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
-        items: [],
-        isLoading: false,
-        hasMore: true,
-        increment: {% block increment %}25{% endblock %},
-        init() {
-            this.sliceStop = this.increment
-
-            this.$watch('searchQuery', () => this.resetAndLoad())
-            this.$watch('orderBy', () => this.resetAndLoad())
-        },
-        async loadMoreItems(reset = false) {
-            if (this.isLoading || !this.hasMore) {
-                return 
-            }
-
-            this.isLoading = true
-
-            const start = this.sliceStart
-            const stop = this.sliceStop
-
-            try {
-                if (this.filterField !== '') {
-                    this.scrollQuerySet = this.scrollQuerySet.filter({
-                        [this.filterField + '__icontains']: this.searchQuery
-                    })
-                }
-
-                if (this.orderBy !== '') {
-                    this.scrollQuerySet = this.scrollQuerySet.orderBy(this.orderBy)
-                }
-
-                this.scrollQuerySet = this.scrollQuerySet.slice(start, stop)
-
-                await this.scrollQuerySet.all()
-
-                const nextItems = this.scrollQuerySet.items
-                if (reset) {
-                    this.items = nextItems
-                } else {
-                    this.items = [...this.items, ...nextItems]
-                }
-                this.hasMore = nextItems.length >= this.increment
-
-                this.sliceStart = stop
-                this.sliceStop = stop + this.increment
-            }
-            finally {
-                this.isLoading = false
-            }
-        },
-        async resetAndLoad() {
-            this.sliceStart = 0
-            this.sliceStop = this.increment
-            this.hasMore = true
-            this.items = []
-
-            // scrollQuerySet retains its own query cache for the life of this component, so a
-            // plain reload can still serve stale cached pages (e.g. after an edit moves a row
-            // out of this scroll's filter). Bust it before reloading.
-            if (typeof this.scrollQuerySet.refresh === 'function') {
-                await this.scrollQuerySet.refresh()
-            }
-
-            await this.loadMoreItems(true)
-        },
-        async updateItem(pk, removed = false) {
-            if (!pk) {
-                return
-            }
-
-            if (removed) {
-                await this.resetAndLoad()
-                return
-            }
-
-            const item = await this.scrollQuerySet.get(pk)
-
-            // TODO: delete this, should happen inside .get()
-            item.$collection = this.scrollQuerySet
-            const itemIndex = this.items.findIndex(existingItem => existingItem.$pk === item.$pk)
-
-            if (itemIndex === -1) {
-                this.items.unshift(item)
-            }
-            else {
-                this.items[itemIndex] = item
-            }
-        },
-        toggleOrder() {
-            this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
-        }
-    }"
-        @updated-item.window="
-        if (!$event.detail?.querysetName || $event.detail.querysetName === scrollQuerySet._name) {
-            updateItem($event.detail.pk, $event.detail.removed)
-        }
-    "
+        x-data="glueScroll(Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %}, '{% block scroll_queryset_order_by_field %}{% endblock %}', '{% block scroll_queryset_filter_field %}{% endblock %}')"
         class="{% block scroll_container_class %}{% endblock %}"
 >
 
@@ -130,18 +27,7 @@
             {% endblock %}
 
             <div
-                    x-data="{
-                        init() {
-                            const observer = new IntersectionObserver((entries) => {entries.forEach((entry) => {
-                                    if (entry.isIntersecting) {
-                                        if(hasMore) {
-                                            loadMoreItems()
-                                        }
-                                    }
-                                })}, { threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] })
-                            observer.observe($el)
-                        }
-                    }"
+                    x-ref="scroll_sentinel"
                     style="height: 1200px; margin-top: -1200px; pointer-events: none;"
             >
             </div>

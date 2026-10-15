@@ -1,4 +1,9 @@
 {% extends 'django_spire/page/full_page.html' %}
+{% load static %}
+
+{% block base_head_additional_css %}
+    <link href="{% static 'django_spire/metric/visual/presentation/css/presentation.css' %}?v={{ DJANGO_SPIRE_VERSION }}" rel="stylesheet">
+{% endblock %}
 
 {% block full_page_content %}
     <div class="row g-3">

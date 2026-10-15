@@ -13,4 +13,4 @@ if TYPE_CHECKING:
 class TaskService(BaseDjangoModelService['Task']):
     obj: Task
 
-    factory = Glue.attr(TaskFactoryService(), required_access=Glue.Access.DELETE)
+    factory = Glue.namespace(TaskFactoryService(), required_access=Glue.Access.DELETE)

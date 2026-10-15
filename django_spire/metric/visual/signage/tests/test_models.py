@@ -48,20 +48,17 @@ class SignageModelTestCase(BaseTestCase):
         self.signage.set_deleted()
 
         self.signage.refresh_from_db()
-        link.refresh_from_db()
 
         assert self.signage.is_deleted is True
-        assert link.is_deleted is True
+        assert not SignagePresentation.objects.filter(pk=link.pk).exists()
 
-    def test_set_deleted_backfills_history_events_for_links(self):
-        link = create_test_link(self.signage)
-
+    def test_set_deleted_backfills_history_events(self):
         self.signage.set_deleted()
 
-        link.refresh_from_db()
+        self.signage.refresh_from_db()
 
-        assert link.is_deleted is True
-        assert link.history_events.filter(event=HistoryEventChoices.DELETED).exists()
+        assert self.signage.is_deleted is True
+        assert self.signage.history_events.filter(event=HistoryEventChoices.DELETED).exists()
 
 
 class SignagePresentationModelTestCase(BaseTestCase):

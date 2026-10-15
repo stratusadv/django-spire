@@ -13,18 +13,6 @@
                         Add
                     </a>
                 {% endif %}
-
-                {% if perms.django_spire_metric_visual.change_visual %}
-                    <form method="post"
-                          action="{% url 'django_spire:metric:visual:form:set_default_conditions' pk=visual.pk %}"
-                          class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-magic"></i>
-                            Generate Stoplight
-                        </button>
-                    </form>
-                {% endif %}
             </div>
         </div>
         {% if visual.conditions.all %}

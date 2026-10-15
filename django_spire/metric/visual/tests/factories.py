@@ -8,6 +8,10 @@ from django_spire.metric.domain.statistic.constants import (
     StatisticValueTypeChoices,
 )
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup
+from django_spire.metric.visual.choices import (
+    VisualConditionOperatorChoices,
+    VisualConditionStateChoices,
+)
 from django_spire.metric.visual.models import Visual, VisualCondition
 
 
@@ -56,7 +60,25 @@ def create_test_visual(
         visual.references.create(reference=ref, label=labels[order] if labels else '', order=order)
 
     if with_conditions:
-        visual.services.factory.create_default_conditions(target=target, tolerance=tolerance)
+        visual.conditions.create(
+            state=VisualConditionStateChoices.GREEN,
+            operator=VisualConditionOperatorChoices.GT,
+            target=target,
+            order=0,
+        )
+        visual.conditions.create(
+            state=VisualConditionStateChoices.YELLOW,
+            operator=VisualConditionOperatorChoices.BETWEEN,
+            target=target,
+            tolerance=tolerance,
+            order=1,
+        )
+        visual.conditions.create(
+            state=VisualConditionStateChoices.RED,
+            operator=VisualConditionOperatorChoices.LT,
+            target=target,
+            order=2,
+        )
 
     visual.refresh_from_db()
     return visual

@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.history.activity.utils import log_child_creation
 from django_spire.metric.visual.presentation.models import Presentation
 from django_spire.metric.visual.signage import models
 
@@ -29,7 +30,7 @@ class SignageModelForm(forms.ModelForm):
         if self.is_valid():
             signage, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
-            return GlueResponse(result={'redirect': {'url': _signage_detail_url(signage.pk)}})
+            return GlueResponse(redirect={'url': _signage_detail_url(signage.pk)})
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
@@ -49,9 +50,12 @@ class SignagePresentationModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            link, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+            link, created = self.instance.services.save_model_obj(**self.cleaned_data)
 
-            return GlueResponse(result={'redirect': {'url': _signage_detail_url(link.signage_id)}})
+            if created:
+                log_child_creation(link.signage, link)
+
+            return GlueResponse(redirect={'url': _signage_detail_url(link.signage_id)})
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 

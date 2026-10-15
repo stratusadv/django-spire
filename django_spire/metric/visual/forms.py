@@ -8,62 +8,80 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
+from django_spire.history.activity.utils import log_child_creation
 from django_spire.metric.domain import models as domain_models
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
+from django_spire.metric.visual.constants import DISPLAY_UNIT_COUNT_MAX, DISPLAY_UNIT_COUNT_MIN
 
 if TYPE_CHECKING:
     from typing import ClassVar
 
 
 class VisualModelForm(forms.ModelForm):
+    display_unit_count = forms.IntegerField(
+        required=False,
+        label='Display units',
+        help_text=(
+            'How many recent units the charts display. '
+            'Default: 8 days, 12 weeks, or 13 months, based on the interval of the statistic.'
+        ),
+        min_value=DISPLAY_UNIT_COUNT_MIN,
+        max_value=DISPLAY_UNIT_COUNT_MAX,
+        widget=forms.NumberInput(
+            attrs={'min': DISPLAY_UNIT_COUNT_MIN, 'max': DISPLAY_UNIT_COUNT_MAX}
+        ),
+    )
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             visual, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            'django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        'django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk}
+                    )
                 }
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
-    @Glue.attr(required_access=Glue.Access.CHANGE, takes_client_state=True)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def statistic_choices(self) -> list[dict]:
-        statistics = domain_models.Statistic.objects.not_deleted().select_related('group').order_by('group__name')
+        statistics = (
+            domain_models.Statistic.objects.not_deleted()
+            .select_related('group')
+            .order_by('group__name')
+        )
 
         return [
-            {'value': statistic.id, 'label': f"{statistic.group.name} > {statistic.name}"}
+            {'value': statistic.id, 'label': f'{statistic.group.name} > {statistic.name}'}
             for statistic in statistics
         ]
 
     class Meta:
         model = models.Visual
-        fields = ['name', 'description', 'statistic', 'kind', 'date']
+        fields = ['name', 'description', 'statistic', 'kind', 'display_unit_count']
         exclude: ClassVar = []
-        widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
 
 
 class VisualConditionModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            condition, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+            condition, created = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if created:
+                log_child_creation(condition.visual, condition)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            'django_spire:metric:visual:page:detail',
-                            kwargs={'pk': condition.visual_id},
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        'django_spire:metric:visual:page:detail',
+                        kwargs={'pk': condition.visual_id},
+                    )
                 }
             )
 
@@ -96,16 +114,17 @@ class VisualReferenceModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            reference_obj, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+            reference_obj, created = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if created:
+                log_child_creation(reference_obj.visual, reference_obj)
 
             return GlueResponse(
-                result={
-                    'redirect': {
-                        'url': reverse(
-                            'django_spire:metric:visual:page:detail',
-                            kwargs={'pk': reference_obj.visual_id},
-                        )
-                    }
+                redirect={
+                    'url': reverse(
+                        'django_spire:metric:visual:page:detail',
+                        kwargs={'pk': reference_obj.visual_id},
+                    )
                 }
             )
 
@@ -126,6 +145,15 @@ class VisualReferenceModelForm(forms.ModelForm):
                 'reference',
                 'That reference pattern does not match any values for the selected statistic.',
             )
+
+        if self.instance.visual_id:
+            duplicate = (
+                self.instance.visual.references.exclude(pk=self.instance.pk)
+                .filter(reference=pattern)
+                .exists()
+            )
+            if duplicate:
+                self.add_error('reference', 'This reference is already added to the visual.')
 
         return cleaned_data
 
@@ -148,7 +176,7 @@ class VisualRegionModelForm(forms.ModelForm):
             else:
                 redirect_url = reverse('django_spire:metric:visual:page:list')
 
-            return GlueResponse(result={'redirect': {'url': redirect_url}})
+            return GlueResponse(redirect={'url': redirect_url})
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 

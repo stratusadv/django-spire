@@ -28,8 +28,8 @@ class SeededStatisticTrackingServiceTestCase(BaseTestCase):
         )
 
         with override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY=INTERNAL_TRACKING_STATISTIC_KEY,
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=INTERNAL_TRACKING_SUB_DOMAIN_KEY,
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY=INTERNAL_TRACKING_STATISTIC_KEY,
+            DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=INTERNAL_TRACKING_SUB_DOMAIN_KEY,
         ):
             value = StatisticTrackingService.track_configured(reference='page_click')
 

@@ -28,8 +28,8 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
 
     def _tracking_settings(self) -> override_settings:
         return override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY=str(self.statistic.key),
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY=str(self.statistic.key),
+            DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
         )
 
     def test_track_creates_value(self) -> None:
@@ -60,8 +60,7 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
 
     def test_track_configured_is_noop_without_settings(self) -> None:
         with override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY='',
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY='',
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY='', DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=''
         ):
             value = StatisticTrackingService.track_configured(reference='page_click')
 
@@ -70,8 +69,8 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
 
     def test_track_configured_is_noop_for_missing_target(self) -> None:
         with override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY='missing-statistic',
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY='missing-sub-domain',
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY='missing-statistic',
+            DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY='missing-sub-domain',
         ):
             value = StatisticTrackingService.track_configured(reference='page_click')
 
@@ -98,8 +97,8 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
 
     def test_track_configured_is_noop_for_unknown_key(self) -> None:
         with override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY='not-a-uuid',
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY='not-a-uuid',
+            DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),
         ):
             value = StatisticTrackingService.track_configured(reference='page_click')
 
@@ -118,8 +117,7 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
 
     def test_track_many_is_noop_without_settings(self) -> None:
         with override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY='',
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY='',
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY='', DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=''
         ):
             StatisticTrackingService.track_many(['click', 'other'])
 
@@ -130,8 +128,8 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
         foreign_sub_domain = create_test_subdomain(domain=foreign_domain)
 
         with override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY=str(self.statistic.key),
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=str(foreign_sub_domain.key),
+            DJANGO_SPIRE_METRIC_STATISTIC_KEY=str(self.statistic.key),
+            DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY=str(foreign_sub_domain.key),
         ):
             StatisticTrackingService.track_many(['click', 'other'])
 

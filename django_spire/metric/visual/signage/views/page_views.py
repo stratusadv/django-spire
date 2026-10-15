@@ -10,6 +10,7 @@ from django.template.response import TemplateResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django_glue import Glue
 
+from django_spire.history.activity.enums import ActivityVerb
 from django_spire.history.activity.models import Activity
 from django_spire.metric.visual.presentation.constants import SLIDE_GRID_COLUMNS
 from django_spire.metric.visual.signage import models
@@ -27,11 +28,13 @@ def _signage_activity_log(signage: models.Signage) -> QuerySet:
         'pk', flat=True
     )
 
+    link_clause = Q(content_type=link_ct, object_id__in=link_pks) & ~Q(verb=ActivityVerb.CREATED)
+
     return (
         Activity.objects.prefetch_user()
         .filter(
             Q(content_type=ContentType.objects.get_for_model(models.Signage), object_id=signage.pk)
-            | Q(content_type=link_ct, object_id__in=link_pks)
+            | link_clause
         )
         .order_by('-created_datetime')[:10]
     )
@@ -109,14 +112,12 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
 
 
 @xframe_options_exempt
-def test_display_resolution_view(request: WSGIRequest, key: str, width: int = 1280, height: int = 720) -> TemplateResponse:
+def test_display_resolution_view(
+    request: WSGIRequest, key: str, width: int = 1280, height: int = 720
+) -> TemplateResponse:
     signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
 
-    context = {
-        'signage': signage,
-        'width': width,
-        'height': height
-    }
+    context = {'signage': signage, 'width': width, 'height': height}
 
     return TemplateResponse(
         request,

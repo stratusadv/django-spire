@@ -62,6 +62,7 @@ nul
 build/
 
 test-results/
+.demos/
 
 opencode.json
 

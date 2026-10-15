@@ -5,7 +5,7 @@ from django.db import IntegrityError
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.history.choices import HistoryEventChoices
-from django_spire.metric.visual.presentation.models import SlideSection
+from django_spire.metric.visual.presentation.models import Slide, SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
     create_test_section,
@@ -28,10 +28,9 @@ class PresentationModelTestCase(BaseTestCase):
         self.presentation.set_deleted()
 
         self.presentation.refresh_from_db()
-        slide.refresh_from_db()
 
         assert self.presentation.is_deleted is True
-        assert slide.is_deleted is True
+        assert not Slide.objects.filter(pk=slide.pk).exists()
 
     def test_set_deleted_cascades_to_sections(self):
         slide = create_test_slide(self.presentation)
@@ -40,36 +39,17 @@ class PresentationModelTestCase(BaseTestCase):
 
         self.presentation.set_deleted()
 
-        slide.refresh_from_db()
-        section.refresh_from_db()
-
-        assert slide.is_deleted is True
-        assert section.is_deleted is True
-        assert section.visual_id is None
-        assert visual.is_deleted is False
-
-    def test_set_deleted_detaches_section_visuals(self):
-        slide = create_test_slide(self.presentation)
-        section = create_test_section(slide)
-        visual = section.visual
-
-        self.presentation.set_deleted()
-
-        section.refresh_from_db()
-        visual.refresh_from_db()
-
-        assert section.visual_id is None
+        assert not Slide.objects.filter(pk=slide.pk).exists()
+        assert not SlideSection.objects.filter(pk=section.pk).exists()
         assert visual.is_deleted is False
 
     def test_set_deleted_backfills_history_events(self):
-        slide = create_test_slide(self.presentation)
-
         self.presentation.set_deleted()
 
-        slide.refresh_from_db()
+        self.presentation.refresh_from_db()
 
-        assert slide.is_deleted is True
-        assert slide.history_events.filter(event=HistoryEventChoices.DELETED).exists()
+        assert self.presentation.is_deleted is True
+        assert self.presentation.history_events.filter(event=HistoryEventChoices.DELETED).exists()
 
 
 class SlideModelTestCase(BaseTestCase):
@@ -89,28 +69,13 @@ class SlideModelTestCase(BaseTestCase):
         with pytest.raises(IntegrityError):
             create_test_slide(self.presentation, order=self.slide.order)
 
-    def test_set_deleted_deletes_sections(self):
+    def test_delete_deletes_sections(self):
         section = create_test_section(self.slide)
 
-        self.slide.set_deleted()
+        self.slide.delete()
 
-        self.slide.refresh_from_db()
-        section.refresh_from_db()
-
-        assert self.slide.is_deleted is True
-        assert section.is_deleted is True
-
-    def test_set_deleted_detaches_section_visuals(self):
-        section = create_test_section(self.slide)
-        visual = section.visual
-
-        self.slide.set_deleted()
-
-        section.refresh_from_db()
-        visual.refresh_from_db()
-
-        assert section.visual_id is None
-        assert visual.is_deleted is False
+        assert not Slide.objects.filter(pk=self.slide.pk).exists()
+        assert not SlideSection.objects.filter(pk=section.pk).exists()
 
 
 class SlideSectionModelTestCase(BaseTestCase):

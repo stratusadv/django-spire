@@ -7,7 +7,7 @@
         if (!Glue.model.widget_showcase_model.$pk) {
             // This page loaded as a fresh, unsaved create (pk=0). The outer
             // model proxy's own identity is still the unsaved one -- saving
-            // through the nested form never updates it, so load_state()
+            // through the nested form never updates it, so $refresh()
             // on it would just refetch nothing. Move to the real record's
             // URL instead, same as Deal and Task redirect after a create.
             // $pk (not .id/.pk) is the proxy's built-in identity property --
@@ -88,6 +88,9 @@
         </div>
         <div class="col-12 col-md-6">
             {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.primary_category' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.formatted_category' %}
         </div>
         <div class="col-12 col-md-6">
             {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.assigned_user' %}

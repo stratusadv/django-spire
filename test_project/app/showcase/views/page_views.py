@@ -55,7 +55,7 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     # Registering the form nested on the model (rather than a standalone
     # Glue.form()) is what lets the page hold a live-updating read view of
     # the same instance: Glue.model.widget_showcase_model.form edits it,
-    # Glue.model.widget_showcase_model.load_state() re-reads it after save.
+    # Glue.model.widget_showcase_model.$refresh() re-reads it after save.
     Glue.model(
         request,
         'widget_showcase_model',

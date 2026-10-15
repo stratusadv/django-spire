@@ -13,6 +13,7 @@ class Spire:
                     value: float | str | Decimal = 1,
             ) -> None:
                 from django_spire.metric.domain.statistic.models import Statistic
+
                 Statistic.services.record(statistic_key, sub_domain_key, reference, value)
 
             @staticmethod
@@ -23,4 +24,5 @@ class Spire:
                     value: float | str | Decimal = 1,
             ) -> dict | None:
                 from django_spire.metric.domain.statistic.models import Statistic
+
                 Statistic.services.remote_record(statistic_key, sub_domain_key, reference, value)

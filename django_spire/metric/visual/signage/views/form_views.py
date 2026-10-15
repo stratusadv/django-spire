@@ -11,6 +11,7 @@ from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.history.activity.utils import log_child_deletion
 from django_spire.metric.visual.signage import forms, models
 from django_spire.metric.visual.signage.navigation import SignageNavigation
 
@@ -116,7 +117,7 @@ def update_link_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def _link_form_view(
-        request: WSGIRequest, pk: int = 0, signage_pk: int = 0
+    request: WSGIRequest, pk: int = 0, signage_pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     link = get_object_or_null_obj(models.SignagePresentation, pk=pk)
 
@@ -125,6 +126,7 @@ def _link_form_view(
     else:
         signage = get_object_or_404(models.Signage, pk=signage_pk)
         link.signage_id = signage.pk
+        link.order = models.SignagePresentation.services.next_order(signage.signage_presentations)
 
     form = forms.SignagePresentationModelForm(request.POST or None, instance=link)
 
@@ -168,7 +170,8 @@ def delete_link_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRe
         form = DeleteConfirmationForm(data=request.POST, obj=link)
 
         if form.is_valid():
-            form.save(user=request.user, delete_func=link.set_deleted)
+            form.save(user=request.user, delete_func=link.delete)
+            log_child_deletion(signage, link)
 
             return HttpResponseRedirect(return_url)
     else:
