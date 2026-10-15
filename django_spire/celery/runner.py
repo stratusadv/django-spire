@@ -101,6 +101,7 @@ def celery_task(
         task.data_model = data_model
         task.runner_display_name = display_name
         task.runner_update_interval_seconds = update_interval_seconds
+
         return task
 
     return decorate
