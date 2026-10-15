@@ -4,7 +4,23 @@
             x-data="{
             reload_task() {
                 let task_toast_view = Glue.view(`{% url 'django_spire:celery:task:toast' celery_task.task_id %}`)
-                task_toast_view.renderInnerHtml($el, {})
+                task_toast_view.renderInnerHtml($el, {}).catch(() => {})
+            },
+            init() {
+                const jittered_poll_interval = Math.floor(Math.random() * 1000) + 2000
+                const poll = setInterval(() => {
+                    if (!$el.isConnected) {
+                        clearInterval(poll)
+                        return
+                    }
+                    const content = $el.querySelector('[data-processing]')
+                    if (!content) return
+                    if (content.dataset.processing !== 'true') {
+                        clearInterval(poll)
+                        return
+                    }
+                    this.reload_task()
+                }, jittered_poll_interval)
             },
         }"
             class="toast show mb-2 bg-light shadow"

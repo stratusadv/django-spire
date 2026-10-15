@@ -399,6 +399,19 @@ class CeleryTaskTrackerFlusherTestCase(SimpleTestCase):
         flushed_states = [call.args[2] for call in store.call_args_list[:2]]
         assert flushed_states == ['STATE ONE', 'STATE TWO']
 
+    def test_flusher_uses_task_id_captured_at_construction(self) -> None:
+        task = _make_task()
+        tracker = CeleryTaskTracker(task)
+        self.addCleanup(self._stop, tracker)
+        store = tracker.task.backend.store_result
+
+        task.request.id = None
+
+        tracker.update_state('MAKING NOISES')
+
+        self._wait_until(lambda: store.call_count >= 1)
+        assert store.call_args.args[0] == 'test-task-id'
+
     def test_finish_stops_flusher_without_terminal_write(self) -> None:
         tracker = self._make_tracked()
         store = tracker.task.backend.store_result

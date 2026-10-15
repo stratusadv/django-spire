@@ -81,9 +81,8 @@ class AsyncResultServiceIntegrationTestCase(TestCase):
         self, mock_async_result: MagicMock, mock_track_configured: MagicMock
     ) -> None:
         mock_result = MagicMock()
-        mock_result.state = states.FAILURE
+        mock_result._get_task_meta.return_value = {'status': states.FAILURE, 'result': None}
         mock_result.ready.return_value = False
-        mock_result.info = None
         mock_result.traceback = 'Traceback (most recent call last): ValueError: task boom'
         mock_async_result.return_value = mock_result
 

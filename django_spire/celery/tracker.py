@@ -31,6 +31,7 @@ class CeleryTaskTracker:
         self.meta = CeleryTaskMeta()
 
         self._celery_task = celery_task
+        self._task_id = celery_task.request.id
         self._data_model = data_model
         self._update_interval_seconds = update_interval_seconds
         self._lock = threading.Lock()
@@ -149,7 +150,7 @@ class CeleryTaskTracker:
 
     def _schedule_update(self) -> None:
         # untracked / direct calls have no task_id, so there is no backend to push to
-        if self._celery_task.request.id is None:
+        if self._task_id is None:
             return
 
         with self._lock:
@@ -163,7 +164,7 @@ class CeleryTaskTracker:
         if self._flusher is None or not self._flusher.is_alive():
             self._stopped.clear()
 
-            flusher_name = f'celery-task-tracker-{self._celery_task.request.id}'
+            flusher_name = f'celery-task-tracker-{self._task_id}'
             self._flusher = threading.Thread(
                 target=self._flusher_loop, daemon=True, name=flusher_name
             )
@@ -195,20 +196,19 @@ class CeleryTaskTracker:
             if self._flusher.is_alive():
                 logger.warning(
                     'CeleryTaskTracker flusher for task %s did not stop within %s seconds',
-                    self._celery_task.request.id,
+                    self._task_id,
                     self._FLUSH_TIMEOUT_SECONDS,
                 )
 
     def _push_to_backend(self, snapshot: _TrackerSnapshot) -> None:
-        if self._celery_task.request.id is None:
+        if self._task_id is None:
             return
 
         try:
             self._celery_task.backend.store_result(
-                self._celery_task.request.id, snapshot.meta_dict, snapshot.state
+                self._task_id, snapshot.meta_dict, snapshot.state
             )
         except Exception:
             logger.exception(
-                'Failed to mirror CeleryTask state for task %s to the result backend',
-                self._celery_task.request.id,
+                'Failed to mirror CeleryTask state for task %s to the result backend', self._task_id
             )

@@ -22,10 +22,9 @@ def _backend_error() -> OperationalError:
     return OperationalError('SELECT 1', {}, Exception('backend down'))
 
 
-def _mock_async_result(state: str, info: dict | None = None, **overrides) -> MagicMock:
+def _mock_async_result(state: str, info: dict | str | None = None, **overrides) -> MagicMock:
     mock_result = MagicMock()
-    mock_result.state = state
-    mock_result.info = info
+    mock_result._get_task_meta.return_value = {'status': state, 'result': info}
     mock_result.traceback = 'Traceback (most recent call last):\nValueError: task boom'
     for key, value in overrides.items():
         setattr(mock_result, key, value)
@@ -193,6 +192,19 @@ class CeleryTaskServiceUpdateFromBackendTestCase(TestCase):
         assert self.celery_task.state == states.SUCCESS
         assert self.celery_task.result == 'done'
         mock_track_configured.assert_not_called()
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_non_dict_meta_for_unready_state_is_dropped_without_error(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        mock_async_result.return_value = _mock_async_result(
+            states.STARTED, info='The sword goes SWOOSH SWOOSH SWOOSH SWOOSH SWOOSH'
+        )
+
+        self.service.update_from_backend()
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.STARTED
 
 
 class ApplyBackendSnapshotTestCase(TestCase):

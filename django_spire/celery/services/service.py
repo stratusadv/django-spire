@@ -94,7 +94,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         return CeleryExceptionResult(exception, einfo_pickle, traceback_text)
 
     def _read_backend_snapshot(
-        self, async_result: AsyncResult, new_state: str
+        self, async_result: AsyncResult, new_state: str, meta: dict
     ) -> tuple[dict | None, Any, CeleryExceptionResult | None]:
         """Read whatever the backend holds for this state: meta, result, or exception."""
         if new_state == states.SUCCESS:
@@ -102,20 +102,33 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         if new_state == states.FAILURE:
             return None, None, self._capture_exception_result(async_result)
         if new_state not in states.READY_STATES:
-            return async_result.info, None, None
+            meta_dict = meta.get('result')
+            if not isinstance(meta_dict, dict):
+                logger.warning(
+                    'Dropped non-dict CeleryTask backend meta %r for task %s in state %s',
+                    type(meta_dict).__name__,
+                    self.obj.task_id,
+                    new_state,
+                )
+                meta_dict = None
+
+            return meta_dict, None, None
         return None, None, None
 
     # ================= CELERYTASK WRITER =================
     def update_from_backend(self) -> None:
         async_result = self.obj.async_result
-        new_state = async_result.state
+        meta = async_result._get_task_meta()
+        new_state = meta.get('status', states.PENDING)
 
         if self.obj.state in states.READY_STATES:
             if new_state == states.SUCCESS and self.obj.has_no_result:
                 self._capture_result_lazy(async_result)
             return
 
-        meta_dict, result, exception_result = self._read_backend_snapshot(async_result, new_state)
+        (meta_dict, result, exception_result) = self._read_backend_snapshot(
+            async_result, new_state, meta
+        )
 
         if self._apply_backend_snapshot(
             new_state, meta_dict=meta_dict, result=result, exception_result=exception_result
