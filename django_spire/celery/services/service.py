@@ -11,7 +11,7 @@ from django.db import transaction
 from django.utils.timezone import is_naive, make_aware, now
 from sqlalchemy.exc import DatabaseError, OperationalError
 
-from django_spire.celery.meta import CeleryTaskMeta
+from django_spire.celery.meta import CeleryTaskMeta, derive_final_meta_key
 from django_spire.celery.result import CeleryExceptionResult
 from django_spire.celery.services.queue_service import CeleryTaskQueueService
 from django_spire.celery.state_machine import CeleryTaskStateMachine
@@ -36,6 +36,15 @@ _METRIC_REFERENCES = {
 
 # (meta_dict, result, completed_datetime, started_datetime)
 _SnapshotValues = tuple[dict, bytes, datetime | None, datetime | None]
+
+# backend states whose native terminal write destroys the last mid-run meta; the
+# final meta is read from the tracker's derived backend row instead
+_FINAL_META_STATES = frozenset({states.SUCCESS, states.FAILURE, states.RETRY})
+
+# the native tracer's task_track_started write stores {'pid', 'hostname'} as the
+# result of the STARTED row; that is not tracker meta, so a mid-run dict carrying
+# no known CeleryTaskMeta field is dropped
+_TRACKER_META_FIELDS = frozenset(CeleryTaskMeta.model_fields)
 
 
 class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
@@ -111,9 +120,39 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                     new_state,
                 )
                 meta_dict = None
+            elif not _TRACKER_META_FIELDS.intersection(meta_dict):
+                logger.debug(
+                    'Dropped non-tracker CeleryTask backend meta %r for task %s in state %s',
+                    sorted(meta_dict),
+                    self.obj.task_id,
+                    new_state,
+                )
+                meta_dict = None
 
             return meta_dict, None, None
         return None, None, None
+
+    def _read_final_meta(self, async_result: AsyncResult) -> dict | None:
+        try:
+            final_meta = async_result.backend.get_task_meta(derive_final_meta_key(self.obj.task_id))
+        except (OperationalError, DatabaseError):
+            logger.warning(
+                'Failed to read final CeleryTask meta for task %s', self.obj.task_id, exc_info=True
+            )
+            return None
+
+        meta_dict = final_meta.get('result')
+        if not isinstance(meta_dict, dict):
+            if meta_dict is not None:
+                logger.warning(
+                    'Dropped non-dict final CeleryTask meta %r for task %s',
+                    type(meta_dict).__name__,
+                    self.obj.task_id,
+                )
+
+            return None
+
+        return meta_dict
 
     # ================= CELERYTASK WRITER =================
     def update_from_backend(self) -> None:
@@ -129,6 +168,11 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         (meta_dict, result, exception_result) = self._read_backend_snapshot(
             async_result, new_state, meta
         )
+
+        if new_state in _FINAL_META_STATES:
+            final_meta_dict = self._read_final_meta(async_result)
+            if final_meta_dict is not None:
+                meta_dict = final_meta_dict
 
         if self._apply_backend_snapshot(
             new_state, meta_dict=meta_dict, result=result, exception_result=exception_result
@@ -169,7 +213,11 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
             if state in states.READY_STATES:
                 snapshot = self._apply_terminal_snapshot(
-                    fresh, state, result=result, exception_result=exception_result
+                    fresh,
+                    state,
+                    result=result,
+                    exception_result=exception_result,
+                    meta_dict=meta_dict,
                 )
             elif meta_dict:
                 snapshot = self._apply_meta_snapshot(fresh, meta_dict)
@@ -195,6 +243,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         *,
         result: Any,
         exception_result: CeleryExceptionResult | None,
+        meta_dict: dict | None = None,
     ) -> _SnapshotValues:
         # the backend result column holds the return value / ExceptionInfo, not meta
         meta = fresh.meta
@@ -208,6 +257,11 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 error_message = 'Unknown error'
             meta.set_failed(error_message)
             new_result = pickle.dumps(exception_result)
+
+        # merged after set_completed/set_failed so the worker-side values (final data,
+        # completed_time, failed_time) win over the web-side ones
+        if meta_dict:
+            meta.merge(CeleryTaskMeta(**meta_dict))
 
         return meta.model_dump(), new_result, now(), fresh.started_datetime
 

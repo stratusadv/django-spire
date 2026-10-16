@@ -96,6 +96,18 @@
             </div>
 
             <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-info">
+                    {% if task_data %}
+                        <div>Counted Seconds: {{ task_data.counted_seconds }}</div>
+                        <div>More: {{ task_data.more }}</div>
+                        <div>Worker: {{ task_data.worker_hostname }}</div>
+                    {% else %}
+                        No Task Data
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mt-3">
                 <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
                     <div class="btn btn-primary" @click="$dispatch('django_spire_celery_reload_task_toast_widget')">
                         Celery Reload Task Widget

@@ -25,11 +25,19 @@ def _backend_error() -> OperationalError:
 def _mock_async_result(state: str, info: dict | str | None = None, **overrides) -> MagicMock:
     mock_result = MagicMock()
     mock_result._get_task_meta.return_value = {'status': state, 'result': info}
+    mock_result.backend.get_task_meta.return_value = {'status': states.PENDING, 'result': None}
     mock_result.traceback = 'Traceback (most recent call last):\nValueError: task boom'
     for key, value in overrides.items():
         setattr(mock_result, key, value)
 
     return mock_result
+
+
+def _set_final_meta(mock_result: MagicMock, final_meta: dict | None) -> None:
+    mock_result.backend.get_task_meta.return_value = {
+        'status': states.SUCCESS,
+        'result': final_meta,
+    }
 
 
 class CeleryTaskServiceCaptureResultLazyTestCase(TestCase):
@@ -205,6 +213,174 @@ class CeleryTaskServiceUpdateFromBackendTestCase(TestCase):
 
         self.celery_task.refresh_from_db()
         assert self.celery_task.state == states.STARTED
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_native_tracker_started_row_meta_is_dropped(self, mock_async_result: MagicMock) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.save()
+
+        mock_async_result.return_value = _mock_async_result(
+            states.STARTED, info={'pid': 249397, 'hostname': 'celery@not-a-toaster'}
+        )
+
+        self.service.update_from_backend()
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.STARTED
+        assert self.celery_task.meta.data == {}
+        assert self.celery_task.meta.progress is None
+        assert 'pid' not in self.celery_task.meta.model_dump()
+        assert 'hostname' not in self.celery_task.meta.model_dump()
+
+
+class CeleryTaskServiceFinalMetaTestCase(TestCase):
+    def setUp(self) -> None:
+        self.celery_task = create_test_celery_task(state=states.STARTED)
+        self.service = CeleryTaskService(obj=self.celery_task)
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_merges_final_meta_over_stale_web_meta(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.7, 'data': {'counted_seconds': 7}}
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 10, 'more': {'has_noises': True}},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'started_time': 100.0,
+                'last_update_time': 122.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {'counted_seconds': 10, 'more': {'has_noises': True}}
+        assert self.celery_task.meta.completed_time == 123.0
+        assert self.celery_task.result == 'The pirate says YARR'
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_failure_terminal_merges_final_meta_error_and_data(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.4, 'data': {'counted_seconds': 3}}
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.FAILURE, get=MagicMock(side_effect=ValueError('task boom'))
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 4},
+                'progress': 0.4,
+                'error': 'ValueError: task boom',
+                'failed_time': 55.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.meta.data == {'counted_seconds': 4}
+        assert self.celery_task.meta.error == 'ValueError: task boom'
+        assert self.celery_task.meta.failed_time == 55.0
+        assert self.celery_task.has_exception_result
+        exception_result = self.celery_task.exception_result
+        assert exception_result is not None
+        assert exception_result.exc_type == 'ValueError'
+        assert exception_result.message == 'task boom'
+        mock_track_configured.assert_called_once_with(reference='celery_task_failure')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_retry_terminal_merges_final_meta_retries(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        mock_result = _mock_async_result(states.RETRY, info=None)
+        _set_final_meta(
+            mock_result, {'retries': 2, 'data': {'counted_seconds': 4}, 'progress': 0.4}
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.RETRY
+        assert self.celery_task.meta.retries == 2
+        assert self.celery_task.meta.data == {'counted_seconds': 4}
+        mock_track_configured.assert_called_once_with(reference='celery_task_retry')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_without_final_meta_row_keeps_web_meta(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.7, 'data': {'counted_seconds': 7}}
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {'counted_seconds': 7}
+        assert self.celery_task.meta.progress == 1.0
+        assert self.celery_task.meta.completed_time is not None
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_final_meta_read_error_still_transitions(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        mock_result.backend.get_task_meta.side_effect = _backend_error()
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.result == 'The pirate says YARR'
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_non_dict_final_meta_is_dropped(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        mock_result.backend.get_task_meta.return_value = {
+            'status': states.SUCCESS,
+            'result': 'not-meta',
+        }
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {}
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
 
 
 class ApplyBackendSnapshotTestCase(TestCase):

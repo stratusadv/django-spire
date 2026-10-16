@@ -1,16 +1,29 @@
 import time
 from datetime import datetime, UTC
-from typing import Any, Self
+from typing import Any, Callable, Generic, Self, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 _ESTIMATED_TIME_BUFFER = 0.10
 
+# The native tracer's terminal write (mark_as_done / mark_as_failure / mark_as_retry)
+# overwrites the main backend row and destroys the last mid-run meta, so the tracker
+# writes its final meta to this derived row, which the web reads on the terminal
+# transition. A separate row means no collision with the terminal write.
+FINAL_META_KEY_SUFFIX = ':spire-final-meta'
 
-class CeleryTaskMeta(BaseModel):
+
+def derive_final_meta_key(task_id: str) -> str:
+    return f'{task_id}{FINAL_META_KEY_SUFFIX}'
+
+
+DataT = TypeVar('DataT')
+
+
+class CeleryTaskMeta(BaseModel, Generic[DataT]):
     model_config = ConfigDict(extra='allow')
 
-    data: dict = Field(default_factory=dict)
+    data: DataT = Field(default_factory=dict)
     progress: float | None = None
     started_time: float | None = None
     last_update_time: float | None = None
@@ -154,3 +167,16 @@ class CeleryTaskMeta(BaseModel):
                 self.__pydantic_extra__[field] = value
 
         return self
+
+
+class TaskDataModel(BaseModel):
+    model_config = ConfigDict(extra='allow', validate_assignment=True)
+
+    _on_change: Callable[[], None] | None = PrivateAttr(default=None)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        super().__setattr__(name, value)
+
+        hook = self._on_change
+        if name != '_on_change' and hook is not None:
+            hook()

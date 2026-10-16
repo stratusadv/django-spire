@@ -9,6 +9,7 @@ from celery.exceptions import Retry
 from celery.utils.threads import LocalStack
 from django.test import TestCase
 
+from django_spire.celery.meta import TaskDataModel
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.runner import CeleryTaskRunner, celery_task
 from django_spire.celery.tests.factories import create_test_celery_task
@@ -17,9 +18,18 @@ from django_spire.celery.tracker import CeleryTaskTracker
 _RETRY_ATTEMPTS = {'count': 0}
 
 
+class _RunnerTaskData(TaskDataModel):
+    counted_seconds: int | None = None
+
+
 @celery_task(display_name='Runner Test Task')
 def _runner_task(self: CeleryTaskRunner, value: int) -> str:  # noqa: ARG001
     return f'ok-{value}'
+
+
+@celery_task(display_name='Typed Runner Test Task', meta_data_model=_RunnerTaskData)
+def _typed_runner_task(self: CeleryTaskRunner) -> None:  # noqa: ARG001
+    return None
 
 
 @celery_task(display_name='Failing Test Task')
@@ -64,6 +74,15 @@ class CeleryTaskRunnerUntrackedTestCase(TestCase):
         assert _runner_task.tracker is None
         assert not CeleryTask.objects.exists()
 
+    def test_direct_call_with_meta_data_model_does_not_raise(self) -> None:
+        if hasattr(_typed_runner_task._local, 'tracker'):
+            delattr(_typed_runner_task._local, 'tracker')
+
+        _typed_runner_task()
+
+        assert _typed_runner_task.tracker is None
+        assert not CeleryTask.objects.exists()
+
 
 class CeleryTaskRunnerTrackedTestCase(TestCase):
     def setUp(self) -> None:
@@ -99,6 +118,27 @@ class CeleryTaskRunnerTrackedTestCase(TestCase):
         assert tracker.meta.data['worker_hostname'] == 'test-worker'
         assert tracker.meta.progress == 1.0
         assert tracker.meta.completed_time is not None
+
+        fresh = CeleryTask.objects.get(pk=celery_task.pk)
+        assert fresh.state == states.PENDING
+
+    def test_typed_task_sets_worker_hostname_as_model_attribute(self) -> None:
+        task_id = uuid.uuid4()
+        celery_task = create_test_celery_task(task_id=task_id, state=states.PENDING)
+
+        try:
+            _typed_runner_task.push_request(
+                id=task_id, called_directly=False, hostname='test-worker'
+            )
+            _typed_runner_task.run()
+            tracker = _typed_runner_task.tracker
+        finally:
+            _typed_runner_task.pop_request()
+            self._drain_tracker(_typed_runner_task)
+
+        assert tracker is not None
+        assert isinstance(tracker.meta.data, _RunnerTaskData)
+        assert tracker.meta.data.worker_hostname == 'test-worker'
 
         fresh = CeleryTask.objects.get(pk=celery_task.pk)
         assert fresh.state == states.PENDING

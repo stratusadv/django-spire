@@ -6,10 +6,12 @@ from celery.result import AsyncResult
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
+from django_spire.celery.models import CeleryTask
 from test_project.app.celery.celery.managers import (
     PirateSongCeleryTaskManager,
     NinjaAttackCeleryTaskManager,
 )
+from test_project.app.celery.celery.tasks import TaskData
 from test_project.app.celery.models import CeleryStalk
 from test_project.app.celery.navigation import CeleryNavigation
 
@@ -62,6 +64,11 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
 
             if async_result.state == 'SUCCESS':
                 context['result'] = async_result.get(timeout=1)
+
+            celery_task = CeleryTask.objects.filter(task_id=check_task_id).first()
+
+            if celery_task is not None:
+                context['task_data'] = TaskData(**celery_task.meta.data)
 
     context['celery_task_managers'] = [
         NinjaAttackCeleryTaskManager(),

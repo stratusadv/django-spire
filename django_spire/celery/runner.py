@@ -5,8 +5,8 @@ from typing import Any, Callable
 from celery import shared_task, states
 from celery.contrib.django.task import DjangoTask
 from celery.exceptions import Ignore, Reject, Retry
-from pydantic import BaseModel
 
+from django_spire.celery.meta import TaskDataModel
 from django_spire.celery.tracker import CeleryTaskTracker
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class CeleryTaskRunner(DjangoTask):
 
     runner_display_name: str | None = None
     runner_update_interval_seconds: int = 5
-    data_model: type[BaseModel] | None = None
+    meta_data_model: type[TaskDataModel] | None = None
 
     # threads pool shares one task instance across worker threads
     _local = threading.local()
@@ -58,12 +58,12 @@ class CeleryTaskRunner(DjangoTask):
 
     def _start_execution(self) -> CeleryTaskTracker:
         if not self.request.id or self.request.called_directly:
-            return CeleryTaskTracker(self)
+            return CeleryTaskTracker(self, meta_data_model=self.meta_data_model)
 
         tracker = CeleryTaskTracker(
             self,
             update_interval_seconds=self.runner_update_interval_seconds,
-            data_model=self.data_model,
+            meta_data_model=self.meta_data_model,
         )
 
         retries = getattr(self.request, 'retries', 0)
@@ -72,7 +72,10 @@ class CeleryTaskRunner(DjangoTask):
 
         hostname = getattr(self.request, 'hostname', None)
         if hostname:
-            tracker.meta.data['worker_hostname'] = hostname
+            if isinstance(tracker.meta.data, TaskDataModel):
+                tracker.meta.data.worker_hostname = hostname
+            else:
+                tracker.meta.data['worker_hostname'] = hostname
 
         tracker.set_started()
         self._local.tracker = tracker
@@ -80,7 +83,7 @@ class CeleryTaskRunner(DjangoTask):
 
 
 def celery_task(
-    data_model: type[BaseModel] | None = None,
+    meta_data_model: type[TaskDataModel] | None = None,
     display_name: str | None = None,
     update_interval_seconds: int = 5,
     **task_opts: Any,
@@ -98,7 +101,7 @@ def celery_task(
         run.__wrapped__ = fun
 
         task = shared_task(base=CeleryTaskRunner, bind=True, **task_opts)(run)
-        task.data_model = data_model
+        task.meta_data_model = meta_data_model
         task.runner_display_name = display_name
         task.runner_update_interval_seconds = update_interval_seconds
 

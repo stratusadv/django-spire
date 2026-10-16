@@ -7,14 +7,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 from celery import states
 from django.test import SimpleTestCase
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
-from django_spire.celery.meta import CeleryTaskMeta
+from django_spire.celery.meta import CeleryTaskMeta, TaskDataModel, derive_final_meta_key
 from django_spire.celery.tracker import CeleryTaskTracker
 
 
-class _CountedData(BaseModel):
-    counted_seconds: int
+class _CountedData(TaskDataModel):
+    counted_seconds: int | None = None
 
 
 def _make_task() -> MagicMock:
@@ -84,11 +84,11 @@ class CeleryTaskTrackerUntrackedTestCase(SimpleTestCase):
         assert tracker.meta.completed_time is not None
         task.backend.store_result.assert_not_called()
 
-    def test_set_data_stores_data_without_writing(self) -> None:
+    def test_meta_data_set_without_model_does_not_write(self) -> None:
         task = _make_untracked_task()
         tracker = CeleryTaskTracker(task)
 
-        tracker.set_data(counted_seconds=3)
+        tracker.meta.data['counted_seconds'] = 3
 
         assert tracker.meta.data == {'counted_seconds': 3}
         task.backend.store_result.assert_not_called()
@@ -150,17 +150,31 @@ class CeleryTaskTrackerProgressTestCase(SimpleTestCase):
         assert tracker.meta.progress == 0.3
 
 
-class CeleryTaskTrackerDataModelTestCase(SimpleTestCase):
-    def test_set_data_validates_against_data_model(self) -> None:
-        tracker = CeleryTaskTracker(_make_untracked_task(), data_model=_CountedData)
+class CeleryTaskTrackerMetaDataModelTestCase(SimpleTestCase):
+    def test_typed_meta_data_is_a_model_instance(self) -> None:
+        tracker = CeleryTaskTracker(_make_untracked_task(), meta_data_model=_CountedData)
+
+        assert isinstance(tracker.meta.data, _CountedData)
+
+    def test_typed_meta_data_validates_assignment(self) -> None:
+        tracker = CeleryTaskTracker(_make_untracked_task(), meta_data_model=_CountedData)
 
         with pytest.raises(ValidationError):
-            tracker.set_data(counted_seconds='not-an-int')
+            tracker.meta.data.counted_seconds = 'not-an-int'
 
-    def test_set_data_free_form_without_data_model(self) -> None:
+    def test_typed_meta_data_set_schedules_update(self) -> None:
+        tracker = CeleryTaskTracker(_make_task(), meta_data_model=_CountedData)
+
+        with patch.object(CeleryTaskTracker, '_ensure_flusher'):
+            tracker.meta.data.counted_seconds = 3
+
+        assert tracker._pending_snapshot is not None
+        assert tracker._pending_snapshot.meta_dict['data'] == {'counted_seconds': 3}
+
+    def test_free_form_meta_data_without_meta_data_model(self) -> None:
         tracker = CeleryTaskTracker(_make_untracked_task())
 
-        tracker.set_data(bananas='key')
+        tracker.meta.data['bananas'] = 'key'
 
         assert tracker.meta.data == {'bananas': 'key'}
 
@@ -264,6 +278,70 @@ class CeleryTaskMetaTestCase(SimpleTestCase):
 
         assert second.data == {}
 
+    def test_untyped_meta_accepts_wire_dict_data(self) -> None:
+        meta = CeleryTaskMeta(data={'counted_seconds': 3}, progress=0.5)
+
+        assert meta.data == {'counted_seconds': 3}
+        assert isinstance(meta.data, dict)
+
+    def test_parameterized_meta_holds_typed_data(self) -> None:
+        meta = CeleryTaskMeta[_CountedData](data=_CountedData(counted_seconds=3))
+
+        assert isinstance(meta.data, _CountedData)
+        assert meta.data.counted_seconds == 3
+
+    def test_parameterized_meta_model_dump_is_plain_dict(self) -> None:
+        meta = CeleryTaskMeta[_CountedData](data=_CountedData(counted_seconds=3))
+
+        dumped = meta.model_dump()
+
+        assert dumped['data'] == {'counted_seconds': 3}
+
+
+class _HookedData(TaskDataModel):
+    counted_seconds: int | None = None
+
+
+class TaskDataModelTestCase(SimpleTestCase):
+    @staticmethod
+    def _make() -> tuple[_HookedData, list]:
+        fires = []
+        data = _HookedData()
+        data._on_change = lambda: fires.append(1)
+        return data, fires
+
+    def test_change_hook_fires_on_every_attribute_set(self) -> None:
+        data, fires = self._make()
+
+        data.counted_seconds = 1
+        data.counted_seconds = 2
+        data.bananas = 'key'
+
+        assert fires == [1, 1, 1]
+
+    def test_assignment_is_validated(self) -> None:
+        data, fires = self._make()
+
+        with pytest.raises(ValidationError):
+            data.counted_seconds = 'not-an-int'
+
+        assert fires == []
+
+    def test_extra_fields_are_allowed(self) -> None:
+        data, fires = self._make()
+
+        data.worker_hostname = 'host-1'
+
+        assert data.model_dump() == {'counted_seconds': None, 'worker_hostname': 'host-1'}
+        assert fires == [1]
+
+    def test_no_hook_means_no_callback(self) -> None:
+        data = _HookedData()
+
+        data.counted_seconds = 5
+
+        assert data.counted_seconds == 5
+
 
 class CeleryTaskTrackerFinishTestCase(SimpleTestCase):
     def test_finish_success_marks_meta_completed(self) -> None:
@@ -291,20 +369,63 @@ class CeleryTaskTrackerFinishTestCase(SimpleTestCase):
         assert tracker.meta.error is None
         assert tracker.meta.failed_time is None
 
-    def test_finish_does_not_write_to_backend(self) -> None:
+    def test_finish_writes_final_meta_to_derived_key_not_main(self) -> None:
         task = _make_task()
+        tracker = CeleryTaskTracker(task)
+
+        tracker.finish(states.SUCCESS)
+
+        args = task.backend.store_result.call_args.args
+        assert args[0] == derive_final_meta_key('test-task-id')
+        assert task.backend.store_result.call_count == 1
+
+    def test_finish_final_meta_carries_last_mid_run_data(self) -> None:
+        task = _make_task()
+        tracker = CeleryTaskTracker(task)
+        tracker.meta.data['counted_seconds'] = 10
+        tracker.meta.data['more'] = {'has_noises': True}
+
+        tracker.finish(states.SUCCESS)
+
+        args = task.backend.store_result.call_args.args
+        assert args[1]['data'] == {'counted_seconds': 10, 'more': {'has_noises': True}}
+        assert args[1]['progress'] == 1.0
+        assert args[1]['completed_time'] is not None
+        assert args[2] == states.SUCCESS
+
+    def test_finish_failure_final_meta_carries_error_on_success_row(self) -> None:
+        task = _make_task()
+        tracker = CeleryTaskTracker(task)
+
+        tracker.finish(states.FAILURE, exc=ValueError('boom'))
+
+        args = task.backend.store_result.call_args.args
+        assert args[0] == derive_final_meta_key('test-task-id')
+        assert args[1]['error'] == 'ValueError: boom'
+        assert args[1]['failed_time'] is not None
+        assert args[2] == states.SUCCESS
+
+    def test_finish_untracked_does_not_push_final_meta(self) -> None:
+        task = _make_untracked_task()
         tracker = CeleryTaskTracker(task)
 
         tracker.finish(states.SUCCESS)
 
         task.backend.store_result.assert_not_called()
 
+    def test_finish_push_final_meta_swallows_backend_errors(self) -> None:
+        task = _make_task()
+        task.backend.store_result.side_effect = Exception('backend down')
+        tracker = CeleryTaskTracker(task)
+
+        tracker.finish(states.SUCCESS)
+
 
 class CeleryTaskTrackerBackendSinkTestCase(SimpleTestCase):
     def test_build_snapshot_uses_current_state_and_meta(self) -> None:
         tracker = CeleryTaskTracker(_make_untracked_task())
         tracker.update_state('MAKING NOISES')
-        tracker.set_data(bananas='key')
+        tracker.meta.data['bananas'] = 'key'
 
         snapshot = tracker._build_snapshot()
 
@@ -371,7 +492,7 @@ class CeleryTaskTrackerFlusherTestCase(SimpleTestCase):
         store = tracker.task.backend.store_result
         tracker.update_state('MAKING NOISES')
         for i in range(100):
-            tracker.set_data(counted_seconds=i)
+            tracker.meta.data['counted_seconds'] = i
 
         self._wait_until(lambda: store.call_count >= 1)
         self._wait_until(
@@ -425,6 +546,14 @@ class CeleryTaskTrackerFlusherTestCase(SimpleTestCase):
         assert tracker._stopped.is_set()
         self._wait_until(lambda: not tracker._flusher.is_alive(), timeout_seconds=6)
         assert store.call_count == calls_after_finish
+
+    def test_stop_flusher_wakes_pending_wait(self) -> None:
+        tracker = self._make_tracked()
+        tracker._pending_event.clear()
+
+        tracker._stop_flusher()
+
+        assert tracker._pending_event.is_set()
 
     def test_join_timeout_logs_warning(self) -> None:
         tracker = self._make_tracked()

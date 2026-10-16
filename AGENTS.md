@@ -430,27 +430,28 @@ Terms used throughout this section (defined once here, used bare elsewhere):
 - **anchor**: a custom progress state resolves to `STARTED` for the transition-table lookup.
 - **monotonic**: progress never decreases; `_apply_meta_snapshot` clamps a regressed meta.
 
-Author tasks use the `celery_task` decorator + `CeleryTaskRunner`; track progress with `self.tracker` (never touch the DB from the worker):
+Author tasks use the `celery_task` decorator + `CeleryTaskRunner`; track progress with `self.tracker` (never touch the DB from the worker). Register a `meta_data_model` (a `TaskDataModel` subclass) and `self.tracker.meta.data` becomes an instance of that model — attribute sets are validated and schedule the coalesced backend flush, so there is no separate "set data" call:
 
 ```python
-from pydantic import BaseModel
-
+from django_spire.celery.meta import TaskDataModel
 from django_spire.celery.runner import CeleryTaskRunner, celery_task
 
 
-class TaskData(BaseModel):
+class TaskData(TaskDataModel):
     counted_seconds: int | None = None
 
 
-@celery_task(display_name='Pirate Noise', data_model=TaskData)
+@celery_task(display_name='Pirate Noise', meta_data_model=TaskData)
 def pirate_noise_task(self: CeleryTaskRunner, length: int) -> str:
     self.tracker.set_started()
     for i in range(length):
-        self.tracker.set_data(counted_seconds=i + 1)
+        self.tracker.meta.data.counted_seconds = i + 1
     return 'The pirate says YAR'
 ```
 
-Tracker API: `set_started`, `set_completed`, `set_started_and_completing_soon`, `update_state` (custom progress states), `update_count_progress`, `set_cumulative_progress_target_value` / `update_cumulative_progress`, `set_data(**kwargs)` (validated against `data_model`), `set_retries`. Meta updates are coalesced by a single-writer flusher thread (5 s interval) and pushed to the backend; direct/unnamed calls run untracked. Terminal handling (retry/failure/success) is the runner's job — tasks just `execute`.
+The worker stamps `worker_hostname` onto the data itself. On the web, the typed read is a one-liner in app code (the app owns the model class): `TaskData(**celery_task.meta.data)` (reference: `test_project/app/celery/views.py`). The raw dict form (`tracker.meta.data['x'] = ...`) is only for tasks that register no model; with a model, `meta.data` is a model and item-assignment is a type error.
+
+Tracker API: `set_started`, `set_completed`, `set_started_and_completing_soon`, `update_state` (custom progress states), `update_count_progress`, `set_cumulative_progress_target_value` / `update_cumulative_progress`, `set_retries`, and `meta.data` (typed via `meta_data_model`, or a free-form dict). Meta updates are coalesced by a single-writer flusher thread (5 s interval) and pushed to the backend; direct/unnamed calls run untracked. Terminal handling (retry/failure/success) is the runner's job — tasks just `execute`.
 
 State machine (`celery/state_machine.py`): explicit transition table; terminals are sticky; PENDING/RECEIVED are unreachable after leaving; custom states anchor to `STARTED` (custom→terminal allowed, custom→plain STARTED not). Illegal transitions are dropped with a warning instead of corrupting the CeleryTask.
 
