@@ -3,48 +3,9 @@
         <div
             key="{{ celery_task.task_id }}"
             x-data="{
-            consecutive_failures: 0,
-            max_consecutive_failures: 5,
-            poll_interval: null,
-            in_flight: false,
-            stop_poll() {
-                if (this.poll_interval) {
-                    clearInterval(this.poll_interval)
-                    this.poll_interval = null
-                }
-            },
             reload_task() {
-                if (this.in_flight) return
-                this.in_flight = true
                 let task_item_view = Glue.view(`{% url 'django_spire:celery:task:item' celery_task.task_id %}`)
                 task_item_view.renderInnerHtml($el, {})
-                    .then(() => {
-                        this.in_flight = false
-                        this.consecutive_failures = 0
-                    })
-                    .catch(() => {
-                        this.in_flight = false
-                        this.consecutive_failures += 1
-                        if (this.consecutive_failures >= this.max_consecutive_failures) {
-                            this.stop_poll()
-                        }
-                    })
-            },
-            init() {
-                const jittered_poll_interval = Math.floor(Math.random() * 2000) + 2000
-                this.poll_interval = setInterval(() => {
-                    if (!$el.isConnected) {
-                        this.stop_poll()
-                        return
-                    }
-                    const content = $el.querySelector('[data-processing]')
-                    if (!content) return
-                    if (content.dataset.processing !== 'true') {
-                        this.stop_poll()
-                        return
-                    }
-                    this.reload_task()
-                }, jittered_poll_interval)
             },
         }"
             class="mb-3 bg-body-tertiary shadow-sm border border-1 rounded-3"

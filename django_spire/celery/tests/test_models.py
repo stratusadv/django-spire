@@ -38,6 +38,9 @@ class CeleryTaskModelTestCase(TestCase):
     def test_model_key_field_null_by_default(self) -> None:
         assert self.celery_task.model_key is None
 
+    def test_exception_traceback_blank_by_default(self) -> None:
+        assert self.celery_task.exception_traceback == ''
+
     def test_default_state(self) -> None:
         assert self.celery_task.state == states.PENDING
 

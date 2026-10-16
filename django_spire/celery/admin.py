@@ -3,9 +3,11 @@ from __future__ import annotations
 from typing_extensions import TYPE_CHECKING
 
 from celery import states
+from django import forms
 from django.contrib import admin
 
 from django_spire.celery import models
+from django_spire.contrib.form.widgets import JsonTreeWidget
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -34,22 +36,32 @@ class CeleryTaskStateFilter(admin.SimpleListFilter):
         return queryset
 
 
+class CeleryTaskModelForm(forms.ModelForm):
+    _task_meta = forms.JSONField(widget=JsonTreeWidget, required=False)
+
+    class Meta:
+        model = models.CeleryTask
+        fields = ('_task_meta',)
+
+
 @admin.register(models.CeleryTask)
 class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('display_name', 'state_display', 'started_datetime', 'task_name')
+    form = CeleryTaskModelForm
+
+    list_display = ('display_name', 'state_display', 'queued_datetime', 'task_name')
     list_filter = (
         'task_name',
         'display_name',
         CeleryTaskStateFilter,
-        'started_datetime',
+        'queued_datetime',
         'completed_datetime',
     )
-    ordering = ('-started_datetime',)
     search_fields = (
         'task_name',
         'display_name',
         'state',
         'reference_key',
+        'queued_datetime',
         'started_datetime',
         'completed_datetime',
     )
@@ -64,9 +76,9 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'queued_datetime',
         'started_datetime',
         'completed_datetime',
-        '_task_meta',
         'result_verbose',
         'exception_result',
+        'exception_traceback',
     )
     fields = (
         'task_id',
@@ -81,6 +93,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         '_task_meta',
         'result_verbose',
         'exception_result',
+        'exception_traceback',
     )
 
     @admin.display(description='State', ordering='state')

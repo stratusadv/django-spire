@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from django_spire.celery.models import CeleryTask
 
 RESULT_STRING = 'alpha-bravo-result'
+TRACEBACK_STRING = 'Traceback (most recent call last): ZeroDivisionError: division by zero'
 
 
 class CeleryTaskAdminTestCase(BaseTestCase):
@@ -38,6 +39,15 @@ class CeleryTaskAdminTestCase(BaseTestCase):
         assert response.status_code == 200
         assert task.display_name in response.content.decode()
         assert f'celerytask/{task.pk}/change/' in response.content.decode()
+
+    def test_change_view_displays_exception_traceback(self) -> None:
+        task = create_test_celery_task(state=states.FAILURE, exception_traceback=TRACEBACK_STRING)
+        url = reverse('admin:django_spire_celery_celerytask_change', args=[task.pk])
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert TRACEBACK_STRING in response.content.decode()
 
 
 CUSTOM_STATE = 'MAKING NOISES'
@@ -84,3 +94,7 @@ class CeleryTaskAdminExceptionResultTestCase(SimpleTestCase):
     def test_exception_result_is_readonly_and_listed(self) -> None:
         assert 'exception_result' in CeleryTaskAdmin.readonly_fields
         assert 'exception_result' in CeleryTaskAdmin.fields
+
+    def test_exception_traceback_is_readonly_and_listed(self) -> None:
+        assert 'exception_traceback' in CeleryTaskAdmin.readonly_fields
+        assert 'exception_traceback' in CeleryTaskAdmin.fields

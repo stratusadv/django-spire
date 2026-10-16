@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import threading
 import time
 from typing import Any, Callable
@@ -405,6 +406,27 @@ class CeleryTaskTrackerFinishTestCase(SimpleTestCase):
         assert args[1]['error'] == 'ValueError: boom'
         assert args[1]['failed_time'] is not None
         assert args[2] == states.SUCCESS
+
+    def test_finish_failure_final_meta_carries_traceback(self) -> None:
+        task = _make_task()
+        tracker = CeleryTaskTracker(task)
+
+        with pytest.raises(json.JSONDecodeError) as exc_info:
+            json.loads('{broken')
+
+        tracker.finish(states.FAILURE, exc=exc_info.value)
+
+        args = task.backend.store_result.call_args.args
+        assert args[1]['error_traceback'] is not None
+        assert 'Traceback' in args[1]['error_traceback']
+        assert 'JSONDecodeError' in args[1]['error_traceback']
+
+    def test_finish_failure_without_exc_leaves_traceback_untouched(self) -> None:
+        tracker = CeleryTaskTracker(_make_untracked_task())
+
+        tracker.finish(states.FAILURE)
+
+        assert tracker.meta.error_traceback is None
 
     def test_finish_untracked_does_not_push_final_meta(self) -> None:
         task = _make_untracked_task()

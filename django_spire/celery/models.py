@@ -35,9 +35,19 @@ class CeleryTask(models.Model):
 
     _result = models.BinaryField(default=set_pickled_no_result)
 
+    exception_traceback = models.TextField(
+        blank=True, default='', verbose_name='Exception Traceback'
+    )
+
     objects = CeleryTaskQuerySet.as_manager()
 
     services = CeleryTaskService()
+
+    class Meta:
+        verbose_name = 'Celery Task'
+        verbose_name_plural = 'Celery Tasks'
+        db_table = 'django_spire_celery_task'
+        ordering = ('-started_datetime',)
 
     def __str__(self) -> str:
         return f'{self.task_name}'
@@ -237,9 +247,3 @@ class CeleryTask(models.Model):
     @property
     def state_verbose(self) -> str:
         return self.state.replace('_', ' ').title()
-
-    class Meta:
-        verbose_name = 'Celery Task'
-        verbose_name_plural = 'Celery Tasks'
-        db_table = 'django_spire_celery_task'
-        ordering = ('-started_datetime',)

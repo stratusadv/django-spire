@@ -2,7 +2,7 @@ import logging
 import threading
 from typing import Any, Callable
 
-from celery import shared_task, states
+from celery import states
 from celery.contrib.django.task import DjangoTask
 from celery.exceptions import Ignore, Reject, Retry
 
@@ -20,7 +20,6 @@ class CeleryTaskRunner(DjangoTask):
     side owns the `CeleryTask` and syncs it from the backend.
     """
 
-    runner_display_name: str | None = None
     runner_update_interval_seconds: int = 5
     meta_data_model: type[TaskDataModel] | None = None
 
@@ -80,31 +79,3 @@ class CeleryTaskRunner(DjangoTask):
         tracker.set_started()
         self._local.tracker = tracker
         return tracker
-
-
-def celery_task(
-    meta_data_model: type[TaskDataModel] | None = None,
-    display_name: str | None = None,
-    update_interval_seconds: int = 5,
-    **task_opts: Any,
-) -> Any:
-    def decorate(fun: Callable) -> Any:
-        def run(self: CeleryTaskRunner, *args: Any, **kwargs: Any) -> Any:
-            def execute_fn(*execute_args: Any, **execute_kwargs: Any) -> Any:
-                return fun(self, *execute_args, **execute_kwargs)
-
-            return self._run_lifecycle(execute_fn, args, kwargs)
-
-        run.__name__ = fun.__name__
-        run.__module__ = fun.__module__
-        run.__qualname__ = fun.__qualname__
-        run.__wrapped__ = fun
-
-        task = shared_task(base=CeleryTaskRunner, bind=True, **task_opts)(run)
-        task.meta_data_model = meta_data_model
-        task.runner_display_name = display_name
-        task.runner_update_interval_seconds = update_interval_seconds
-
-        return task
-
-    return decorate

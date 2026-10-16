@@ -433,15 +433,16 @@ Terms used throughout this section (defined once here, used bare elsewhere):
 Author tasks use the `celery_task` decorator + `CeleryTaskRunner`; track progress with `self.tracker` (never touch the DB from the worker). Register a `meta_data_model` (a `TaskDataModel` subclass) and `self.tracker.meta.data` becomes an instance of that model — attribute sets are validated and schedule the coalesced backend flush, so there is no separate "set data" call:
 
 ```python
+from django_spire.celery.decorators import celery_task
 from django_spire.celery.meta import TaskDataModel
-from django_spire.celery.runner import CeleryTaskRunner, celery_task
+from django_spire.celery.runner import CeleryTaskRunner
 
 
 class TaskData(TaskDataModel):
     counted_seconds: int | None = None
 
 
-@celery_task(display_name='Pirate Noise', meta_data_model=TaskData)
+@celery_task(meta_data_model=TaskData)
 def pirate_noise_task(self: CeleryTaskRunner, length: int) -> str:
     self.tracker.set_started()
     for i in range(length):
@@ -457,11 +458,11 @@ State machine (`celery/state_machine.py`): explicit transition table; terminals 
 
 `BaseCeleryTaskManager.send_task` (per-model managers): validates kwargs, retries sends with exponential backoff (`send_task_retries`), stamps `spire_reference_key`/`spire_display_name`/`spire_model_key` headers, and on send failure creates a FAILURE CeleryTask carrying `CeleryExceptionResult(SendFailedError)` (surfaced via `send_error_message` / `send_error_details`). Opt in `dedupe_unready = True` (e.g. `PirateSongCeleryTaskManager`) to reuse an existing unready CeleryTask instead of re-sending; pair with `worker_deduplicate_successful_tasks=True`, which needs `task_acks_late=True` + a persistent result backend (see `test_project/celery.py`).
 
-Results: SUCCESS CeleryTasks pickle the return value; FAILURE CeleryTasks pickle `CeleryExceptionResult` (`exc_type` / `message` / `traceback` + pickled exception when available) and render it in the task UI and admin; `CeleryNoResult` is the no-result sentinel.
+Results: SUCCESS CeleryTasks pickle the return value; FAILURE CeleryTasks pickle `CeleryExceptionResult` (`exc_type` / `message` / `traceback` + pickled exception when available) and render it in the task UI and admin; the formatted trace is also mirrored to the `CeleryTask.exception_traceback` column (from the backend `async_result.traceback`, or the worker's `CeleryTaskMeta.error_traceback` when the runner captured it in `finish(FAILURE, exc=...)`) and shown on the admin change page; `CeleryNoResult` is the no-result sentinel.
 
 Reaper: `python manage.py prune_stale_started_celery_tasks [--threshold 600] [--dry-run]` resolves stale STARTED CeleryTasks with no meta update past the threshold: CeleryTasks whose backend already reached a terminal state are synced via `update_from_backend()` (real terminal + metric), CeleryTasks still active on any worker (one `inspect().active()` broadcast) are skipped, and the rest are marked FAILURE with a `StaleStartedError` stamp. CeleryTasks are skipped, never marked FAILURE, when the backend read fails or the workers are unreachable. Schedule it only where the web process has broker access.
 
-Key files: `celery/runner.py` (`CeleryTaskRunner`, `celery_task`), `celery/tracker.py`, `celery/state_machine.py`, `celery/services/service.py`, `celery/result.py`, `celery/management/commands/prune_stale_started_celery_tasks.py`. Example app: `test_project/app/celery/`.
+Key files: `celery/runner.py` (`CeleryTaskRunner`), `celery/decorators.py` (`celery_task`), `celery/tracker.py`, `celery/state_machine.py`, `celery/services/service.py`, `celery/result.py`, `celery/management/commands/prune_stale_started_celery_tasks.py`. Example app: `test_project/app/celery/`.
 
 ## Access Control
 

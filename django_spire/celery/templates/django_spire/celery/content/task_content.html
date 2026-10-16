@@ -1,3 +1,16 @@
+{% load tz %}
+<span
+        key="poll-{% now 'U.u' %}"
+        x-data="{
+        is_processing: '{{ celery_task.is_processing }}',
+        init() {
+            if(this.is_processing === 'True') {
+                const jittered_reload_delay = Math.floor(Math.random() * 2000) + 2000
+                setTimeout(() => reload_task(), jittered_reload_delay)
+            }
+        }
+    }"
+></span>
 <div
         data-processing="{{ celery_task.is_processing|lower }}"
         class="{{ task_header_class }} pe-1 py-1 border-0 {% if celery_task.is_processing %}text-primary{% elif celery_task.is_successful %}text-success{% elif celery_task.is_failed %}text-danger{% endif %}"

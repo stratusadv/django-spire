@@ -10,3 +10,8 @@ class PirateSongCeleryTaskManager(BaseCeleryTaskManager):
 class NinjaAttackCeleryTaskManager(BaseCeleryTaskManager):
     task_name = 'test_project.app.celery.celery.tasks.ninja_attack_task'
     display_name = 'Ninja Attack'
+
+
+class LizardFailCeleryTaskManager(BaseCeleryTaskManager):
+    task_name = 'test_project.app.celery.celery.tasks.lizard_fail_task'
+    display_name = 'Lizard Fail'

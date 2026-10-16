@@ -165,7 +165,8 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
     @staticmethod
     def _build_final_exception_result(final_meta_dict: dict) -> CeleryExceptionResult:
         message = final_meta_dict.get('error') or 'Unknown error'
-        return CeleryExceptionResult(Exception(message), None, None)
+        traceback_text = final_meta_dict.get('error_traceback')
+        return CeleryExceptionResult(Exception(message), None, traceback_text)
 
     # ================= CELERYTASK WRITER =================
     def update_from_backend(self) -> None:
@@ -275,6 +276,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         if state == states.SUCCESS:
             meta.set_completed()
             new_result = fresh._result if result is _RESULT_UNAVAILABLE else pickle.dumps(result)
+            fresh.exception_traceback = ''
         else:
             if exception_result is not None:
                 error_message = exception_result.message
@@ -282,13 +284,18 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 error_message = 'Unknown error'
             meta.set_failed(error_message)
             new_result = pickle.dumps(exception_result)
+            fresh.exception_traceback = exception_result.traceback or ''
 
         # merged after set_completed/set_failed so the worker-side values (final data,
         # completed_time, failed_time) win over the web-side ones
         if meta_dict:
             meta.merge(CeleryTaskMeta(**meta_dict))
 
-        return meta.model_dump(), new_result, now(), fresh.started_datetime
+        new_started = fresh.started_datetime
+        if new_started is None and meta.started_datetime is not None:
+            new_started = meta.started_datetime
+
+        return meta.model_dump(), new_result, now(), new_started
 
     def _apply_meta_snapshot(self, fresh: CeleryTask, meta_dict: dict) -> _SnapshotValues:
         previous_progress = fresh.meta.progress or 0
@@ -327,6 +334,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         self.obj._result = new_result
         self.obj.completed_datetime = new_completed
         self.obj.started_datetime = new_started
+        self.obj.exception_traceback = fresh.exception_traceback
 
     # ================= METRICS =================
     def _record_terminal_metric(self, state: str) -> None:

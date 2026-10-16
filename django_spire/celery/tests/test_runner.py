@@ -9,9 +9,10 @@ from celery.exceptions import Retry
 from celery.utils.threads import LocalStack
 from django.test import TestCase
 
+from django_spire.celery.decorators import celery_task
 from django_spire.celery.meta import TaskDataModel
 from django_spire.celery.models import CeleryTask
-from django_spire.celery.runner import CeleryTaskRunner, celery_task
+from django_spire.celery.runner import CeleryTaskRunner
 from django_spire.celery.tests.factories import create_test_celery_task
 from django_spire.celery.tracker import CeleryTaskTracker
 
@@ -22,23 +23,23 @@ class _RunnerTaskData(TaskDataModel):
     counted_seconds: int | None = None
 
 
-@celery_task(display_name='Runner Test Task')
+@celery_task()
 def _runner_task(self: CeleryTaskRunner, value: int) -> str:  # noqa: ARG001
     return f'ok-{value}'
 
 
-@celery_task(display_name='Typed Runner Test Task', meta_data_model=_RunnerTaskData)
+@celery_task(meta_data_model=_RunnerTaskData)
 def _typed_runner_task(self: CeleryTaskRunner) -> None:  # noqa: ARG001
     return None
 
 
-@celery_task(display_name='Failing Test Task')
+@celery_task()
 def _failing_task(self: CeleryTaskRunner) -> None:  # noqa: ARG001
     message = 'task boom'
     raise ValueError(message)
 
 
-@celery_task(display_name='Retry Test Task')
+@celery_task()
 def _retry_task(self: CeleryTaskRunner, attempts: int) -> str:  # noqa: ARG001
     _RETRY_ATTEMPTS['count'] += 1
     if _RETRY_ATTEMPTS['count'] < attempts:
@@ -52,6 +53,18 @@ class _ClassRunner(CeleryTaskRunner):
 
     def execute(self, value: int) -> str:
         return f'class-{value}'
+
+
+class CeleryTaskDecoratorNameTestCase(TestCase):
+    def test_name_kwarg_sets_task_name(self) -> None:
+        @celery_task(name='custom.loud.noise')
+        def custom_task(self: CeleryTaskRunner) -> None:  # noqa: ARG001
+            return None
+
+        assert custom_task.name == 'custom.loud.noise'
+
+    def test_task_name_defaults_to_module_function_name(self) -> None:
+        assert _runner_task.name == 'django_spire.celery.tests.test_runner._runner_task'
 
 
 class CeleryTaskRunnerEagerTestCase(TestCase):

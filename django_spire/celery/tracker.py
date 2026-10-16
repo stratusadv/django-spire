@@ -1,5 +1,6 @@
 import logging
 import threading
+import traceback
 from typing import Any, Callable
 
 from celery import Task, states
@@ -147,6 +148,7 @@ class CeleryTaskTracker:
                 self.meta.set_completed()
             elif state == states.FAILURE and exc is not None:
                 self.meta.set_failed(f'{type(exc).__name__}: {exc}')
+                self.meta.error_traceback = ''.join(traceback.format_exception(exc))
 
             snapshot = self._build_snapshot()
 

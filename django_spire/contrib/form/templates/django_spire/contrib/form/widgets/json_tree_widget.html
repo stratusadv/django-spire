@@ -8,16 +8,24 @@
         color: #417690;
     }
 
-    .copy-text {
-        color: #529041;
+    .copy-json-button {
+        text-decoration: none !important;
+        font-family: var(--font-family-primary);
+        background-color: var(--button-bg);
+        color: #FFF !important;
+        padding: 0.5rem;
+        border-radius: 0.3rem;
+    }
+
+    .copy-json-button:hover {
+        background-color: var(--button-hover-bg);
     }
 </style>
 
 
 <div style="font-family: monospace; margin-left: -17px; width: 90%; ">
-    <label style="float: left; clear: both; width: 95%; margin-left: 19px; margin-bottom: 10px; ">
-        <span class="key-text">
-            <a href="javascript:" x-data="{
+    <label style="float: left; clear: both; width: 95%; margin-left: 19px; margin-bottom: 14px; ">
+        <a href="javascript:" x-data="{
                 clicked: false,
                 copy_value_to_clipboard() {
                     navigator.clipboard.writeText(JSON.stringify({{ widget.value }}))
@@ -26,20 +34,16 @@
                         this.clicked = false
                     }, 1000);
                 }
-            }">
-                <span @click="copy_value_to_clipboard()" class="copy-text" style="font-weight: bold;"> Copy To Clipboard</span>
-                <span style="font-weight: bold;"
-                      x-show="clicked"
-                      x-transition:enter.duration.500ms
-                      x-transition:leave.duration.500ms
-                >
-                    Copied!!!
+            }" class="copy-json-button">
+            <span @click="copy_value_to_clipboard()">Copy JSON To Clipboard</span>
+            <span
+                    x-show="clicked"
+                    x-transition:enter.duration.500ms
+                    x-transition:leave.duration.500ms
+            >
+                    > Copied!!!
                 </span>
-            </a>
-        </span>
-
-        <textarea style="float: left; clear: both; width: 95%; margin-top: 10px; " rows="10"
-                  name="{{ widget.name }}">{{ widget.value }}</textarea>
+        </a>
     </label>
     {% include 'django_spire/contrib/form/elements/dict_element.html' with dict=json_tree_dict %}
 </div>

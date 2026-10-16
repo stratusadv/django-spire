@@ -31,6 +31,7 @@ class CeleryTaskMeta(BaseModel, Generic[DataT]):
     completed_time: float | None = None
     retries: int = 0
     error: str | None = None
+    error_traceback: str | None = None
     failed_time: float | None = None
     _progress_updates_count: int = 0
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pickle
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch, PropertyMock
 
 from celery import states
@@ -117,6 +118,24 @@ class CeleryTaskServiceUpdateFromBackendTestCase(TestCase):
 
     @patch(_TRACK_CONFIGURED)
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_clears_exception_traceback(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.exception_traceback = 'Traceback (stale)'
+        self.celery_task.save()
+
+        mock_async_result.return_value = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.exception_traceback == ''
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
     def test_started_to_failure_stores_exception_result_and_records_metric(
         self, mock_async_result: MagicMock, mock_track_configured: MagicMock
     ) -> None:
@@ -137,6 +156,9 @@ class CeleryTaskServiceUpdateFromBackendTestCase(TestCase):
         assert self.celery_task.meta.error == 'task boom'
         assert self.celery_task.meta.completed_time is None
         assert self.celery_task.completed_datetime is not None
+        assert self.celery_task.exception_traceback == (
+            'Traceback (most recent call last):\nValueError: task boom'
+        )
         mock_track_configured.assert_called_once_with(reference='celery_task_failure')
 
     @patch(_TRACK_CONFIGURED)
@@ -382,6 +404,98 @@ class CeleryTaskServiceFinalMetaTestCase(TestCase):
         assert self.celery_task.meta.data == {}
         mock_track_configured.assert_called_once_with(reference='celery_task_success')
 
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_fast_success_before_started_observation_derives_started_datetime(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.started_datetime = None
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 10},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'started_time': 100.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.started_datetime == datetime.fromtimestamp(100.0, tz=UTC)
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_fast_failure_before_started_observation_derives_started_datetime(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.started_datetime = None
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.FAILURE, get=MagicMock(side_effect=ValueError('task boom'))
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 4},
+                'progress': 0.4,
+                'error': 'ValueError: task boom',
+                'failed_time': 110.0,
+                'started_time': 100.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.started_datetime == datetime.fromtimestamp(100.0, tz=UTC)
+        mock_track_configured.assert_called_once_with(reference='celery_task_failure')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_terminal_keeps_already_observed_started_datetime(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.4, 'started_time': 90.0}
+        self.celery_task.save()
+
+        observed_started = self.celery_task.started_datetime
+
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 10},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'started_time': 100.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.started_datetime == observed_started
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
+
 
 class CeleryTaskServiceStuckRowHealTestCase(TestCase):
     def setUp(self) -> None:
@@ -453,6 +567,43 @@ class CeleryTaskServiceStuckRowHealTestCase(TestCase):
         exception_result = self.celery_task.exception_result
         assert exception_result is not None
         assert exception_result.message == 'ValueError: task boom'
+        assert self.celery_task.exception_traceback == ''
+        mock_track_configured.assert_called_once_with(reference='celery_task_failure')
+
+    @patch(_TRACK_CONFIGURED)
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_stuck_started_with_final_meta_error_traceback_heals_to_failure(
+        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.4, 'data': {'counted_seconds': 3}}
+        self.celery_task.save()
+
+        traceback_text = 'Traceback (most recent call last):\nValueError: task boom'
+        mock_result = _mock_async_result(
+            states.STARTED, info={'progress': 0.4, 'data': {'counted_seconds': 3}}
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 4},
+                'progress': 0.4,
+                'error': 'ValueError: task boom',
+                'error_traceback': traceback_text,
+                'failed_time': 55.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.has_exception_result
+        exception_result = self.celery_task.exception_result
+        assert exception_result is not None
+        assert exception_result.message == 'ValueError: task boom'
+        assert exception_result.traceback == traceback_text
+        assert self.celery_task.exception_traceback == traceback_text
         mock_track_configured.assert_called_once_with(reference='celery_task_failure')
 
     @patch(_TRACK_CONFIGURED)
