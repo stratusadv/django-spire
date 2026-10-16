@@ -55,6 +55,7 @@ class CeleryTaskTracker:
         self._update_interval_seconds = update_interval_seconds
         self._lock = threading.Lock()
         self._state = states.PENDING
+        self._finished = False
         self._cumulative_progress = 0
         self._cumulative_target_value: int | None = None
         self._pending_snapshot: _TrackerSnapshot | None = None
@@ -140,6 +141,8 @@ class CeleryTaskTracker:
     # ================= TERMINAL (runner only) =================
     def finish(self, state: str, exc: BaseException | None = None) -> None:
         with self._lock:
+            self._finished = True
+
             if state == states.SUCCESS:
                 self.meta.set_completed()
             elif state == states.FAILURE and exc is not None:
@@ -216,7 +219,9 @@ class CeleryTaskTracker:
                 )
 
     def _push_to_backend(self, snapshot: _TrackerSnapshot) -> None:
-        if self._task_id is None:
+        # after finish() the native tracer owns the main row, and the derived final
+        # row already carries the freshest meta, so a late push would only clobber
+        if self._task_id is None or self._finished:
             return
 
         try:

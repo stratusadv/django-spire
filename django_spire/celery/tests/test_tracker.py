@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 import time
 from typing import Any, Callable
 from unittest.mock import MagicMock, patch
@@ -420,6 +421,17 @@ class CeleryTaskTrackerFinishTestCase(SimpleTestCase):
 
         tracker.finish(states.SUCCESS)
 
+    def test_push_to_backend_after_finish_is_skipped(self) -> None:
+        task = _make_task()
+        tracker = CeleryTaskTracker(task)
+
+        tracker.finish(states.SUCCESS)
+
+        tracker._push_to_backend(tracker._build_snapshot())
+
+        assert task.backend.store_result.call_count == 1
+        assert task.backend.store_result.call_args.args[0] == derive_final_meta_key('test-task-id')
+
 
 class CeleryTaskTrackerBackendSinkTestCase(SimpleTestCase):
     def test_build_snapshot_uses_current_state_and_meta(self) -> None:
@@ -572,3 +584,36 @@ class CeleryTaskTrackerFlusherTestCase(SimpleTestCase):
             tracker._stop_flusher()
 
         assert any('did not stop' in message for message in logs.output)
+
+    def test_late_pending_snapshot_is_not_pushed_after_finish(self) -> None:
+        tracker = self._make_tracked()
+        store = tracker.task.backend.store_result
+        store_started = threading.Event()
+
+        def slow_store(task_id: str, *_rest: Any) -> None:
+            if task_id == 'test-task-id':
+                store_started.set()
+                time.sleep(1.5)
+
+        store.side_effect = slow_store
+        tracker.update_state('STATE ONE')
+        self._wait_until(store_started.is_set)
+
+        tracker.update_state('STATE TWO')
+
+        tracker.finish(states.SUCCESS)
+
+        self._wait_until(lambda: not tracker._flusher.is_alive(), timeout_seconds=6)
+
+        main_row_calls = [
+            call.args for call in store.call_args_list if call.args[0] == 'test-task-id'
+        ]
+        derived_calls = [
+            call.args
+            for call in store.call_args_list
+            if call.args[0] == derive_final_meta_key('test-task-id')
+        ]
+        assert len(main_row_calls) == 1
+        assert main_row_calls[0][2] == 'STATE ONE'
+        assert len(derived_calls) == 1
+        assert derived_calls[0][2] == states.SUCCESS

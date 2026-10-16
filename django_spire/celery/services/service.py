@@ -154,6 +154,19 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
         return meta_dict
 
+    @staticmethod
+    def _infer_terminal_state(final_meta_dict: dict) -> str:
+        if final_meta_dict.get('error') or final_meta_dict.get('failed_time'):
+            return states.FAILURE
+        if final_meta_dict.get('completed_time'):
+            return states.SUCCESS
+        return states.RETRY
+
+    @staticmethod
+    def _build_final_exception_result(final_meta_dict: dict) -> CeleryExceptionResult:
+        message = final_meta_dict.get('error') or 'Unknown error'
+        return CeleryExceptionResult(Exception(message), None, None)
+
     # ================= CELERYTASK WRITER =================
     def update_from_backend(self) -> None:
         async_result = self.obj.async_result
@@ -173,6 +186,18 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
             final_meta_dict = self._read_final_meta(async_result)
             if final_meta_dict is not None:
                 meta_dict = final_meta_dict
+        else:
+            # a late mid-run flusher write can clobber the native terminal write and
+            # leave the main row non-terminal; the derived final-meta row is then the
+            # true terminal source, so heal the transition from it
+            final_meta_dict = self._read_final_meta(async_result)
+            if final_meta_dict is not None:
+                new_state = self._infer_terminal_state(final_meta_dict)
+                meta_dict = final_meta_dict
+                if new_state == states.SUCCESS:
+                    result = _RESULT_UNAVAILABLE
+                elif new_state == states.FAILURE:
+                    exception_result = self._build_final_exception_result(final_meta_dict)
 
         if self._apply_backend_snapshot(
             new_state, meta_dict=meta_dict, result=result, exception_result=exception_result
