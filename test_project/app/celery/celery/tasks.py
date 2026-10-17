@@ -5,6 +5,8 @@ from django_spire.celery.decorators import celery_task
 from django_spire.celery.meta import TaskDataModel
 from django_spire.celery.runner import CeleryTaskRunner
 from django_spire.celery.tracker import CeleryTaskTracker
+from django_spire.knowledge.entry.models import Entry
+from django_spire.notification import automations as notification_automations
 
 
 class TaskData(TaskDataModel):
@@ -83,3 +85,15 @@ def lizard_fail_task(self: CeleryTaskRunner, length: int) -> str:
         answer = 2 / 0
 
     return f'The lizard failed to show {answer}'
+
+
+@celery_task()
+def process_ready_notifications_task(self: CeleryTaskRunner) -> str:
+    self.tracker.set_started()
+    return notification_automations.process_notifications()
+
+
+@celery_task()
+def convert_files_to_model_objects_task(self: CeleryTaskRunner) -> str:
+    self.tracker.set_started()
+    return Entry.services.automation.convert_files_to_model_objects()

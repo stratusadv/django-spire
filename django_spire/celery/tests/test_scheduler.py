@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from django.test import override_settings
+from django.utils.module_loading import import_string
 
 from django_spire.celery.manager import BaseCeleryTaskManager
 from django_spire.celery.models import CelerySchedulerTask
@@ -17,6 +18,10 @@ from django_spire.celery.scheduler import (
     claim_schedule_slot,
     start_scheduler,
     stop_scheduler,
+)
+from test_project.app.celery.celery.managers import (
+    ConvertFilesToModelObjectsCeleryTaskManager,
+    ProcessReadyNotificationsCeleryTaskManager,
 )
 from test_project.app.celery.scheduler import TestProjectScheduler
 
@@ -341,7 +346,24 @@ class TestSchedulerThread:
 
 class TestProjectSchedulerRegistration:
     def test_test_project_scheduler_is_valid(self):
-        assert len(TestProjectScheduler.tasks) == 2
+        assert len(TestProjectScheduler.tasks) == 4
         keys = [task.schedule_key for task in TestProjectScheduler.tasks]
-        assert len(set(keys)) == 2
+        assert len(set(keys)) == 4
         assert TestProjectScheduler().name_verbose == 'Test Project Scheduler'
+
+    def test_robit_jobs_are_registered(self):
+        names = [task.name for task in TestProjectScheduler.tasks]
+        assert 'Process Ready Notifications' in names
+        assert 'Convert Files To Model Objects' in names
+
+    def test_robit_job_crontabs_match_original(self):
+        by_name = {task.name: task for task in TestProjectScheduler.tasks}
+        assert by_name['Process Ready Notifications'].crontab == '0 0 * * 6'
+        assert by_name['Convert Files To Model Objects'].crontab == '0 0 * * 6'
+
+    def test_robit_managers_reference_importable_tasks(self):
+        for manager in (
+            ProcessReadyNotificationsCeleryTaskManager,
+            ConvertFilesToModelObjectsCeleryTaskManager,
+        ):
+            assert callable(import_string(manager.task_name))

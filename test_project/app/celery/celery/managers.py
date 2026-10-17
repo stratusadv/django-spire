@@ -15,3 +15,13 @@ class NinjaAttackCeleryTaskManager(BaseCeleryTaskManager):
 class LizardFailCeleryTaskManager(BaseCeleryTaskManager):
     task_name = 'test_project.app.celery.celery.tasks.lizard_fail_task'
     display_name = 'Lizard Fail'
+
+
+class ProcessReadyNotificationsCeleryTaskManager(BaseCeleryTaskManager):
+    task_name = 'test_project.app.celery.celery.tasks.process_ready_notifications_task'
+    display_name = 'Process Ready Notifications'
+
+
+class ConvertFilesToModelObjectsCeleryTaskManager(BaseCeleryTaskManager):
+    task_name = 'test_project.app.celery.celery.tasks.convert_files_to_model_objects_task'
+    display_name = 'Convert Files To Model Objects'
