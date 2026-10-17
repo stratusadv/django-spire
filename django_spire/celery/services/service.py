@@ -5,7 +5,7 @@ import pickle
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from celery import states
+from celery import current_app, states
 from celery.utils.serialization import get_pickleable_exception
 from django.db import transaction
 from django.utils.timezone import is_naive, make_aware, now
@@ -32,6 +32,7 @@ _METRIC_REFERENCES = {
     states.SUCCESS: 'celery_task_success',
     states.FAILURE: 'celery_task_failure',
     states.RETRY: 'celery_task_retry',
+    states.REVOKED: 'celery_task_canceled',
 }
 
 # (meta_dict, result, completed_datetime, started_datetime)
@@ -204,6 +205,34 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
             new_state, meta_dict=meta_dict, result=result, exception_result=exception_result
         ):
             self._record_terminal_metric(new_state)
+
+    def cancel(self) -> str | None:
+        from django_spire.celery.models import CeleryTask  # noqa: PLC0415
+
+        try:
+            current_app.control.revoke(str(self.obj.task_id), terminate=True)
+        except Exception:
+            logger.warning(
+                'Failed to revoke CeleryTask %s on workers', self.obj.task_id, exc_info=True
+            )
+            return 'Workers could not be reached to cancel the task'
+
+        with transaction.atomic():
+            fresh = CeleryTask.objects.select_for_update().get(pk=self.obj.pk)
+
+            if not CeleryTaskStateMachine.ok(fresh.state, states.REVOKED):
+                return f'Task already finished with state {fresh.state_verbose}'
+
+            fresh.state = states.REVOKED
+            fresh.completed_datetime = now()
+            fresh.save()
+
+            self.obj.state = states.REVOKED
+            self.obj.completed_datetime = fresh.completed_datetime
+
+        self._record_terminal_metric(states.REVOKED)
+
+        return None
 
     def _apply_backend_snapshot(
         self,

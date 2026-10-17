@@ -47,7 +47,7 @@ class CeleryTask(models.Model):
         verbose_name = 'Celery Task'
         verbose_name_plural = 'Celery Tasks'
         db_table = 'django_spire_celery_task'
-        ordering = ('-started_datetime',)
+        ordering = ('-queued_datetime',)
 
     def __str__(self) -> str:
         return f'{self.task_name}'
@@ -111,6 +111,10 @@ class CeleryTask(models.Model):
             return pickle.loads(self._result)
 
         return None
+
+    @property
+    def is_canceled(self) -> bool:
+        return self.state == states.REVOKED
 
     @property
     def is_estimated_complete_soon(self) -> bool:

@@ -1,5 +1,14 @@
 Spire.ajax = {
     /**
+     * @returns {string|null}
+     */
+    getCsrfToken() {
+        const meta = document.querySelector('meta[name="spire-csrf-cookie-name"]');
+        const cookieName = meta ? meta.content : 'csrftoken';
+        return Spire.cookie.get(cookieName);
+    },
+
+    /**
      * @param {string} method
      * @param {string} url
      * @param {object} data
@@ -11,7 +20,7 @@ Spire.ajax = {
             method: request_method,
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': Spire.cookie.get('csrftoken'),
+                'X-CSRFToken': Spire.ajax.getCsrfToken(),
             },
         };
 
@@ -26,9 +35,13 @@ Spire.ajax = {
             headers: Object.fromEntries(response.headers.entries()),
         };
 
-        if (response.ok) {
-            const text = await response.text();
-            result.data = text ? JSON.parse(text) : null;
+        const text = await response.text();
+        if (text) {
+            try {
+                result.data = JSON.parse(text);
+            } catch (error) {
+                result.data = null;
+            }
         }
 
         if (!response.ok) {

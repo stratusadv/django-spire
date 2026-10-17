@@ -726,3 +726,112 @@ class ApplyBackendSnapshotTestCase(TestCase):
         assert celery_task.state == states.SUCCESS
         assert celery_task.result == 'the result'
         assert celery_task.completed_datetime is not None
+
+
+class CeleryTaskServiceCancelTestCase(TestCase):
+    def setUp(self) -> None:
+        self.celery_task = create_test_celery_task(state=states.STARTED)
+        self.service = CeleryTaskService(obj=self.celery_task)
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_started_task_revokes_and_marks_revoked(self, mock_app: MagicMock) -> None:
+        error = self.service.cancel()
+
+        assert error is None
+        mock_app.control.revoke.assert_called_once_with(
+            str(self.celery_task.task_id), terminate=True
+        )
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+        assert self.celery_task.completed_datetime is not None
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_pending_task_marks_revoked(self, mock_app: MagicMock) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_custom_state_task_marks_revoked(self, mock_app: MagicMock) -> None:
+        self.celery_task.state = 'MAKING NOISES'
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+
+    @patch(_TRACK_CONFIGURED)
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_fires_canceled_metric_once(
+        self, mock_app: MagicMock, mock_track: MagicMock
+    ) -> None:
+        self.service.cancel()
+
+        mock_app.control.revoke.assert_called_once()
+        mock_track.assert_called_once_with(reference='celery_task_canceled')
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_terminal_task_is_rejected(self, mock_app: MagicMock) -> None:
+        completed_datetime = now()
+        self.celery_task.state = states.SUCCESS
+        self.celery_task.completed_datetime = completed_datetime
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is not None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.completed_datetime == completed_datetime
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_revoked_task_is_rejected(self, mock_app: MagicMock) -> None:
+        self.celery_task.state = states.REVOKED
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is not None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_returns_error_and_leaves_row_when_revoke_fails(
+        self, mock_app: MagicMock
+    ) -> None:
+        mock_app.control.revoke.side_effect = Exception('broker down')
+
+        error = self.service.cancel()
+
+        assert error is not None
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.STARTED
+        assert self.celery_task.completed_datetime is None
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_update_from_backend_leaves_revoked_row_sticky(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.state = states.REVOKED
+        self.celery_task.save()
+
+        mock_async_result.return_value = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='late result'), date_done=now()
+        )
+
+        self.service.update_from_backend()
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED

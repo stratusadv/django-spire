@@ -6,10 +6,12 @@ import uuid
 from unittest.mock import MagicMock, patch
 
 from celery import states
+from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import reverse
+from django.utils.timezone import now
 
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.result import CeleryExceptionResult, CeleryNoResult
@@ -398,3 +400,147 @@ class TaskToastListViewTestCase(TestCase):
         response = task_toast_list_view(request)
 
         assert response.status_code == 200
+
+
+class TaskCancelViewTestCase(BaseTaskViewTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.cancel_url = reverse(
+            'django_spire:celery:task:cancel', kwargs={'task_id': self.celery_task.task_id}
+        )
+        self.plain_user = User.objects.create_user(
+            username='plain',
+            email='plain@test.com',
+            password='test',  # noqa: S106
+        )
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_view_requires_login(self, mock_app: MagicMock) -> None:
+        self.client.logout()
+        response = self.client.post(self.cancel_url)
+
+        assert response.status_code == 302
+        mock_app.control.revoke.assert_not_called()
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_view_requires_change_permission(self, mock_app: MagicMock) -> None:
+        self.client.force_login(self.plain_user)
+        response = self.client.post(self.cancel_url)
+
+        assert response.status_code == 403
+        mock_app.control.revoke.assert_not_called()
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_view_rejects_get(self, mock_app: MagicMock) -> None:
+        self.client.force_login(self.super_user)
+        response = self.client.get(self.cancel_url)
+
+        assert response.status_code == 405
+        mock_app.control.revoke.assert_not_called()
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_view_cancels_task(self, mock_app: MagicMock) -> None:
+        self.client.force_login(self.super_user)
+        response = self.client.post(self.cancel_url)
+
+        assert response.status_code == 200
+        data = json.loads(response.content)
+        assert data['canceled'] is True
+        assert data['task_id'] == str(self.celery_task.task_id)
+        mock_app.control.revoke.assert_called_once_with(
+            str(self.celery_task.task_id), terminate=True
+        )
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+        assert self.celery_task.completed_datetime is not None
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_view_terminal_task_returns_error(self, mock_app: MagicMock) -> None:
+        self.celery_task.state = states.SUCCESS
+        self.celery_task.save()
+
+        self.client.force_login(self.super_user)
+        response = self.client.post(self.cancel_url)
+
+        assert response.status_code == 409
+        assert 'error' in json.loads(response.content)
+        mock_app.control.revoke.assert_called_once_with(
+            str(self.celery_task.task_id), terminate=True
+        )
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.SUCCESS
+
+    def test_cancel_view_unknown_task_returns_404(self) -> None:
+        self.client.force_login(self.super_user)
+        url = reverse('django_spire:celery:task:cancel', kwargs={'task_id': uuid.uuid4()})
+        response = self.client.post(url)
+
+        assert response.status_code == 404
+
+
+class TaskCancelContentTestCase(BaseTaskViewTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.plain_user = User.objects.create_user(
+            username='plain',
+            email='plain@test.com',
+            password='test',  # noqa: S106
+        )
+
+    def _render_content(self, user: User) -> str:
+        return render_to_string(
+            'django_spire/celery/item/task_item.html',
+            context={
+                'celery_task': self.celery_task,
+                'task_header_class': 'ps-2 rounded-3',
+                'task_body_class': 'px-2',
+                'perms': PermWrapper(user),
+            },
+        )
+
+    def test_cancel_button_renders_for_started_task_with_permission(self) -> None:
+        self.celery_task.state = states.STARTED
+        self.celery_task.save()
+
+        html = self._render_content(self.super_user)
+
+        assert 'aria-label="Cancel task"' in html
+        assert 'Canceled at' not in html
+
+    def test_cancel_button_renders_for_pending_task_with_permission(self) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.save()
+
+        html = self._render_content(self.super_user)
+
+        assert 'aria-label="Cancel task"' in html
+
+    def test_cancel_button_hidden_without_permission(self) -> None:
+        self.celery_task.state = states.STARTED
+        self.celery_task.save()
+
+        html = self._render_content(self.plain_user)
+
+        assert 'aria-label="Cancel task"' not in html
+
+    def test_cancel_button_hidden_for_canceled_task(self) -> None:
+        self.celery_task.state = states.REVOKED
+        self.celery_task.completed_datetime = now()
+        self.celery_task.save()
+
+        html = self._render_content(self.super_user)
+
+        assert 'aria-label="Cancel task"' not in html
+        assert 'Canceled at' in html
+        assert 'bi-stop-circle-fill' in html
+
+    def test_canceled_task_hides_button_even_with_permission(self) -> None:
+        self.celery_task.state = states.SUCCESS
+        self.celery_task.save()
+
+        html = self._render_content(self.super_user)
+
+        assert 'aria-label="Cancel task"' not in html
+        assert 'Canceled at' not in html

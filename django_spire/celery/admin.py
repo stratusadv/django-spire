@@ -4,7 +4,7 @@ from typing_extensions import TYPE_CHECKING
 
 from celery import states
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 
 from django_spire.celery import models
 from django_spire.contrib.form.widgets import JsonTreeWidget
@@ -47,6 +47,7 @@ class CeleryTaskModelForm(forms.ModelForm):
 @admin.register(models.CeleryTask)
 class CeleryTaskAdmin(admin.ModelAdmin):
     form = CeleryTaskModelForm
+    actions = ('cancel_selected_celery_tasks',)
 
     list_display = ('display_name', 'state_display', 'queued_datetime', 'task_name')
     list_filter = (
@@ -56,6 +57,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'queued_datetime',
         'completed_datetime',
     )
+    ordering = ('-queued_datetime',)
     search_fields = (
         'task_name',
         'display_name',
@@ -102,3 +104,17 @@ class CeleryTaskAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request: HttpRequest) -> bool:
         return False
+
+    @admin.action(description='Cancel Selected Celery Tasks', permissions=('change',))
+    def cancel_selected_celery_tasks(self, request: HttpRequest, queryset: QuerySet) -> None:
+        canceled_count = 0
+
+        for celery_task in queryset:
+            error = celery_task.services.cancel()
+
+            if error is None:
+                canceled_count += 1
+            else:
+                messages.warning(request, f'{celery_task.display_name}: {error}')
+
+        messages.success(request, f'Canceled {canceled_count} Celery Task(s)')

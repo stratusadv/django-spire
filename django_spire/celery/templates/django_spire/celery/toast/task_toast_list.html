@@ -5,10 +5,10 @@
             x-data="{
             reload_task() {
                 let task_toast_view = Glue.view(`{% url 'django_spire:celery:task:toast' celery_task.task_id %}`)
-                task_toast_view.renderInnerHtml($el, {})
+                return task_toast_view.renderInnerHtml($el, {})
             },
         }"
-            class="toast show mb-2 bg-light shadow"
+            class="toast show mb-2 shadow"
             role="alert"
             aria-live="assertive"
             aria-atomic="true"

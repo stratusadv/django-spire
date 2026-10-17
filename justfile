@@ -11,7 +11,7 @@ default:
     just --list
 
 celery:
-    {{ PYTHON }} -m celery -A test_project worker -l info --pool=threads
+    {{ PYTHON }} -m celery -A test_project worker -l info --pool=prefork --hostname spire-dev-{{ uuid() }}@%h
 
 docs:
     {{ MKDOCS }} serve
