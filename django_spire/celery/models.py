@@ -251,3 +251,20 @@ class CeleryTask(models.Model):
     @property
     def state_verbose(self) -> str:
         return self.state.replace('_', ' ').title()
+
+
+class CelerySchedulerTask(models.Model):
+    schedule_key = models.CharField(max_length=255, unique=True)
+    display_name = models.CharField(max_length=255)
+    crontab = models.CharField(max_length=64)
+    last_sent_datetime = models.DateTimeField(default=now)
+    claimed_by = models.CharField(max_length=255, default='', blank=True)
+
+    class Meta:
+        verbose_name = 'Celery Scheduler Task'
+        verbose_name_plural = 'Celery Scheduler Tasks'
+        db_table = 'django_spire_celery_scheduler_task'
+        ordering = ('schedule_key',)
+
+    def __str__(self) -> str:
+        return self.display_name

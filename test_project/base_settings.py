@@ -225,6 +225,12 @@ DJANGO_SPIRE_REPORT_REGISTRIES = [
     'test_project.app.task.reports.task_report_registry.TaskReportRegistry'
 ]
 
+# Celery Scheduler
+DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES = [
+    'test_project.app.celery.scheduler.TestProjectScheduler'
+]
+DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED = True
+
 # Search Registry
 DJANGO_SPIRE_SEARCH_REGISTRY = {
     'API_ACCESS': 'django_spire.api.search.ApiAccessSearch',

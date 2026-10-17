@@ -19,3 +19,6 @@ CELERY_RESULT_BACKEND = 'cache+memory://'
 # Keep metric click tracking off during tests (no background threads / DB writes).
 DJANGO_SPIRE_METRIC_STATISTIC_KEY = ''
 DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY = ''
+
+# Keep the embedded celery scheduler off during tests (no background threads / broker sends).
+DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED = False

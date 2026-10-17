@@ -128,7 +128,7 @@ class CeleryTaskWithModelObjectTestCase(TestCase):
 
 class CeleryTaskMetaTestCase(TestCase):
     def test_ordering_default(self) -> None:
-        assert CeleryTask._meta.ordering == ('-started_datetime',)
+        assert CeleryTask._meta.ordering == ('-queued_datetime',)
 
     def test_verbose_name(self) -> None:
         assert CeleryTask._meta.verbose_name == 'Celery Task'

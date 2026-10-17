@@ -462,7 +462,22 @@ Results: SUCCESS CeleryTasks pickle the return value; FAILURE CeleryTasks pickle
 
 Reaper: `python manage.py prune_stale_started_celery_tasks [--threshold 600] [--dry-run]` resolves stale STARTED CeleryTasks with no meta update past the threshold: CeleryTasks whose backend already reached a terminal state are synced via `update_from_backend()` (real terminal + metric), CeleryTasks still active on any worker (one `inspect().active()` broadcast) are skipped, and the rest are marked FAILURE with a `StaleStartedError` stamp. CeleryTasks are skipped, never marked FAILURE, when the backend read fails or the workers are unreachable. Schedule it only where the web process has broker access.
 
-Key files: `celery/runner.py` (`CeleryTaskRunner`), `celery/decorators.py` (`celery_task`), `celery/tracker.py`, `celery/state_machine.py`, `celery/services/service.py`, `celery/result.py`, `celery/management/commands/prune_stale_started_celery_tasks.py`. Example app: `test_project/app/celery/`.
+Scheduler: `CeleryScheduler` (`celery/scheduler.py`) is a beat-style cron scheduler embedded in the web process — it never executes task code, it only sends tasks to the broker when a cron slot is due. Projects subclass it seeder-style and register the class in `DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES`:
+
+```python
+from django_spire.celery.scheduler import CeleryScheduler, SchedulerTask
+
+
+class MyAppScheduler(CeleryScheduler):
+    tasks = [
+        SchedulerTask(PirateSongCeleryTaskManager, crontab='*/5 * * * *', kwargs={'length': 2}),
+        SchedulerTask(NinjaAttackCeleryTaskManager, crontab='0 */6 * * *', kwargs={'length': 1}),
+    ]
+```
+
+`SchedulerTask(manager_class, crontab, *, name=None, kwargs=None)` references an existing `BaseCeleryTaskManager` subclass (so kwargs validation, send retries, `spire_*` headers, and the `CeleryTask` run record all come for free) and a standard 5-field cron string. `CeleryScheduler.tasks` is required and validated in `__init_subclass__` (non-empty, unique entry names); each entry gets a stable `schedule_key` stamped. When `DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED` is true, a daemon thread starts from the celery app's `AppConfig.ready()` (it skips the runserver reloader parent via `RUN_MAIN`) and ticks every `DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS`. Because every web instance runs the thread, each slot is guarded by a per-entry atomic claim: one `CelerySchedulerTask` row per entry stores `last_sent_datetime` (the claim time), and on a due tick the instance computes the exact slot time (a pure function of the shared row, so all instances agree) and wins by rowcount on `filter(last_sent_datetime__lt=slot).update(...)` — a single atomic UPDATE, portable to Postgres and SQLite. Clock skew can only delay a fire, never duplicate one; a worker that was down fires at most once and reschedules from now (no replay of missed slots), and a fresh entry first fires on the next future slot (never retroactively). Claims are logged; per-entry failures are caught and logged so one bad entry never kills the loop. The project celery app must be importable in the web process (same requirement `BaseCeleryTaskManager.send_task` already has). Example: `test_project/app/celery/scheduler.py`.
+
+Key files: `celery/runner.py` (`CeleryTaskRunner`), `celery/decorators.py` (`celery_task`), `celery/tracker.py`, `celery/state_machine.py`, `celery/services/service.py`, `celery/result.py`, `celery/scheduler.py` (`CeleryScheduler`, `SchedulerTask`), `celery/management/commands/prune_stale_started_celery_tasks.py`. Example app: `test_project/app/celery/`.
 
 ## Access Control
 
@@ -709,7 +724,7 @@ For the full, current list use `constellation files contrib/` (or `ls django_spi
 | `django_spire/settings.py` | `DJANGO_SPIRE_*` default settings |
 | `django_spire/conf.py` | `settings` wrapper (project + default values) |
 
-Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`, `DJANGO_SPIRE_SEARCH_REGISTRY` (search palette class mapping), and a metric/remote group (`DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`, `DJANGO_SPIRE_METRIC_STATISTIC_KEY`/`SUB_DOMAIN_KEY`, `DJANGO_SPIRE_REMOTE_API_URL`/`KEY`).
+Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`, `DJANGO_SPIRE_SEARCH_REGISTRY` (search palette class mapping), `DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES` / `DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED` / `DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS` (embedded cron scheduler), and a metric/remote group (`DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`, `DJANGO_SPIRE_METRIC_STATISTIC_KEY`/`SUB_DOMAIN_KEY`, `DJANGO_SPIRE_REMOTE_API_URL`/`KEY`).
 
 ## Metric Click Tracking
 

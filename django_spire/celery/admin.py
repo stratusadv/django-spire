@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from typing_extensions import TYPE_CHECKING
 
 from celery import states
@@ -42,6 +44,29 @@ class CeleryTaskModelForm(forms.ModelForm):
     class Meta:
         model = models.CeleryTask
         fields = ('_task_meta',)
+
+
+@admin.register(models.CelerySchedulerTask)
+class CelerySchedulerTaskAdmin(admin.ModelAdmin):
+    list_display = ('display_name', 'schedule_key', 'crontab', 'last_sent_datetime', 'claimed_by')
+    search_fields = ('schedule_key', 'display_name')
+    readonly_fields = (
+        'schedule_key',
+        'display_name',
+        'crontab',
+        'last_sent_datetime',
+        'claimed_by',
+    )
+    ordering = ('schedule_key',)
+
+    def has_add_permission(self, _request: HttpRequest) -> bool:
+        return False
+
+    def has_change_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
+
+    def has_delete_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
 
 
 @admin.register(models.CeleryTask)
