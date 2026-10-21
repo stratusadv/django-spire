@@ -7,6 +7,7 @@ from celery.result import AsyncResult
 from django.db import models
 from django.utils.timezone import now
 
+from django_spire.celery.choices import CeleryTaskSourceChoices
 from django_spire.celery.meta import CeleryTaskMeta
 from django_spire.celery.querysets import CeleryTaskQuerySet
 from django_spire.celery.services.service import CeleryTaskService
@@ -37,6 +38,9 @@ class CeleryTask(models.Model):
     model_key = models.CharField(max_length=128, null=True, blank=True)
 
     state = models.CharField(max_length=32, choices=_celery_state_choices, default=states.PENDING)
+    source = models.CharField(
+        max_length=16, choices=CeleryTaskSourceChoices.choices, default=CeleryTaskSourceChoices.USER
+    )
 
     _task_meta = models.JSONField(default=dict, null=True, blank=True)
 

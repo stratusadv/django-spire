@@ -9,6 +9,7 @@ from celery import states
 from django.test import TestCase
 from django.utils.timezone import now
 
+from django_spire.celery.choices import CeleryTaskSourceChoices
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.tests.factories import create_test_celery_task
 from django_spire.celery.result import CeleryExceptionResult, CeleryNoResult, SendFailedError
@@ -43,6 +44,9 @@ class CeleryTaskModelTestCase(TestCase):
 
     def test_default_state(self) -> None:
         assert self.celery_task.state == states.PENDING
+
+    def test_default_source(self) -> None:
+        assert self.celery_task.source == CeleryTaskSourceChoices.USER
 
     def test_started_datetime_set(self) -> None:
         assert self.celery_task.started_datetime is not None

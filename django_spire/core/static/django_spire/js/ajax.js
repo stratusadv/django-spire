@@ -4,7 +4,7 @@ Spire.ajax = {
      */
     getCsrfToken() {
         const meta = document.querySelector('meta[name="spire-csrf-cookie-name"]');
-        const cookieName = meta ? meta.content : 'csrftoken';
+        const cookieName = meta && meta.content ? meta.content : 'csrftoken';
         return Spire.cookie.get(cookieName);
     },
 

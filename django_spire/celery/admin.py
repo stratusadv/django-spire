@@ -90,10 +90,11 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     form = CeleryTaskModelForm
     actions = ('cancel_selected_celery_tasks',)
 
-    list_display = ('display_name', 'state_display', 'queued_datetime', 'task_name')
+    list_display = ('display_name', 'state_display', 'source', 'queued_datetime', 'task_name')
     list_filter = (
         'task_name',
         'display_name',
+        'source',
         CeleryTaskStateFilter,
         'queued_datetime',
         'completed_datetime',
@@ -102,6 +103,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     search_fields = (
         'task_name',
         'display_name',
+        'source',
         'state',
         'reference_key',
         'queued_datetime',
@@ -115,6 +117,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'model_key',
         'task_name',
         'display_name',
+        'source',
         'state_display',
         'queued_datetime',
         'started_datetime',
@@ -129,6 +132,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'model_key',
         'task_name',
         'display_name',
+        'source',
         'state_display',
         'queued_datetime',
         'started_datetime',

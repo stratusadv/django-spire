@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 import threading
 import time
 import uuid
@@ -12,6 +13,7 @@ import pytest
 from django.test import override_settings
 from django.utils.module_loading import import_string
 
+from django_spire.celery.choices import CeleryTaskSourceChoices
 from django_spire.celery.manager import BaseCeleryTaskManager
 from django_spire.celery.models import CelerySchedulerTask
 from django_spire.celery.scheduler import (
@@ -20,6 +22,7 @@ from django_spire.celery.scheduler import (
     _STATE,
     _scheduler_loop,
     claim_schedule_slot,
+    prune_unregistered_scheduler_tasks,
     start_scheduler,
     stop_scheduler,
 )
@@ -210,6 +213,7 @@ class TestClaimScheduleSlot:
         claim_schedule_slot(entry, 'test:1')
 
         assert len(FakeManager.send_calls) == 1
+        assert FakeManager.send_calls[0]['source'] == CeleryTaskSourceChoices.SCHEDULED
 
         row = CelerySchedulerTask.objects.get(schedule_key=entry.schedule_key)
         assert row.last_sent_datetime == _BASE_TIME + timedelta(seconds=60)
@@ -280,6 +284,55 @@ class TestClaimScheduleSlot:
 
 
 @pytest.mark.django_db
+class TestPruneUnregisteredSchedulerTasks:
+    def test_deletes_rows_without_registered_entries(self):
+        state = {'t': _BASE_TIME}
+        entry = _make_entry(state)
+
+        CelerySchedulerTask.objects.create(
+            schedule_key=entry.schedule_key, display_name=entry.name, crontab=entry.crontab
+        )
+        orphan_key = 'prune_test.Gone::Old Task'
+        CelerySchedulerTask.objects.create(
+            schedule_key=orphan_key, display_name='Old Task', crontab='0 0 * * *'
+        )
+
+        deleted = prune_unregistered_scheduler_tasks([entry])
+
+        assert deleted == 1
+        assert CelerySchedulerTask.objects.filter(schedule_key=orphan_key).count() == 0
+        assert CelerySchedulerTask.objects.filter(schedule_key=entry.schedule_key).count() == 1
+
+    def test_keeps_rows_when_every_entry_is_registered(self):
+        state = {'t': _BASE_TIME}
+        entry_one = _make_entry(state)
+        entry_two = _make_entry(state)
+
+        for entry in (entry_one, entry_two):
+            CelerySchedulerTask.objects.create(
+                schedule_key=entry.schedule_key, display_name=entry.name, crontab=entry.crontab
+            )
+
+        deleted = prune_unregistered_scheduler_tasks([entry_one, entry_two])
+
+        assert deleted == 0
+        assert CelerySchedulerTask.objects.count() == 2
+
+    def test_deletes_all_rows_when_no_entries_remain(self):
+        CelerySchedulerTask.objects.create(
+            schedule_key='prune_test.GoneOne::Old One', display_name='Old One', crontab='0 0 * * *'
+        )
+        CelerySchedulerTask.objects.create(
+            schedule_key='prune_test.GoneTwo::Old Two', display_name='Old Two', crontab='0 0 * * *'
+        )
+
+        deleted = prune_unregistered_scheduler_tasks([])
+
+        assert deleted == 2
+        assert CelerySchedulerTask.objects.count() == 0
+
+
+@pytest.mark.django_db
 class TestSchedulerThread:
     def test_start_returns_false_when_disabled(self):
         assert start_scheduler() is False
@@ -301,6 +354,38 @@ class TestSchedulerThread:
             DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES=[_LOOP_SCHEDULER_PATH],
         ):
             assert start_scheduler() is False
+
+    def test_start_returns_false_for_management_commands(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(sys, 'argv', ['./manage.py', 'migrate'])
+
+        with override_settings(
+            DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED=True,
+            DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES=[_LOOP_SCHEDULER_PATH],
+        ):
+            assert start_scheduler() is False
+
+    def test_start_returns_true_for_runserver_command(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(sys, 'argv', ['./manage.py', 'runserver'])
+
+        with override_settings(
+            DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED=True,
+            DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES=[_STOP_SCHEDULER_PATH],
+            DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS=0.1,
+        ):
+            assert start_scheduler() is True
+            stop_scheduler(timeout=5)
+
+    def test_start_returns_true_for_wsgi_entry_point(self, monkeypatch: pytest.MonkeyPatch):
+        gunicorn_argv = ['/usr/local/bin/gunicorn', 'test_project.wsgi:application']
+        monkeypatch.setattr(sys, 'argv', gunicorn_argv)
+
+        with override_settings(
+            DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED=True,
+            DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES=[_STOP_SCHEDULER_PATH],
+            DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS=0.1,
+        ):
+            assert start_scheduler() is True
+            stop_scheduler(timeout=5)
 
     def test_start_is_idempotent(self):
         CelerySchedulerTask.objects.filter(schedule_key=_IDEMPOTENT_ROW_KEY).delete()
@@ -347,6 +432,30 @@ class TestSchedulerThread:
             assert not any(
                 thread.name == 'django-spire-celery-scheduler' for thread in threading.enumerate()
             )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_loop_prunes_unregistered_rows_on_start(self):
+        CelerySchedulerTask.objects.filter(schedule_key=_LOOP_ROW_KEY).delete()
+
+        orphan_key = 'prune_test.Gone::Loop Old Task'
+        CelerySchedulerTask.objects.create(
+            schedule_key=orphan_key, display_name='Loop Old Task', crontab='0 0 * * *'
+        )
+
+        with override_settings(
+            DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED=True,
+            DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES=[_LOOP_SCHEDULER_PATH],
+            DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS=0.1,
+        ):
+            assert start_scheduler() is True
+            try:
+                assert _wait_until(
+                    lambda: CelerySchedulerTask.objects.filter(schedule_key=orphan_key).count() == 0
+                )
+            finally:
+                stop_scheduler(timeout=5)
+
+            assert CelerySchedulerTask.objects.filter(schedule_key=_LOOP_ROW_KEY).count() == 1
 
 
 @pytest.mark.django_db

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 import threading
 import time
 import uuid
@@ -158,6 +159,21 @@ class TestSweepThread:
 
         with override_settings(DJANGO_SPIRE_CELERY_SWEEP_ENABLED=True):
             assert start_sweep() is False
+
+    def test_start_returns_false_for_management_commands(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(sys, 'argv', ['./manage.py', 'migrate'])
+
+        with override_settings(DJANGO_SPIRE_CELERY_SWEEP_ENABLED=True):
+            assert start_sweep() is False
+
+    def test_start_returns_true_for_runserver_command(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(sys, 'argv', ['./manage.py', 'runserver'])
+
+        with override_settings(
+            DJANGO_SPIRE_CELERY_SWEEP_ENABLED=True, DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS=0.1
+        ):
+            assert start_sweep() is True
+            stop_sweep(timeout=5)
 
     def test_start_is_idempotent(self):
         CeleryTaskSweep.objects.filter(key='default').delete()

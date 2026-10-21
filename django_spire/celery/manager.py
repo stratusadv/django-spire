@@ -19,6 +19,7 @@ from kombu.exceptions import ChannelError
 from kombu.exceptions import ConnectionError as KombuConnectionError
 from pydantic import create_model, BaseModel
 
+from django_spire.celery.choices import CeleryTaskSourceChoices
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.result import CeleryExceptionResult, SendFailedError
 from django_spire.celery.services.resolver import resolve_celery_tasks
@@ -119,7 +120,14 @@ class BaseCeleryTaskManager(ABC):
 
         return headers
 
-    def send_task(self, **kwargs) -> CeleryTask:
+    def send_task(self, source: str = CeleryTaskSourceChoices.USER, **kwargs) -> CeleryTask:
+        if source not in CeleryTaskSourceChoices.values:
+            message = (
+                f'{self.class_and_send_task_method} got invalid source "{source}" '
+                f'must be one of {CeleryTaskSourceChoices.values}'
+            )
+            raise ValueError(message)
+
         self._validate_and_kwargs(**kwargs)
 
         if self.resolve_unready_before_send:
@@ -138,7 +146,7 @@ class BaseCeleryTaskManager(ABC):
                 async_result = send_task(
                     name=self.task_name, kwargs=kwargs, headers=self._send_headers()
                 )
-                return self._create_celery_task(async_result)
+                return self._create_celery_task(async_result, source)
             except _SEND_RETRYABLE_EXCEPTIONS as e:
                 attempt += 1
                 last_exception = e
@@ -149,10 +157,10 @@ class BaseCeleryTaskManager(ABC):
                 time.sleep(1 * (2 ** (attempt - 1)))
 
         return self._create_failed_celery_task(
-            error_message=str(last_exception) if last_exception else 'Unknown error'
+            error_message=str(last_exception) if last_exception else 'Unknown error', source=source
         )
 
-    def _create_celery_task(self, async_result: Any) -> CeleryTask:
+    def _create_celery_task(self, async_result: Any, source: str) -> CeleryTask:
         self._validate_model_object()
 
         return CeleryTask.objects.create(
@@ -161,9 +169,10 @@ class BaseCeleryTaskManager(ABC):
             display_name=self.display_name[:255],
             reference_key=self.reference_key,
             model_key=self.model_key,
+            source=source,
         )
 
-    def _create_failed_celery_task(self, error_message: str) -> CeleryTask:
+    def _create_failed_celery_task(self, error_message: str, source: str) -> CeleryTask:
         self._validate_model_object()
 
         failed_task_id = uuid.uuid4()
@@ -178,6 +187,7 @@ class BaseCeleryTaskManager(ABC):
             display_name=self.display_name[:255],
             reference_key=self.reference_key,
             model_key=self.model_key,
+            source=source,
             state=states.FAILURE,
             started_datetime=now(),
             completed_datetime=now(),

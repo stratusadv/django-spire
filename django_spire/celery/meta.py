@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, UTC
-from typing import Any, Callable, Generic, Self, TypeVar
+    from typing import Any, Callable, Generic, Self, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 

@@ -9,11 +9,14 @@ from typing import Any, Callable
 
 import celery.schedules
 from django.db import close_old_connections
+from django.db.models import Q
 from django.utils.module_loading import import_string
 from django.utils.timezone import now as django_now
 
+from django_spire.celery.choices import CeleryTaskSourceChoices
 from django_spire.celery.manager import BaseCeleryTaskManager
 from django_spire.celery.models import CelerySchedulerTask, CeleryTask
+from django_spire.celery.process import is_web_server_process
 from django_spire.conf import settings as spire_settings
 
 logger = logging.getLogger(__name__)
@@ -144,7 +147,18 @@ def claim_schedule_slot(entry: SchedulerTask, claimed_by: str) -> CeleryTask | N
     if claimed != 1:
         return None
 
-    return entry.manager_class().send_task(**entry.kwargs)
+    return entry.manager_class().send_task(source=CeleryTaskSourceChoices.SCHEDULED, **entry.kwargs)
+
+
+def prune_unregistered_scheduler_tasks(entries: list[SchedulerTask]) -> int:
+    registered_keys = {entry.schedule_key for entry in entries}
+
+    deleted, _ = CelerySchedulerTask.objects.filter(~Q(schedule_key__in=registered_keys)).delete()
+
+    if deleted:
+        logger.info('Pruned %s unregistered CelerySchedulerTask row(s)', deleted)
+
+    return deleted
 
 
 def _instance_id() -> str:
@@ -165,6 +179,11 @@ def _scheduler_loop(entries: list[SchedulerTask], tick_seconds: float) -> None:
     claimed_by = _instance_id()
 
     logger.info('Celery scheduler started with %s scheduled task(s)', len(entries))
+
+    try:
+        prune_unregistered_scheduler_tasks(entries)
+    except Exception:
+        logger.exception('Failed to prune unregistered CelerySchedulerTask rows')
 
     try:
         while not _STATE.stop_event.is_set():
@@ -204,7 +223,7 @@ def start_scheduler() -> bool:
     if not spire_settings.DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES:
         return False
 
-    if os.environ.get('RUN_MAIN', 'true') == 'false':
+    if not is_web_server_process():
         return False
 
     with _STATE.start_lock:

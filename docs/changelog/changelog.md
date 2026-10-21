@@ -1,5 +1,58 @@
 # Changelog
 
+## v1.3.0
+
+### Features
+
+- The Celery task system was rebuilt as a worker/web split design (this module is in a working alpha state):
+  - Worker tasks are authored with the `celery_task` decorator and run on a
+    `CeleryTaskRunner`. `self.tracker` reports progress (`set_started`, `set_completed`,
+    `update_state`, `update_count_progress`, cumulative progress, `set_retries`), and a
+    `TaskDataModel` subclass registered as `meta_data_model` types `tracker.meta.data`.
+    Mid-run updates are coalesced by a flusher thread that pushes them to the result
+    backend at a fixed interval, so task code never blocks on backend I/O.
+  - The worker writes only to the Celery result backend; the web process is the single
+    writer of the `CeleryTask` row, syncing from the backend on every request through a
+    state machine that drops stale and backwards transitions, keeps progress monotonic,
+    and fires the terminal metric exactly once per transition.
+  - `BaseCeleryTaskManager.send_task` validates kwargs, retries the send with
+    exponential backoff, stamps `spire_*` headers, and records a FAILURE `CeleryTask`
+    carrying a `CeleryExceptionResult` when the send itself fails (surfaced via
+    `send_error_message` / `send_error_details`). Managers can opt into
+    `dedupe_unready = True` to reuse an existing unready task instead of re-sending.
+  - FAILURE tasks store a pickled `CeleryExceptionResult` (exception type, message,
+    traceback) in the result column plus a formatted `exception_traceback` column,
+    rendered in the task UI and the admin change page.
+  - A new `celery:task:cancel` view (and an admin action) cancels a running task.
+  - An embedded cron scheduler: subclass `CeleryScheduler` with `SchedulerTask` entries
+    (an existing `BaseCeleryTaskManager` subclass + a 5-field cron string), register the
+    class in `DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES`, and a daemon thread in the web
+    process sends the task when its cron slot is due — no beat server. Slot claims are
+    atomic per entry on a `CelerySchedulerTask` row, so multiple web instances agree, a
+    down instance fires at most once on recovery, and missed slots are never replayed.
+  - A background sweep thread resolves non-ready `CeleryTask` rows from the result
+    backend in batches (up to `DJANGO_SPIRE_CELERY_SWEEP_TASK_LIMIT` per
+    `DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS`), keeping task status fresh even when
+    no page is viewing it. The `prune_stale_started_celery_tasks` management command
+    resolves stuck STARTED tasks: it syncs tasks whose backend reached a terminal state,
+    skips tasks still active on any worker, and marks the rest FAILURE.
+  - New settings: `DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES`,
+    `DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED`, `DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS`,
+    `DJANGO_SPIRE_CELERY_SWEEP_ENABLED`, `DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS`,
+    and `DJANGO_SPIRE_CELERY_SWEEP_TASK_LIMIT`.
+
+### Changes
+
+- `Spire.ajax` honors a custom `CSRF_COOKIE_NAME`: it reads the cookie name from a
+  `spire-csrf-cookie-name` meta tag (served by the `django_spire` context processor from
+  `settings.CSRF_COOKIE_NAME`) instead of a hardcoded `csrftoken`.
+
+### Fixes
+
+- `Spire.ajax` no longer raises on a non-JSON response body (such as an HTML error
+  page): a failed response resolves with `data: null`.
+- Fixed typo in the rest api access list card to properly read `API Docs`.
+
 ## v1.2.3
 
 ### Fixes

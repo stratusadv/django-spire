@@ -10,6 +10,7 @@ from django.db import close_old_connections
 from django.utils.timezone import now as django_now
 
 from django_spire.celery.models import CeleryTask, CeleryTaskSweep
+from django_spire.celery.process import is_web_server_process
 from django_spire.celery.services.resolver import resolve_celery_tasks
 from django_spire.conf import settings as spire_settings
 
@@ -79,7 +80,7 @@ def start_sweep() -> bool:
     if not spire_settings.DJANGO_SPIRE_CELERY_SWEEP_ENABLED:
         return False
 
-    if os.environ.get('RUN_MAIN', 'true') == 'false':
+    if not is_web_server_process():
         return False
 
     with _STATE.start_lock:
