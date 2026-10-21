@@ -22,3 +22,6 @@ DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY = ''
 
 # Keep the embedded celery scheduler off during tests (no background threads / broker sends).
 DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED = False
+
+# Keep the celery task sweep off during tests (no background threads / backend reads).
+DJANGO_SPIRE_CELERY_SWEEP_ENABLED = False

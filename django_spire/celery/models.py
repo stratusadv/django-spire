@@ -13,8 +13,19 @@ from django_spire.celery.services.service import CeleryTaskService
 from django_spire.contrib.utils import format_duration
 
 
+_CELERY_STATE_ORDER = (
+    states.PENDING,
+    states.RECEIVED,
+    states.STARTED,
+    states.RETRY,
+    states.FAILURE,
+    states.SUCCESS,
+    states.REVOKED,
+)
+
+
 def _celery_state_choices() -> list:
-    return [(state, state.title()) for state in states.ALL_STATES]
+    return [(state, state.title()) for state in _CELERY_STATE_ORDER]
 
 
 class CeleryTask(models.Model):
@@ -103,7 +114,15 @@ class CeleryTask(models.Model):
         if self.state != states.FAILURE:
             return False
 
-        return isinstance(pickle.loads(self._result), CeleryExceptionResult)
+        if not self._result:
+            return False
+
+        try:
+            result = pickle.loads(self._result)
+        except (EOFError, pickle.UnpicklingError):
+            return False
+
+        return isinstance(result, CeleryExceptionResult)
 
     @property
     def exception_result(self) -> CeleryExceptionResult | None:
@@ -268,3 +287,18 @@ class CelerySchedulerTask(models.Model):
 
     def __str__(self) -> str:
         return self.display_name
+
+
+class CeleryTaskSweep(models.Model):
+    key = models.CharField(max_length=255, unique=True, default='default')
+    last_swept_datetime = models.DateTimeField(default=now)
+    claimed_by = models.CharField(max_length=255, default='', blank=True)
+
+    class Meta:
+        verbose_name = 'Celery Task Sweep'
+        verbose_name_plural = 'Celery Task Sweeps'
+        db_table = 'django_spire_celery_task_sweep'
+        ordering = ('key',)
+
+    def __str__(self) -> str:
+        return self.key

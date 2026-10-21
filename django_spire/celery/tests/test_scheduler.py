@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import logging
 import threading
 import time
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
 from django.test import override_settings
@@ -15,6 +17,8 @@ from django_spire.celery.models import CelerySchedulerTask
 from django_spire.celery.scheduler import (
     CeleryScheduler,
     SchedulerTask,
+    _STATE,
+    _scheduler_loop,
     claim_schedule_slot,
     start_scheduler,
     stop_scheduler,
@@ -310,6 +314,7 @@ class TestSchedulerThread:
             assert start_scheduler() is False
             stop_scheduler(timeout=5)
 
+    @pytest.mark.django_db(transaction=True)
     def test_scheduler_loop_sends_due_slot_once(self):
         CelerySchedulerTask.objects.filter(schedule_key=_LOOP_ROW_KEY).delete()
 
@@ -342,6 +347,37 @@ class TestSchedulerThread:
             assert not any(
                 thread.name == 'django-spire-celery-scheduler' for thread in threading.enumerate()
             )
+
+
+@pytest.mark.django_db
+class TestSchedulerLoopLiveness:
+    def test_loop_crash_logs_error_and_exits(self, caplog: pytest.LogCaptureFixture) -> None:
+        with (
+            patch.object(_STATE.stop_event, 'wait', side_effect=RuntimeError('boom')),
+            caplog.at_level(logging.INFO, logger='django_spire.celery.scheduler'),
+        ):
+            thread = threading.Thread(target=_scheduler_loop, args=([], 0.1), daemon=True)
+            thread.start()
+            thread.join(timeout=30)
+
+        assert not thread.is_alive()
+        messages = [record.message for record in caplog.records]
+        assert any('Celery scheduler loop crashed' in message for message in messages)
+        assert any('Celery scheduler stopped' in message for message in messages)
+
+    def test_graceful_stop_does_not_log_crash(self, caplog: pytest.LogCaptureFixture) -> None:
+        with caplog.at_level(logging.INFO, logger='django_spire.celery.scheduler'):
+            thread = threading.Thread(target=_scheduler_loop, args=([], 0.1), daemon=True)
+            thread.start()
+            time.sleep(0.25)
+            _STATE.stop_event.set()
+            thread.join(timeout=30)
+            _STATE.stop_event.clear()
+
+        assert not thread.is_alive()
+        messages = [record.message for record in caplog.records]
+        assert any('Celery scheduler stopped' in message for message in messages)
+        assert not any('crashed' in message for message in messages)
 
 
 class TestProjectSchedulerRegistration:

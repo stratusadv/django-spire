@@ -607,3 +607,100 @@ class BaseCeleryTaskManagerDedupeUnreadyTestCase(TestCase):
         headers = mock_send_task.call_args[1]['headers']
         assert 'spire_model_key' not in headers
         assert headers['spire_reference_key'] == manager.reference_key
+
+
+def _backend_result(state: str, info: dict | None = None, **overrides) -> MagicMock:
+    mock_result = MagicMock()
+    mock_result._get_task_meta.return_value = {'status': state, 'result': info}
+    mock_result.backend.get_task_meta.return_value = {'status': states.PENDING, 'result': None}
+    for key, value in overrides.items():
+        setattr(mock_result, key, value)
+
+    return mock_result
+
+
+class BaseCeleryTaskManagerResolveUnreadyGateTestCase(TestCase):
+    def test_default_resolve_unready_before_send_is_false(self) -> None:
+        manager = ManagerTestCeleryTaskManager()
+        assert manager.resolve_unready_before_send is False
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_gate_sends_when_backend_shows_finished(self, mock_send_task: MagicMock) -> None:
+        class GatedManager(BaseCeleryTaskManager):
+            task_name = 'gated_task'
+            display_name = 'Gated Task'
+            resolve_unready_before_send = True
+
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = GatedManager()
+        existing_row = create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.STARTED
+        )
+
+        finished_result = _backend_result(states.SUCCESS, get=MagicMock(return_value='finished'))
+
+        with patch.object(CeleryTask, 'async_result', new=property(lambda _: finished_result)):
+            result = manager.send_task()
+
+        mock_send_task.assert_called_once()
+        assert result.pk != existing_row.pk
+        assert str(result.task_id) == str(valid_uuid)
+
+        existing_row.refresh_from_db()
+        assert existing_row.state == states.SUCCESS
+        assert existing_row.result == 'finished'
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_gate_reuses_row_still_running_in_backend(self, mock_send_task: MagicMock) -> None:
+        class GatedRunningManager(BaseCeleryTaskManager):
+            task_name = 'gated_task_running'
+            display_name = 'Gated Task Running'
+            resolve_unready_before_send = True
+
+        manager = GatedRunningManager()
+        existing_row = create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.STARTED
+        )
+
+        running_result = _backend_result(states.STARTED, info={'progress': 0.5})
+
+        with patch.object(CeleryTask, 'async_result', new=property(lambda _: running_result)):
+            result = manager.send_task()
+
+        assert result.pk == existing_row.pk
+        mock_send_task.assert_not_called()
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_non_opted_in_manager_does_not_resolve(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+        existing_row = create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.STARTED
+        )
+
+        calls = MagicMock()
+
+        def async_result_getter(task: CeleryTask) -> MagicMock:
+            calls(task)
+            return MagicMock()
+
+        with patch.object(CeleryTask, 'async_result', new=property(async_result_getter)):
+            result = manager.send_task()
+
+        mock_send_task.assert_called_once()
+        assert str(result.task_id) == str(valid_uuid)
+        calls.assert_not_called()
+
+        existing_row.refresh_from_db()
+        assert existing_row.state == states.STARTED

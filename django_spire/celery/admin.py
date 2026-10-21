@@ -4,7 +4,6 @@ from typing import Any
 
 from typing_extensions import TYPE_CHECKING
 
-from celery import states
 from django import forms
 from django.contrib import admin, messages
 
@@ -21,7 +20,7 @@ class CeleryTaskStateFilter(admin.SimpleListFilter):
     parameter_name = 'state'
 
     def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin) -> list[tuple[str, str]]:
-        standard_states = list(states.ALL_STATES)
+        standard_states = list(models._CELERY_STATE_ORDER)
         observed_states = model_admin.model.objects.values_list('state', flat=True).distinct()
 
         return [
@@ -58,6 +57,23 @@ class CelerySchedulerTaskAdmin(admin.ModelAdmin):
         'claimed_by',
     )
     ordering = ('schedule_key',)
+
+    def has_add_permission(self, _request: HttpRequest) -> bool:
+        return False
+
+    def has_change_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
+
+    def has_delete_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
+
+
+@admin.register(models.CeleryTaskSweep)
+class CeleryTaskSweepAdmin(admin.ModelAdmin):
+    list_display = ('key', 'last_swept_datetime', 'claimed_by')
+    search_fields = ('key', 'claimed_by')
+    readonly_fields = ('key', 'last_swept_datetime', 'claimed_by')
+    ordering = ('key',)
 
     def has_add_permission(self, _request: HttpRequest) -> bool:
         return False

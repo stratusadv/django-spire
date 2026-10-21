@@ -23,6 +23,11 @@ from django_spire.celery.views.task_views import (
     task_toast_list_view,
 )
 
+_TRACK_CONFIGURED = (
+    'django_spire.metric.domain.statistic.services.tracking_service'
+    '.StatisticTrackingService.track_configured'
+)
+
 
 class BaseTaskViewTestCase(TestCase):
     def setUp(self) -> None:
@@ -263,6 +268,49 @@ class TaskItemListViewTestCase(TestCase):
         assert self.task1 in tasks
         assert self.task2 not in tasks
         assert self.task3 in tasks
+
+    @patch(_TRACK_CONFIGURED)
+    def test_task_item_list_view_resolves_finished_tasks_from_backend(
+        self, mock_track_configured: MagicMock
+    ) -> None:
+        pending_result = MagicMock()
+        pending_result._get_task_meta.return_value = {'status': states.PENDING, 'result': None}
+        pending_result.backend.get_task_meta.return_value = {
+            'status': states.PENDING,
+            'result': None,
+        }
+
+        finished_result = MagicMock()
+        finished_result._get_task_meta.return_value = {'status': states.SUCCESS, 'result': None}
+        finished_result.get.return_value = 'finished'
+        finished_result.backend.get_task_meta.return_value = {
+            'status': states.PENDING,
+            'result': None,
+        }
+
+        def async_result_getter(celery_task: CeleryTask) -> MagicMock:
+            if celery_task.pk == self.task1.pk:
+                return pending_result
+            return finished_result
+
+        with patch.object(CeleryTask, 'async_result', new=property(async_result_getter)):
+            request = self.factory.post(
+                '/celery/task/item_list/',
+                data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
+                content_type='application/json',
+            )
+            request.user = self.super_user
+
+            response = task_item_list_view(request)
+
+        tasks = list(response.context_data['celery_tasks'])
+        assert self.task1 in tasks
+        assert self.task3 not in tasks
+
+        self.task3.refresh_from_db()
+        assert self.task3.state == states.SUCCESS
+        assert self.task3.result == 'finished'
+        mock_track_configured.assert_called_once_with(reference='celery_task_success')
 
     def test_task_item_list_view_with_show_all_parameter(self) -> None:
         request = self.factory.post(

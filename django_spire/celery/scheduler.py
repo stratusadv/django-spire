@@ -190,6 +190,8 @@ def _scheduler_loop(entries: list[SchedulerTask], tick_seconds: float) -> None:
                     )
 
             _STATE.stop_event.wait(tick_seconds)
+    except Exception:
+        logger.exception('Celery scheduler loop crashed')
     finally:
         close_old_connections()
         logger.info('Celery scheduler stopped')

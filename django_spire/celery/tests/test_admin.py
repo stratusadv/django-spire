@@ -5,14 +5,15 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 from celery import states
+from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
-from django.test import SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.celery.admin import CeleryTaskAdmin
-from django_spire.celery.models import CeleryTask
+from django_spire.celery.admin import CeleryTaskAdmin, CeleryTaskSweepAdmin
+from django_spire.celery.models import CeleryTask, CeleryTaskSweep
 from django_spire.celery.tests.factories import create_test_celery_task
 
 if TYPE_CHECKING:
@@ -52,6 +53,15 @@ class CeleryTaskAdminTestCase(BaseTestCase):
 
         assert response.status_code == 200
         assert TRACEBACK_STRING in response.content.decode()
+
+    def test_change_form_loads_for_failure_task_with_empty_result(self) -> None:
+        task = create_test_celery_task(state=states.FAILURE, _result=b'')
+        url = reverse('admin:django_spire_celery_celerytask_change', args=[task.pk])
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert task.exception_result is None
 
 
 CUSTOM_STATE = 'MAKING NOISES'
@@ -102,6 +112,27 @@ class CeleryTaskAdminExceptionResultTestCase(SimpleTestCase):
     def test_exception_traceback_is_readonly_and_listed(self) -> None:
         assert 'exception_traceback' in CeleryTaskAdmin.readonly_fields
         assert 'exception_traceback' in CeleryTaskAdmin.fields
+
+
+class CeleryTaskSweepAdminTestCase(BaseTestCase):
+    def test_registered_and_read_only(self) -> None:
+        request = RequestFactory().get('/admin/')
+        request.user = self.super_user
+
+        model_admin = admin.site._registry[CeleryTaskSweep]
+
+        assert isinstance(model_admin, CeleryTaskSweepAdmin)
+        assert model_admin.has_add_permission(request) is False
+        assert model_admin.has_change_permission(request) is False
+        assert model_admin.has_delete_permission(request) is False
+
+    def test_changelist_displays_sweep_rows(self) -> None:
+        CeleryTaskSweep.objects.create(key='test_sweep_key', claimed_by='host:1')
+
+        response = self.client.get(reverse('admin:django_spire_celery_celerytasksweep_changelist'))
+
+        assert response.status_code == 200
+        assert 'test_sweep_key' in response.content.decode()
 
 
 class CeleryTaskAdminCancelActionTestCase(BaseTestCase):

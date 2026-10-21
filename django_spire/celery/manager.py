@@ -21,6 +21,7 @@ from pydantic import create_model, BaseModel
 
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.result import CeleryExceptionResult, SendFailedError
+from django_spire.celery.services.resolver import resolve_celery_tasks
 
 _MAX_SEND_TASK_RETRIES = 5
 
@@ -43,6 +44,7 @@ class BaseCeleryTaskManager(ABC):
     required_kwargs_keys_types: dict[str, type] | None = None
     send_task_retries: int = 2
     dedupe_unready: bool = False
+    resolve_unready_before_send: bool = False
 
     def __init_subclass__(cls, **kwargs) -> None:
         required_class_attributes = ('task_name', 'display_name')
@@ -120,7 +122,10 @@ class BaseCeleryTaskManager(ABC):
     def send_task(self, **kwargs) -> CeleryTask:
         self._validate_and_kwargs(**kwargs)
 
-        if self.dedupe_unready:
+        if self.resolve_unready_before_send:
+            resolve_celery_tasks(self.filter_celery_tasks().by_unready())
+
+        if self.dedupe_unready or self.resolve_unready_before_send:
             unready_task = self.filter_celery_tasks().by_unready().first()
             if unready_task is not None:
                 return unready_task

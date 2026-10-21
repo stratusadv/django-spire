@@ -11,6 +11,7 @@ from django.template.response import TemplateResponse
 
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.celery.models import CeleryTask
+from django_spire.celery.services.resolver import resolve_celery_tasks
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -66,6 +67,7 @@ def _list_view(request: WSGIRequest, template: str) -> TemplateResponse:
     celery_tasks = CeleryTask.objects.by_reference_keys_model_keys(reference_keys_model_keys)
 
     if data.get('show_all') is None:
+        resolve_celery_tasks(celery_tasks.by_unready())
         celery_tasks = celery_tasks.by_unready()
 
     context = {'celery_tasks': celery_tasks}
