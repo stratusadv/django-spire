@@ -26,6 +26,7 @@ def create_test_celery_task(
     _result=None,
     model_object=None,
     queued_datetime=None,
+    exception_traceback: str = '',
 ) -> CeleryTask:
     if reference_key is None:
         reference_key = f'test_reference_key_{uuid.uuid4().hex[:8]}'
@@ -70,4 +71,5 @@ def create_test_celery_task(
         completed_datetime=completed_datetime,
         _task_meta=task_meta or {},
         _result=result_value,
+        exception_traceback=exception_traceback,
     )

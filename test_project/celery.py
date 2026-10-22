@@ -10,7 +10,8 @@ app.conf.update(
     task_reject_on_worker_lost=True,
     task_time_limit=3600,
     task_soft_time_limit=3500,
-    worker_max_tasks_per_child=200,  # leak insurance w/ threads pool
+    worker_max_tasks_per_child=200,  # leak insurance: recycles prefork children after 200 tasks
+    worker_deduplicate_successful_tasks=True,  # needs acks_late + persistent backend
     broker_connection_retry_on_startup=True,
 )
 app.conf.task_default_queue = 'django_spire_test_project_queue'

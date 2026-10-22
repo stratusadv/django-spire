@@ -5,10 +5,13 @@ import json
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.celery.models import CeleryTask
+from django_spire.celery.services.resolver import resolve_celery_tasks
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -18,7 +21,7 @@ if TYPE_CHECKING:
 def _task_view(request: WSGIRequest, template: str, task_id: str) -> TemplateResponse:
     celery_task = get_object_or_404(CeleryTask, task_id=task_id)
 
-    celery_task.services.update_from_async_result_and_save_if_change()
+    celery_task.services.update_from_backend()
 
     context = {'celery_task': celery_task}
 
@@ -37,10 +40,22 @@ def task_toast_view(request: WSGIRequest, task_id: str) -> TemplateResponse:
     return _task_view(request, template, task_id)
 
 
+@permission_required('django_spire_celery.change_celerytask')
+def task_cancel_view(request: WSGIRequest, task_id: str) -> JsonResponse:
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    celery_task = get_object_or_404(CeleryTask, task_id=task_id)
+
+    error = celery_task.services.cancel()
+    if error is not None:
+        return JsonResponse({'error': error}, status=409)
+
+    return JsonResponse({'canceled': True, 'task_id': str(celery_task.task_id)})
+
+
 @login_required
-def _list_view(
-        request: WSGIRequest, template: str
-) -> TemplateResponse:
+def _list_view(request: WSGIRequest, template: str) -> TemplateResponse:
     data = json.loads(request.body)
 
     reference_keys_model_keys = {}
@@ -52,6 +67,7 @@ def _list_view(
     celery_tasks = CeleryTask.objects.by_reference_keys_model_keys(reference_keys_model_keys)
 
     if data.get('show_all') is None:
+        resolve_celery_tasks(celery_tasks.by_unready())
         celery_tasks = celery_tasks.by_unready()
 
     context = {'celery_tasks': celery_tasks}

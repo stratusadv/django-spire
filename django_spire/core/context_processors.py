@@ -13,7 +13,10 @@ THEME_COOKIE_NAME = 'django_spire-theme-mode'
 
 
 def django_spire(_request: WSGIRequest) -> dict[str, Any]:
-    return {'DJANGO_SPIRE_VERSION': __VERSION__}
+    return {
+        'DJANGO_SPIRE_VERSION': __VERSION__,
+        'DJANGO_SPIRE_CSRF_COOKIE_NAME': settings.CSRF_COOKIE_NAME,
+    }
 
 
 def theme_context(request: WSGIRequest) -> dict[str, Any]:

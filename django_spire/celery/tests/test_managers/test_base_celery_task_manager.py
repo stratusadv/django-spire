@@ -10,8 +10,11 @@ from unittest.mock import MagicMock, patch
 from celery import states
 from django.test import TestCase, override_settings
 
+from django_spire.celery.choices import CeleryTaskSourceChoices
 from django_spire.celery.manager import BaseCeleryTaskManager
 from django_spire.celery.models import CeleryTask
+from django_spire.celery.result import CeleryExceptionResult, CeleryNoResult
+from django_spire.celery.tests.factories import create_test_celery_task
 
 
 SECRET_KEY = 'test-secret-key'
@@ -380,7 +383,8 @@ class BaseCeleryTaskManagerRetryTestCase(TestCase):
 
         assert mock_send_task.call_count == 1
         result_data = pickle.loads(celery_task._result)
-        assert result_data.get('error') == 'SEND_FAILED'
+        assert isinstance(result_data, CeleryExceptionResult)
+        assert result_data.exc_type == 'SendFailedError'
 
 
 class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
@@ -408,8 +412,10 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
 
         assert isinstance(celery_task, CeleryTask)
         assert celery_task.state == states.FAILURE
+        assert celery_task.send_failed is True
         result_data = pickle.loads(celery_task._result)
-        assert result_data.get('error') == 'SEND_FAILED'
+        assert isinstance(result_data, CeleryExceptionResult)
+        assert result_data.exc_type == 'SendFailedError'
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
@@ -422,7 +428,9 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
         celery_task = manager.send_task()
 
         result_data = pickle.loads(celery_task._result)
-        assert 'RabbitMQ connection refused' in result_data.get('message')
+        assert isinstance(result_data, CeleryExceptionResult)
+        assert 'RabbitMQ connection refused' in result_data.message
+        assert 'RabbitMQ connection refused' in (celery_task.send_error_message or '')
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
@@ -435,12 +443,13 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
         celery_task = manager.send_task()
 
         result_data = pickle.loads(celery_task._result)
-        assert result_data.get('error') == 'SEND_FAILED'
-        assert result_data.get('task_name') == 'test_task'
+        assert isinstance(result_data, CeleryExceptionResult)
+        assert result_data.exc_type == 'SendFailedError'
+        assert celery_task.send_error_details['task_name'] == 'test_task'
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
-    def test_failed_record_preserves_original_kwargs(self, mock_send_task: MagicMock) -> None:
+    def test_failed_record_details_omit_unknown_args(self, mock_send_task: MagicMock) -> None:
         from kombu.exceptions import OperationalError as KombuOperationalError
 
         mock_send_task.side_effect = KombuOperationalError('Failed')
@@ -448,9 +457,10 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
         manager = ManagerTestCeleryTaskManager()
         celery_task = manager.send_task(arg1='value1', arg2='value2', key='value')
 
-        result_data = pickle.loads(celery_task._result)
-        assert result_data.get('args') == ()
-        assert result_data.get('kwargs') == {'arg1': 'value1', 'arg2': 'value2', 'key': 'value'}
+        details = celery_task.send_error_details
+        assert details['task_name'] == 'test_task'
+        assert details['args'] is None
+        assert details['kwargs'] is None
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
@@ -466,12 +476,12 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
 
         success_task = manager.send_task()
         result_data = pickle.loads(success_task._result)
-        error = result_data.get('error') if isinstance(result_data, dict) else None
-        assert error != 'SEND_FAILED'
+        assert isinstance(result_data, CeleryNoResult)
+        assert success_task.send_failed is False
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
-    def test_failed_task_result_returns_error_data(self, mock_send_task: MagicMock) -> None:
+    def test_failed_task_result_is_none(self, mock_send_task: MagicMock) -> None:
         from kombu.exceptions import OperationalError as KombuOperationalError
 
         mock_send_task.side_effect = KombuOperationalError('Connection lost')
@@ -479,10 +489,8 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
         manager = ManagerTestCeleryTaskManager()
         celery_task = manager.send_task(data_id=123)
 
-        result_data = pickle.loads(celery_task._result)
-        assert result_data['error'] == 'SEND_FAILED'
-        assert result_data['message'] == 'Connection lost'
-        assert result_data['kwargs'] == {'data_id': 123}
+        assert celery_task.result is None
+        assert celery_task.send_error_message == 'Connection lost'
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
@@ -499,4 +507,270 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
 
         for task in tasks:
             result_data = pickle.loads(task._result)
-            assert result_data.get('error') == 'SEND_FAILED'
+            assert isinstance(result_data, CeleryExceptionResult)
+            assert result_data.exc_type == 'SendFailedError'
+
+
+class BaseCeleryTaskManagerDedupeUnreadyTestCase(TestCase):
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    def test_default_dedupe_unready_is_false(self) -> None:
+        manager = ManagerTestCeleryTaskManager()
+        assert manager.dedupe_unready is False
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_opted_in_manager_reuses_unready_row(self, mock_send_task: MagicMock) -> None:
+        class DedupeManager(BaseCeleryTaskManager):
+            task_name = 'dedupe_task'
+            display_name = 'Dedupe Task'
+            dedupe_unready = True
+
+        manager = DedupeManager()
+        existing_row = create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.PENDING
+        )
+
+        result = manager.send_task()
+
+        assert result.pk == existing_row.pk
+        mock_send_task.assert_not_called()
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_completed_row_frees_slot(self, mock_send_task: MagicMock) -> None:
+        class DedupeCompletedManager(BaseCeleryTaskManager):
+            task_name = 'dedupe_task_completed'
+            display_name = 'Dedupe Task Completed'
+            dedupe_unready = True
+
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = DedupeCompletedManager()
+        create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.SUCCESS
+        )
+
+        result = manager.send_task()
+
+        mock_send_task.assert_called_once()
+        assert str(result.task_id) == str(valid_uuid)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_non_opted_in_manager_always_sends(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+        create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.STARTED
+        )
+
+        manager.send_task()
+
+        mock_send_task.assert_called_once()
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_send_task_passes_spire_headers(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        mock_model = MagicMock()
+        mock_model.pk = 42
+
+        manager = ManagerTestCeleryTaskManagerWithModel(model_object=mock_model)
+        manager.send_task()
+
+        headers = mock_send_task.call_args[1]['headers']
+        assert headers['spire_reference_key'] == manager.reference_key
+        assert headers['spire_display_name'] == manager.display_name
+        assert headers['spire_model_key'] == manager.model_key
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_headers_omit_model_key_when_no_model(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+        manager.send_task()
+
+        headers = mock_send_task.call_args[1]['headers']
+        assert 'spire_model_key' not in headers
+        assert headers['spire_reference_key'] == manager.reference_key
+
+
+def _backend_result(state: str, info: dict | None = None, **overrides) -> MagicMock:
+    mock_result = MagicMock()
+    mock_result._get_task_meta.return_value = {'status': state, 'result': info}
+    mock_result.backend.get_task_meta.return_value = {'status': states.PENDING, 'result': None}
+    for key, value in overrides.items():
+        setattr(mock_result, key, value)
+
+    return mock_result
+
+
+class BaseCeleryTaskManagerResolveUnreadyGateTestCase(TestCase):
+    def test_default_resolve_unready_before_send_is_false(self) -> None:
+        manager = ManagerTestCeleryTaskManager()
+        assert manager.resolve_unready_before_send is False
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_gate_sends_when_backend_shows_finished(self, mock_send_task: MagicMock) -> None:
+        class GatedManager(BaseCeleryTaskManager):
+            task_name = 'gated_task'
+            display_name = 'Gated Task'
+            resolve_unready_before_send = True
+
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = GatedManager()
+        existing_row = create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.STARTED
+        )
+
+        finished_result = _backend_result(states.SUCCESS, get=MagicMock(return_value='finished'))
+
+        with patch.object(CeleryTask, 'async_result', new=property(lambda _: finished_result)):
+            result = manager.send_task()
+
+        mock_send_task.assert_called_once()
+        assert result.pk != existing_row.pk
+        assert str(result.task_id) == str(valid_uuid)
+
+        existing_row.refresh_from_db()
+        assert existing_row.state == states.SUCCESS
+        assert existing_row.result == 'finished'
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_gate_reuses_row_still_running_in_backend(self, mock_send_task: MagicMock) -> None:
+        class GatedRunningManager(BaseCeleryTaskManager):
+            task_name = 'gated_task_running'
+            display_name = 'Gated Task Running'
+            resolve_unready_before_send = True
+
+        manager = GatedRunningManager()
+        existing_row = create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.STARTED
+        )
+
+        running_result = _backend_result(states.STARTED, info={'progress': 0.5})
+
+        with patch.object(CeleryTask, 'async_result', new=property(lambda _: running_result)):
+            result = manager.send_task()
+
+        assert result.pk == existing_row.pk
+        mock_send_task.assert_not_called()
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_non_opted_in_manager_does_not_resolve(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+        existing_row = create_test_celery_task(
+            reference_key=manager.reference_key, model_key=manager.model_key, state=states.STARTED
+        )
+
+        calls = MagicMock()
+
+        def async_result_getter(task: CeleryTask) -> MagicMock:
+            calls(task)
+            return MagicMock()
+
+        with patch.object(CeleryTask, 'async_result', new=property(async_result_getter)):
+            result = manager.send_task()
+
+        mock_send_task.assert_called_once()
+        assert str(result.task_id) == str(valid_uuid)
+        calls.assert_not_called()
+
+        existing_row.refresh_from_db()
+        assert existing_row.state == states.STARTED
+
+
+class BaseCeleryTaskManagerSourceTestCase(TestCase):
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_send_task_defaults_source_to_user(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task()
+
+        assert celery_task.source == CeleryTaskSourceChoices.USER
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_send_task_stamps_source_on_celery_task(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task(source=CeleryTaskSourceChoices.EVENT)
+
+        assert celery_task.source == CeleryTaskSourceChoices.EVENT
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_send_task_keeps_source_out_of_celery_kwargs(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+        manager.send_task(source=CeleryTaskSourceChoices.API, arg1='value1')
+
+        call_kwargs = mock_send_task.call_args[1]
+        assert call_kwargs['kwargs'] == {'arg1': 'value1'}
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_send_task_rejects_invalid_source(self, mock_send_task: MagicMock) -> None:
+        manager = ManagerTestCeleryTaskManager()
+
+        with pytest.raises(ValueError, match='invalid source'):
+            manager.send_task(source='invalid')
+
+        mock_send_task.assert_not_called()
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.time.sleep')
+    @patch('django_spire.celery.manager.send_task')
+    def test_failed_send_stamps_source_on_celery_task(
+        self, mock_send_task: MagicMock, mock_sleep: MagicMock
+    ) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Connection failed')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task(source=CeleryTaskSourceChoices.SYSTEM)
+
+        assert mock_sleep.call_count == 2
+        assert celery_task.send_failed
+        assert celery_task.source == CeleryTaskSourceChoices.SYSTEM

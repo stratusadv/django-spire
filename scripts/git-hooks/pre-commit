@@ -1,0 +1,44 @@
+#!/bin/sh
+set -u
+
+repo_root=$(git rev-parse --show-toplevel)
+
+ruff_bin=''
+if [ -x "$repo_root/.venv/bin/ruff" ]; then
+    ruff_bin="$repo_root/.venv/bin/ruff"
+elif [ -x "$repo_root/.venv/Scripts/ruff.exe" ]; then
+    ruff_bin="$repo_root/.venv/Scripts/ruff.exe"
+elif command -v ruff >/dev/null 2>&1; then
+    ruff_bin='ruff'
+else
+    echo 'pre-commit: ruff not found; run "just venv" first' >&2
+    exit 1
+fi
+
+staged_py_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$')
+
+if [ -z "$staged_py_files" ]; then
+    exit 0
+fi
+
+files_to_check=''
+for file in $staged_py_files; do
+    if [ -f "$repo_root/$file" ]; then
+        files_to_check="$files_to_check $file"
+    fi
+done
+
+if [ -z "$files_to_check" ]; then
+    exit 0
+fi
+
+cd "$repo_root" || exit 1
+
+echo "pre-commit: ruff check$files_to_check"
+# shellcheck disable=SC2086
+if ! "$ruff_bin" check $files_to_check; then
+    echo 'pre-commit: ruff found problems in staged files; fix them or bypass with git commit --no-verify' >&2
+    exit 1
+fi
+
+exit 0

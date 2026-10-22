@@ -14,6 +14,7 @@ from django_spire.metric.domain.seeding.constants import (
     INTERNAL_TRACKING_STATISTIC_KEY,
     INTERNAL_TRACKING_SUB_DOMAIN_KEY,
 )
+from test_project.celery_settings import *  # noqa: F403
 
 if TYPE_CHECKING:
     from django.http import HttpRequest
@@ -25,7 +26,7 @@ logging.basicConfig(
     format='[%(asctime)-15s] Django Spire: "%(message)s"', datefmt='%d/%b/%Y %H:%M:%S'
 )
 
-ADMINS = [('Stratus', 'stratus@stratusadv.com')]
+ADMINS = ['stratus@stratusadv.com']
 
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
@@ -276,31 +277,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static_files')]
 STATIC_ROOT = str(BASE_DIR / 'test_project/static')
-
-# Celery
-
-_CELERY_AMQP_HOST = os.getenv('CELERY_AMQP_HOST')
-_CELERY_PGSQL_HOST = os.getenv('CELERY_PGSQL_HOST')
-
-if _CELERY_AMQP_HOST:
-    CELERY_BROKER_URL = 'amqp://{user}:{password}@{host}:5672//'.format(
-        user=os.getenv('CELERY_AMQP_USER'),
-        password=os.getenv('CELERY_AMQP_PASSWORD'),
-        host=_CELERY_AMQP_HOST,
-    )
-else:
-    CELERY_BROKER_URL = 'memory://'
-
-if _CELERY_PGSQL_HOST:
-    CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{database}'.format(
-        user=os.getenv('CELERY_PGSQL_USER'),
-        password=os.getenv('CELERY_PGSQL_PASSWORD'),
-        host=_CELERY_PGSQL_HOST,
-        port=os.getenv('CELERY_PGSQL_PORT', '5432'),
-        database=os.getenv('CELERY_PGSQL_DATABASE'),
-    )
-else:
-    CELERY_RESULT_BACKEND = 'cache+memory://'
 
 if DEBUG:  # Adjust based on your environment
     PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']

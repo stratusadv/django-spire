@@ -1,14 +1,21 @@
+import random
 from time import sleep
 
-from celery import shared_task, Task
-
+from django_spire.celery.decorators import celery_task
+from django_spire.celery.meta import TaskDataModel
+from django_spire.celery.runner import CeleryTaskRunner
 from django_spire.celery.tracker import CeleryTaskTracker
+from django_spire.knowledge.entry.models import Entry
+from django_spire.notification import automations as notification_automations
 
 
-def _sleep(task: Task, length: int) -> None:
-    tracker = CeleryTaskTracker(task)
+class TaskData(TaskDataModel):
+    counted_seconds: int | None = None
+    more: dict | None = None
 
-    tracker.meta.data['bananas'] = 'The #&A$ is the key!'
+
+def _count(tracker: CeleryTaskTracker, length: int) -> None:
+    tracker.meta.data.bananas = 'The #&A$ is the key!'
 
     if length <= 5:
         tracker.set_started_and_completing_soon()
@@ -18,50 +25,75 @@ def _sleep(task: Task, length: int) -> None:
 
     for i in range(length):
         sleep(1)
-        tracker.meta.data['counted_seconds'] = i + 1
+        tracker.meta.data.counted_seconds = i + 1
 
         if length > 5:
             tracker.update_cumulative_progress(added_value=1)
             tracker.update_state('MAKING NOISES')
 
-    tracker.meta.data['more'] = {
-        'has_noises': True,
-    }
-
-    tracker.set_completed()
+    tracker.meta.data.more = {'has_noises': True}
 
 
-@shared_task(bind=True)
-def pirate_noise_task(self, length: int) -> str:
-    _sleep(self, length)
+@celery_task(meta_data_model=TaskData)
+def pirate_noise_task(self: CeleryTaskRunner, length: int) -> str:
+    _count(self.tracker, length)
     return 'The pirate says YA' + 'R' * length
 
 
-@shared_task(bind=True)
-def pirate_cannon_task(self, length: int) -> str:
-    _sleep(self, length)
+@celery_task(meta_data_model=TaskData)
+def pirate_cannon_task(self: CeleryTaskRunner, length: int) -> str:
+    _count(self.tracker, length)
     return 'The cannon goes' + ' BOOM' * length
 
 
-@shared_task(bind=True)
-def pirate_song_task(self, length: int) -> str:
-    _sleep(self, length)
+@celery_task(meta_data_model=TaskData)
+def pirate_song_task(self: CeleryTaskRunner, length: int) -> str:
+    _count(self.tracker, length)
     return 'The song sounds like' + ' YO HO' * length
 
 
-@shared_task(bind=True)
-def ninja_move_task(self, length: int) -> str:
-    _sleep(self, length)
+@celery_task(meta_data_model=TaskData)
+def ninja_move_task(self: CeleryTaskRunner, length: int) -> str:
+    _count(self.tracker, length)
     return 'The ninja moves like ' + '.' * length
 
 
-@shared_task(bind=True)
-def ninja_attack_task(self, length: int) -> str:
-    _sleep(self, length)
+@celery_task(meta_data_model=TaskData)
+def ninja_attack_task(self: CeleryTaskRunner, length: int) -> str:
+    _count(self.tracker, length)
     return 'The sword goes' + ' SWOOSH' * length
 
 
-@shared_task(bind=True)
-def ninja_hide_task(self, length: int) -> str:
-    _sleep(self, length)
+@celery_task(meta_data_model=TaskData)
+def ninja_hide_task(self: CeleryTaskRunner, length: int) -> str:
+    _count(self.tracker, length)
     return 'The sound is' + ' Z' * length
+
+
+@celery_task(meta_data_model=TaskData)
+def lizard_fail_task(self: CeleryTaskRunner, length: int) -> str:
+    fail_at_start = random.random() < 0.5
+
+    answer = 0
+
+    if fail_at_start:
+        answer = 1 / 0
+
+    _count(self.tracker, length)
+
+    if not fail_at_start:
+        answer = 2 / 0
+
+    return f'The lizard failed to show {answer}'
+
+
+@celery_task()
+def process_ready_notifications_task(self: CeleryTaskRunner) -> str:
+    self.tracker.set_started()
+    return notification_automations.process_notifications()
+
+
+@celery_task()
+def convert_files_to_model_objects_task(self: CeleryTaskRunner) -> str:
+    self.tracker.set_started()
+    return Entry.services.automation.convert_files_to_model_objects()

@@ -73,14 +73,16 @@ class AsyncResultServiceIntegrationTestCase(TestCase):
         self.service = self.celery_task.services
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_update_from_async_result_started_to_failure(self, mock_async_result) -> None:
+    def test_update_from_async_result_started_to_failure(
+        self, mock_async_result: MagicMock
+    ) -> None:
         mock_result = MagicMock()
-        mock_result.state = states.FAILURE
+        mock_result._get_task_meta.return_value = {'status': states.FAILURE, 'result': None}
         mock_result.ready.return_value = False
-        mock_result.info = None
+        mock_result.traceback = 'Traceback (most recent call last): ValueError: task boom'
         mock_async_result.return_value = mock_result
 
-        self.service.update_from_async_result_and_save_if_change()
+        self.service.update_from_backend()
 
         self.celery_task.refresh_from_db()
         assert self.celery_task.state == states.FAILURE
@@ -100,7 +102,7 @@ class AsyncResultResultHandlingTestCase(TestCase):
 
 class AsyncResultWithMockedCeleryBackendTestCase(TestCase):
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_async_result_backend_access(self, mock_async_result) -> None:
+    def test_async_result_backend_access(self, mock_async_result: MagicMock) -> None:
         task = create_test_celery_task()
 
         mock_result = MagicMock()
@@ -115,7 +117,7 @@ class AsyncResultWithMockedCeleryBackendTestCase(TestCase):
         assert not async_result.successful()
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_async_result_get_returns_value(self, mock_async_result) -> None:
+    def test_async_result_get_returns_value(self, mock_async_result: MagicMock) -> None:
         task = create_test_celery_task()
 
         expected_value = 'test_task_result'
@@ -130,7 +132,7 @@ class AsyncResultWithMockedCeleryBackendTestCase(TestCase):
         assert result == expected_value
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_async_result_wait_for_result(self, mock_async_result) -> None:
+    def test_async_result_wait_for_result(self, mock_async_result: MagicMock) -> None:
         task = create_test_celery_task()
 
         mock_result = MagicMock()

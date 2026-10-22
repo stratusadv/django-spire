@@ -10,24 +10,24 @@
 
             <div @click="{{ key_display }} = ! {{ key_display }}" style="cursor: pointer;">
                     <span class="key-text">
-                        <i x-show="!{{ key_display }}">+</i>
-                        <i x-show="{{ key_display }}">-</i>
                         {{ key|underscores_to_spaces|title }}
+                        <i x-show="!{{ key_display }}">&#9654;</i>
+                        <i x-show="{{ key_display }}">&#9660;</i>
                     </span>
             </div>
 
             <div x-show="{{ key_display }}"
-                 style="margin-left: 3px; border-style: solid; border-color: #ddd; border-width: 0 0 1px 1px; padding: 0 0 5px 20px;">
+                 style="margin-left: 3px; border-style: solid; border-color: #ddd; border-width: 0 0 0 2px; padding: 0 0 5px 20px;">
                 {% if value|is_dict %}
                     <span class="key-text">{<br></span>
-                    {% include 'django_spire/forms/elements/dict_element.html' with dict=value %}
+                    {% include 'django_spire/contrib/form/elements/dict_element.html' with dict=value %}
                     <span class="key-text">}<br></span>
                 {% elif value|is_list_or_tuple %}
                     <span class="key-text">[<br></span>
-                    {% include 'django_spire/forms/elements/list_element.html' with list=value %}
+                    {% include 'django_spire/contrib/form/elements/list_element.html' with list=value %}
                     <span class="key-text">[<br></span>
                 {% else %}
-                    {% include 'django_spire/forms/elements/value_element.html' with value=value %}
+                    {% include 'django_spire/contrib/form/elements/value_element.html' with value=value %}
                 {% endif %}
             </div>
 

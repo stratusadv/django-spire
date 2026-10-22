@@ -17,6 +17,13 @@ class TestDjangoSpireContextProcessor(TestCase):
 
         assert 'DJANGO_SPIRE_VERSION' in result
 
+    @override_settings(CSRF_COOKIE_NAME='project_csrftoken')
+    def test_returns_csrf_cookie_name(self) -> None:
+        request = self.factory.get('/')
+        result = django_spire(request)
+
+        assert result['DJANGO_SPIRE_CSRF_COOKIE_NAME'] == 'project_csrftoken'
+
 
 class TestThemeContextProcessor(TestCase):
     def setUp(self) -> None:
