@@ -1,4 +1,6 @@
-<div
+{% load tz %}
+<span
+        key="poll-{% now 'U.u' %}"
         x-data="{
         is_processing: '{{ celery_task.is_processing }}',
         init() {
@@ -8,35 +10,100 @@
             }
         }
     }"
-        class="{{ task_header_class }} pe-1 py-1 border-0 {% if celery_task.is_processing %}text-primary{% elif celery_task.is_successful %}text-success{% elif celery_task.is_failed %}text-danger{% endif %}"
+></span>
+<div
+        data-processing="{{ celery_task.is_processing|lower }}"
+        class="{{ task_header_class }} pe-1 py-1 border-0 {% if celery_task.is_processing %}text-primary{% elif celery_task.is_successful %}text-success{% elif celery_task.is_failed %}text-danger{% elif celery_task.is_canceled %}text-secondary{% endif %}"
 >
-    <div class="me-auto fw-semibold">
-        {% if celery_task.is_pending %}
-            <i class="bi bi-hourglass"></i>
-        {% elif celery_task.is_processing %}
-            <div class="spinner-border spinner-border-sm text-app-info" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        {% elif celery_task.is_successful %}
-            <i class="bi bi-check-circle-fill"></i>
-        {% elif celery_task.is_failed %}
-            <i class="bi bi-exclamation-circle-fill"></i>
-        {% endif %}
-        &nbsp;{{ celery_task.display_name }}
-    </div>
+    <div class="row w-100">
 
-    {% if show_task_header_close_button %}
-        <div class="text-muted cursor-pointer py-1 px-2" data-bs-dismiss="toast" aria-label="Close"><i
-                class="bi bi-x-lg"></i></div>
-    {% endif %}
+        <div class="col fw-semibold pt-1">
+            {% if celery_task.is_pending %}
+                <i class="bi bi-hourglass"></i>
+            {% elif celery_task.is_processing %}
+                <div class="spinner-border spinner-border-sm text-app-info" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            {% elif celery_task.is_successful %}
+                <i class="bi bi-check-circle-fill"></i>
+            {% elif celery_task.is_failed %}
+                <i class="bi bi-exclamation-circle-fill"></i>
+            {% elif celery_task.is_canceled %}
+                <i class="bi bi-stop-circle-fill"></i>
+            {% endif %}
+            &nbsp;{{ celery_task.display_name }}
+        </div>
+
+        {% if perms.django_spire_celery.change_celerytask and celery_task.is_processing %}
+            <div
+                    key="celery-task-cancel"
+                    class="col-auto text-muted cursor-pointer py-1 ps-2 pe-0"
+                    role="button"
+                    aria-label="Cancel task"
+                    title="Cancel task"
+                    x-data="{
+                canceling: false,
+                async cancel_task() {
+                    if (this.canceling) return
+                    this.canceling = true
+                    let succeeded = false
+                    let message
+                    try {
+                        await Spire.ajax.request(
+                            'POST',
+                            '{% url 'django_spire:celery:task:cancel' celery_task.task_id %}'
+                        )
+                        succeeded = true
+                    } catch (error) {
+                        message = 'Unable to cancel the task.'
+                        if (error && error.data) {
+                            message = error.data.error || error.data.message || message
+                        }
+                    }
+                    if (succeeded) {
+                        Spire.notify.success(`Task '{{ celery_task.display_name }}' canceled`)
+                    } else {
+                        Spire.notify.error(message)
+                    }
+                    try {
+                        await reload_task()
+                    } finally {
+                        this.canceling = false
+                    }
+                }
+            }"
+                    @click="cancel_task()"
+                    :style="{ opacity: canceling ? '0.5' : '1', pointerEvents: canceling ? 'none' : 'auto' }"
+            >
+                <i class="bi bi-stop-circle" x-show="!canceling"></i>
+                <div
+                        class="spinner-border spinner-border-sm"
+                        x-show="canceling"
+                        role="status">
+                    <span class="visually-hidden">Canceling...</span>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if show_task_header_close_button %}
+            <div key="celery-task-close" class="col-auto text-muted cursor-pointer py-1 ps-2 pe-0" data-bs-dismiss="toast" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </div>
+        {% endif %}
+    </div>
 
 </div>
 
-<div x-data="{
+<div key="{{ celery_task.meta.progress|floatformat:2 }}" x-data="{
     progress: {{ celery_task.estimated_progress_hundred }},
     init() {
         if(this.progress > 0) {
-            setInterval(() => {
+            const el = $el
+            const tick = setInterval(() => {
+                if (!el.isConnected) {
+                    clearInterval(tick)
+                    return
+                }
                 this.progress = Math.min(this.progress + {{ celery_task.estimated_progress_per_second_hundred }}, 100)
             }, 1200)
         }
@@ -61,19 +128,26 @@
         {% else %}
             • Completing Soon
         {% endif %}
-            <div class="progress my-1" style="height: 3px;">
-                <div class="progress-bar bg-primary" role="progressbar"
-                     :style="{ width: progress + '%' }"
-                     aria-valuenow="{{ celery_task.estimated_progress_hundred }}" aria-valuemin="0"
-                     aria-valuemax="100"></div>
-            </div>
+        <div class="progress my-1" style="height: 3px;">
+            <div class="progress-bar bg-primary" role="progressbar"
+                 :style="{ width: progress + '%' }"
+                 aria-valuenow="{{ celery_task.estimated_progress_hundred }}" aria-valuemin="0"
+                 aria-valuemax="100"></div>
+        </div>
 
     {% elif celery_task.is_successful %}
         Completed at {{ celery_task.completed_datetime|date:'g:i a l, F jS' }}
         <div class="fs-8">Took {{ celery_task.completion_time_verbose }}</div>
 
     {% elif celery_task.is_failed %}
-        Task Encountered an Error or Took to Long
+        {% if celery_task.exception_result %}
+            Task Encountered an Error: {{ celery_task.exception_result.message }}
+        {% else %}
+            Task Encountered an Error or Took to Long
+        {% endif %}
         <div class="fs-8">Please try again, if the issues persists contact support</div>
+    {% elif celery_task.is_canceled %}
+        Canceled at {{ celery_task.completed_datetime|date:'g:i a l, F jS' }}
+        <div class="fs-8">Took {{ celery_task.completion_time_verbose }}</div>
     {% endif %}
 </div>
