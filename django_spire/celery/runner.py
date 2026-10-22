@@ -3,7 +3,7 @@ import threading
 from typing import Any, Callable
 
 from celery import states
-from celery.contrib.django.task import DjangoTask
+from celery.app.task import Task
 from celery.exceptions import Ignore, Reject, Retry
 
 from django_spire.celery.meta import TaskDataModel
@@ -12,7 +12,7 @@ from django_spire.celery.tracker import CeleryTaskTracker
 logger = logging.getLogger(__name__)
 
 
-class CeleryTaskRunner(DjangoTask):
+class CeleryTaskRunner(Task):
     """Base class for the actual Celery task: runs the lifecycle, the tracker tracks it.
 
     Extend by overriding `execute` (class-based) or wrapping a function with

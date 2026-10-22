@@ -72,13 +72,9 @@ class AsyncResultServiceIntegrationTestCase(TestCase):
         self.celery_task = create_test_celery_task(state=states.STARTED)
         self.service = self.celery_task.services
 
-    @patch(
-        'django_spire.metric.domain.statistic.services.tracking_service'
-        '.StatisticTrackingService.track_configured'
-    )
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
     def test_update_from_async_result_started_to_failure(
-        self, mock_async_result: MagicMock, mock_track_configured: MagicMock
+        self, mock_async_result: MagicMock
     ) -> None:
         mock_result = MagicMock()
         mock_result._get_task_meta.return_value = {'status': states.FAILURE, 'result': None}
@@ -90,7 +86,6 @@ class AsyncResultServiceIntegrationTestCase(TestCase):
 
         self.celery_task.refresh_from_db()
         assert self.celery_task.state == states.FAILURE
-        mock_track_configured.assert_called_once_with(reference='celery_task_failure')
 
 
 class AsyncResultResultHandlingTestCase(TestCase):

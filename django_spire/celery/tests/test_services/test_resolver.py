@@ -13,11 +13,6 @@ from django_spire.celery.models import CeleryTask
 from django_spire.celery.services.resolver import resolve_celery_tasks
 from django_spire.celery.tests.factories import create_test_celery_task
 
-_TRACK_CONFIGURED = (
-    'django_spire.metric.domain.statistic.services.tracking_service'
-    '.StatisticTrackingService.track_configured'
-)
-
 
 def _mock_async_result(state: str, info: dict | str | None = None, **overrides) -> MagicMock:
     mock_result = MagicMock()
@@ -63,28 +58,6 @@ class ResolveCeleryTasksTestCase(TestCase):
         assert task_a.result == 'done-a'
         assert task_b.state == states.SUCCESS
         assert task_b.result == 'done-b'
-
-    @patch(_TRACK_CONFIGURED)
-    def test_terminal_metric_fires_exactly_once_per_task(
-        self, mock_track_configured: MagicMock
-    ) -> None:
-        task_a = create_test_celery_task(state=states.STARTED)
-        task_b = create_test_celery_task(state=states.STARTED)
-
-        patcher, _ = _patch_async_results(
-            {
-                task_a.pk: _mock_async_result(states.SUCCESS, get=MagicMock(return_value='a')),
-                task_b.pk: _mock_async_result(
-                    states.FAILURE, get=MagicMock(side_effect=ValueError('task boom'))
-                ),
-            }
-        )
-
-        with patcher:
-            resolve_celery_tasks(CeleryTask.objects.all())
-
-        references = [call.kwargs['reference'] for call in mock_track_configured.call_args_list]
-        assert sorted(references) == ['celery_task_failure', 'celery_task_success']
 
     def test_stored_terminal_rows_are_left_untouched(self) -> None:
         done_task = create_test_celery_task(state=states.SUCCESS)

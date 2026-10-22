@@ -6,15 +6,16 @@
 
 - The Celery task system was rebuilt as a worker/web split design (this module is in a working alpha state):
   - Worker tasks are authored with the `celery_task` decorator and run on a
-    `CeleryTaskRunner`. `self.tracker` reports progress (`set_started`, `set_completed`,
-    `update_state`, `update_count_progress`, cumulative progress, `set_retries`), and a
-    `TaskDataModel` subclass registered as `meta_data_model` types `tracker.meta.data`.
-    Mid-run updates are coalesced by a flusher thread that pushes them to the result
-    backend at a fixed interval, so task code never blocks on backend I/O.
+    `CeleryTaskRunner` (a plain Celery `Task` subclass). `self.tracker` reports
+    progress (`set_started`, `set_completed`, `update_state`, `update_count_progress`,
+    cumulative progress, `set_retries`), and a `TaskDataModel` subclass registered
+    as `meta_data_model` types `tracker.meta.data`. Mid-run updates are coalesced by
+    a flusher thread that pushes them to the result backend at a fixed interval, so
+    task code never blocks on backend I/O.
   - The worker writes only to the Celery result backend; the web process is the single
     writer of the `CeleryTask` row, syncing from the backend on every request through a
-    state machine that drops stale and backwards transitions, keeps progress monotonic,
-    and fires the terminal metric exactly once per transition.
+    state machine that drops stale and backwards transitions and keeps progress
+    monotonic. Task outcomes are derived from the `CeleryTask` rows themselves.
   - `BaseCeleryTaskManager.send_task` validates kwargs, retries the send with
     exponential backoff, stamps `spire_*` headers, and records a FAILURE `CeleryTask`
     carrying a `CeleryExceptionResult` when the send itself fails (surfaced via
@@ -34,12 +35,28 @@
     backend in batches (up to `DJANGO_SPIRE_CELERY_SWEEP_TASK_LIMIT` per
     `DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS`), keeping task status fresh even when
     no page is viewing it. The `prune_stale_started_celery_tasks` management command
-    resolves stuck STARTED tasks: it syncs tasks whose backend reached a terminal state,
-    skips tasks still active on any worker, and marks the rest FAILURE.
+    resolves stuck STARTED tasks: it syncs tasks whose backend reached a terminal
+    state, skips tasks still active on any worker, and marks the rest FAILURE. With
+    `--include-pending`, stale PENDING tasks are synced when the backend already
+    reached a terminal state and skipped (never stamped) otherwise, and the reaper
+    pings the workers before stamping and skips the FAILURE stamp entirely when no
+    live worker answers, so an unacked message that may still be requeued is not
+    marked failed.
+  - The scheduler and sweep threads start only in web processes:
+    `is_web_server_process` requires a `runserver` / `runserver_plus` child or a
+    WSGI/ASGI server binary (gunicorn, uwsgi, uvicorn, daphne, hypercorn), so Celery
+    workers and scripts never run redundant background threads. The detection can be
+    forced with the `DJANGO_SPIRE_CELERY_WEB_PROCESS` environment variable (true/1/yes
+    or false/0/no).
+  - A `check_celery_threads` management command reports OK/STALE/SKIPPED for the
+    background sweep and cron scheduler threads from the freshness of each thread's
+    claim row, with `--fail` exiting 1 on any STALE for cron/monitoring use.
   - New settings: `DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES`,
     `DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED`, `DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS`,
     `DJANGO_SPIRE_CELERY_SWEEP_ENABLED`, `DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS`,
     and `DJANGO_SPIRE_CELERY_SWEEP_TASK_LIMIT`.
+- A `scripts/git-hooks/pre-commit` hook lints staged Python files with ruff and
+  blocks the commit on findings; install it with `just install-hooks`.
 
 ### Changes
 

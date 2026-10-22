@@ -31,8 +31,14 @@ class _BackendDownResult:
         raise RuntimeError(message)
 
 
-def _fake_active_inspect(mock_app: MagicMock, active_by_worker: dict) -> None:
-    mock_app.control.inspect.return_value.active.return_value = active_by_worker
+def _fake_active_inspect(
+    mock_app: MagicMock, active_by_worker: dict, ping_workers: list[str] | None = None
+) -> None:
+    inspect = mock_app.control.inspect.return_value
+    inspect.active.return_value = active_by_worker
+    if ping_workers is None:
+        ping_workers = list(active_by_worker) or ['worker-1']
+    inspect.ping.return_value = dict.fromkeys(ping_workers, True)
 
 
 class PruneStaleStartedCeleryTasksCommandTestCase(TestCase):
@@ -205,3 +211,79 @@ class PruneStaleStartedCeleryTasksCommandTestCase(TestCase):
 
         celery_task.refresh_from_db()
         assert celery_task.state == states.STARTED
+
+    @patch(f'{_COMMAND_MODULE}.current_app')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_no_live_workers_skips_failure_stamp(
+        self, mock_async_result: PropertyMock, mock_app: MagicMock
+    ) -> None:
+        celery_task = _with_last_update(
+            create_test_celery_task(state=states.STARTED), time.time() - 700
+        )
+        mock_async_result.return_value = SimpleNamespace(state=states.STARTED)
+        _fake_active_inspect(mock_app, {}, ping_workers=[])
+
+        call_command('prune_stale_started_celery_tasks')
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.STARTED
+
+    @patch(f'{_COMMAND_MODULE}.current_app')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_no_live_workers_reported_in_dry_run_skip(
+        self, mock_async_result: PropertyMock, mock_app: MagicMock
+    ) -> None:
+        celery_task = _with_last_update(
+            create_test_celery_task(state=states.STARTED), time.time() - 700
+        )
+        mock_async_result.return_value = SimpleNamespace(state=states.STARTED)
+        _fake_active_inspect(mock_app, {}, ping_workers=[])
+        out = StringIO()
+
+        call_command('prune_stale_started_celery_tasks', dry_run=True, stdout=out)
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.STARTED
+        assert '1 stale CeleryTask(s) would be skipped (task still alive).' in out.getvalue()
+        assert '0 stale CeleryTask(s) would be marked FAILURE.' in out.getvalue()
+
+    @patch('django_spire.celery.services.service.CeleryTaskService.update_from_backend')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_include_pending_syncs_terminal_backend(
+        self, mock_async_result: PropertyMock, mock_update: MagicMock
+    ) -> None:
+        create_test_celery_task(state=states.PENDING)
+        mock_async_result.return_value = SimpleNamespace(state=states.SUCCESS)
+        out = StringIO()
+
+        call_command('prune_stale_started_celery_tasks', include_pending=True, stdout=out)
+
+        mock_update.assert_called_once()
+        assert 'Synced 1 stale CeleryTask(s) from the backend.' in out.getvalue()
+
+    @patch(f'{_COMMAND_MODULE}.current_app')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_include_pending_never_stamps(
+        self, mock_async_result: PropertyMock, mock_app: MagicMock
+    ) -> None:
+        celery_task = create_test_celery_task(state=states.PENDING)
+        mock_async_result.return_value = SimpleNamespace(state=states.STARTED)
+        _fake_active_inspect(mock_app, {})
+        out = StringIO()
+
+        call_command('prune_stale_started_celery_tasks', include_pending=True, stdout=out)
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.PENDING
+        assert celery_task.completed_datetime is None
+        assert 'Marked 0 stale CeleryTask(s) as FAILURE.' in out.getvalue()
+
+    def test_pending_untouched_without_flag(self) -> None:
+        celery_task = create_test_celery_task(state=states.PENDING)
+        out = StringIO()
+
+        call_command('prune_stale_started_celery_tasks', stdout=out)
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.PENDING
+        assert 'No stale STARTED CeleryTasks found.' in out.getvalue()

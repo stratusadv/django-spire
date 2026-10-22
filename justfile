@@ -41,6 +41,9 @@ demo-video NAME="" SPEED="normal":
 demos:
     DANDY_SETTINGS_MODULE=test_project.dandy_settings {{ PYTHON }} -m pytest -m demo --collect-only -q
 
+install-hooks:
+    git config core.hooksPath scripts/git-hooks
+
 make-migrations:
     {{ PYTHON }} ./manage.py makemigrations
 

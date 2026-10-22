@@ -23,11 +23,6 @@ from django_spire.celery.views.task_views import (
     task_toast_list_view,
 )
 
-_TRACK_CONFIGURED = (
-    'django_spire.metric.domain.statistic.services.tracking_service'
-    '.StatisticTrackingService.track_configured'
-)
-
 
 class BaseTaskViewTestCase(TestCase):
     def setUp(self) -> None:
@@ -269,10 +264,7 @@ class TaskItemListViewTestCase(TestCase):
         assert self.task2 not in tasks
         assert self.task3 in tasks
 
-    @patch(_TRACK_CONFIGURED)
-    def test_task_item_list_view_resolves_finished_tasks_from_backend(
-        self, mock_track_configured: MagicMock
-    ) -> None:
+    def test_task_item_list_view_resolves_finished_tasks_from_backend(self) -> None:
         pending_result = MagicMock()
         pending_result._get_task_meta.return_value = {'status': states.PENDING, 'result': None}
         pending_result.backend.get_task_meta.return_value = {
@@ -310,7 +302,6 @@ class TaskItemListViewTestCase(TestCase):
         self.task3.refresh_from_db()
         assert self.task3.state == states.SUCCESS
         assert self.task3.result == 'finished'
-        mock_track_configured.assert_called_once_with(reference='celery_task_success')
 
     def test_task_item_list_view_with_show_all_parameter(self) -> None:
         request = self.factory.post(

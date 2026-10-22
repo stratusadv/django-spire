@@ -147,6 +147,13 @@ def claim_schedule_slot(entry: SchedulerTask, claimed_by: str) -> CeleryTask | N
     if claimed != 1:
         return None
 
+    logger.info(
+        'Celery scheduler: claimed slot %s for scheduled task %s (claimed_by=%s)',
+        target_slot,
+        entry.schedule_key,
+        claimed_by,
+    )
+
     return entry.manager_class().send_task(source=CeleryTaskSourceChoices.SCHEDULED, **entry.kwargs)
 
 

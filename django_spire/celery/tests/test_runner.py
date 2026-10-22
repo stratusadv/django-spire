@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import pytest
 from celery import states
+from celery.app.task import Task
 from celery.exceptions import Retry
 from celery.utils.threads import LocalStack
 from django.test import TestCase
@@ -37,6 +38,11 @@ def _typed_runner_task(self: CeleryTaskRunner) -> None:  # noqa: ARG001
 def _failing_task(self: CeleryTaskRunner) -> None:  # noqa: ARG001
     message = 'task boom'
     raise ValueError(message)
+
+
+class TestRunnerBaseClass:
+    def test_runner_bases_only_plain_celery_task(self) -> None:
+        assert CeleryTaskRunner.__bases__ == (Task,)
 
 
 @celery_task()

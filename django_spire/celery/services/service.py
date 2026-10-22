@@ -27,14 +27,6 @@ logger = logging.getLogger(__name__)
 # Sentinel: the backend result could not be read this poll (retry on the next one).
 _RESULT_UNAVAILABLE = object()
 
-# CeleryTask state -> internal metric reference (fired once per transition, on the web)
-_METRIC_REFERENCES = {
-    states.SUCCESS: 'celery_task_success',
-    states.FAILURE: 'celery_task_failure',
-    states.RETRY: 'celery_task_retry',
-    states.REVOKED: 'celery_task_canceled',
-}
-
 # (meta_dict, result, completed_datetime, started_datetime)
 _SnapshotValues = tuple[dict, bytes, datetime | None, datetime | None]
 
@@ -201,10 +193,9 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 elif new_state == states.FAILURE:
                     exception_result = self._build_final_exception_result(final_meta_dict)
 
-        if self._apply_backend_snapshot(
+        self._apply_backend_snapshot(
             new_state, meta_dict=meta_dict, result=result, exception_result=exception_result
-        ):
-            self._record_terminal_metric(new_state)
+        )
 
     def cancel(self) -> str | None:
         from django_spire.celery.models import CeleryTask  # noqa: PLC0415
@@ -230,8 +221,6 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
             self.obj.state = states.REVOKED
             self.obj.completed_datetime = fresh.completed_datetime
 
-        self._record_terminal_metric(states.REVOKED)
-
         return None
 
     def _apply_backend_snapshot(
@@ -241,14 +230,12 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         meta_dict: dict | None = None,
         result: Any = None,
         exception_result: CeleryExceptionResult | None = None,
-    ) -> bool:
+    ) -> None:
         """Atomically apply a backend-derived snapshot to the CeleryTask (web = single writer).
 
         The worker writes only the result backend; this is the one place the CeleryTask's
         state/meta/result change. Guards with the state machine (stale and
-        back-transitions are dropped) and keeps progress monotonic. Returns True when
-        the transition should fire the metric (a move into SUCCESS, FAILURE, or RETRY
-        from a non-terminal CeleryTask).
+        back-transitions are dropped) and keeps progress monotonic.
         """
         from django_spire.celery.models import CeleryTask  # noqa: PLC0415
 
@@ -262,9 +249,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                     state,
                     self.obj.task_id,
                 )
-                return False
-
-            records_metric = state in _METRIC_REFERENCES and fresh.state not in states.READY_STATES
+                return
 
             if state in states.READY_STATES:
                 snapshot = self._apply_terminal_snapshot(
@@ -285,11 +270,9 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 )
 
             if not self._row_has_changed(fresh, state, snapshot):
-                return False
+                return
 
             self._save_snapshot(fresh, state, snapshot)
-
-            return records_metric
 
     def _apply_terminal_snapshot(
         self,
@@ -364,18 +347,3 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
         self.obj.completed_datetime = new_completed
         self.obj.started_datetime = new_started
         self.obj.exception_traceback = fresh.exception_traceback
-
-    # ================= METRICS =================
-    def _record_terminal_metric(self, state: str) -> None:
-        reference = _METRIC_REFERENCES.get(state)
-        if reference is None:
-            return
-
-        try:
-            from django_spire.metric.domain.statistic.services.tracking_service import (  # noqa: PLC0415
-                StatisticTrackingService,
-            )
-
-            StatisticTrackingService.track_configured(reference=reference)
-        except Exception:
-            logger.warning('Failed to record terminal metric %s', reference, exc_info=True)

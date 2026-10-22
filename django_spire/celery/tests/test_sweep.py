@@ -175,8 +175,9 @@ class TestSweepThread:
             assert start_sweep() is True
             stop_sweep(timeout=5)
 
-    def test_start_is_idempotent(self):
+    def test_start_is_idempotent(self, monkeypatch: pytest.MonkeyPatch):
         CeleryTaskSweep.objects.filter(key='default').delete()
+        monkeypatch.setenv('DJANGO_SPIRE_CELERY_WEB_PROCESS', 'true')
 
         with override_settings(
             DJANGO_SPIRE_CELERY_SWEEP_ENABLED=True, DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS=0.1
@@ -185,7 +186,9 @@ class TestSweepThread:
             assert start_sweep() is False
             stop_sweep(timeout=5)
 
-    def test_stop_clears_thread(self):
+    def test_stop_clears_thread(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setenv('DJANGO_SPIRE_CELERY_WEB_PROCESS', 'true')
+
         with override_settings(
             DJANGO_SPIRE_CELERY_SWEEP_ENABLED=True, DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS=0.1
         ):

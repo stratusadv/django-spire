@@ -282,6 +282,44 @@ class TestClaimScheduleSlot:
         row = CelerySchedulerTask.objects.get(schedule_key=entry.schedule_key)
         assert row.claimed_by in {f'thread:{index}' for index in range(worker_count)}
 
+    def test_claimed_slot_logs_info(self, caplog: pytest.LogCaptureFixture) -> None:
+        state = {'t': _BASE_TIME}
+        entry = _make_entry(state)
+
+        CelerySchedulerTask.objects.create(
+            schedule_key=entry.schedule_key,
+            display_name=entry.name,
+            crontab=entry.crontab,
+            last_sent_datetime=_BASE_TIME - timedelta(minutes=10),
+        )
+
+        state['t'] = _BASE_TIME + timedelta(seconds=60)
+        with caplog.at_level(logging.INFO, logger='django_spire.celery.scheduler'):
+            claim_schedule_slot(entry, 'test:1')
+
+        assert any(
+            'claimed slot' in record.message
+            and entry.schedule_key in record.message
+            and 'test:1' in record.message
+            for record in caplog.records
+        )
+
+    def test_lost_claim_does_not_log(self, caplog: pytest.LogCaptureFixture) -> None:
+        state = {'t': _BASE_TIME + timedelta(seconds=60)}
+        entry = _make_entry(state)
+
+        CelerySchedulerTask.objects.create(
+            schedule_key=entry.schedule_key,
+            display_name=entry.name,
+            crontab=entry.crontab,
+            last_sent_datetime=_BASE_TIME + timedelta(seconds=60),
+        )
+
+        with caplog.at_level(logging.INFO, logger='django_spire.celery.scheduler'):
+            assert claim_schedule_slot(entry, 'test:2') is None
+
+        assert not any('claimed slot' in record.message for record in caplog.records)
+
 
 @pytest.mark.django_db
 class TestPruneUnregisteredSchedulerTasks:
@@ -387,8 +425,9 @@ class TestSchedulerThread:
             assert start_scheduler() is True
             stop_scheduler(timeout=5)
 
-    def test_start_is_idempotent(self):
+    def test_start_is_idempotent(self, monkeypatch: pytest.MonkeyPatch):
         CelerySchedulerTask.objects.filter(schedule_key=_IDEMPOTENT_ROW_KEY).delete()
+        monkeypatch.setenv('DJANGO_SPIRE_CELERY_WEB_PROCESS', 'true')
 
         with override_settings(
             DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED=True,
@@ -400,8 +439,9 @@ class TestSchedulerThread:
             stop_scheduler(timeout=5)
 
     @pytest.mark.django_db(transaction=True)
-    def test_scheduler_loop_sends_due_slot_once(self):
+    def test_scheduler_loop_sends_due_slot_once(self, monkeypatch: pytest.MonkeyPatch):
         CelerySchedulerTask.objects.filter(schedule_key=_LOOP_ROW_KEY).delete()
+        monkeypatch.setenv('DJANGO_SPIRE_CELERY_WEB_PROCESS', 'true')
 
         with override_settings(
             DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED=True,
@@ -420,7 +460,8 @@ class TestSchedulerThread:
             finally:
                 stop_scheduler(timeout=5)
 
-    def test_stop_clears_thread(self):
+    def test_stop_clears_thread(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setenv('DJANGO_SPIRE_CELERY_WEB_PROCESS', 'true')
         with override_settings(
             DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED=True,
             DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES=[_STOP_SCHEDULER_PATH],
@@ -434,8 +475,9 @@ class TestSchedulerThread:
             )
 
     @pytest.mark.django_db(transaction=True)
-    def test_loop_prunes_unregistered_rows_on_start(self):
+    def test_loop_prunes_unregistered_rows_on_start(self, monkeypatch: pytest.MonkeyPatch):
         CelerySchedulerTask.objects.filter(schedule_key=_LOOP_ROW_KEY).delete()
+        monkeypatch.setenv('DJANGO_SPIRE_CELERY_WEB_PROCESS', 'true')
 
         orphan_key = 'prune_test.Gone::Loop Old Task'
         CelerySchedulerTask.objects.create(
