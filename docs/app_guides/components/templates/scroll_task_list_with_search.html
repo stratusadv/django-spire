@@ -1,0 +1,23 @@
+{% extends 'django_spire/component/scroll/base.html' %}
+
+{% block scroll_header %}
+    <div class="row g-2 pb-3">
+        <div class="col">
+            <input
+                class="form-control"
+                placeholder="Search tasks ..."
+                type="search"
+                x-model="component.search"
+                @input.debounce="reloadItems()"
+            >
+        </div>
+        <div class="col-auto">
+            <select class="form-select" x-model="component.status" @change="reloadItems()">
+                <option value="">Any status</option>
+                {% for value, label in component.status_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endblock %}

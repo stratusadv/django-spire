@@ -1,0 +1,10 @@
+{% extends 'django_spire/component/scroll/item.html' %}
+
+{% block scroll_item_class %}row border-bottom py-2{% endblock %}
+
+{% block scroll_item_content %}
+    <div class="col">
+        <a href="{% url 'task:page:detail' pk=item.pk %}">{{ item.name }}</a>
+    </div>
+    <div class="col-auto text-muted">{{ item.get_status_display }}</div>
+{% endblock %}

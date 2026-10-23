@@ -1,0 +1,11 @@
+<div class="row border-bottom py-2 align-items-center">
+    <div class="col" x-text="item.name"></div>
+    <div class="col-auto">
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Edit Task" @click="editItem(item)">
+            <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" type="button" title="Delete Task" @click="deleteItem(item)">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</div>

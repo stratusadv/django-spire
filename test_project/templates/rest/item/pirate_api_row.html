@@ -1,0 +1,9 @@
+{% extends 'django_spire/component/scroll/item.html' %}
+
+{% block scroll_item_class %}row border-bottom py-2{% endblock %}
+
+{% block scroll_item_content %}
+    <div class="col-4" data-pirate-name>{{ item.firstName }} {{ item.lastName }}</div>
+    <div class="col-4">{{ item.username }}</div>
+    <div class="col-4">{{ item.email }}</div>
+{% endblock %}
