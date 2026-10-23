@@ -54,6 +54,7 @@ nav:
           - Notifications: app_guides/help_desk/notifications.md
           - Exceptions: app_guides/help_desk/exceptions.md
       - Metric:
+          - Registry: app_guides/metric/registry.md
           - Report: app_guides/metric/report.md
       - Notification:
           - App Notifications: app_guides/notification/app_notifications.md

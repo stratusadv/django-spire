@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
+from django_spire.metric.domain.key_utils import unique_key, unique_key_base_from_name
 from django_spire.metric.domain.models import Domain
 from django_spire.metric.domain.seeding.constants import (
     GROUP_SEEDS,
@@ -13,6 +15,9 @@ from django_spire.metric.domain.seeding.constants import (
 )
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
+
+if TYPE_CHECKING:
+    from django.db import models
 
 
 class StatisticGroupSeeder(Seeder):
@@ -30,6 +35,17 @@ class StatisticGroupSeeder(Seeder):
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
+
+    def to_model_instances(self, count: int | None = None) -> list[models.Model]:
+        instances = super().to_model_instances(count=count)
+        taken = set(StatisticGroup.objects.values_list('key', flat=True))
+        for instance in instances:
+            if instance.key:
+                taken.add(instance.key)
+                continue
+            instance.key = unique_key(unique_key_base_from_name(instance), taken)
+            taken.add(instance.key)
+        return instances
 
 
 class StatisticSeeder(Seeder):

@@ -10,22 +10,26 @@ if TYPE_CHECKING:
 KEY_MAX_LENGTH = 64
 
 
-def unique_key_from_name(instance: Model) -> str:
+def unique_key_base_from_name(instance: Model) -> str:
     parent = getattr(instance, 'domain', None) or getattr(instance, 'group', None)
     temp_key = f'{parent.name}-{instance.name}' if parent else instance.name
     base = slugify(temp_key)[:KEY_MAX_LENGTH] or 'unnamed'
-    cleaned_base = base.replace('_', '-')
+    return base.replace('_', '-')
 
-    queryset = instance.__class__._default_manager.filter(key=cleaned_base)
+
+def unique_key(base: str, taken: set[str]) -> str:
+    key = base
+    suffix = 2
+    while key in taken:
+        key = f'{base[: KEY_MAX_LENGTH - len(str(suffix))]}-{suffix}'
+        suffix += 1
+    return key
+
+
+def unique_key_from_name(instance: Model) -> str:
+    base = unique_key_base_from_name(instance)
+    queryset = instance.__class__._default_manager
     if instance.pk:
         queryset = queryset.exclude(pk=instance.pk)
-
-    if not queryset.exists():
-        return cleaned_base
-
-    suffix = 2
-    while True:
-        candidate = f'{cleaned_base[: KEY_MAX_LENGTH - len(str(suffix))]}-{suffix}'
-        if not instance.__class__._default_manager.filter(key=candidate).exists():
-            return candidate
-        suffix += 1
+    taken = set(queryset.filter(key__startswith=base).values_list('key', flat=True))
+    return unique_key(base, taken)

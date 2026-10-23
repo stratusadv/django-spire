@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django_spire.contrib.seeding import Seeder
+from django_spire.metric.domain.key_utils import unique_key, unique_key_base_from_name
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.seeding.constants import (
     DOMAIN_SEEDS,
     SUB_DOMAIN_KEYS,
     SUBDOMAIN_SEEDS,
 )
+
+if TYPE_CHECKING:
+    from django.db import models
 
 
 class DomainSeeder(Seeder):
@@ -26,6 +32,17 @@ class DomainSeeder(Seeder):
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
+
+    def to_model_instances(self, count: int | None = None) -> list[models.Model]:
+        instances = super().to_model_instances(count=count)
+        taken = set(Domain.objects.values_list('key', flat=True))
+        for instance in instances:
+            if instance.key:
+                taken.add(instance.key)
+                continue
+            instance.key = unique_key(unique_key_base_from_name(instance), taken)
+            taken.add(instance.key)
+        return instances
 
 
 class SubDomainSeeder(Seeder):

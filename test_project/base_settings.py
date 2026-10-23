@@ -136,6 +136,7 @@ INSTALLED_APPS += [
     'test_project.app.help_desk',
     'test_project.app.home',
     'test_project.app.landing',
+    'test_project.app.metrics',
     'test_project.app.ordering',
     'test_project.app.history',
     'test_project.app.notification',
@@ -224,6 +225,11 @@ TEMPLATES = [
 # Report Registry
 DJANGO_SPIRE_REPORT_REGISTRIES = [
     'test_project.app.task.reports.task_report_registry.TaskReportRegistry'
+]
+
+# Metric Registry
+DJANGO_SPIRE_METRIC_REGISTRY = [
+    'test_project.app.metrics.metrics.StoreMetric',
 ]
 
 # Search Registry

@@ -14,6 +14,7 @@ just venv-upgrade      # uv sync --all-extras --upgrade
 just make-migrations   # python manage.py makemigrations
 just migrate           # python manage.py migrate
 just seed              # Seed test data (superuser: stratus/stratus)
+just metric-setup      # python manage.py metric_build (sync declared metric registries)
 just install-hooks     # Install the local ruff pre-commit hook (run once)
 
 # Development
@@ -813,3 +814,4 @@ constellation history [--symbols]        # ingest git history (used by history/s
 | URLs | `django_spire/urls.py` |
 | Choices | `django_spire/help_desk/choices.py` |
 | Auth controller | `django_spire/help_desk/auth/controller.py` |
+| Metric registry | `test_project/app/metrics/metrics.py` (`StoreMetric`) |

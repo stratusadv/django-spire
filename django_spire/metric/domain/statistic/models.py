@@ -37,18 +37,24 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
         related_query_name='statistic_group',
     )
 
+    key = models.SlugField(max_length=64, unique=True, blank=True)
+
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
     objects = querysets.StatisticGroupQuerySet().as_manager()
     services = StatisticGroupService()
 
+    def save(self, *args, **kwargs) -> None:
+        if self.pk is None and not self.key:
+            self.key = unique_key_from_name(self)
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = 'Statistic Group'
         verbose_name_plural = 'Statistics Groups'
         db_table = 'django_spire_metric_domain_statistic_group'
 
-    # TODO: Move to queryset
     def subdomains_qs(self) -> QuerySet[SubDomain]:
         return self.domain.subdomains.active()
 

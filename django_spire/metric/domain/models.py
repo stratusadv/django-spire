@@ -15,12 +15,19 @@ __all__ = ['Domain', 'Statistic', 'StatisticGroup', 'StatisticValue', 'SubDomain
 
 
 class Domain(HistoryModelMixin, ActivityMixin):
+    key = models.SlugField(max_length=64, unique=True, blank=True)
+
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
     sub_domain_name = models.CharField(max_length=128)
 
     objects = querysets.DomainQuerySet().as_manager()
     services = DomainService()
+
+    def save(self, *args, **kwargs) -> None:
+        if self.pk is None and not self.key:
+            self.key = unique_key_from_name(self)
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.name
