@@ -1,130 +1,761 @@
 from __future__ import annotations
 
+import pickle
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch, PropertyMock
 
 from celery import states
 from django.test import TestCase
 from django.utils.timezone import now
+from sqlalchemy.exc import OperationalError
 
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.services.service import CeleryTaskService
 from django_spire.celery.tests.factories import create_test_celery_task
 
 
-class CeleryTaskServiceUpdateResultTestCase(TestCase):
+def _backend_error() -> OperationalError:
+    return OperationalError('SELECT 1', {}, Exception('backend down'))
+
+
+def _mock_async_result(state: str, info: dict | str | None = None, **overrides) -> MagicMock:
+    mock_result = MagicMock()
+    mock_result._get_task_meta.return_value = {'status': state, 'result': info}
+    mock_result.backend.get_task_meta.return_value = {'status': states.PENDING, 'result': None}
+    mock_result.traceback = 'Traceback (most recent call last):\nValueError: task boom'
+    for key, value in overrides.items():
+        setattr(mock_result, key, value)
+
+    return mock_result
+
+
+def _set_final_meta(mock_result: MagicMock, final_meta: dict | None) -> None:
+    mock_result.backend.get_task_meta.return_value = {
+        'status': states.SUCCESS,
+        'result': final_meta,
+    }
+
+
+class CeleryTaskServiceCaptureResultLazyTestCase(TestCase):
     def setUp(self) -> None:
-        self.celery_task = create_test_celery_task()
+        self.celery_task = create_test_celery_task(state=states.SUCCESS)
         self.service = CeleryTaskService(obj=self.celery_task)
 
-    def test_update_result_sets_state_to_success(self) -> None:
-        self.celery_task.state = states.STARTED
-        self.celery_task.save()
-
-        mock_result = MagicMock()
-        mock_result.state = states.SUCCESS
-        mock_result.get.return_value = 'test_result'
-        mock_result.date_done = now()
-
-        self.service.update_result(mock_result)
-
-        assert self.celery_task.state == states.SUCCESS
-
-    def test_update_result_sets_completed_datetime(self) -> None:
+    def test_captures_result_and_completed_datetime(self) -> None:
         completed_time = now()
-        mock_result = MagicMock()
-        mock_result.state = states.SUCCESS
-        mock_result.get.return_value = 'test_result'
-        mock_result.date_done = completed_time
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='test result'), date_done=completed_time
+        )
 
-        self.service.update_result(mock_result)
+        self.service._capture_result_lazy(mock_result)
 
-        assert self.celery_task.completed_datetime is not None
+        assert self.celery_task.result == 'test result'
+        assert self.celery_task.completed_datetime == completed_time
 
-    def test_update_result_with_naive_datetime_makes_aware(self) -> None:
-        naive_datetime = now()
-        mock_result = MagicMock()
-        mock_result.state = states.SUCCESS
-        mock_result.get.return_value = 'test_result'
-        mock_result.date_done = naive_datetime.replace(tzinfo=None)
+    def test_naive_date_done_is_made_aware(self) -> None:
+        mock_result = _mock_async_result(
+            states.SUCCESS,
+            get=MagicMock(return_value='test result'),
+            date_done=now().replace(tzinfo=None),
+        )
 
-        self.service.update_result(mock_result)
+        self.service._capture_result_lazy(mock_result)
 
         assert self.celery_task.completed_datetime.tzinfo is not None
 
+    def test_backend_error_leaves_celery_task_unchanged(self) -> None:
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(side_effect=_backend_error())
+        )
 
-class CeleryTaskServiceUpdateFromAsyncResultTestCase(TestCase):
+        self.service._capture_result_lazy(mock_result)
+
+        assert self.celery_task.has_no_result
+
+
+class CeleryTaskServiceUpdateFromBackendTestCase(TestCase):
     def setUp(self) -> None:
         self.celery_task = create_test_celery_task(state=states.STARTED)
         self.service = CeleryTaskService(obj=self.celery_task)
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_update_from_async_result_saves_on_state_change(self, mock_async_result) -> None:
-        mock_result = MagicMock()
-        mock_result.state = states.FAILURE
-        mock_result.ready.return_value = False
-        mock_result.info = None
-        mock_async_result.return_value = mock_result
-
-        with patch.object(self.celery_task, 'save') as mock_save:
-            self.service.update_from_async_result_and_save_if_change()
-
-            mock_save.assert_called()
-
-    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_update_from_async_result_pending_to_started(self, mock_async_result) -> None:
+    def test_pending_to_started_merges_meta(self, mock_async_result: MagicMock) -> None:
         self.celery_task.state = states.PENDING
         self.celery_task.save()
 
-        mock_result = MagicMock()
-        mock_result.state = states.STARTED
-        mock_result.ready.return_value = False
-        mock_result.info = None
-        mock_async_result.return_value = mock_result
+        mock_async_result.return_value = _mock_async_result(
+            states.STARTED, info={'progress': 0.4, 'data': {'counted_seconds': 3}}
+        )
 
-        self.service.update_from_async_result_and_save_if_change()
+        self.service.update_from_backend()
 
+        assert self.celery_task.state == states.STARTED
+        assert self.celery_task.meta.progress == 0.4
+        assert self.celery_task.meta.data == {'counted_seconds': 3}
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_started_to_success_captures_result(self, mock_async_result: MagicMock) -> None:
+        mock_async_result.return_value = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.result == 'The pirate says YARR'
+        assert self.celery_task.completed_datetime is not None
+        assert self.celery_task.meta.progress == 1.0
+        assert self.celery_task.meta.completed_time is not None
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_clears_exception_traceback(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.exception_traceback = 'Traceback (stale)'
+        self.celery_task.save()
+
+        mock_async_result.return_value = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.exception_traceback == ''
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_started_to_failure_stores_exception_result(self, mock_async_result: MagicMock) -> None:
+        mock_async_result.return_value = _mock_async_result(
+            states.FAILURE, get=MagicMock(side_effect=ValueError('task boom'))
+        )
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.has_exception_result
+
+        exception_result = self.celery_task.exception_result
+        assert exception_result is not None
+        assert exception_result.exc_type == 'ValueError'
+        assert exception_result.message == 'task boom'
+
+        assert self.celery_task.meta.error == 'task boom'
+        assert self.celery_task.meta.completed_time is None
+        assert self.celery_task.completed_datetime is not None
+        assert self.celery_task.exception_traceback == (
+            'Traceback (most recent call last):\nValueError: task boom'
+        )
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_started_to_retry(self, mock_async_result: MagicMock) -> None:
+        mock_async_result.return_value = _mock_async_result(states.RETRY, info={'retries': 1})
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.RETRY
+        assert self.celery_task.meta.retries == 1
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_with_unavailable_backend_result(self, mock_async_result: MagicMock) -> None:
+        mock_async_result.return_value = _mock_async_result(
+            states.SUCCESS, get=MagicMock(side_effect=_backend_error())
+        )
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.has_no_result
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_ready_celery_task_with_missing_result_retries_capture(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.state = states.SUCCESS
+        self.celery_task.save()
+
+        completed_time = now()
+        mock_async_result.return_value = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='late result'), date_done=completed_time
+        )
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.result == 'late result'
+        assert self.celery_task.completed_datetime == completed_time
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_terminal_celery_task_ignores_stale_backend_state(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.state = states.SUCCESS
+        self.celery_task._result = pickle.dumps('done')
+        self.celery_task.save()
+
+        mock_async_result.return_value = _mock_async_result(states.STARTED, info={'progress': 0.2})
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.result == 'done'
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_non_dict_meta_for_unready_state_is_dropped_without_error(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        mock_async_result.return_value = _mock_async_result(
+            states.STARTED, info='The sword goes SWOOSH SWOOSH SWOOSH SWOOSH SWOOSH'
+        )
+
+        self.service.update_from_backend()
+
+        self.celery_task.refresh_from_db()
         assert self.celery_task.state == states.STARTED
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_ready_dict_meta_is_merged(self, mock_async_result: MagicMock) -> None:
-        self.celery_task.meta_as_dict = {'data': {'bananas': 'The key'}, 'progress': 0.5}
+    def test_native_tracker_started_row_meta_is_dropped(self, mock_async_result: MagicMock) -> None:
+        self.celery_task.state = states.PENDING
         self.celery_task.save()
 
-        mock_result = MagicMock()
-        mock_result.state = states.SUCCESS
-        mock_result.ready.return_value = True
-        mock_result.info = {
-            'data': {'bananas': 'The key', 'more': {'has_noises': True}},
-            'progress': 1.0,
-            'started_time': 100.0,
-            'completed_time': 123.0,
-        }
-        mock_result.get.return_value = 'The pirate says YARR'
-        mock_result.date_done = now()
-        mock_async_result.return_value = mock_result
+        mock_async_result.return_value = _mock_async_result(
+            states.STARTED, info={'pid': 249397, 'hostname': 'celery@not-a-toaster'}
+        )
 
-        self.service.update_from_async_result_and_save_if_change()
+        self.service.update_from_backend()
 
-        meta = self.celery_task.meta
-        assert meta.data == {'bananas': 'The key', 'more': {'has_noises': True}}
-        assert meta.completed_time == 123.0
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.STARTED
+        assert self.celery_task.meta.data == {}
+        assert self.celery_task.meta.progress is None
+        assert 'pid' not in self.celery_task.meta.model_dump()
+        assert 'hostname' not in self.celery_task.meta.model_dump()
+
+
+class CeleryTaskServiceFinalMetaTestCase(TestCase):
+    def setUp(self) -> None:
+        self.celery_task = create_test_celery_task(state=states.STARTED)
+        self.service = CeleryTaskService(obj=self.celery_task)
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
-    def test_ready_string_info_keeps_existing_meta(self, mock_async_result: MagicMock) -> None:
-        self.celery_task.meta_as_dict = {'data': {'bananas': 'The key'}, 'progress': 0.5}
+    def test_success_terminal_merges_final_meta_over_stale_web_meta(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.7, 'data': {'counted_seconds': 7}}
         self.celery_task.save()
 
-        mock_result = MagicMock()
-        mock_result.state = states.SUCCESS
-        mock_result.ready.return_value = True
-        mock_result.info = 'The pirate says YARR'
-        mock_result.get.return_value = 'The pirate says YARR'
-        mock_result.date_done = now()
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 10, 'more': {'has_noises': True}},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'started_time': 100.0,
+                'last_update_time': 122.0,
+                'retries': 0,
+            },
+        )
         mock_async_result.return_value = mock_result
 
-        self.service.update_from_async_result_and_save_if_change()
+        self.service.update_from_backend()
 
-        meta = self.celery_task.meta
-        assert meta.data == {'bananas': 'The key'}
-        assert meta.progress == 1.0
-        assert meta.completed_time is not None
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {'counted_seconds': 10, 'more': {'has_noises': True}}
+        assert self.celery_task.meta.completed_time == 123.0
+        assert self.celery_task.result == 'The pirate says YARR'
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_failure_terminal_merges_final_meta_error_and_data(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.4, 'data': {'counted_seconds': 3}}
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.FAILURE, get=MagicMock(side_effect=ValueError('task boom'))
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 4},
+                'progress': 0.4,
+                'error': 'ValueError: task boom',
+                'failed_time': 55.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.meta.data == {'counted_seconds': 4}
+        assert self.celery_task.meta.error == 'ValueError: task boom'
+        assert self.celery_task.meta.failed_time == 55.0
+        assert self.celery_task.has_exception_result
+        exception_result = self.celery_task.exception_result
+        assert exception_result is not None
+        assert exception_result.exc_type == 'ValueError'
+        assert exception_result.message == 'task boom'
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_retry_terminal_merges_final_meta_retries(self, mock_async_result: MagicMock) -> None:
+        mock_result = _mock_async_result(states.RETRY, info=None)
+        _set_final_meta(
+            mock_result, {'retries': 2, 'data': {'counted_seconds': 4}, 'progress': 0.4}
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.RETRY
+        assert self.celery_task.meta.retries == 2
+        assert self.celery_task.meta.data == {'counted_seconds': 4}
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_without_final_meta_row_keeps_web_meta(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.7, 'data': {'counted_seconds': 7}}
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {'counted_seconds': 7}
+        assert self.celery_task.meta.progress == 1.0
+        assert self.celery_task.meta.completed_time is not None
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_final_meta_read_error_still_transitions(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        mock_result.backend.get_task_meta.side_effect = _backend_error()
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.result == 'The pirate says YARR'
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_success_terminal_non_dict_final_meta_is_dropped(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        mock_result.backend.get_task_meta.return_value = {
+            'status': states.SUCCESS,
+            'result': 'not-meta',
+        }
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {}
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_fast_success_before_started_observation_derives_started_datetime(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.started_datetime = None
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 10},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'started_time': 100.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.started_datetime == datetime.fromtimestamp(100.0, tz=UTC)
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_fast_failure_before_started_observation_derives_started_datetime(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.started_datetime = None
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.FAILURE, get=MagicMock(side_effect=ValueError('task boom'))
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 4},
+                'progress': 0.4,
+                'error': 'ValueError: task boom',
+                'failed_time': 110.0,
+                'started_time': 100.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.started_datetime == datetime.fromtimestamp(100.0, tz=UTC)
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_terminal_keeps_already_observed_started_datetime(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.4, 'started_time': 90.0}
+        self.celery_task.save()
+
+        observed_started = self.celery_task.started_datetime
+
+        mock_result = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='The pirate says YARR')
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 10},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'started_time': 100.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.started_datetime == observed_started
+
+
+class CeleryTaskServiceStuckRowHealTestCase(TestCase):
+    def setUp(self) -> None:
+        self.celery_task = create_test_celery_task(state=states.STARTED)
+        self.service = CeleryTaskService(obj=self.celery_task)
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_stuck_started_with_final_meta_completed_time_heals_to_success(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.5, 'data': {'counted_seconds': 5}}
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.STARTED, info={'progress': 0.5, 'data': {'counted_seconds': 5}}
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 10, 'more': {'has_noises': True}},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'started_time': 100.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {'counted_seconds': 10, 'more': {'has_noises': True}}
+        assert self.celery_task.meta.completed_time == 123.0
+        assert self.celery_task.completed_datetime is not None
+        assert self.celery_task.has_no_result
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_stuck_started_with_final_meta_error_heals_to_failure(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.4, 'data': {'counted_seconds': 3}}
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            states.STARTED, info={'progress': 0.4, 'data': {'counted_seconds': 3}}
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 4},
+                'progress': 0.4,
+                'error': 'ValueError: task boom',
+                'failed_time': 55.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.meta.error == 'ValueError: task boom'
+        assert self.celery_task.meta.failed_time == 55.0
+        assert self.celery_task.meta.data == {'counted_seconds': 4}
+        assert self.celery_task.has_exception_result
+        exception_result = self.celery_task.exception_result
+        assert exception_result is not None
+        assert exception_result.message == 'ValueError: task boom'
+        assert self.celery_task.exception_traceback == ''
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_stuck_started_with_final_meta_error_traceback_heals_to_failure(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.meta_as_dict = {'progress': 0.4, 'data': {'counted_seconds': 3}}
+        self.celery_task.save()
+
+        traceback_text = 'Traceback (most recent call last):\nValueError: task boom'
+        mock_result = _mock_async_result(
+            states.STARTED, info={'progress': 0.4, 'data': {'counted_seconds': 3}}
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 4},
+                'progress': 0.4,
+                'error': 'ValueError: task boom',
+                'error_traceback': traceback_text,
+                'failed_time': 55.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.FAILURE
+        assert self.celery_task.has_exception_result
+        exception_result = self.celery_task.exception_result
+        assert exception_result is not None
+        assert exception_result.message == 'ValueError: task boom'
+        assert exception_result.traceback == traceback_text
+        assert self.celery_task.exception_traceback == traceback_text
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_stuck_started_with_final_meta_neither_heals_to_retry(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        mock_result = _mock_async_result(
+            states.STARTED, info={'progress': 0.2, 'data': {'counted_seconds': 1}}
+        )
+        _set_final_meta(
+            mock_result, {'retries': 2, 'data': {'counted_seconds': 4}, 'progress': 0.4}
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.RETRY
+        assert self.celery_task.meta.retries == 2
+        assert self.celery_task.meta.data == {'counted_seconds': 4}
+        assert self.celery_task.completed_datetime is None
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_stuck_custom_state_with_final_meta_heals_to_success(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.state = 'MAKING NOISES'
+        self.celery_task.save()
+
+        mock_result = _mock_async_result(
+            'MAKING NOISES', info={'progress': 0.6, 'data': {'counted_seconds': 6}}
+        )
+        _set_final_meta(
+            mock_result,
+            {
+                'data': {'counted_seconds': 8},
+                'progress': 1.0,
+                'completed_time': 123.0,
+                'retries': 0,
+            },
+        )
+        mock_async_result.return_value = mock_result
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.meta.data == {'counted_seconds': 8}
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_stuck_started_without_final_meta_row_is_unchanged(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        mock_async_result.return_value = _mock_async_result(
+            states.STARTED, info={'progress': 0.5, 'data': {'counted_seconds': 5}}
+        )
+
+        self.service.update_from_backend()
+
+        assert self.celery_task.state == states.STARTED
+        assert self.celery_task.meta.data == {'counted_seconds': 5}
+
+
+class ApplyBackendSnapshotTestCase(TestCase):
+    def test_stale_transition_after_terminal_is_dropped(self) -> None:
+        celery_task = create_test_celery_task(state=states.SUCCESS)
+
+        celery_task.services._apply_backend_snapshot(states.STARTED, meta_dict={'progress': 0.2})
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.SUCCESS
+
+    def test_no_regression_to_pending(self) -> None:
+        celery_task = create_test_celery_task(state=states.STARTED)
+
+        celery_task.services._apply_backend_snapshot(states.PENDING)
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.STARTED
+
+    def test_monotonic_progress_never_decreases(self) -> None:
+        celery_task = create_test_celery_task(state=states.STARTED)
+        celery_task.meta_as_dict = {'progress': 0.5}
+        celery_task.save()
+
+        celery_task.services._apply_backend_snapshot(states.STARTED, meta_dict={'progress': 0.2})
+
+        celery_task.refresh_from_db()
+        assert celery_task.meta.progress == 0.5
+
+    def test_unchanged_snapshot_is_a_noop(self) -> None:
+        celery_task = create_test_celery_task(state=states.STARTED)
+        celery_task.meta = celery_task.meta
+        celery_task.save()
+
+        with patch.object(CeleryTask, 'save') as mock_save:
+            celery_task.services._apply_backend_snapshot(states.STARTED, meta_dict={})
+
+        mock_save.assert_not_called()
+
+    def test_started_to_success_sets_result_and_completed_datetime(self) -> None:
+        celery_task = create_test_celery_task(state=states.STARTED)
+
+        celery_task.services._apply_backend_snapshot(states.SUCCESS, result='the result')
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.SUCCESS
+        assert celery_task.result == 'the result'
+        assert celery_task.completed_datetime is not None
+
+
+class CeleryTaskServiceCancelTestCase(TestCase):
+    def setUp(self) -> None:
+        self.celery_task = create_test_celery_task(state=states.STARTED)
+        self.service = CeleryTaskService(obj=self.celery_task)
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_started_task_revokes_and_marks_revoked(self, mock_app: MagicMock) -> None:
+        error = self.service.cancel()
+
+        assert error is None
+        mock_app.control.revoke.assert_called_once_with(
+            str(self.celery_task.task_id), terminate=True
+        )
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+        assert self.celery_task.completed_datetime is not None
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_pending_task_marks_revoked(self, mock_app: MagicMock) -> None:
+        self.celery_task.state = states.PENDING
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_custom_state_task_marks_revoked(self, mock_app: MagicMock) -> None:
+        self.celery_task.state = 'MAKING NOISES'
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_terminal_task_is_rejected(self, mock_app: MagicMock) -> None:
+        completed_datetime = now()
+        self.celery_task.state = states.SUCCESS
+        self.celery_task.completed_datetime = completed_datetime
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is not None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.SUCCESS
+        assert self.celery_task.completed_datetime == completed_datetime
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_revoked_task_is_rejected(self, mock_app: MagicMock) -> None:
+        self.celery_task.state = states.REVOKED
+        self.celery_task.save()
+
+        error = self.service.cancel()
+
+        assert error is not None
+        mock_app.control.revoke.assert_called_once()
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED
+
+    @patch('django_spire.celery.services.service.current_app')
+    def test_cancel_returns_error_and_leaves_row_when_revoke_fails(
+        self, mock_app: MagicMock
+    ) -> None:
+        mock_app.control.revoke.side_effect = Exception('broker down')
+
+        error = self.service.cancel()
+
+        assert error is not None
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.STARTED
+        assert self.celery_task.completed_datetime is None
+
+    @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
+    def test_update_from_backend_leaves_revoked_row_sticky(
+        self, mock_async_result: MagicMock
+    ) -> None:
+        self.celery_task.state = states.REVOKED
+        self.celery_task.save()
+
+        mock_async_result.return_value = _mock_async_result(
+            states.SUCCESS, get=MagicMock(return_value='late result'), date_done=now()
+        )
+
+        self.service.update_from_backend()
+
+        self.celery_task.refresh_from_db()
+        assert self.celery_task.state == states.REVOKED

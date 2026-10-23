@@ -3,64 +3,7 @@
 {% block widget_content %}
     <div
         class="position-relative"
-        x-data="{
-            isOpen: false,
-            search: '',
-            get selectedChoices() {
-                return field?.selectedChoices || [];
-            },
-            get filteredChoices() {
-                if (field?.choices_searchable && field.isSearchingChoices) return [];
-
-                const selectedValues = new Set(this.selectedChoices.map(choice => String(choice.value)));
-                const query = this.search.trim().toLowerCase();
-                return (field?.choices || []).filter(choice =>
-                    !selectedValues.has(String(choice.value))
-                    && (
-                        field?.choices_searchable
-                        || String(choice.label).toLowerCase().includes(query)
-                    )
-                );
-            },
-            open() {
-                if (field.disabled) return;
-                this.search = '';
-                field.clearSearch?.();
-                this.isOpen = true;
-                this.$nextTick(() => this.$refs.searchInput?.focus());
-            },
-            isChoiceDisabled(choice) {
-                return field.disabled || field.disabled_choices?.some(
-                    value => String(value) === String(choice.value)
-                );
-            },
-            addChoice(choice) {
-                if (!choice || this.isChoiceDisabled(choice)) return;
-                field.addChoice(choice.value);
-                this.search = '';
-                field.clearSearch?.();
-                this.dispatchValueEvents();
-                this.$nextTick(() => this.$refs.searchInput?.focus());
-            },
-            close() {
-                this.isOpen = false;
-                this.search = '';
-                field.clearSearch?.();
-            },
-            removeChoice(choice) {
-                if (this.isChoiceDisabled(choice)) return;
-                field.removeChoice(choice.value);
-                this.dispatchValueEvents();
-            },
-            dispatchValueEvents() {
-                this.$refs.trigger?.dispatchEvent(new Event('input', {bubbles: true}));
-                this.$refs.trigger?.dispatchEvent(new Event('change', {bubbles: true}));
-            },
-            async searchChoices() {
-                if (!field?.choices_searchable) return;
-                await field.searchChoices(this.search.trim());
-            },
-        }"
+        x-data="multiSearchAndSelect(field)"
         @click.outside="close()"
         @keydown.escape="close()"
     >

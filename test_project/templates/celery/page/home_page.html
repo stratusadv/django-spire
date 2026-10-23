@@ -4,108 +4,137 @@
 
 {% block full_page_content %}
 
-    <div class="card mb-3">
-        <div class="card-header">
-            <div class="card-title" x-data="{}">
-                New Stalk Tasks
-                <button class="btn btn-sm btn-outline-secondary cursor-pointer float-end"
-                        onclick="Spire.modal.dispatch('<h2>Celery is amazing!<h2>', {dialogClasses: 'modal-lg'})">
-                    About
-                </button>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row mt-3">
-                <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
-                    Set your noise length
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="pirate" value="pirate"/>
-                        <input type="number" name="length" value="{{ length }}"/>
-                        <input type="submit" value="Pirate Noise"/>
-                    </form>
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <div class="card-title">
+                        Start Work
+                        <button class="btn btn-sm btn-outline-secondary cursor-pointer float-end"
+                                onclick="Spire.modal.dispatch('<h2>Celery is amazing!<h2>', {dialogClasses: 'modal-lg'})">
+                            About
+                        </button>
+                    </div>
                 </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
-                    Set your noise length
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="ninja" value="ninja"/>
-                        <input type="number" name="length" value="{{ length }}"/>
-                        <input type="submit" value="Ninja Attack"/>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                Stalk Status
-                <button class="btn btn-sm btn-outline-secondary cursor-pointer float-end"
-                        onclick="Spire.modal.dispatchView('{% url 'celery:help_modal' %}', {dialogClasses: 'modal-lg'})">
-                    Help
-                </button>
-            </div>
-        </div>
-        <div class="card-body">
-
-            <div class="row mt-3">
-                <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
-                    {% if info %}
-                        {{ info }}
-                    {% else %}
-                        No Information
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
-                    Check Last Pirate or Ninja Task
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="text" name="check_task_id" value="{{ task_id }}"/>
-                        <input type="submit" value="Submit"/>
-                    </form>
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
-                    {% if state %}
-                        {{ state }}
-                    {% else %}
-                        No Task State
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
-                    {% if result %}
-                        {{ result }}
-                    {% else %}
-                        No Task Result
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
-                    <div class="btn btn-primary" @click="$dispatch('django_spire_celery_reload_task_toast_widget')">
-                        Celery Reload Task Widget
+                <div class="card-body">
+                    <div class="row row-cols-1 row-cols-md-3 g-3">
+                        <div class="col">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="pirate" value="pirate"/>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Length</span>
+                                    <input type="number" name="length" value="{{ length }}" class="form-control"
+                                           aria-label="Pirate Noise length"/>
+                                </div>
+                                <input type="submit" value="Pirate Noise"
+                                       class="btn btn-sm btn-outline-primary w-100 mt-1"/>
+                            </form>
+                        </div>
+                        <div class="col">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="ninja" value="ninja"/>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Length</span>
+                                    <input type="number" name="length" value="{{ length }}" class="form-control"
+                                           aria-label="Ninja Attack length"/>
+                                </div>
+                                <input type="submit" value="Ninja Attack"
+                                       class="btn btn-sm btn-outline-primary w-100 mt-1"/>
+                            </form>
+                        </div>
+                        <div class="col">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="lizard" value="lizard"/>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Length</span>
+                                    <input type="number" name="length" value="{{ length }}" class="form-control"
+                                           aria-label="Lizard Fail length"/>
+                                </div>
+                                <input type="submit" value="Lizard Fail"
+                                       class="btn btn-sm btn-outline-primary w-100 mt-1"/>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <div class="card-title">
+                        Check Worker
+                        <span class="float-end">
+                            <button class="btn btn-sm btn-outline-secondary cursor-pointer me-1"
+                                    @click="$dispatch('django_spire_celery_reload_tasks')">
+                                Reload
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary cursor-pointer"
+                                    onclick="Spire.modal.dispatchView('{% url 'celery:help_modal' %}', {dialogClasses: 'modal-lg'})">
+                                Help
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Check Task</span>
+                            <input type="text" name="check_task_id" value="{{ task_id }}" class="form-control"
+                                   placeholder="Task ID"/>
+                            <input type="submit" value="Check" class="btn btn-outline-secondary"/>
+                        </div>
+                    </form>
+                    <dl class="row mb-0 small">
+                        <dt class="col-4">Info</dt>
+                        <dd class="col-8">{% if info %}{{ info }}{% else %}No Information{% endif %}</dd>
+                        <dt class="col-4">State</dt>
+                        <dd class="col-8">{% if state %}{{ state }}{% else %}No Task State{% endif %}</dd>
+                        <dt class="col-4">Result</dt>
+                        <dd class="col-8">{% if result %}{{ result }}{% else %}No Task Result{% endif %}</dd>
+                        <dt class="col-4">Data</dt>
+                        <dd class="col-8">
+                            {% if task_data %}
+                                <div>Counted Seconds: {{ task_data.counted_seconds }}</div>
+                                <div>More: {{ task_data.more }}</div>
+                                <div>Worker: {{ task_data.worker_hostname }}</div>
+                            {% else %}
+                                No Task Data
+                            {% endif %}
+                        </dd>
+                        <dt class="col-4">Traceback</dt>
+                        <dd class="col-8">
+                            {% if exception_traceback %}
+                                <pre class="p-2 rounded-3 small mb-0 bg-danger bg-opacity-10 text-danger">{{ exception_traceback }}</pre>
+                            {% else %}
+                                No Exception Traceback
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
 
-    {% django_spire_celery_task_toast_widget celery_task_managers %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <div class="card-title">
+                Pirate Tasks
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    {% django_spire_celery_task_item_block celery_task_item_managers %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% django_spire_celery_task_toast_widget celery_task_toast_managers %}
 
 {% endblock %}
-

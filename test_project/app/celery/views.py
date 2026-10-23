@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING
 
 from celery.result import AsyncResult
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
+from django_spire.celery.models import CeleryTask
 from test_project.app.celery.celery.managers import (
     PirateSongCeleryTaskManager,
     NinjaAttackCeleryTaskManager,
+    LizardFailCeleryTaskManager,
 )
+from test_project.app.celery.celery.tasks import TaskData
 from test_project.app.celery.models import CeleryStalk
 from test_project.app.celery.navigation import CeleryNavigation
 
@@ -43,29 +47,44 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
         if length is not None:
             length = int(length)
 
-            if request.POST.get('ninja'):
+            if request.POST.get('lizard'):
+                async_result = LizardFailCeleryTaskManager().send_task(length=length)
+            elif request.POST.get('ninja'):
                 async_result = NinjaAttackCeleryTaskManager().send_task(length=length)
             else:
                 async_result = PirateSongCeleryTaskManager(celery_stalk).send_task(length=length)
 
-            context['task_id'] = async_result.id
+            context['task_id'] = str(async_result.task_id)
             context['length'] = length
             context['info'] = 'Your Request has been sent successfully!'
 
-        check_task_id = request.POST.get('check_task_id')
+        check_task_id = (request.POST.get('check_task_id') or '').strip()
 
-        if check_task_id is not None:
-            async_result = AsyncResult(check_task_id)
+        if check_task_id:
+            try:
+                check_task_uuid = uuid.UUID(check_task_id)
+            except ValueError:
+                context['state'] = 'Not Found'
+            else:
+                async_result = AsyncResult(check_task_id)
 
-            context['task_id'] = check_task_id
-            context['state'] = async_result.state
+                context['task_id'] = check_task_id
+                context['state'] = async_result.state
 
-            if async_result.state == 'SUCCESS':
-                context['result'] = async_result.get(timeout=1)
+                if async_result.state == 'SUCCESS':
+                    context['result'] = async_result.get(timeout=1)
 
-    context['celery_task_managers'] = [
+                celery_task = CeleryTask.objects.filter(task_id=check_task_uuid).first()
+
+                if celery_task is not None:
+                    context['task_data'] = TaskData(**celery_task.meta.data)
+                    context['exception_traceback'] = celery_task.exception_traceback
+
+    context['celery_task_toast_managers'] = [
         NinjaAttackCeleryTaskManager(),
-        PirateSongCeleryTaskManager(celery_stalk),
+        LizardFailCeleryTaskManager(),
     ]
+
+    context['celery_task_item_managers'] = [PirateSongCeleryTaskManager(celery_stalk)]
 
     return TemplateResponse(request, template, context=context)

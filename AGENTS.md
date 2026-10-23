@@ -14,10 +14,11 @@ just venv-upgrade      # uv sync --all-extras --upgrade
 just make-migrations   # python manage.py makemigrations
 just migrate           # python manage.py migrate
 just seed              # Seed test data (superuser: stratus/stratus)
+just install-hooks     # Install the local ruff pre-commit hook (run once)
 
 # Development
 just run-server        # Dev server
-just celery            # Celery worker (threads pool)
+just celery            # Celery worker (prefork pool)
 just scss              # Compile SCSS to django-spire-bootstrap.css
 just python <args>     # Run venv python
 
@@ -410,6 +411,77 @@ class TaskSearch(Search):
 
 Required attributes (`model_class`, `searchable_fields`, `search_key`) raise `ValueError` in `__init_subclass__` if unset. `search_key` must match the registry key or the registry raises `ValueError`. Reference implementations: `django_spire/knowledge/entry/search.py` (`EntrySearch`) and `test_project/app/task/search.py` (`TaskSearch`). Registry logic in `core/search/registry.py`, palette view in `core/search/views.py`, client JS in `core/static/django_spire/js/search_palette.js`.
 
+## Celery
+
+Task execution splits worker and web: **the worker writes only the result backend; the web is the single writer of `CeleryTask` records.** Views sync records on every request via `CeleryTaskService.update_from_backend()` → `_apply_backend_snapshot()`, which runs under `select_for_update` + `CeleryTaskStateMachine` and keeps progress monotonic. Terminal outcomes are not fired as separate metric events; they are derivable from the `CeleryTask` rows themselves. The native tracer owns the terminal backend writes (`task_track_started=True`); the tracker only mirrors mid-run meta. Workers make zero web-DB calls.
+
+Terms used throughout this section (defined once here, used bare elsewhere):
+
+- **backend** (result backend): Celery's per-task result storage (state, meta, result) keyed by task id; the worker's only write target.
+- **CeleryTask record**: the app-DB row, one per task id, owned by the web; never a generic "any row in any DB" concept.
+- **single writer**: the record is mutated only by `CeleryTaskService._apply_backend_snapshot()` under `select_for_update`.
+- **poll**: one `update_from_backend()` call (views sync on every request).
+- **flusher**: a per-task daemon thread that pushes the latest mid-run snapshot to the backend at the update interval (>= 5 s), so task code never blocks on backend I/O.
+- **pending snapshot** (`_pending_snapshot` / `_pending_event`): the single-slot handoff from task thread to flusher; only the newest snapshot is kept. Unrelated to Celery's `PENDING` state.
+- **snapshot**: a consistent state+meta copy: worker `_TrackerSnapshot`, web `_SnapshotValues` (meta, result, completed, started).
+- **native tracer**: Celery's own terminal writes (`mark_as_done` / `mark_as_failure` / `mark_as_retry`); the tracker never writes terminal.
+- **mid-run**: any meta/progress update while the task executes (as opposed to the terminal write).
+- **untracked**: direct/unnamed calls have no task id, so there is nothing to push to the backend.
+- **stale**: a dropped backwards/outdated transition (state machine), or, in the reaper, a STARTED record with no meta update past `--threshold`.
+- **anchor**: a custom progress state resolves to `STARTED` for the transition-table lookup.
+- **monotonic**: progress never decreases; `_apply_meta_snapshot` clamps a regressed meta.
+
+Author tasks use the `celery_task` decorator + `CeleryTaskRunner`; track progress with `self.tracker` (never touch the DB from the worker). Register a `meta_data_model` (a `TaskDataModel` subclass) and `self.tracker.meta.data` becomes an instance of that model — attribute sets are validated and schedule the coalesced backend flush, so there is no separate "set data" call:
+
+```python
+from django_spire.celery.decorators import celery_task
+from django_spire.celery.meta import TaskDataModel
+from django_spire.celery.runner import CeleryTaskRunner
+
+
+class TaskData(TaskDataModel):
+    counted_seconds: int | None = None
+
+
+@celery_task(meta_data_model=TaskData)
+def pirate_noise_task(self: CeleryTaskRunner, length: int) -> str:
+    self.tracker.set_started()
+    for i in range(length):
+        self.tracker.meta.data.counted_seconds = i + 1
+    return 'The pirate says YAR'
+```
+
+The worker stamps `worker_hostname` onto the data itself. On the web, the typed read is a one-liner in app code (the app owns the model class): `TaskData(**celery_task.meta.data)` (reference: `test_project/app/celery/views.py`). The raw dict form (`tracker.meta.data['x'] = ...`) is only for tasks that register no model; with a model, `meta.data` is a model and item-assignment is a type error.
+
+Tracker API: `set_started`, `set_completed`, `set_started_and_completing_soon`, `update_state` (custom progress states), `update_count_progress`, `set_cumulative_progress_target_value` / `update_cumulative_progress`, `set_retries`, and `meta.data` (typed via `meta_data_model`, or a free-form dict). Meta updates are coalesced by a single-writer flusher thread (5 s interval) and pushed to the backend; direct/unnamed calls run untracked. Terminal handling (retry/failure/success) is the runner's job — tasks just `execute`.
+
+State machine (`celery/state_machine.py`): explicit transition table; terminals are sticky; PENDING/RECEIVED are unreachable after leaving; custom states anchor to `STARTED` (custom→terminal allowed, custom→plain STARTED not). Illegal transitions are dropped with a warning instead of corrupting the CeleryTask.
+
+`BaseCeleryTaskManager.send_task` (per-model managers): validates kwargs, retries sends with exponential backoff (`send_task_retries`), stamps `spire_reference_key`/`spire_display_name`/`spire_model_key` headers, and on send failure creates a FAILURE CeleryTask carrying `CeleryExceptionResult(SendFailedError)` (surfaced via `send_error_message` / `send_error_details`). Opt in `dedupe_unready = True` (e.g. `PirateSongCeleryTaskManager`) to reuse an existing unready CeleryTask instead of re-sending; pair with `worker_deduplicate_successful_tasks=True`, which needs `task_acks_late=True` + a persistent result backend (see `test_project/celery.py`). The dedupe check-then-act is not atomic: two concurrent sends can both see no unready CeleryTask and both send; that window is accepted at current scale (documented, no lock).
+
+Results: SUCCESS CeleryTasks pickle the return value; FAILURE CeleryTasks pickle `CeleryExceptionResult` (`exc_type` / `message` / `traceback` + pickled exception when available) and render it in the task UI and admin; the formatted trace is also mirrored to the `CeleryTask.exception_traceback` column (from the backend `async_result.traceback`, or the worker's `CeleryTaskMeta.error_traceback` when the runner captured it in `finish(FAILURE, exc=...)`) and shown on the admin change page; `CeleryNoResult` is the no-result sentinel.
+
+Reaper: `python manage.py prune_stale_started_celery_tasks [--threshold 600] [--include-pending] [--dry-run]` resolves stale STARTED CeleryTasks with no meta update past the threshold: CeleryTasks whose backend already reached a terminal state are synced via `update_from_backend()` (real terminal), CeleryTasks still active on any worker (one `inspect().active()` broadcast) are skipped, and the rest are marked FAILURE with a `StaleStartedError` stamp. Stamping is additionally guarded by `inspect().ping()`: when no live worker answers (an empty ping result, or the workers unreachable) every failure candidate is skipped with a warning, because an unacked message may still be requeued and delivered. `--include-pending` also collects stale PENDING CeleryTasks: ones whose backend is terminal are synced, the rest are skipped with a log and never stamped (the message may still be queued or in flight, so a FAILURE stamp would diverge from the redelivered run). CeleryTasks are skipped, never marked FAILURE, when the backend read fails. Schedule it only where the web process has broker access.
+
+Scheduler: `CeleryScheduler` (`celery/scheduler.py`) is a beat-style cron scheduler embedded in the web process — it never executes task code, it only sends tasks to the broker when a cron slot is due. Projects subclass it seeder-style and register the class in `DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES`:
+
+```python
+from django_spire.celery.scheduler import CeleryScheduler, SchedulerTask
+
+
+class MyAppScheduler(CeleryScheduler):
+    tasks = [
+        SchedulerTask(PirateSongCeleryTaskManager, crontab='*/5 * * * *', kwargs={'length': 2}),
+        SchedulerTask(NinjaAttackCeleryTaskManager, crontab='0 */6 * * *', kwargs={'length': 1}),
+    ]
+```
+
+`SchedulerTask(manager_class, crontab, *, name=None, kwargs=None)` references an existing `BaseCeleryTaskManager` subclass (so kwargs validation, send retries, `spire_*` headers, and the `CeleryTask` run record all come for free) and a standard 5-field cron string. `CeleryScheduler.tasks` is required and validated in `__init_subclass__` (non-empty, unique entry names); each entry gets a stable `schedule_key` stamped. When `DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED` is true, a daemon thread starts from the celery app's `AppConfig.ready()` (it skips the runserver reloader parent via `RUN_MAIN` and starts only in a real web process per `celery/process.py::is_web_server_process`: a `runserver`/`runserver_plus` child, or a direct WSGI/ASGI server binary (`gunicorn`/`uwsgi`/`uvicorn`/`daphne`/`hypercorn`); celery workers, scripts, unknown binaries, and other `manage.py` commands are excluded, and `DJANGO_SPIRE_CELERY_WEB_PROCESS` (true/1/yes or false/0/no) overrides the auto-detect) and ticks every `DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS`. Because every web instance runs the thread, each slot is guarded by a per-entry atomic claim: one `CelerySchedulerTask` row per entry stores `last_sent_datetime` (the claim time), and on a due tick the instance computes the exact slot time (a pure function of the shared row, so all instances agree) and wins by rowcount on `filter(last_sent_datetime__lt=slot).update(...)` — a single atomic UPDATE, portable to Postgres and SQLite. Clock skew can only delay a fire, never duplicate one; a worker that was down fires at most once and reschedules from now (no replay of missed slots), and a fresh entry first fires on the next future slot (never retroactively). Each won claim logs an INFO line (schedule_key, slot time, claimed_by) before the send, so a lost slot is reconstructable from the logs plus the claim row; per-entry failures are caught and logged so one bad entry never kills the loop. When the loop starts it prunes `CelerySchedulerTask` rows whose `schedule_key` no longer matches any registered entry, so tasks removed from a scheduler class clean themselves up on the next web restart. The project celery app must be importable in the web process (same requirement `BaseCeleryTaskManager.send_task` already has). Example: `test_project/app/celery/scheduler.py`.
+
+State freshness: `resolve_celery_tasks(queryset, limit=...)` (`celery/services/resolver.py`) is the one engine for resolving a set of tasks — it fans out the proven per-task `update_from_backend()` in `queued_datetime` order, skips stored-terminal rows, isolates per-task exceptions, and returns the count of rows whose state changed. Three triggers: (1) a **background sweep** — a daemon thread in the web process (`celery/sweep.py`), started from `AppConfig.ready()` when `DJANGO_SPIRE_CELERY_SWEEP_ENABLED` is true (web process only, same gate as the scheduler; default off; `DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS` defaults to 20, `DJANGO_SPIRE_CELERY_SWEEP_TASK_LIMIT` (default 20) caps the tasks resolved per window). Every web instance runs the loop, but one `CeleryTaskSweep` claim row per key guards each window with the same single atomic UPDATE the scheduler uses for slot claims, so only the winner reads the backend; a crash mid-sweep just consumes that window (the rest resolves next window). (2) **on-demand** — the unready list views (item/toast) resolve the tasks they are about to render, so a task that finished while nobody viewed its widget shows completed on the next page load. (3) an **opt-in start-new gate** — `BaseCeleryTaskManager.resolve_unready_before_send = True` resolves the manager's unready tasks inside `send_task` before the dedupe check (the check runs for this flag too, while `dedupe_unready` alone keeps its stored-state behavior), so a still-running task blocks a new send and a task that actually finished frees the slot; because the scheduler sends through `send_task`, opted-in cron entries get the gate for free. The sweep complements the reaper: a task stuck STARTED with no terminal backend write still needs `prune_stale_started_celery_tasks`. Liveness: `python manage.py check_celery_threads [--max-age N] [--fail]` reports OK/STALE/SKIPPED per component from the freshness of the `CeleryTaskSweep` claim row and of each scheduler entry's next due slot; `--fail` exits 1 on any STALE, for cron/monitoring.
+
+Key files: `celery/runner.py` (`CeleryTaskRunner`), `celery/decorators.py` (`celery_task`), `celery/tracker.py`, `celery/state_machine.py`, `celery/services/service.py`, `celery/services/resolver.py` (`resolve_celery_tasks`), `celery/result.py`, `celery/scheduler.py` (`CeleryScheduler`, `SchedulerTask`), `celery/sweep.py` (`start_sweep` / `stop_sweep`), `celery/process.py` (`is_web_server_process`), `celery/management/commands/prune_stale_started_celery_tasks.py`, `celery/management/commands/check_celery_threads.py`. Example app: `test_project/app/celery/`.
+
 ## Access Control
 
 Guard views with the permission decorator (redirects anonymous users to login, raises `PermissionDenied` otherwise; supports `all_required=False`):
@@ -655,7 +727,7 @@ For the full, current list use `constellation files contrib/` (or `ls django_spi
 | `django_spire/settings.py` | `DJANGO_SPIRE_*` default settings |
 | `django_spire/conf.py` | `settings` wrapper (project + default values) |
 
-Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`, `DJANGO_SPIRE_SEARCH_REGISTRY` (search palette class mapping), and a metric/remote group (`DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`, `DJANGO_SPIRE_METRIC_STATISTIC_KEY`/`SUB_DOMAIN_KEY`, `DJANGO_SPIRE_REMOTE_API_URL`/`KEY`).
+Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`, `DJANGO_SPIRE_SEARCH_REGISTRY` (search palette class mapping), `DJANGO_SPIRE_CELERY_SCHEDULER_CLASSES` / `DJANGO_SPIRE_CELERY_SCHEDULER_ENABLED` / `DJANGO_SPIRE_CELERY_SCHEDULER_TICK_SECONDS` (embedded cron scheduler), `DJANGO_SPIRE_CELERY_SWEEP_ENABLED` / `DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS` / `DJANGO_SPIRE_CELERY_SWEEP_TASK_LIMIT` (background task-state sweep), and a metric/remote group (`DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`, `DJANGO_SPIRE_METRIC_STATISTIC_KEY`/`SUB_DOMAIN_KEY`, `DJANGO_SPIRE_REMOTE_API_URL`/`KEY`).
 
 ## Metric Click Tracking
 

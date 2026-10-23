@@ -11,17 +11,7 @@
     style="max-width: 400px; pointer-events: auto;"
     x-show="show"
     x-transition.duration.500ms
-    x-data="{
-        show: false,
-        init() {
-            this.$nextTick(() => this.show = true)
-            setTimeout(() => this.transitionOut(), 5000)
-        },
-        transitionOut() {
-            this.show = false
-            setTimeout(() => this.remove(this.notification), 500)
-        }
-    }"
+    x-data="messageToast(notification, (n) => remove(n))"
 >
     <div class="row align-items-center">
         <div class="col-auto ps-3">

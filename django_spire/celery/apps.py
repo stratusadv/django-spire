@@ -27,3 +27,9 @@ class CeleryConfig(AppConfig):
 
     def ready(self) -> None:
         check_required_apps(self.label)
+
+        from django_spire.celery.scheduler import start_scheduler  # noqa: PLC0415
+        from django_spire.celery.sweep import start_sweep  # noqa: PLC0415
+
+        start_scheduler()
+        start_sweep()

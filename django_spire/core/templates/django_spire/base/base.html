@@ -14,6 +14,7 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <meta name="spire-csrf-cookie-name" content="{{ DJANGO_SPIRE_CSRF_COOKIE_NAME }}">
             <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
             <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
         {% endblock %}
@@ -108,6 +109,30 @@
             {# startup. The plugins above stay here: they register against        #}
             {# window.Alpine, which is the runtime Glue exposes.                  #}
             {% django_glue_init %}
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/nav_link.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/glue_field.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/full_page.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/glue_scroll.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/search_and_select.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/multi_search_and_select.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/form_submit.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/side_navigation.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/dispatch_modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/message_widget.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/chart.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/notification/app/dropdown/js/notification_dropdown.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript">
                 Glue.onMessage(({messages}) => {
                     messages.forEach((message) => {

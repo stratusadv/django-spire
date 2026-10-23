@@ -4,8 +4,10 @@ import json
 import re
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+from django.contrib.staticfiles import finders
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
@@ -84,7 +86,10 @@ class VisualPageViewsTestCase(BaseTestCase):
 
         assert response.status_code == 200
         assert isinstance(response.context_data['chart'], VisualLineChart)
-        assert "proxy.execute({'kwargs': this._params || {}})" in response.content.decode()
+        content = response.content.decode()
+        assert 'x-data="spireChart()"' in content
+        chart_js = Path(finders.find('django_spire/js/chart.js')).read_text()
+        assert "proxy.execute({'kwargs': this._params || {}})" in chart_js
 
     def test_detail_view_missing_value_date_renders_today(self):
         response = self.client.get(

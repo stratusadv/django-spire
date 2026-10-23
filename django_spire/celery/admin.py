@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from typing import Any
+
 from typing_extensions import TYPE_CHECKING
 
-from celery import states
-from django.contrib import admin
+from django import forms
+from django.contrib import admin, messages
 
 from django_spire.celery import models
+from django_spire.contrib.form.widgets import JsonTreeWidget
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -17,7 +20,7 @@ class CeleryTaskStateFilter(admin.SimpleListFilter):
     parameter_name = 'state'
 
     def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin) -> list[tuple[str, str]]:
-        standard_states = list(states.ALL_STATES)
+        standard_states = list(models._CELERY_STATE_ORDER)
         observed_states = model_admin.model.objects.values_list('state', flat=True).distinct()
 
         return [
@@ -34,22 +37,76 @@ class CeleryTaskStateFilter(admin.SimpleListFilter):
         return queryset
 
 
+class CeleryTaskModelForm(forms.ModelForm):
+    _task_meta = forms.JSONField(widget=JsonTreeWidget, required=False)
+
+    class Meta:
+        model = models.CeleryTask
+        fields = ('_task_meta',)
+
+
+@admin.register(models.CelerySchedulerTask)
+class CelerySchedulerTaskAdmin(admin.ModelAdmin):
+    list_display = ('display_name', 'schedule_key', 'crontab', 'last_sent_datetime', 'claimed_by')
+    search_fields = ('schedule_key', 'display_name')
+    readonly_fields = (
+        'schedule_key',
+        'display_name',
+        'crontab',
+        'last_sent_datetime',
+        'claimed_by',
+    )
+    ordering = ('schedule_key',)
+
+    def has_add_permission(self, _request: HttpRequest) -> bool:
+        return False
+
+    def has_change_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
+
+    def has_delete_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
+
+
+@admin.register(models.CeleryTaskSweep)
+class CeleryTaskSweepAdmin(admin.ModelAdmin):
+    list_display = ('key', 'last_swept_datetime', 'claimed_by')
+    search_fields = ('key', 'claimed_by')
+    readonly_fields = ('key', 'last_swept_datetime', 'claimed_by')
+    ordering = ('key',)
+
+    def has_add_permission(self, _request: HttpRequest) -> bool:
+        return False
+
+    def has_change_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
+
+    def has_delete_permission(self, _request: HttpRequest, _obj: Any | None = None) -> bool:
+        return False
+
+
 @admin.register(models.CeleryTask)
 class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('display_name', 'state_display', 'started_datetime', 'task_name')
+    form = CeleryTaskModelForm
+    actions = ('cancel_selected_celery_tasks',)
+
+    list_display = ('display_name', 'state_display', 'source', 'queued_datetime', 'task_name')
     list_filter = (
         'task_name',
         'display_name',
+        'source',
         CeleryTaskStateFilter,
-        'started_datetime',
+        'queued_datetime',
         'completed_datetime',
     )
-    ordering = ('-started_datetime',)
+    ordering = ('-queued_datetime',)
     search_fields = (
         'task_name',
         'display_name',
+        'source',
         'state',
         'reference_key',
+        'queued_datetime',
         'started_datetime',
         'completed_datetime',
     )
@@ -60,12 +117,14 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'model_key',
         'task_name',
         'display_name',
+        'source',
         'state_display',
         'queued_datetime',
         'started_datetime',
         'completed_datetime',
-        '_task_meta',
         'result_verbose',
+        'exception_result',
+        'exception_traceback',
     )
     fields = (
         'task_id',
@@ -73,12 +132,15 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'model_key',
         'task_name',
         'display_name',
+        'source',
         'state_display',
         'queued_datetime',
         'started_datetime',
         'completed_datetime',
         '_task_meta',
         'result_verbose',
+        'exception_result',
+        'exception_traceback',
     )
 
     @admin.display(description='State', ordering='state')
@@ -87,3 +149,17 @@ class CeleryTaskAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request: HttpRequest) -> bool:
         return False
+
+    @admin.action(description='Cancel Selected Celery Tasks', permissions=('change',))
+    def cancel_selected_celery_tasks(self, request: HttpRequest, queryset: QuerySet) -> None:
+        canceled_count = 0
+
+        for celery_task in queryset:
+            error = celery_task.services.cancel()
+
+            if error is None:
+                canceled_count += 1
+            else:
+                messages.warning(request, f'{celery_task.display_name}: {error}')
+
+        messages.success(request, f'Canceled {canceled_count} Celery Task(s)')

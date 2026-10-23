@@ -1,4 +1,4 @@
-from django_spire.celery.result import set_pickled_no_result, CeleryNoResult
+from django_spire.celery.result import set_pickled_no_result, CeleryNoResult, CeleryExceptionResult
 import pickle
 from typing import Any
 
@@ -7,18 +7,30 @@ from celery.result import AsyncResult
 from django.db import models
 from django.utils.timezone import now
 
+from django_spire.celery.choices import CeleryTaskSourceChoices
 from django_spire.celery.meta import CeleryTaskMeta
 from django_spire.celery.querysets import CeleryTaskQuerySet
 from django_spire.celery.services.service import CeleryTaskService
 from django_spire.contrib.utils import format_duration
 
 
+_CELERY_STATE_ORDER = (
+    states.PENDING,
+    states.RECEIVED,
+    states.STARTED,
+    states.RETRY,
+    states.FAILURE,
+    states.SUCCESS,
+    states.REVOKED,
+)
+
+
 def _celery_state_choices() -> list:
-    return [(state, state.title()) for state in states.ALL_STATES]
+    return [(state, state.title()) for state in _CELERY_STATE_ORDER]
 
 
 class CeleryTask(models.Model):
-    task_id = models.UUIDField(editable=False, verbose_name='Celery Task ID')
+    task_id = models.UUIDField(editable=False, unique=True, verbose_name='Celery Task ID')
     task_name = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
 
@@ -26,6 +38,9 @@ class CeleryTask(models.Model):
     model_key = models.CharField(max_length=128, null=True, blank=True)
 
     state = models.CharField(max_length=32, choices=_celery_state_choices, default=states.PENDING)
+    source = models.CharField(
+        max_length=16, choices=CeleryTaskSourceChoices.choices, default=CeleryTaskSourceChoices.USER
+    )
 
     _task_meta = models.JSONField(default=dict, null=True, blank=True)
 
@@ -34,11 +49,20 @@ class CeleryTask(models.Model):
     completed_datetime = models.DateTimeField(null=True, blank=True)
 
     _result = models.BinaryField(default=set_pickled_no_result)
-    result_capture_attempts = models.PositiveSmallIntegerField(default=0)
+
+    exception_traceback = models.TextField(
+        blank=True, default='', verbose_name='Exception Traceback'
+    )
 
     objects = CeleryTaskQuerySet.as_manager()
 
     services = CeleryTaskService()
+
+    class Meta:
+        verbose_name = 'Celery Task'
+        verbose_name_plural = 'Celery Tasks'
+        db_table = 'django_spire_celery_task'
+        ordering = ('-queued_datetime',)
 
     def __str__(self) -> str:
         return f'{self.task_name}'
@@ -90,6 +114,32 @@ class CeleryTask(models.Model):
         return not self.has_result
 
     @property
+    def has_exception_result(self) -> bool:
+        if self.state != states.FAILURE:
+            return False
+
+        if not self._result:
+            return False
+
+        try:
+            result = pickle.loads(self._result)
+        except (EOFError, pickle.UnpicklingError):
+            return False
+
+        return isinstance(result, CeleryExceptionResult)
+
+    @property
+    def exception_result(self) -> CeleryExceptionResult | None:
+        if self.has_exception_result:
+            return pickle.loads(self._result)
+
+        return None
+
+    @property
+    def is_canceled(self) -> bool:
+        return self.state == states.REVOKED
+
+    @property
     def is_estimated_complete_soon(self) -> bool:
         if self.meta.estimated_remaining_seconds:
             return 10 > self.meta.estimated_remaining_seconds >= 0
@@ -109,7 +159,11 @@ class CeleryTask(models.Model):
 
     @property
     def is_processing(self) -> bool:
-        return self.state not in states.READY_STATES and self.state not in states.EXCEPTION_STATES
+        return (
+            self.state not in states.READY_STATES
+            and self.state not in states.EXCEPTION_STATES
+            and self.state not in (states.REJECTED, states.IGNORED)
+        )
 
     @property
     def is_successful(self) -> bool:
@@ -149,11 +203,8 @@ class CeleryTask(models.Model):
 
     @property
     def result(self) -> Any:
-        if self.state == states.FAILURE and not self.send_failed:
+        if self.send_failed or self.state == states.FAILURE:
             return None
-
-        if self.has_no_result and not self.send_failed:
-            self.services.update_result(self.async_result)
 
         if self.has_result:
             return pickle.loads(self._result)
@@ -176,37 +227,82 @@ class CeleryTask(models.Model):
     def send_failed(self) -> bool:
         if self.has_result and self._result:
             result_data = pickle.loads(self._result)
-            return isinstance(result_data, dict) and result_data.get('error') == 'SEND_FAILED'
+
+            if isinstance(result_data, dict):
+                return result_data.get('error') == 'SEND_FAILED'
+
+            return isinstance(result_data, CeleryExceptionResult) and (
+                result_data.exc_type == 'SendFailedError'
+            )
 
         return False
 
     @property
     def send_error_message(self) -> str | None:
-        if self.send_failed:
-            result_data = pickle.loads(self._result)
-            return result_data.get('message')
+        if not self.send_failed:
+            return None
 
-        return None
+        result_data = pickle.loads(self._result)
+
+        if isinstance(result_data, CeleryExceptionResult):
+            return result_data.message
+
+        return result_data.get('message')
 
     @property
     def send_error_details(self) -> dict | None:
-        if self.send_failed:
-            result_data = pickle.loads(self._result)
+        if not self.send_failed:
+            return None
+
+        result_data = pickle.loads(self._result)
+
+        if isinstance(result_data, CeleryExceptionResult):
             return {
-                'task_name': result_data.get('task_name'),
-                'args': result_data.get('args'),
-                'kwargs': result_data.get('kwargs'),
-                'message': result_data.get('message'),
+                'task_name': self.task_name,
+                'args': None,
+                'kwargs': None,
+                'message': result_data.message,
             }
 
-        return None
+        return {
+            'task_name': result_data.get('task_name'),
+            'args': result_data.get('args'),
+            'kwargs': result_data.get('kwargs'),
+            'message': result_data.get('message'),
+        }
 
     @property
     def state_verbose(self) -> str:
         return self.state.replace('_', ' ').title()
 
+
+class CelerySchedulerTask(models.Model):
+    schedule_key = models.CharField(max_length=255, unique=True)
+    display_name = models.CharField(max_length=255)
+    crontab = models.CharField(max_length=64)
+    last_sent_datetime = models.DateTimeField(default=now)
+    claimed_by = models.CharField(max_length=255, default='', blank=True)
+
     class Meta:
-        verbose_name = 'Celery Task'
-        verbose_name_plural = 'Celery Tasks'
-        db_table = 'django_spire_celery_task'
-        ordering = ('-started_datetime',)
+        verbose_name = 'Celery Scheduler Task'
+        verbose_name_plural = 'Celery Scheduler Tasks'
+        db_table = 'django_spire_celery_scheduler_task'
+        ordering = ('schedule_key',)
+
+    def __str__(self) -> str:
+        return self.display_name
+
+
+class CeleryTaskSweep(models.Model):
+    key = models.CharField(max_length=255, unique=True, default='default')
+    last_swept_datetime = models.DateTimeField(default=now)
+    claimed_by = models.CharField(max_length=255, default='', blank=True)
+
+    class Meta:
+        verbose_name = 'Celery Task Sweep'
+        verbose_name_plural = 'Celery Task Sweeps'
+        db_table = 'django_spire_celery_task_sweep'
+        ordering = ('key',)
+
+    def __str__(self) -> str:
+        return self.key
