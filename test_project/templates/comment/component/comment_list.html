@@ -1,0 +1,11 @@
+{% extends 'django_spire/component/scroll/crud.html' %}
+
+{% block scroll_header %}
+    <div class="row pb-3">
+        <div class="col text-end">
+            <button class="btn btn-sm btn-primary text-light" type="button" @click="createItem()">
+                <i class="bi bi-plus"></i> New Comment
+            </button>
+        </div>
+    </div>
+{% endblock %}

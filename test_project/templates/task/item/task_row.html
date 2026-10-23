@@ -1,0 +1,104 @@
+{% load django_glue %}
+
+<div
+    class="border-bottom py-2"
+    :data-task-key="item.$pk"
+    x-data="{
+        childrenLoaded: false,
+        childrenShown: false,
+
+        async toggleChildren(pk) {
+            if (!this.childrenLoaded) {
+                const childList = await component.child_list({pk})
+
+                await childList.renderInnerHtml(this.$refs.children)
+                this.childrenLoaded = true
+            }
+
+            this.childrenShown = !this.childrenShown
+        }
+    }"
+>
+    <div class="row align-items-center">
+        <div class="col-6">
+            <button
+                class="btn btn-sm btn-link p-0"
+                type="button"
+                title="Toggle Child Tasks"
+                x-show="item.has_children"
+                @click="toggleChildren(item.$pk)"
+            >
+                <i class="bi" :class="childrenShown ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+            </button>
+            <a :href="{% js_url 'task:page:detail' pk='item.$pk' %}" data-task-name x-text="item.name"></a>
+        </div>
+        <div class="col-3">
+            <select
+                class="form-select form-select-sm"
+                aria-label="Task status"
+                x-model="item.form.status"
+                @change="
+                    await item.form.save_model_obj()
+                    refreshItem(item.$pk)
+                "
+            >
+                {% for value, label in component.status_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-3 text-end">
+            <button
+                class="btn btn-sm btn-outline-success"
+                type="button"
+                title="Complete Task"
+                x-show="item.status !== '{{ component.done_status }}'"
+                x-bind="asyncButton(async () => {
+                    await item.complete()
+                    refreshItem(item.$pk)
+                })"
+            >
+                <i class="bi bi-check-lg"></i>
+            </button>
+            <button
+                class="btn btn-sm btn-outline-primary"
+                type="button"
+                title="Duplicate Task"
+                x-bind="asyncButton(async () => {
+                    const duplicated = await item.services.factory.duplicate()
+
+                    addItem(duplicated.new_task_id)
+                })"
+            >
+                <i class="bi bi-copy"></i>
+            </button>
+            {% if component.parent_id %}
+                <button
+                    class="btn btn-sm btn-outline-warning"
+                    type="button"
+                    title="Detach From Parent"
+                    x-bind="asyncButton(() => component.detach({pk: item.$pk}))"
+                >
+                    <i class="bi bi-box-arrow-up-left"></i>
+                </button>
+            {% endif %}
+            <button
+                class="btn btn-sm btn-outline-secondary"
+                type="button"
+                title="Edit Task"
+                @click="editItem(item)"
+            >
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button
+                class="btn btn-sm btn-outline-danger"
+                type="button"
+                title="Delete Task"
+                @click="deleteItem(item.$pk)"
+            >
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+    <div x-show="childrenShown" x-ref="children"></div>
+</div>

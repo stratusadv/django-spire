@@ -1,0 +1,1 @@
+{% for item_key, item in batch.rows %}{% include component.item_template %}{% endfor %}<template data-scroll-batch-end data-scroll-has-more="{{ batch.has_more|yesno:'true,false' }}"></template>

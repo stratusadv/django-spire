@@ -1,0 +1,13 @@
+{% extends 'django_spire/component/confirmation/base.html' %}
+
+{% block confirmation_title %}
+    <i class="bi bi-archive text-warning me-2"></i>Archive {{ component.model_name|title }}
+{% endblock %}
+
+{% block confirmation_message %}
+    <p>"<strong>{{ component.instance }}</strong>" will be hidden from every list. It can be restored later.</p>
+{% endblock %}
+
+{% block confirmation_button %}
+    {% include 'django_spire/button/async_button.html' with x_button_click='component.confirm()' x_busy='isSettling' button_text='Archive' button_class='btn-warning' button_icon='bi bi-archive' %}
+{% endblock %}
