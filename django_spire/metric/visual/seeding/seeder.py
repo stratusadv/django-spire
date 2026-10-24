@@ -180,7 +180,7 @@ class VisualRegionSeeder(Seeder):
     fields_seeds = {
         'id': Seeder.exclude(),
         'key': Seeder.unique(
-            Seeder.ordered.choice([seed['key'] for seed in VISUAL_REGION_SEEDS], wrap=True)
+            field_seed=Seeder.ordered.choice([seed['key'] for seed in VISUAL_REGION_SEEDS], wrap=True)
         ),
         'title': Seeder.ordered.choice([seed['title'] for seed in VISUAL_REGION_SEEDS], wrap=True),
         'is_live_updated': Seeder.ordered.choice(

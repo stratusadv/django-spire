@@ -18,7 +18,9 @@ class DomainSeeder(Seeder):
         'id': Seeder.exclude(),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'name': Seeder.ordered.choice([seed['name'] for seed in DOMAIN_SEEDS], wrap=True),
-        'key': Seeder.unique(lambda row: unique_key_base_from_name(Domain(**row))),
+        'key': Seeder.unique(
+            row_value_callable=lambda row: unique_key_base_from_name(Domain(**row))
+        ),
         'description': Seeder.ordered.choice(
             [seed['description'] for seed in DOMAIN_SEEDS], wrap=True
         ),
@@ -36,7 +38,7 @@ class SubDomainSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        'key': Seeder.unique(Seeder.ordered.choice(SUB_DOMAIN_KEYS, wrap=True)),
+        'key': Seeder.unique(field_seed=Seeder.ordered.choice(SUB_DOMAIN_KEYS, wrap=True)),
         'domain_id': Seeder.model.ordered_queryset_foreign_key(Domain.objects.active(), wrap=True),
         'name': Seeder.ordered.choice([seed['name'] for seed in SUBDOMAIN_SEEDS], wrap=True),
         'description': Seeder.ordered.choice(

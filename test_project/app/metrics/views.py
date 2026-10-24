@@ -24,6 +24,7 @@ RECORD_ACTIONS = {
         'statistic_group': 'orders',
         'statistic': 'created',
         'value': 3,
+        'reference': ['order', 'created'],
         'label': 'Record 3 orders created (web)',
     },
     'created_retail': {
@@ -32,8 +33,8 @@ RECORD_ACTIONS = {
         'statistic_group': 'orders',
         'statistic': 'created',
         'value': 1,
-        'reference': 'checkout',
-        'label': 'Record 1 order created (retail, reference: checkout)',
+        'reference': ['order', 'created', 'checkout'],
+        'label': 'Record 1 order created (retail, via checkout)',
     },
     'revenue_web': {
         'domain': 'store',
@@ -41,6 +42,7 @@ RECORD_ACTIONS = {
         'statistic_group': 'orders',
         'statistic': 'revenue',
         'value': 42.5,
+        'reference': ['order', 'invoiced'],
         'label': 'Record 42.50 order revenue (web)',
     },
 }
@@ -78,7 +80,7 @@ def record_click_view(request: WSGIRequest) -> HttpResponseRedirect:
                 spec['sub_domain'],
                 spec['statistic_group'],
                 spec['statistic'],
-                reference=spec.get('reference'),
+                reference=spec['reference'],
                 value=spec['value'],
             )
             worker.join()

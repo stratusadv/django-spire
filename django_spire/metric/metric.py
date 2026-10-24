@@ -5,13 +5,10 @@ import threading
 from decimal import Decimal
 from enum import StrEnum
 
-from django.db import connections
+from django.db import connections, models
 from requests.exceptions import RequestException
 
-from django_spire.contrib.rest.connector.exceptions import (
-    RestConnectorError,
-    RestConnectorTimeoutException,
-)
+from django_spire.contrib.rest.connector.exceptions import RestConnectorError, RestConnectorTimeoutException
 from django_spire.metric.domain.statistic.models import Statistic
 from django_spire.metric.domain.statistic.services.rest_connector import SpireMetricRestConnector
 from django_spire.metric.specs import DomainSpec, StatisticGroupSpec, StatisticSpec, SubDomainSpec
@@ -59,13 +56,8 @@ class Metric:
             message = f'{cls.__name__}.target must be a Metric.Target, got {cls.target!r}'
             raise TypeError(message)
 
-        if cls.target is cls.Target.REMOTE and (
-            not isinstance(cls.remote_target, str) or not cls.remote_target
-        ):
-            message = (
-                f'{cls.__name__}.remote_target must be a non-empty string '
-                'when target is Target.REMOTE'
-            )
+        if cls.target is cls.Target.REMOTE and (not isinstance(cls.remote_target, str) or not cls.remote_target):
+            message = f'{cls.__name__}.remote_target must be a non-empty string when target is Target.REMOTE'
             raise ValueError(message)
 
         if not isinstance(cls.domains, (list, tuple)) or not cls.domains:
@@ -77,9 +69,7 @@ class Metric:
         seen_statistic_keys: set[str] = set()
 
         for domain in cls.domains:
-            _validate_domain_spec(
-                cls.__name__, domain, seen_domain_keys, seen_sub_domain_keys, seen_statistic_keys
-            )
+            _validate_domain_spec(cls.__name__, domain, seen_domain_keys, seen_sub_domain_keys, seen_statistic_keys)
 
     @classmethod
     def build(cls, *, check: bool = False) -> BuildSummary:
@@ -118,38 +108,28 @@ class Metric:
 
             for statistic_group_spec in domain_spec.statistic_groups:
                 for statistic_spec in statistic_group_spec.statistics:
-                    stored_key = _statistic_key(
-                        domain_spec.key, statistic_group_spec, statistic_spec
-                    )
+                    stored_key = _statistic_key(domain_spec.key, statistic_group_spec, statistic_spec)
                     if not cls._remote_probe(connector, f'{_REMOTE_API_PATH}/{stored_key}/total'):
-                        summary.missing.append(
-                            f'{domain_spec.key}/{statistic_group_spec.key}/{statistic_spec.key}'
-                        )
+                        summary.missing.append(f'{domain_spec.key}/{statistic_group_spec.key}/{statistic_spec.key}')
                         continue
                     if probe_statistic_key is None:
                         probe_statistic_key = stored_key
 
             if domain_spec.subdomains and probe_statistic_key is None:
-                summary.errors.append(
-                    f'{domain_spec.key}: no statistic reachable, sub-domains not checked'
-                )
+                summary.errors.append(f'{domain_spec.key}: no statistic reachable, sub-domains not checked')
                 continue
 
             for sub_domain_spec in domain_spec.subdomains:
                 stored_key = _sub_domain_key(domain_spec.key, sub_domain_spec)
                 if not cls._remote_probe(
-                    connector,
-                    f'{_REMOTE_API_PATH}/{probe_statistic_key}/total',
-                    params={'sub_domain_key': stored_key},
+                    connector, f'{_REMOTE_API_PATH}/{probe_statistic_key}/total', params={'sub_domain_key': stored_key}
                 ):
                     summary.missing.append(f'{domain_spec.key}/{sub_domain_spec.key}')
 
         return summary
 
     @staticmethod
-    def _remote_probe(
-        connector: SpireMetricRestConnector, path: str, params: dict[str, str] | None = None
-    ) -> bool:
+    def _remote_probe(connector: SpireMetricRestConnector, path: str, params: dict[str, str] | None = None) -> bool:
         try:
             response = connector.get(path, params=params)
         except (RestConnectorError, RestConnectorTimeoutException, RequestException):
@@ -157,15 +137,16 @@ class Metric:
         return response.status_code == 200
 
     @classmethod
-    def record(
+    def record(  # noqa: PLR0917
         cls,
         domain_key: str,
         sub_domain_key: str,
         statistic_group_key: str,
         statistic_key: str,
+        reference: list[str],
+        value: float | Decimal = 1,
         *,
-        reference: str | None = None,
-        value: float | str | Decimal = 1,
+        source_model: models.Model | None = None,
     ) -> threading.Thread:
         domain_spec, statistic_group_spec, statistic_spec = cls._resolve_statistic(
             domain_key, statistic_group_key, statistic_key
@@ -174,13 +155,11 @@ class Metric:
         sub_domain_spec = cls._resolve_sub_domain(domain_spec, sub_domain_key)
         stored_statistic_key = _statistic_key(domain_spec.key, statistic_group_spec, statistic_spec)
         stored_sub_domain_key = _sub_domain_key(domain_spec.key, sub_domain_spec)
-
-        if reference is None:
-            reference = stored_statistic_key
+        stored_reference = cls._join_reference(cls._postfix_reference(reference, source_model))
 
         worker = threading.Thread(
             target=cls._record_dispatch,
-            args=(stored_statistic_key, stored_sub_domain_key, reference, value),
+            args=(stored_statistic_key, stored_sub_domain_key, stored_reference, value),
             daemon=True,
             name=f'django-spire-metric-record-{stored_statistic_key}',
         )
@@ -189,13 +168,28 @@ class Metric:
 
         return worker
 
+    @staticmethod
+    def _postfix_reference(reference: list[str], model: models.Model | None) -> list[str]:
+        if model is None:
+            return reference
+        if not isinstance(model, models.Model):
+            message = 'source_model must be a Django model instance or None'
+            raise TypeError(message)
+        if model.pk is None:
+            message = 'source_model must be a saved model instance'
+            raise ValueError(message)
+        return [*reference, f'{model._meta.app_label}.{model._meta.model_name}', str(model.pk)]
+
+    @staticmethod
+    def _join_reference(reference: list[str]) -> str:
+        if not isinstance(reference, list):
+            message = 'reference must be a list of strings, not a single string'
+            raise TypeError(message)
+        return ':'.join(reference)
+
     @classmethod
     def _record_dispatch(
-        cls,
-        stored_statistic_key: str,
-        stored_sub_domain_key: str,
-        reference: str,
-        value: float | str | Decimal,
+        cls, stored_statistic_key: str, stored_sub_domain_key: str, reference: str, value: float | Decimal
     ) -> None:
         try:
             if cls.target is cls.Target.LOCAL:
@@ -204,17 +198,11 @@ class Metric:
 
             url, api_key = _resolve_remote_target(cls.remote_target)
             connector = SpireMetricRestConnector(base_url=url, api_key=api_key)
-            payload = {
-                'reference': reference,
-                'sub_domain_key': stored_sub_domain_key,
-                'value': str(Decimal(value)),
-            }
+            payload = {'reference': reference, 'sub_domain_key': stored_sub_domain_key, 'value': str(Decimal(value))}
             connector.record(stored_statistic_key, payload).json()
         except Exception:
             logger.exception(
-                'Metric record failed for statistic %r (sub-domain %r)',
-                stored_statistic_key,
-                stored_sub_domain_key,
+                'Metric record failed for statistic %r (sub-domain %r)', stored_statistic_key, stored_sub_domain_key
             )
         finally:
             connections.close_all()

@@ -11,7 +11,7 @@ class UserSeeder(Seeder):
         'first_name': Seeder.fake.first_name(),
         'last_name': Seeder.fake.last_name(),
         'email': Seeder.llm(str),
-        'username': Seeder.unique('email'),
+        'username': Seeder.unique(row_field='email'),
         'is_staff': Seeder.fake.boolean(),
         'is_superuser': Seeder.static(False),
         'is_active': Seeder.static(True),

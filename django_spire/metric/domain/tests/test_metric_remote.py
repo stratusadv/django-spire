@@ -20,15 +20,10 @@ class RemoteMetric(Metric):
         Metric.Domain(
             'store',
             name='Store',
-            subdomains=[
-                Metric.SubDomain('web', name='Web'),
-                Metric.SubDomain('retail', name='Retail'),
-            ],
+            subdomains=[Metric.SubDomain('web', name='Web'), Metric.SubDomain('retail', name='Retail')],
             statistic_groups=[
                 Metric.StatisticGroup(
-                    'orders',
-                    name='Orders',
-                    statistics=[Metric.Statistic('created', name='Orders created')],
+                    'orders', name='Orders', statistics=[Metric.Statistic('created', name='Orders created')]
                 )
             ],
         )
@@ -58,9 +53,7 @@ class RemoteTargetResolutionTestCase(SimpleTestCase):
     def test_raises_when_unconfigured(self):
         with (
             override_settings(
-                DJANGO_SPIRE_METRIC_REMOTE_TARGETS={},
-                DJANGO_SPIRE_REMOTE_API_URL='',
-                DJANGO_SPIRE_REMOTE_API_KEY='',
+                DJANGO_SPIRE_METRIC_REMOTE_TARGETS={}, DJANGO_SPIRE_REMOTE_API_URL='', DJANGO_SPIRE_REMOTE_API_KEY=''
             ),
             pytest.raises(DjangoSpireConfigurationError),
         ):
@@ -76,19 +69,14 @@ class RemoteRecordTestCase(BaseTestCase):
 
         with (
             override_settings(DJANGO_SPIRE_METRIC_REMOTE_TARGETS=TARGETS),
-            patch(
-                'django_spire.metric.metric.SpireMetricRestConnector', return_value=connector
-            ) as mock_connector,
+            patch('django_spire.metric.metric.SpireMetricRestConnector', return_value=connector) as mock_connector,
         ):
-            worker = RemoteMetric.record('store', 'web', 'orders', 'created', value=2)
+            worker = RemoteMetric.record('store', 'web', 'orders', 'created', reference=['web', 'click'], value=2)
             worker.join()
 
-        mock_connector.assert_called_once_with(
-            base_url='https://metrics.example.com', api_key='secret-key'
-        )
+        mock_connector.assert_called_once_with(base_url='https://metrics.example.com', api_key='secret-key')
         connector.record.assert_called_once_with(
-            'store__orders__created',
-            {'reference': 'store__orders__created', 'sub_domain_key': 'store__web', 'value': '2'},
+            'store__orders__created', {'reference': 'web:click', 'sub_domain_key': 'store__web', 'value': '2'}
         )
 
     def test_record_accepts_explicit_reference(self):
@@ -101,14 +89,11 @@ class RemoteRecordTestCase(BaseTestCase):
             override_settings(DJANGO_SPIRE_METRIC_REMOTE_TARGETS=TARGETS),
             patch('django_spire.metric.metric.SpireMetricRestConnector', return_value=connector),
         ):
-            worker = RemoteMetric.record(
-                'store', 'web', 'orders', 'created', reference='checkout', value=1
-            )
+            worker = RemoteMetric.record('store', 'web', 'orders', 'created', reference=['checkout'], value=1)
             worker.join()
 
         connector.record.assert_called_once_with(
-            'store__orders__created',
-            {'reference': 'checkout', 'sub_domain_key': 'store__web', 'value': '1'},
+            'store__orders__created', {'reference': 'checkout', 'sub_domain_key': 'store__web', 'value': '1'}
         )
 
     def test_record_swallows_remote_errors(self):
@@ -119,19 +104,16 @@ class RemoteRecordTestCase(BaseTestCase):
             override_settings(DJANGO_SPIRE_METRIC_REMOTE_TARGETS=TARGETS),
             patch('django_spire.metric.metric.SpireMetricRestConnector', return_value=connector),
         ):
-            worker = RemoteMetric.record('store', 'web', 'orders', 'created')
+            worker = RemoteMetric.record('store', 'web', 'orders', 'created', reference=['click'])
             worker.join()
 
         connector.record.assert_called_once_with(
-            'store__orders__created',
-            {'reference': 'store__orders__created', 'sub_domain_key': 'store__web', 'value': '1'},
+            'store__orders__created', {'reference': 'click', 'sub_domain_key': 'store__web', 'value': '1'}
         )
 
 
 class RemoteCheckTestCase(BaseTestCase):
-    def _connector(
-        self, missing_sub_domains: set[str] = (), missing_statistics: set[str] = ()
-    ) -> MagicMock:
+    def _connector(self, missing_sub_domains: set[str] = (), missing_statistics: set[str] = ()) -> MagicMock:
         def fake_get(path: str, params: dict[str, str] | None = None) -> MagicMock:
             response = MagicMock()
             statistic_key = path.rstrip('/').rsplit('/', 2)[1]
@@ -173,18 +155,13 @@ class RemoteCheckTestCase(BaseTestCase):
         assert any('sub-domains not checked' in error for error in summary.errors)
 
     def test_check_treats_connector_errors_as_missing(self):
-        for error in (
-            RestConnectorError('http error'),
-            requests.exceptions.ConnectionError('connection refused'),
-        ):
+        for error in (RestConnectorError('http error'), requests.exceptions.ConnectionError('connection refused')):
             connector = MagicMock()
             connector.get.side_effect = error
 
             with (
                 override_settings(DJANGO_SPIRE_METRIC_REMOTE_TARGETS=TARGETS),
-                patch(
-                    'django_spire.metric.metric.SpireMetricRestConnector', return_value=connector
-                ),
+                patch('django_spire.metric.metric.SpireMetricRestConnector', return_value=connector),
             ):
                 summary = RemoteMetric.check()
 

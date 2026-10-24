@@ -107,8 +107,15 @@ class Seeder:
         return StaticFieldSeed(value)
 
     @staticmethod
-    def unique(base: BaseFieldSeed | Callable[[dict[str, Any]], Any] | str) -> UniqueFieldSeed:
-        return UniqueFieldSeed(base)
+    def unique(
+        *,
+        field_seed: BaseFieldSeed | None = None,
+        row_field: str | None = None,
+        row_value_callable: Callable[[dict[str, Any]], Any] | None = None,
+    ) -> UniqueFieldSeed:
+        return UniqueFieldSeed(
+            field_seed=field_seed, row_field=row_field, row_value_callable=row_value_callable
+        )
 
     @staticmethod
     def file(upload_to: str | None = None) -> FileFieldSeed:

@@ -104,11 +104,13 @@ from myapp.metrics import StoreMetric
 StoreMetric.check()
 # BuildSummary(created=0, updated=0, unchanged=6, missing=[], errors=[])
 
-worker = StoreMetric.record('store', 'web', 'orders', 'created', value=3)
+worker = StoreMetric.record(
+    'store', 'web', 'orders', 'created', reference=['order', 'created'], value=3
+)
 # Returns immediately; the write happens on a short-lived background thread.
 # worker.join()  # wait for the write to finish (mainly useful in tests)
 ```
 
 - `check()` queries the database for a local target, or probes the remote API (`GET {key}/total`) for a `REMOTE` target. A probe that fails — an HTTP error or a network error — is counted as missing, so a downed remote reports as drift instead of crashing the check.
-- `record(domain_key, sub_domain_key, statistic_group_key, statistic_key, *, reference=None, value=1)` validates the keys against the declared spec synchronously (an unknown key or sub-domain raises `ValueError` immediately), then dispatches the write on a short-lived daemon thread and returns that thread. Write failures — a missing row in the database, a remote error — are logged and dropped, never raised, and the worker closes its own database connections before exiting. The reference defaults to the statistic's stored key. Callers normally ignore the returned thread; tests can `join()` it.
+- `record(domain_key, sub_domain_key, statistic_group_key, statistic_key, reference, value=1, *, source_model=None)` validates the keys against the declared spec synchronously (an unknown key or sub-domain raises `ValueError` immediately), then dispatches the write on a short-lived daemon thread and returns that thread. The `reference` is required and must be a list of strings — a bare string is rejected with `TypeError` — and the segments are joined with `:` for storage (e.g. `['order', 'created']` stores `order:created`). Pass a saved Django model instance as `source_model` to append `<app_label>.<model_name>:<pk>` to the stored reference (e.g. `order:created:myapp.task:7`). Write failures — a missing row in the database, a remote error — are logged and dropped, never raised, and the worker closes its own database connections before exiting. Callers normally ignore the returned thread; tests can `join()` it.
 - `build()` on a `REMOTE` target raises an error — run `metric_build` on the remote installation to build its structure. Remote registries can still `record()` and `check()` against it.

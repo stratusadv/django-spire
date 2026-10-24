@@ -282,7 +282,7 @@ class TestFieldSeedingBotLlmContext(TestCase):
         bot = FieldSeedingBot()
         fields_seeds = {
             'email': LlmFieldSeed(str),
-            'username': UniqueFieldSeed(lambda row: row['email']),
+            'username': UniqueFieldSeed(row_value_callable=lambda row: row['email']),
         }
         fake_intel = _FakeFieldIntel({'email': 'generated@example.com'})
 
@@ -296,7 +296,7 @@ class TestFieldSeedingBotLlmContext(TestCase):
         bot = FieldSeedingBot()
         fields_seeds = {
             'email': LlmFieldSeed(str),
-            'username': UniqueFieldSeed(lambda row: row['email']),
+            'username': UniqueFieldSeed(row_value_callable=lambda row: row['email']),
         }
         fake_intel = _FakeFieldIntel({'email': 'same@example.com'})
 

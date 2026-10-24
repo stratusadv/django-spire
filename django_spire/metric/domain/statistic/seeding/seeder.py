@@ -25,7 +25,9 @@ class StatisticGroupSeeder(Seeder):
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'domain_id': Seeder.model.ordered_queryset_foreign_key(Domain.objects.all(), wrap=True),
         'name': Seeder.ordered.choice([seed['name'] for seed in GROUP_SEEDS], wrap=True),
-        'key': Seeder.unique(lambda row: unique_key_base_from_name(StatisticGroup(**row))),
+        'key': Seeder.unique(
+            row_value_callable=lambda row: unique_key_base_from_name(StatisticGroup(**row))
+        ),
         'description': Seeder.ordered.choice(
             [seed['description'] for seed in GROUP_SEEDS], wrap=True
         ),
@@ -49,7 +51,7 @@ class StatisticSeeder(Seeder):
         'value_type': Seeder.ordered.choice(
             [seed['value_type'] for seed in STATISTIC_SEEDS], wrap=True
         ),
-        'key': Seeder.unique(Seeder.ordered.choice(STATISTIC_KEYS, wrap=True)),
+        'key': Seeder.unique(field_seed=Seeder.ordered.choice(STATISTIC_KEYS, wrap=True)),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }

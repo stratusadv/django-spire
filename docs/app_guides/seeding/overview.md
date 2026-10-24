@@ -18,7 +18,7 @@ Seeders are subclasses of `django_spire.contrib.seeding.Seeder`. Each seeder dec
 | `Seeder.ordered.<helper>(...)` | Deterministic per-row values (rotating choices, ascending datetimes) |
 | `Seeder.random.<helper>(...)` | Random values (choices, ints, floats) |
 | `Seeder.mutate.<helper>(...)` | Mutates the default generation for a field (corrupt, exclude, nullable, type, value) |
-| `Seeder.unique(inner_seed \| fn \| field)` | Wraps another seed (or a row callable, or a row field name to copy from) and guarantees values unique within the batch and against existing database rows (numeric suffix on collision); bypasses the seed cache for that seeder |
+| `Seeder.unique(seed=... \| row_field=... \| row_value_callable=...)` | Takes exactly one base-value source: another field seed (`seed=`), a row field name to copy from (`row_field=`), or a callable receiving the partial row values (`row_value_callable=`); guarantees values unique within the batch and against existing database rows (numeric suffix on collision); bypasses the seed cache for that seeder |
 | `Seeder.exclude()` | Skip a field entirely (typically `id`) |
 | `Seeder.file(upload_to)` | Generates a file upload |
 | `Seeder.index(index_start, index_step)` | Sequential index values |

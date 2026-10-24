@@ -13,21 +13,21 @@ if TYPE_CHECKING:
 class UniqueFieldSeed(BaseFieldSeed):
     is_cache_unsafe = True
 
-    def __init__(self, base: BaseFieldSeed | Callable[[dict[str, Any]], Any] | str) -> None:
-        if isinstance(base, BaseFieldSeed):
-            self.base_seed = base
-            self.base_callable = None
-        elif isinstance(base, str):
-            self.base_seed = None
-            self.base_callable = self._row_field_base(base)
-        elif callable(base):
-            self.base_seed = None
-            self.base_callable = base
-        else:
-            message = (
-                'UniqueFieldSeed base must be a BaseFieldSeed, a row field name, or a callable'
-            )
+    def __init__(
+        self,
+        *,
+        field_seed: BaseFieldSeed | None = None,
+        row_field: str | None = None,
+        row_value_callable: Callable[[dict[str, Any]], Any] | None = None,
+    ) -> None:
+        sources = (field_seed, row_field, row_value_callable)
+
+        if sum(source is not None for source in sources) != 1:
+            message = 'Provide exactly one of seed=, row_field=, or row_value_callable='
             raise DjangoSpireSeederError(message)
+
+        self.base_seed = field_seed
+        self.base_callable = self._row_field_base(row_field) if row_field is not None else row_value_callable
 
         self._lock = threading.RLock()
         self._model_class: type[models.Model] | None = None
@@ -74,9 +74,7 @@ class UniqueFieldSeed(BaseFieldSeed):
 
             return value
 
-    def _initialize_run(
-        self, model_class: type[models.Model] | None, field_name: str | None
-    ) -> None:
+    def _initialize_run(self, model_class: type[models.Model] | None, field_name: str | None) -> None:
         with self._lock:
             self._model_class = model_class
             self._field_name = field_name
@@ -114,10 +112,9 @@ class UniqueFieldSeed(BaseFieldSeed):
         suffix = 2
 
         while value in self._taken:
-            if max_length:
-                value = f'{original[: max_length - len(str(suffix)) - 1]}-{suffix}'
-            else:
-                value = f'{original}-{suffix}'
+            value = (
+                f'{original[: max_length - len(str(suffix)) - 1]}-{suffix}' if max_length else f'{original}-{suffix}'
+            )
 
             suffix += 1
 

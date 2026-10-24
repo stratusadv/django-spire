@@ -25,22 +25,18 @@ class MetricRecordTestPageTestCase(TransactionTestCase):
         assert b'Record 3 orders created (web)' in response.content
         assert b'No values recorded yet.' in response.content
 
-    def test_click_records_value_with_default_reference(self):
+    def test_click_records_value_with_collection_reference(self):
         self.client.post(reverse('metrics:page:record_click'), {'action': 'created_web'})
 
-        value = StatisticValue.objects.get(
-            statistic__key='store__orders__created', sub_domain__key='store__web'
-        )
-        assert value.reference == 'store__orders__created'
+        value = StatisticValue.objects.get(statistic__key='store__orders__created', sub_domain__key='store__web')
+        assert value.reference == 'order:created'
         assert value.value == Decimal('3.0000')
 
-    def test_click_records_value_with_explicit_reference(self):
+    def test_click_records_value_with_multi_segment_reference(self):
         self.client.post(reverse('metrics:page:record_click'), {'action': 'created_retail'})
 
-        value = StatisticValue.objects.get(
-            statistic__key='store__orders__created', sub_domain__key='store__retail'
-        )
-        assert value.reference == 'checkout'
+        value = StatisticValue.objects.get(statistic__key='store__orders__created', sub_domain__key='store__retail')
+        assert value.reference == 'order:created:checkout'
         assert value.value == Decimal('1.0000')
 
     def test_unknown_action_records_nothing(self):

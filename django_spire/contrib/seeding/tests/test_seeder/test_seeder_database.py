@@ -72,9 +72,7 @@ class TestSeederDatabaseWithModel(TestCase):
         class ModelSeeder(Seeder):
             model_class = None
             cache_enabled = False
-            fields_seeds = {
-                'name': StaticFieldSeed('Test'),
-            }
+            fields_seeds = {'name': StaticFieldSeed('Test')}
 
         seeder = ModelSeeder(count=1, verbose=False)
         seeder.seeds = [Seed({'name': 'Test'})]
@@ -199,10 +197,7 @@ class TestSeederSeedDatabase(TestCase):
         class RowSeeder(Seeder):
             model_class = SimpleRow
             cache_enabled = False
-            fields_seeds = {
-                'name': Seeder.static('Seeded'),
-                'count': Seeder.static(7),
-            }
+            fields_seeds = {'name': Seeder.static('Seeded'), 'count': Seeder.static(7)}
 
         payload = json.loads(RowSeeder(count=2, verbose=False).to_json())
         assert len(payload) == 2
@@ -270,7 +265,7 @@ class TestSeederUniqueField(TestCase):
             model_class = AuthUser
             cache_enabled = False
             fields_seeds = {
-                'username': Seeder.unique(Seeder.ordered.choice(['a', 'b'], wrap=True))
+                'username': Seeder.unique(field_seed=Seeder.ordered.choice(['a', 'b'], wrap=True))
             }
 
         return UniqueUsernameSeeder(count=count, verbose=False)
@@ -313,7 +308,7 @@ class TestSeederUniqueField(TestCase):
             model_class = AuthUser
             cache_enabled = True
             fields_seeds = {
-                'username': Seeder.unique(Seeder.ordered.choice(['a', 'b'], wrap=True))
+                'username': Seeder.unique(field_seed=Seeder.ordered.choice(['a', 'b'], wrap=True))
             }
 
         seeder = CachedUniqueUsernameSeeder(count=3, verbose=False)
