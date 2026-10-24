@@ -20,6 +20,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
     sub_domain_name = models.CharField(max_length=128)
+    is_orphaned = models.BooleanField(default=False, editable=False)
 
     objects = querysets.DomainQuerySet().as_manager()
     services = DomainService()
@@ -40,9 +41,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
                 subdomain.set_deleted()
 
             statistic_ids = list(
-                Statistic.objects.filter(group__domain_id=self.pk, is_deleted=False).values_list(
-                    'pk', flat=True
-                )
+                Statistic.objects.filter(group__domain_id=self.pk, is_deleted=False).values_list('pk', flat=True)
             )
             soft_delete_queryset(self.statistic_groups.all())
             soft_delete_queryset(Statistic.objects.filter(group__domain_id=self.pk))
@@ -63,6 +62,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
 
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
+    is_orphaned = models.BooleanField(default=False, editable=False)
 
     objects = querysets.SubDomainQuerySet().as_manager()
     services = SubDomainService()

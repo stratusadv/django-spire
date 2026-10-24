@@ -42,6 +42,7 @@
                                    href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
                                     {{ statistic.name }}
                                 </a>
+                                {% include 'django_spire/metric/domain/orphan_badge.html' with is_orphaned=statistic.is_orphaned %}
                             </td>
                             <td>{{ statistic.get_interval_display }}</td>
                             <td>{{ statistic.get_value_type_display }}</td>

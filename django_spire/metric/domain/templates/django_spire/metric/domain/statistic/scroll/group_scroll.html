@@ -49,6 +49,11 @@
             <a class='text-decoration-none' :href="`{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=0 %}`.replace('0', item.id)">
                 <span x-text="item.name"></span>
             </a>
+            <span class="badge bg-warning ms-1" x-show="item.is_orphaned"
+                  title="Not present in any configured Metric registry as of the last metric_build run.">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span class="ms-1">Orphaned</span>
+            </span>
         </div>
         <div class="col-3">
             <div class="attribute-label">Domain</div>

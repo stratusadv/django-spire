@@ -14,9 +14,7 @@ if TYPE_CHECKING:
 
 
 class Command(BaseCommand):
-    help = (
-        'Builds or checks the declarative metric structure from the registered Metric registries.'
-    )
+    help = 'Builds or checks the declarative metric structure from the registered Metric registries.'
 
     def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
@@ -45,10 +43,7 @@ class Command(BaseCommand):
             summary = registry.check() if options['check'] else registry.build()
 
             self.stdout.write(label)
-            self.stdout.write(
-                f'  created {summary.created}, updated {summary.updated}, '
-                f'unchanged {summary.unchanged}'
-            )
+            self.stdout.write(f'  created {summary.created}, updated {summary.updated}, unchanged {summary.unchanged}')
 
             for missing in summary.missing:
                 self.stdout.write(self.style.WARNING(f'  missing: {missing}'))
@@ -59,7 +54,7 @@ class Command(BaseCommand):
                 failures.append(label)
 
         if not options['check']:
-            self._print_orphans(registries)
+            self._apply_orphans(registries)
 
         if failures:
             mode = 'check' if options['check'] else 'build'
@@ -81,7 +76,7 @@ class Command(BaseCommand):
 
         return discover_metric_registries()
 
-    def _print_orphans(self, registries: list[type[Metric]]) -> None:
+    def _apply_orphans(self, registries: list[type[Metric]]) -> None:
         declared: dict[str, set[str]] = {
             'domains': set(),
             'subdomains': set(),
@@ -93,27 +88,33 @@ class Command(BaseCommand):
             for level, keys in registry.stored_keys().items():
                 declared[level] |= keys
 
-        orphans: list[str] = []
-        orphans.extend(
-            f'domain {domain.key}'
-            for domain in Domain.objects.active().not_deleted()
-            if domain.key not in declared['domains']
-        )
-        orphans.extend(
-            f'sub-domain {sub_domain.key}'
-            for sub_domain in SubDomain.objects.active().not_deleted()
-            if sub_domain.key not in declared['subdomains']
-        )
-        orphans.extend(
-            f'statistic group {statistic_group.key}'
-            for statistic_group in StatisticGroup.objects.active().not_deleted()
-            if statistic_group.key not in declared['statistic_groups']
-        )
-        orphans.extend(
-            f'statistic {statistic.key}'
-            for statistic in Statistic.objects.active().not_deleted()
-            if statistic.key not in declared['statistics']
-        )
+        flagged_total = 0
+        cleared_total = 0
 
-        for orphan in orphans:
-            self.stdout.write(self.style.WARNING(f'  orphan (not in any registry): {orphan}'))
+        for label, model_class, level in (
+            ('domain', Domain, 'domains'),
+            ('sub-domain', SubDomain, 'subdomains'),
+            ('statistic group', StatisticGroup, 'statistic_groups'),
+            ('statistic', Statistic, 'statistics'),
+        ):
+            keys = declared[level]
+            to_flag: list[int] = []
+            to_clear: list[int] = []
+
+            for instance in model_class.objects.active().not_deleted():
+                if instance.key in keys:
+                    if instance.is_orphaned:
+                        to_clear.append(instance.pk)
+                else:
+                    self.stdout.write(self.style.WARNING(f'  orphan (not in any registry): {label} {instance.key}'))
+                    if not instance.is_orphaned:
+                        to_flag.append(instance.pk)
+
+            if to_flag:
+                model_class.objects.filter(pk__in=to_flag).update(is_orphaned=True)
+                flagged_total += len(to_flag)
+            if to_clear:
+                model_class.objects.filter(pk__in=to_clear).update(is_orphaned=False)
+                cleared_total += len(to_clear)
+
+        self.stdout.write(f'  orphan flag: flagged {flagged_total}, cleared {cleared_total}')
