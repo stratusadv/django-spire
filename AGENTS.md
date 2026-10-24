@@ -21,6 +21,7 @@ just install-hooks     # Install the local ruff pre-commit hook (run once)
 just run-server        # Dev server
 just celery            # Celery worker (prefork pool)
 just scss              # Compile SCSS to django-spire-bootstrap.css
+just vendor-frontend   # npm ci --ignore-scripts && npm run vendor
 just python <args>     # Run venv python
 
 # Testing
@@ -31,6 +32,11 @@ just test-coverage-app <app> # Coverage of a specific app
 just test-failed             # Failed tests first (--ff --lf)
 just test-parallel [n]       # pytest -n <n> (default: auto)
 just test-serial             # pytest -n 0 (no parallel)
+
+# Demos (narrated browser walkthroughs; need Playwright browsers)
+just demo [name] [speed]       # Run a narrated demo test (name filters with -k)
+just demo-video [name] [speed] # Run demos and record video (uses ffmpeg if present)
+just demos                     # List all demo tests without running them
 
 # Code quality
 ruff check .           # Lint (uses ruff.toml config)
@@ -57,6 +63,8 @@ just docs-tests        # Build docs with strict mode
 - **Linter**: `ruff` (config in `ruff.toml`) - `select = ["ALL"]` with ignores (docstrings `D*`, `C901` complexity, etc.), max complexity 6
 - **Format**: `ruff format` - single quotes, 100 char lines, 4 space indent
 - **Type checker**: `pyrefly` is available (dev extra) with config in `ty.toml` (`invalid-argument-type` = warn). Not wired into `just` or CI - run it manually if you want type checking.
+- **Pre-commit hook**: opt-in per clone via `just install-hooks` (sets `core.hooksPath` to `scripts/git-hooks/`). The `pre-commit` hook runs `ruff check` on staged `.py` files and fails the commit on any finding. Bypass one commit with `git commit --no-verify`; disable with `git config --unset core.hooksPath`.
+- **Hook ruff version**: the hook always uses `.venv/bin/ruff`, which can differ from a PATH `ruff` - verify with the venv binary before claiming a tree is clean (newer ruff releases add findings, e.g. `PLR0917` appeared between 0.15 and 0.17).
 - **CI order**: linting → tests → security (lint must pass first)
 
 ## Architecture
@@ -279,7 +287,7 @@ See `test_project/app/model_and_service/` for a full example.
 
 ## URL Patterns
 
-URLs are auto-discovered from app `URLPATTERNS_INCLUDE` + `URLPATTERNS_NAMESPACE`. Apps split URL configuration into page/form modules:
+Framework apps are auto-discovered from their `URLPATTERNS_INCLUDE` + `URLPATTERNS_NAMESPACE` by `django_spire/urls.py`; `test_project` apps are included manually in `test_project/urls.py`. Apps split URL configuration into page/form/modal modules:
 
 ```python
 # app/urls/__init__.py
@@ -290,10 +298,11 @@ app_name = 'task'
 urlpatterns = [
     path('page/', include('test_project.app.task.urls.page_urls', namespace='page')),
     path('form/', include('test_project.app.task.urls.form_urls', namespace='form')),
+    path('modal/', include('test_project.app.task.urls.modal_urls', namespace='modal')),
 ]
 ```
 
-Namespaced patterns (names inside each module use `app_name = 'page'` / `'form'`):
+Namespaced patterns (names inside each module use `app_name = 'page'` / `'form'` / `'modal'`):
 
 ```
 {app}:page:list
@@ -303,6 +312,7 @@ Namespaced patterns (names inside each module use `app_name = 'page'` / `'form'`
 {app}:form:create_modal
 {app}:form:update_modal
 {app}:form:delete_modal
+{app}:modal:form
 ```
 
 Framework apps are mounted under the `django_spire:` namespace (e.g. `django_spire:api:page:list`, `django_spire:auth:admin:login`).
@@ -410,7 +420,7 @@ class TaskSearch(Search):
     def result_description(self, obj) -> str | None: ...  # REQUIRED
 ```
 
-Required attributes (`model_class`, `searchable_fields`, `search_key`) raise `ValueError` in `__init_subclass__` if unset. `search_key` must match the registry key or the registry raises `ValueError`. Reference implementations: `django_spire/knowledge/entry/search.py` (`EntrySearch`) and `test_project/app/task/search.py` (`TaskSearch`). Registry logic in `core/search/registry.py`, palette view in `core/search/views.py`, client JS in `core/static/django_spire/js/search_palette.js`.
+Required attributes (`model_class`, `searchable_fields`, `search_key`) raise `ValueError` in `__init_subclass__` if unset. `search_key` must match the registry key or the registry raises `ValueError`. Reference implementations: `django_spire/knowledge/entry/search.py` (`EntrySearch`) and `test_project/app/task/search.py` (`TaskSearch`). Registry logic in `core/search/registry.py`, palette view in `core/search/views.py`, client JS in `core/static/django_spire/js/components/search_palette.js`.
 
 ## Celery
 
@@ -748,12 +758,12 @@ Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJAN
 
 ## Frontend
 
-`django_spire/core/templates/django_spire/base/base.html` is the source of truth for loaded libraries and versions (read it rather than pinning CDN URLs by hand). Core Spire JS globals (`Spire`, `ajax`, `modal`, `notify`, `cookie`, `session`, `date`, `theme`, `ui`, `full-screen`, `pull-to-refresh`, `activity`) live in `django_spire/core/static/django_spire/js/`.
+`django_spire/core/templates/django_spire/base/base.html` is the source of truth for loaded libraries and versions (read it rather than pinning CDN URLs by hand). Core Spire JS globals (`Spire`, `ajax`, `modal`, `notify`, `cookie`, `date`, `theme`, `ui`, `full-screen`, `pull-to-refresh`, `activity`) live in `django_spire/core/static/django_spire/js/`.
 
 - **Alpine.js** is the primary reactivity framework; plugins (`@alpinejs/*`) are loaded as defer scripts from CDN in `base.html`.
 - **django_glue** (`Glue.model` / `Glue.queryset` / `Glue.form` with `Glue.Access` VIEW/CHANGE/DELETE) binds server state to Alpine. In `base.html`: `{% load django_glue %}` + `{% django_glue_init %}`; client-side objects are exposed on the `Glue` global (e.g. `Glue.querySet.tasks`).
 - **Bootstrap 5** CSS is compiled locally from SCSS (`just scss`, sources in `django_spire/core/static/django_spire/scss/`); Bootstrap JS and Bootstrap Icons load from CDN.
-- **Flatpickr, ECharts, Axios, pulltorefresh.js** load from CDN (see `base.html`).
+- **ECharts and pulltorefresh.js** load from CDN (see `base.html`).
 - **Theme**: cookie-driven, `light`/`dark` (`DJANGO_SPIRE_THEME_MODE`); colors/styles belong in SCSS (`_theme.scss`), not templates (see `docs/getting_started/zen.md`).
 
 ## Constellation Code Intelligence (MCP)
@@ -814,5 +824,5 @@ constellation history [--symbols]        # ingest git history (used by history/s
 | API example (auth + pagination) | `test_project/app/task/api_v1.py` |
 | URLs | `django_spire/urls.py` |
 | Choices | `django_spire/help_desk/choices.py` |
-| Auth controller | `django_spire/help_desk/auth/controller.py` |
+| Auth (permissions/MFA/SMS) | `django_spire/auth/` |
 | Metric registry | `test_project/app/metrics/metrics.py` (`StoreMetric`) |
