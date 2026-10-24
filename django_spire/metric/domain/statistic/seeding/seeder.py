@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import TYPE_CHECKING
 
 from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.metric.domain.key_utils import unique_key, unique_key_base_from_name
+from django_spire.metric.domain.key_utils import unique_key_base_from_name
 from django_spire.metric.domain.models import Domain
 from django_spire.metric.domain.seeding.constants import (
     GROUP_SEEDS,
@@ -15,9 +14,6 @@ from django_spire.metric.domain.seeding.constants import (
 )
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
-
-if TYPE_CHECKING:
-    from django.db import models
 
 
 class StatisticGroupSeeder(Seeder):
@@ -29,23 +25,13 @@ class StatisticGroupSeeder(Seeder):
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'domain_id': Seeder.model.ordered_queryset_foreign_key(Domain.objects.all(), wrap=True),
         'name': Seeder.ordered.choice([seed['name'] for seed in GROUP_SEEDS], wrap=True),
+        'key': Seeder.unique(lambda row: unique_key_base_from_name(StatisticGroup(**row))),
         'description': Seeder.ordered.choice(
             [seed['description'] for seed in GROUP_SEEDS], wrap=True
         ),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
-
-    def to_model_instances(self, count: int | None = None) -> list[models.Model]:
-        instances = super().to_model_instances(count=count)
-        taken = set(StatisticGroup.objects.values_list('key', flat=True))
-        for instance in instances:
-            if instance.key:
-                taken.add(instance.key)
-                continue
-            instance.key = unique_key(unique_key_base_from_name(instance), taken)
-            taken.add(instance.key)
-        return instances
 
 
 class StatisticSeeder(Seeder):
@@ -63,7 +49,7 @@ class StatisticSeeder(Seeder):
         'value_type': Seeder.ordered.choice(
             [seed['value_type'] for seed in STATISTIC_SEEDS], wrap=True
         ),
-        'key': Seeder.ordered.choice(STATISTIC_KEYS, wrap=True),
+        'key': Seeder.unique(Seeder.ordered.choice(STATISTIC_KEYS, wrap=True)),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }

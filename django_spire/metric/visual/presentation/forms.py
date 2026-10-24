@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
-from django.http import HttpRequest
 from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
@@ -13,6 +12,7 @@ from django_spire.metric.visual import models as visual_models
 from django_spire.metric.visual.presentation import models
 
 if TYPE_CHECKING:
+    from django.http import HttpRequest
     from typing import ClassVar
 
 
@@ -22,7 +22,7 @@ def _presentation_detail_url(kwargs_pk: int) -> str:
 
 class PresentationModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             presentation, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -40,7 +40,7 @@ class PresentationModelForm(forms.ModelForm):
 
 class SlideModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             slide, created = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -94,7 +94,7 @@ class SlideSectionModelForm(forms.ModelForm):
             self.fields[name] = forms.ChoiceField(choices=choices)
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             section, created = self.instance.services.save_model_obj(**self.cleaned_data)
 

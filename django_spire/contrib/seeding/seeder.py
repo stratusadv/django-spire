@@ -1,7 +1,7 @@
 import json
 import re
 import time
-from typing import Any, TYPE_CHECKING
+from typing import Any, Callable, TYPE_CHECKING
 
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
@@ -22,6 +22,7 @@ from django_spire.contrib.seeding.field.seed.helper.random_helper import RandomF
 from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
+from django_spire.contrib.seeding.field.seed.unique_seed import UniqueFieldSeed
 from django_spire.contrib.seeding.meta import SeederMetaData
 from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
 from django_spire.contrib.seeding.seed.factory.model_factory import ModelSeedFactory
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 
 
 class Seeder:
-    # TODO: This locale does not work if you inherit it because of class body execution!
+    # Note: This locale does not work if you inherit it because of class body execution!
     locale: str | list[str] = 'en_CA'
 
     custom = CustomFieldSeedHelper(locale)
@@ -106,6 +107,10 @@ class Seeder:
         return StaticFieldSeed(value)
 
     @staticmethod
+    def unique(base: BaseFieldSeed | Callable[[dict[str, Any]], Any] | str) -> UniqueFieldSeed:
+        return UniqueFieldSeed(base)
+
+    @staticmethod
     def file(upload_to: str | None = None) -> FileFieldSeed:
         return FileFieldSeed(upload_to)
 
@@ -114,7 +119,7 @@ class Seeder:
         return LlmFieldSeed(field_type=field_type, prompt=prompt, locale=cls.locale)
 
     @classmethod
-    def reset_meta(cls):
+    def reset_meta(cls) -> None:
         cls._meta = SeederMetaData()
 
     def __post_seed__(self) -> None:
@@ -193,7 +198,7 @@ class Seeder:
                 print(f'Completed in {completed_time:6.2f}s')
 
     @classmethod
-    def print_meta_overview(cls):
+    def print_meta_overview(cls) -> None:
         cls._meta.print_overview()
 
     def _print_post(self, spacing: int) -> None:

@@ -1,8 +1,6 @@
-import pytest
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 
 

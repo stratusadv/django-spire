@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from django_spire.contrib.seeding import Seeder
-from django_spire.metric.domain.key_utils import unique_key, unique_key_base_from_name
+from django_spire.metric.domain.key_utils import unique_key_base_from_name
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.seeding.constants import (
     DOMAIN_SEEDS,
     SUB_DOMAIN_KEYS,
     SUBDOMAIN_SEEDS,
 )
-
-if TYPE_CHECKING:
-    from django.db import models
 
 
 class DomainSeeder(Seeder):
@@ -23,6 +18,7 @@ class DomainSeeder(Seeder):
         'id': Seeder.exclude(),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'name': Seeder.ordered.choice([seed['name'] for seed in DOMAIN_SEEDS], wrap=True),
+        'key': Seeder.unique(lambda row: unique_key_base_from_name(Domain(**row))),
         'description': Seeder.ordered.choice(
             [seed['description'] for seed in DOMAIN_SEEDS], wrap=True
         ),
@@ -33,17 +29,6 @@ class DomainSeeder(Seeder):
         'is_deleted': Seeder.static(False),
     }
 
-    def to_model_instances(self, count: int | None = None) -> list[models.Model]:
-        instances = super().to_model_instances(count=count)
-        taken = set(Domain.objects.values_list('key', flat=True))
-        for instance in instances:
-            if instance.key:
-                taken.add(instance.key)
-                continue
-            instance.key = unique_key(unique_key_base_from_name(instance), taken)
-            taken.add(instance.key)
-        return instances
-
 
 class SubDomainSeeder(Seeder):
     cache_enabled = False
@@ -51,7 +36,7 @@ class SubDomainSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        'key': Seeder.ordered.choice(SUB_DOMAIN_KEYS, wrap=True),
+        'key': Seeder.unique(Seeder.ordered.choice(SUB_DOMAIN_KEYS, wrap=True)),
         'domain_id': Seeder.model.ordered_queryset_foreign_key(Domain.objects.active(), wrap=True),
         'name': Seeder.ordered.choice([seed['name'] for seed in SUBDOMAIN_SEEDS], wrap=True),
         'description': Seeder.ordered.choice(

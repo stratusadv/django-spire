@@ -709,6 +709,7 @@ Key methods: `seed()`, `seed_database()`, `reseed_database()`, `to_list_of_dicts
 | `Seeder.index(index_start=0, index_step=1)` | Sequential index |
 | `Seeder.custom.callable(fn, ...)` | Custom callable |
 | `Seeder.mutate.corrupt(...)` / `exclude(...)` / `nullable(...)` / `type(...)` / `value(...)` | Mutations for corrupt/nullable data |
+| `Seeder.unique(inner_seed \| fn \| field)` | Values unique within the batch and against existing DB rows (numeric suffix on collision); takes a field seed, a callable receiving the partial row values, or a row field name to copy from; bypasses the seed cache for that seeder |
 
 ## Contrib Packages
 

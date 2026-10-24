@@ -27,7 +27,11 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseR
     nav.set_page_title_to_form_action_from_model_instance(domain)
 
     if domain.pk:
-        nav.breadcrumbs.add(domain, view_name='django_spire:metric:domain:page:detail', view_kwargs={'pk': domain.pk})
+        nav.breadcrumbs.add(
+            domain,
+            view_name='django_spire:metric:domain:page:detail',
+            view_kwargs={'pk': domain.pk},
+        )
 
     nav.breadcrumbs.add('Edit' if domain.pk else 'New Domain')
 

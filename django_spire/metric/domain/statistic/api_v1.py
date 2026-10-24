@@ -63,7 +63,9 @@ def _get_sub_domain(
 
 @router.post('{statistic_key}/record')
 def record_value(
-    request: HttpRequest, statistic_key: MetricKey, payload: StatisticValueIn
+    request: HttpRequest,  # noqa: ARG001
+    statistic_key: MetricKey,
+    payload: StatisticValueIn,
 ) -> StatisticValueOut:
     statistic = _get_statistic(statistic_key, active_required=True)
     sub_domain = _get_sub_domain(statistic, payload.sub_domain_key, active_required=True)
@@ -81,7 +83,7 @@ def record_value(
 
 @router.get('{statistic_key}/total')
 def total_for_interval(
-    request: HttpRequest,
+    request: HttpRequest,  # noqa: ARG001
     statistic_key: MetricKey,
     value_date: date_type | None = None,
     sub_domain_key: MetricKey | None = None,
@@ -100,7 +102,7 @@ def total_for_interval(
 
 @router.get('{statistic_key}/summary')
 def interval_summary(
-    request: HttpRequest,
+    request: HttpRequest,  # noqa: ARG001
     statistic_key: MetricKey,
     start_date: date_type,
     end_date: date_type,
@@ -120,8 +122,9 @@ def interval_summary(
 
 @router.get('{statistic_key}/values')
 def values_for_interval(
-    request: HttpRequest,
+    request: HttpRequest,  # noqa: ARG001
     statistic_key: MetricKey,
+    *,
     value_date: date_type | None = None,
     sub_domain_key: MetricKey | None = None,
     limit: int = Query(1000, ge=1, le=5000),
