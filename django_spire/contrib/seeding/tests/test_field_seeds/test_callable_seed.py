@@ -12,14 +12,14 @@ class TestCallableFieldSeed(TestCase):
         assert seed.generate_value(0) == 'hello'
 
     def test_with_wrapper_applies_wrapper(self):
-        def uppercase(value):
+        def uppercase(value: str) -> str:
             return value.upper()
 
         seed = CallableFieldSeed(callable_=lambda: 'hello', wrapper=uppercase)
         assert seed.generate_value(0) == 'HELLO'
 
     def test_wrapper_receives_callable_result(self):
-        def add_exclamation(value):
+        def add_exclamation(value: str) -> str:
             return f'{value}!'
 
         seed = CallableFieldSeed(callable_=lambda: 'hello', wrapper=add_exclamation)
@@ -34,14 +34,14 @@ class TestCallableFieldSeed(TestCase):
         assert seed.generate_value(0) == 42
 
     def test_stores_callable_attribute(self):
-        def my_callable():
+        def my_callable() -> str:
             return 'result'
 
         seed = CallableFieldSeed(callable_=my_callable)
         assert seed.callable is my_callable
 
     def test_stores_wrapper_attribute(self):
-        def wrapper(x):
+        def wrapper(x: int) -> int:
             return x
 
         seed = CallableFieldSeed(callable_=lambda: 1, wrapper=wrapper)
@@ -56,7 +56,7 @@ class TestCallableFieldSeed(TestCase):
         assert seed.generate_value(0) == 'direct'
 
     def test_with_complex_wrapper(self):
-        def double_and_capitalize(value):
+        def double_and_capitalize(value: str) -> str:
             return value.upper() + value.upper()
 
         seed = CallableFieldSeed(callable_=lambda: 'test', wrapper=double_and_capitalize)

@@ -34,6 +34,9 @@
 {% url 'history:home' as history_url %}
 {% include 'django_spire/navigation/link.html' with link_text='History' link_icon='bi bi-clock-history' link_url=history_url %}
 
+{% url 'metrics:page:record_test' as metric_record_test_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Metric Record Test' link_icon='bi bi-graph-up' link_url=metric_record_test_url %}
+
 {% url 'order:list' as ordering_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Ordering' link_icon='bi bi-list-ol' link_url=ordering_url %}
 

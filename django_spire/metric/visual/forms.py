@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
-from django.http import HttpRequest
 from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
@@ -15,6 +14,7 @@ from django_spire.metric.visual.choices import VisualConditionOperatorChoices
 from django_spire.metric.visual.constants import DISPLAY_UNIT_COUNT_MAX, DISPLAY_UNIT_COUNT_MIN
 
 if TYPE_CHECKING:
+    from django.http import HttpRequest
     from typing import ClassVar
 
 
@@ -34,7 +34,7 @@ class VisualModelForm(forms.ModelForm):
     )
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             visual, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -69,7 +69,7 @@ class VisualModelForm(forms.ModelForm):
 
 class VisualConditionModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             condition, created = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -112,7 +112,7 @@ class VisualConditionModelForm(forms.ModelForm):
 
 class VisualReferenceModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             reference_obj, created = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -165,7 +165,7 @@ class VisualReferenceModelForm(forms.ModelForm):
 
 class VisualRegionModelForm(forms.ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             region, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 

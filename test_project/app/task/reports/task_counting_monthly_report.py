@@ -1,4 +1,5 @@
 import random
+from collections.abc import Generator
 from datetime import date, datetime
 from time import sleep
 
@@ -12,32 +13,32 @@ class TaskCountingMonthlyReport(BaseReport):
     description = 'A broken down list of all the tasks completed monthly by user.'
 
     @staticmethod
-    def person_choices():
+    def person_choices() -> Generator[tuple[int, str], None, None]:
         return ((i, name) for i, name in enumerate(NAMES))
 
-    def other_people_choices(self):
+    def other_people_choices(self) -> Generator[tuple[int, str], None, None]:
         return self.person_choices()
 
     def run(
         self,
         start_date: date = BaseReport.helper.start_of_last_month,
         end_datetime: datetime = BaseReport.helper.end_of_current_year,
-        task_limit: int = 100,
-        quality_limit: float = 20.0,
-        show_puppets: bool = True,
+        _task_limit: int = 100,
+        _quality_limit: float = 20.0,
+        _show_puppets: bool = True,
         person: int = 0,
-        other_people: list[int] = [0],
-    ):
+        other_people: list[int] = [0],  # noqa: B006
+    ) -> None:
         sleep(1.0)  # Simulate loading!
 
         self.add_column('People', sub_title=str(end_datetime))
-        self.add_column('Type', type=self.ColumnType.CHOICE)
-        self.add_column('Quality', type=self.ColumnType.PERCENT)
-        self.add_column('Tasks', type=self.ColumnType.NUMBER)
-        self.add_column('Hours', type=self.ColumnType.NUMBER_1)
-        self.add_column('Days', type=self.ColumnType.NUMBER_2)
-        self.add_column('Weeks', type=self.ColumnType.NUMBER_3)
-        self.add_column('Value', type=self.ColumnType.DOLLAR)
+        self.add_column('Type', column_type=self.ColumnType.CHOICE)
+        self.add_column('Quality', column_type=self.ColumnType.PERCENT)
+        self.add_column('Tasks', column_type=self.ColumnType.NUMBER)
+        self.add_column('Hours', column_type=self.ColumnType.NUMBER_1)
+        self.add_column('Days', column_type=self.ColumnType.NUMBER_2)
+        self.add_column('Weeks', column_type=self.ColumnType.NUMBER_3)
+        self.add_column('Value', column_type=self.ColumnType.DOLLAR)
 
         types = ['bug', 'feature', 'enhancement', 'documentation']
 
@@ -110,6 +111,7 @@ class TaskCountingMonthlyReport(BaseReport):
 
         self.add_blank_row()
         self.add_blank_row(
-            text='This some extra information on how tasks are evaluated and make sure to take time to read this and be amazed!!!'
+            text='This some extra information on how tasks are evaluated and make sure to '
+            'take time to read this and be amazed!!!'
         )
         self.add_blank_row()

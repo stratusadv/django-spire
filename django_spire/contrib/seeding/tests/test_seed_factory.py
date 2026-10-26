@@ -1,23 +1,22 @@
-import pytest
 from django.test import TestCase
+from typing import Any
 
 from dandy import SqliteCache
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
-from django_spire.contrib.seeding.seed.factory.base import BaseSeedFactory
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
+from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
 
 
 class DummyFieldSeed(BaseFieldSeed):
-    def __init__(self, value=None):
+    def __init__(self, value: Any = None) -> None:
         self.value = value
 
     def generate_cache_key(self) -> str:
         return str(self.value)
 
-    def generate_value(self, seed_index):
+    def generate_value(self, _seed_index: int) -> Any:
         return self.value
 
 
@@ -35,8 +34,6 @@ class CachedSeeder(Seeder):
 
 class TestBaseSeedFactory(TestCase):
     def test_instantiation_requires_seeder(self):
-        from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
-
         seeder = DummySeeder(count=1, verbose=False)
         factory = SeedFactory(seeder=seeder)
         assert factory.seeder is not None
@@ -45,8 +42,6 @@ class TestBaseSeedFactory(TestCase):
 
 class TestSeedFactory(TestCase):
     def test_generates_seeds_list(self):
-        from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
-
         seeder = DummySeeder(count=3, verbose=False)
         factory = SeedFactory(seeder=seeder)
         seeds = factory.generate_seeds(count=3, cache_enabled=False, cache_name='test_cache')
@@ -55,8 +50,6 @@ class TestSeedFactory(TestCase):
         assert len(seeds) == 3
 
     def test_generate_seeds_returns_seed_objects(self):
-        from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
-
         seeder = DummySeeder(count=2, verbose=False)
         factory = SeedFactory(seeder=seeder)
         seeds = factory.generate_seeds(count=2, cache_enabled=False, cache_name='test_cache')
@@ -66,8 +59,6 @@ class TestSeedFactory(TestCase):
             assert hasattr(seed, '__getitem__')
 
     def test_generate_seeds_with_different_counts(self):
-        from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
-
         seeder = DummySeeder(count=1, verbose=False)
         factory = SeedFactory(seeder=seeder)
 
@@ -78,8 +69,6 @@ class TestSeedFactory(TestCase):
             assert len(seeds) == count
 
     def test_generate_seeds_creates_fields_from_seeds_config(self):
-        from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
-
         class ConfigSeeder(Seeder):
             model_class = None
             cache_enabled = False

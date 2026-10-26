@@ -36,19 +36,17 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseR
     Glue.form(request, 'domain_form', form, Glue.Access.DELETE)
 
     context = {**nav.as_context()}
+    if domain.pk:
+        context['domain'] = domain
 
-    return TemplateResponse(
-        request=request, context=context, template='django_spire/metric/domain/page/form_page.html'
-    )
+    return TemplateResponse(request=request, context=context, template='django_spire/metric/domain/page/form_page.html')
 
 
 @permission_required('django_spire_metric_domain.delete_domain')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
 
-    return_url = safe_redirect_url(
-        request, fallback=reverse('django_spire:metric:domain:page:list')
-    )
+    return_url = safe_redirect_url(request, fallback=reverse('django_spire:metric:domain:page:list'))
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(data=request.POST, obj=domain)
@@ -62,9 +60,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Domain'
-    nav.breadcrumbs.add(
-        name=str(domain), view_name='django_spire:metric:domain:page:detail', view_kwargs={'pk': pk}
-    )
+    nav.breadcrumbs.add(name=str(domain), view_name='django_spire:metric:domain:page:detail', view_kwargs={'pk': pk})
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
@@ -72,15 +68,11 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['form_description'] = f'Are you sure you would like to delete domain "{domain}"?'
     context['return_url'] = return_url
 
-    return TemplateResponse(
-        request, 'django_spire/metric/domain/form/delete_confirmation_form_page.html', context
-    )
+    return TemplateResponse(request, 'django_spire/metric/domain/form/delete_confirmation_form_page.html', context)
 
 
 @login_required
-def subdomain_form_view(
-        request: WSGIRequest, domain_pk: int, pk: int
-) -> TemplateResponse | HttpResponseRedirect:
+def subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse | HttpResponseRedirect:
     subdomain = get_object_or_null_obj(models.SubDomain, pk=pk)
 
     nav = DomainNavigation()
@@ -108,11 +100,11 @@ def subdomain_form_view(
 
     context = {**nav.as_context()}
     context['original_key'] = subdomain.key if subdomain.pk else ''
+    if subdomain.pk:
+        context['subdomain'] = subdomain
 
     return TemplateResponse(
-        request=request,
-        context=context,
-        template='django_spire/metric/domain/page/subdomain_form_page.html',
+        request=request, context=context, template='django_spire/metric/domain/page/subdomain_form_page.html'
     )
 
 
@@ -135,9 +127,7 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
     nav = DomainNavigation()
     nav.page_title = 'Delete Sub Domain'
     nav.breadcrumbs.add(
-        name=str(subdomain.domain),
-        view_name='django_spire:metric:domain:page:detail',
-        view_kwargs={'pk': domain_pk},
+        name=str(subdomain.domain), view_name='django_spire:metric:domain:page:detail', view_kwargs={'pk': domain_pk}
     )
     nav.breadcrumbs.add(
         subdomain,
@@ -152,8 +142,4 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
     context['domain_pk'] = domain_pk
     context['return_url'] = return_url
 
-    return TemplateResponse(
-        request,
-        'django_spire/metric/domain/form/delete_confirmation_form_page.html',
-        context,
-    )
+    return TemplateResponse(request, 'django_spire/metric/domain/form/delete_confirmation_form_page.html', context)

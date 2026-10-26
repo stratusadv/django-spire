@@ -50,6 +50,9 @@ make-migrations:
 migrate:
     {{ PYTHON }} ./manage.py migrate
 
+metric-setup:
+    {{ PYTHON }} ./manage.py metric_build
+
 opencode:
     ./.venv/Scripts/activate.bat; if ($?) { opencode . }
 

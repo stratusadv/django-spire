@@ -1,6 +1,11 @@
+from typing import Any
+
 import pytest
+from unittest.mock import MagicMock, patch
 
 from django.test import TestCase
+
+from dandy.llm.service import LlmService
 
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
@@ -8,8 +13,17 @@ from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate.exclude_seed import ExcludeMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
+from django_spire.contrib.seeding.field.seed.unique_seed import UniqueFieldSeed
 from django_spire.contrib.seeding.intelligence.bots.field_seeding_bot import FieldSeedingBot
 from django_spire.contrib.seeding.seed.seed import Seed
+
+
+class _FakeFieldIntel:
+    def __init__(self, values: dict[str, Any]) -> None:
+        self._values = values
+
+    def model_dump(self) -> dict[str, Any]:
+        return self._values
 
 
 class TestFieldSeedingBot(TestCase):
@@ -242,3 +256,55 @@ class TestFieldSeedingBotProcess(TestCase):
             seed_index=3,
         )
         assert result['maybe'] == 25
+
+
+class TestFieldSeedingBotLlmContext(TestCase):
+    def test_llm_prompt_includes_pre_llm_field_values(self):
+        bot = FieldSeedingBot()
+        fake_llm = MagicMock(return_value=_FakeFieldIntel({'description': 'generated description'}))
+
+        with patch.object(LlmService, 'prompt_to_intel', fake_llm):
+            result = bot.process(
+                seeder_name='Test Seeder',
+                fields_seeds={
+                    'name': StaticFieldSeed('Pre LLM Name'),
+                    'description': LlmFieldSeed(str),
+                },
+                seed_index=0,
+            )
+
+        assert result['name'] == 'Pre LLM Name'
+        assert result['description'] == 'generated description'
+        prompt = fake_llm.call_args.kwargs['prompt']
+        assert 'Pre LLM Name' in str(prompt.to_str())
+
+    def test_post_llm_field_sees_llm_values(self):
+        bot = FieldSeedingBot()
+        fields_seeds = {
+            'email': LlmFieldSeed(str),
+            'username': UniqueFieldSeed(row_value_callable=lambda row: row['email']),
+        }
+        fake_intel = _FakeFieldIntel({'email': 'generated@example.com'})
+
+        with patch.object(LlmService, 'prompt_to_intel', return_value=fake_intel):
+            result = bot.process(seeder_name='Test', fields_seeds=fields_seeds, seed_index=0)
+
+        assert result['email'] == 'generated@example.com'
+        assert result['username'] == 'generated@example.com'
+
+    def test_post_llm_unique_field_dedupes_across_rows(self):
+        bot = FieldSeedingBot()
+        fields_seeds = {
+            'email': LlmFieldSeed(str),
+            'username': UniqueFieldSeed(row_value_callable=lambda row: row['email']),
+        }
+        fake_intel = _FakeFieldIntel({'email': 'same@example.com'})
+
+        with patch.object(LlmService, 'prompt_to_intel', return_value=fake_intel):
+            first = bot.process(seeder_name='Test', fields_seeds=fields_seeds, seed_index=0)
+            second = bot.process(seeder_name='Test', fields_seeds=fields_seeds, seed_index=1)
+            third = bot.process(seeder_name='Test', fields_seeds=fields_seeds, seed_index=2)
+
+        assert first['username'] == 'same@example.com'
+        assert second['username'] == 'same@example.com-2'
+        assert third['username'] == 'same@example.com-3'
