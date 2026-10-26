@@ -8,7 +8,6 @@ from django.utils import timezone
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.utils import soft_delete_queryset
-from django_spire.metric.domain.key_utils import unique_key_from_name
 from django_spire.metric.domain.statistic import querysets
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices, StatisticValueTypeChoices
 from django_spire.metric.domain.statistic.services.service import (
@@ -17,6 +16,7 @@ from django_spire.metric.domain.statistic.services.service import (
     StatisticValueService,
 )
 from django_spire.metric.domain.statistic.utils import detach_visuals_from_statistics
+from django_spire.metric.key_utils import unique_key_from_name
 
 if TYPE_CHECKING:
     from decimal import Decimal

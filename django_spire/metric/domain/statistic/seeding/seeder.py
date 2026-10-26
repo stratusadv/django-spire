@@ -5,11 +5,11 @@ from datetime import timedelta
 from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.metric.domain.key_utils import unique_key_base_from_name
 from django_spire.metric.domain.models import Domain
 from django_spire.metric.domain.seeding.constants import GROUP_SEEDS, STATISTIC_KEYS, STATISTIC_SEEDS
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
+from django_spire.metric.key_utils import unique_key_base_from_name
 
 
 class StatisticGroupSeeder(Seeder):

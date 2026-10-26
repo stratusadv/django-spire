@@ -6,10 +6,10 @@ from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.utils import soft_delete_queryset
 from django_spire.metric.domain import querysets
-from django_spire.metric.domain.key_utils import unique_key_from_name
 from django_spire.metric.domain.services.service import DomainService, SubDomainService
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
 from django_spire.metric.domain.statistic.utils import detach_visuals_from_statistics
+from django_spire.metric.key_utils import unique_key_from_name
 
 __all__ = ['Domain', 'Statistic', 'StatisticGroup', 'StatisticValue', 'SubDomain']
 

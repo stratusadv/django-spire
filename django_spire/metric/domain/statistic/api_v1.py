@@ -12,8 +12,9 @@ from pydantic import BaseModel, Field, StringConstraints
 
 from django_spire.metric.domain.models import SubDomain
 from django_spire.metric.domain.statistic import models
+from django_spire.metric.key_utils import KEY_MAX_LENGTH, STORAGE_KEY_PATTERN
 
-MetricKey = Annotated[str, StringConstraints(max_length=64, pattern=r'^[-a-zA-Z0-9_]+$')]
+MetricKey = Annotated[str, StringConstraints(max_length=KEY_MAX_LENGTH, pattern=STORAGE_KEY_PATTERN.pattern)]
 
 router = Router()
 

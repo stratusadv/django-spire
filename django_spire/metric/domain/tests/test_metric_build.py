@@ -1,13 +1,22 @@
 from __future__ import annotations
 
+import threading
+from concurrent.futures import ThreadPoolExecutor as RealThreadPoolExecutor
 from decimal import Decimal
+from typing import TYPE_CHECKING, Any
+from unittest import mock
 
 import pytest
 from django.test import TransactionTestCase
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric import Metric
+from django_spire.metric import metric as metric_module
 from django_spire.metric.domain.models import Domain, SubDomain
+from django_spire.metric.domain.querysets import DomainQuerySet
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
+from django_spire.metric.metric import Metric
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 class StoreMetric(Metric):
@@ -42,11 +51,11 @@ class MetricBuildTestCase(BaseTestCase):
         domain = Domain.objects.for_key('store').get()
         assert domain.name == 'Store'
         assert domain.sub_domain_name == 'Channels'
-        assert SubDomain.objects.for_key('store__web').exists()
-        assert SubDomain.objects.for_key('store__retail').exists()
-        assert StatisticGroup.objects.for_key('store__orders').exists()
-        assert Statistic.objects.for_key('store__orders__created').exists()
-        assert Statistic.objects.for_key('store__orders__revenue').get().value_type == 'currency'
+        assert SubDomain.objects.for_key('store--web').exists()
+        assert SubDomain.objects.for_key('store--retail').exists()
+        assert StatisticGroup.objects.for_key('store--orders').exists()
+        assert Statistic.objects.for_key('store--orders--created').exists()
+        assert Statistic.objects.for_key('store--orders--revenue').get().value_type == 'currency'
 
     def test_build_is_idempotent(self):
         StoreMetric.build()
@@ -80,7 +89,7 @@ class MetricBuildTestCase(BaseTestCase):
 
     def test_check_reports_missing_statistic(self):
         StoreMetric.build()
-        Statistic.objects.for_key('store__orders__revenue').get().set_deleted()
+        Statistic.objects.for_key('store--orders--revenue').get().set_deleted()
 
         summary = StoreMetric.check()
 
@@ -90,7 +99,48 @@ class MetricBuildTestCase(BaseTestCase):
     def test_check_passes_after_build(self):
         StoreMetric.build()
 
-        assert StoreMetric.check().ok is True
+        summary = StoreMetric.check()
+
+        assert summary.ok is True
+        assert summary.unchanged == 6
+
+    def test_check_reports_drift_without_writing(self):
+        StoreMetric.build()
+        domain = Domain.objects.for_key('store').get()
+        domain.name = 'Renamed'
+        domain.save()
+
+        summary = StoreMetric.check()
+
+        assert summary.ok is False
+        assert summary.missing == []
+        assert summary.errors == ['store: drifts from spec; run metric_build to sync']
+        assert Domain.objects.for_key('store').get().name == 'Renamed'
+
+    def test_build_absorbs_concurrent_domain_creation(self):
+        Domain.objects.create(
+            key='store',
+            name='Store',
+            description='Storefront sales and fulfillment metrics.',
+            sub_domain_name='Channels',
+        )
+        missed = {'count': 0}
+
+        real_for_key = DomainQuerySet.for_key
+
+        def racy_for_key(self: DomainQuerySet, key: str) -> QuerySet[Domain]:
+            if key == 'store' and missed['count'] == 0:
+                missed['count'] += 1
+                return self.none()
+            return real_for_key(self, key)
+
+        with mock.patch.object(DomainQuerySet, 'for_key', racy_for_key):
+            summary = StoreMetric.build()
+
+        assert Domain.objects.count() == 1
+        assert summary.errors == []
+        assert summary.created == 5
+        assert summary.unchanged == 1
 
     def test_build_reports_deleted_domain_without_resurrecting(self):
         StoreMetric.build()
@@ -104,13 +154,13 @@ class MetricBuildTestCase(BaseTestCase):
 
     def test_build_reports_deleted_statistic_without_resurrecting(self):
         StoreMetric.build()
-        Statistic.objects.for_key('store__orders__created').get().set_deleted()
+        Statistic.objects.for_key('store--orders--created').get().set_deleted()
 
         summary = StoreMetric.build()
 
         assert summary.errors
         assert 'store/orders/created' in summary.errors[0]
-        assert Statistic.objects.for_key('store__orders__created').get().is_deleted
+        assert Statistic.objects.for_key('store--orders--created').get().is_deleted
 
     def test_remote_registry_cannot_build(self):
         remote = type(
@@ -136,7 +186,7 @@ class MetricRecordTestCase(TransactionTestCase):
         worker = StoreMetric.record('store', 'web', 'orders', 'created', reference=['order', 'created'], value=3)
         worker.join()
 
-        value = StatisticValue.objects.get(statistic__key='store__orders__created', sub_domain__key='store__web')
+        value = StatisticValue.objects.get(statistic__key='store--orders--created', sub_domain__key='store--web')
         assert value.reference == 'order:created'
         assert value.value == Decimal('3.0000')
 
@@ -145,20 +195,20 @@ class MetricRecordTestCase(TransactionTestCase):
         worker.join()
 
         value = StatisticValue.objects.get(
-            statistic__key='store__orders__created', sub_domain__key='store__retail', reference='checkout'
+            statistic__key='store--orders--created', sub_domain__key='store--retail', reference='checkout'
         )
         assert value.reference == 'checkout'
 
     def test_record_postfixes_model_reference(self):
-        statistic = Statistic.objects.for_key('store__orders__created').get()
+        statistic = Statistic.objects.for_key('store--orders--created').get()
         model_segment = f'{statistic._meta.app_label}.{statistic._meta.model_name}:{statistic.pk}'
 
         worker = StoreMetric.record('store', 'web', 'orders', 'created', ['order', 'created'], source_model=statistic)
         worker.join()
 
         value = StatisticValue.objects.get(
-            statistic__key='store__orders__created',
-            sub_domain__key='store__web',
+            statistic__key='store--orders--created',
+            sub_domain__key='store--web',
             reference=f'order:created:{model_segment}',
         )
         assert value.value == Decimal('1.0000')
@@ -180,12 +230,12 @@ class MetricRecordTestCase(TransactionTestCase):
             StoreMetric.record('store', 'web', 'orders', 'created', reference='checkout')
 
     def test_record_failure_is_swallowed(self):
-        Statistic.objects.for_key('store__orders__created').get().set_deleted()
+        Statistic.objects.for_key('store--orders--created').get().set_deleted()
 
         worker = StoreMetric.record('store', 'web', 'orders', 'created', reference=['click'], value=1)
         worker.join()
 
-        assert not StatisticValue.objects.filter(statistic__key='store__orders__created').exists()
+        assert not StatisticValue.objects.filter(statistic__key='store--orders--created').exists()
 
     def test_record_rejects_unknown_statistic(self):
         with pytest.raises(ValueError, match='No statistic declared for domain'):
@@ -198,3 +248,41 @@ class MetricRecordTestCase(TransactionTestCase):
     def test_record_rejects_unknown_sub_domain(self):
         with pytest.raises(ValueError, match='No sub-domain'):
             StoreMetric.record('store', 'missing', 'orders', 'created', reference=['click'])
+
+    def test_record_dispatch_uses_bounded_pool(self):
+        captured: dict[str, object] = {}
+
+        def factory(*args: Any, **kwargs: Any) -> RealThreadPoolExecutor:
+            captured.update(kwargs)
+            return RealThreadPoolExecutor(*args, **kwargs)
+
+        metric_module._RECORD_EXECUTOR = None
+
+        with mock.patch.object(metric_module, 'ThreadPoolExecutor', factory):
+            worker = StoreMetric.record('store', 'web', 'orders', 'created', reference=['pool'], value=1)
+            worker.join()
+
+        assert captured['max_workers'] == 2
+        assert captured['thread_name_prefix'] == 'django-spire-metric-record'
+
+    def test_record_executor_is_shared(self):
+        first = metric_module._record_executor()
+
+        StoreMetric.record('store', 'web', 'orders', 'created', reference=['shared'], value=1).join()
+
+        assert metric_module._record_executor() is first
+
+    def test_record_worker_closes_db_connections(self):
+        closed_threads: list[int] = []
+        real_close_all = metric_module.connections.close_all
+
+        def spy_close_all() -> None:
+            closed_threads.append(threading.get_ident())
+            real_close_all()
+
+        with mock.patch.object(metric_module.connections, 'close_all', spy_close_all):
+            worker = StoreMetric.record('store', 'web', 'orders', 'created', reference=['close'], value=1)
+            worker.join()
+
+        assert closed_threads
+        assert threading.get_ident() not in closed_threads

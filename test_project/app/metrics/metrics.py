@@ -1,4 +1,4 @@
-from django_spire.metric import Metric
+from django_spire.metric.metric import Metric
 
 
 class StoreMetric(Metric):
@@ -8,20 +8,20 @@ class StoreMetric(Metric):
             name='Store',
             description='Storefront sales and fulfillment metrics.',
             sub_domain_name='Channels',
-            subdomains=[
+            subdomains=(
                 Metric.SubDomain(key='web', name='Web', description='Online storefront.'),
                 Metric.SubDomain(key='retail', name='Retail', description='Physical stores.'),
-            ],
-            statistic_groups=[
+            ),
+            statistic_groups=(
                 Metric.StatisticGroup(
                     key='orders',
                     name='Orders',
                     description='Order lifecycle metrics.',
-                    statistics=[
+                    statistics=(
                         Metric.Statistic('created', name='Orders created'),
                         Metric.Statistic('revenue', name='Order revenue', value_type='currency'),
-                    ],
-                )
-            ],
+                    ),
+                ),
+            ),
         )
     ]

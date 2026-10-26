@@ -22,31 +22,32 @@ class SubDomainSpec:
 
     def build(self, domain: Domain, *, check: bool, summary: BuildSummary) -> None:
         from django_spire.metric.utils import (  # noqa: PLC0415
+            _count_sync,
             _report_deleted,
             _sub_domain_key,
-            _sync_fields,
         )
 
         stored_key = _sub_domain_key(domain.key, self)
         path = f'{domain.key}/{self.key}'
+        values = {'name': self.name, 'description': self.description}
+        created = False
         sub_domain = SubDomain.objects.for_key(stored_key).first()
 
         if sub_domain is None:
             if check:
                 summary.missing.append(path)
                 return
-            SubDomain.objects.create(
-                domain=domain, key=stored_key, name=self.name, description=self.description
-            )
+            sub_domain, created = SubDomain.objects.get_or_create(domain=domain, key=stored_key, defaults=values)
+
+        if created:
             summary.created += 1
             return
+
         if sub_domain.is_deleted:
             _report_deleted(summary, path, check)
             return
-        if _sync_fields(sub_domain, {'name': self.name, 'description': self.description}):
-            summary.updated += 1
-            return
-        summary.unchanged += 1
+
+        _count_sync(summary, sub_domain, values, path, check)
 
 
 @dataclass(frozen=True)
@@ -66,29 +67,28 @@ class StatisticSpec:
         summary: BuildSummary,
     ) -> None:
         from django_spire.metric.utils import (  # noqa: PLC0415
+            _count_sync,
             _report_deleted,
             _statistic_key,
-            _sync_fields,
         )
 
         stored_key = _statistic_key(domain.key, statistic_group_spec, self)
         path = f'{domain.key}/{statistic_group_spec.key}/{self.key}'
         statistic = Statistic.objects.for_key(stored_key).first()
 
+        created = False
         if statistic is None:
             if check:
                 summary.missing.append(path)
                 return
-            values: dict[str, Any] = {
-                'group': statistic_group,
-                'key': stored_key,
-                'name': self.name,
-            }
+            values: dict[str, Any] = {'group': statistic_group, 'name': self.name}
             if self.interval:
                 values['interval'] = self.interval
             if self.value_type:
                 values['value_type'] = self.value_type
-            Statistic.objects.create(**values)
+            statistic, created = Statistic.objects.get_or_create(key=stored_key, defaults=values)
+
+        if created:
             summary.created += 1
             return
 
@@ -101,10 +101,7 @@ class StatisticSpec:
             sync_values['interval'] = self.interval
         if self.value_type:
             sync_values['value_type'] = self.value_type
-        if _sync_fields(statistic, sync_values):
-            summary.updated += 1
-            return
-        summary.unchanged += 1
+        _count_sync(summary, statistic, sync_values, path, check)
 
 
 @dataclass(frozen=True)
@@ -119,30 +116,32 @@ class StatisticGroupSpec:
 
     def build(self, domain: Domain, *, check: bool, summary: BuildSummary) -> None:
         from django_spire.metric.utils import (  # noqa: PLC0415
+            _count_sync,
             _report_deleted,
             _statistic_group_key,
-            _sync_fields,
         )
 
         stored_key = _statistic_group_key(domain.key, self)
         path = f'{domain.key}/{self.key}'
+        values = {'name': self.name, 'description': self.description}
+        created = False
         statistic_group = StatisticGroup.objects.for_key(stored_key).first()
 
         if statistic_group is None:
             if check:
                 summary.missing.append(path)
                 return
-            statistic_group = StatisticGroup.objects.create(
-                domain=domain, key=stored_key, name=self.name, description=self.description
+            statistic_group, created = StatisticGroup.objects.get_or_create(
+                domain=domain, key=stored_key, defaults=values
             )
+
+        if created:
             summary.created += 1
-        elif statistic_group.is_deleted:
-            _report_deleted(summary, path, check)
-            return
-        elif _sync_fields(statistic_group, {'name': self.name, 'description': self.description}):
-            summary.updated += 1
         else:
-            summary.unchanged += 1
+            if statistic_group.is_deleted:
+                _report_deleted(summary, path, check)
+                return
+            _count_sync(summary, statistic_group, values, path, check)
 
         for statistic_spec in self.statistics:
             statistic_spec.build(domain, statistic_group, self, check=check, summary=summary)
@@ -162,37 +161,28 @@ class DomainSpec:
         object.__setattr__(self, 'statistic_groups', tuple(self.statistic_groups))
 
     def build(self, *, check: bool, summary: BuildSummary) -> None:
-        from django_spire.metric.utils import _report_deleted, _sync_fields  # noqa: PLC0415
+        from django_spire.metric.utils import _count_sync, _report_deleted  # noqa: PLC0415
+
+        values = {'name': self.name, 'description': self.description, 'sub_domain_name': self.sub_domain_name}
 
         try:
             with transaction.atomic():
+                created = False
                 domain = Domain.objects.for_key(self.key).first()
 
                 if domain is None:
                     if check:
                         summary.missing.append(self.key)
                         return
-                    domain = Domain.objects.create(
-                        key=self.key,
-                        name=self.name,
-                        description=self.description,
-                        sub_domain_name=self.sub_domain_name,
-                    )
+                    domain, created = Domain.objects.get_or_create(key=self.key, defaults=values)
+
+                if created:
                     summary.created += 1
-                elif domain.is_deleted:
-                    _report_deleted(summary, self.key, check)
-                    return
-                elif _sync_fields(
-                    domain,
-                    {
-                        'name': self.name,
-                        'description': self.description,
-                        'sub_domain_name': self.sub_domain_name,
-                    },
-                ):
-                    summary.updated += 1
                 else:
-                    summary.unchanged += 1
+                    if domain.is_deleted:
+                        _report_deleted(summary, self.key, check)
+                        return
+                    _count_sync(summary, domain, values, self.key, check)
 
                 for sub_domain_spec in self.subdomains:
                     sub_domain_spec.build(domain, check=check, summary=summary)

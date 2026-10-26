@@ -32,7 +32,7 @@ DJANGO_SPIRE_METRIC_REMOTE_TARGETS = {
 Subclass `Metric`, set `target` (defaults to `Metric.Target.LOCAL`), and declare your structure under `domains`:
 
 ```python title="myapp/metrics.py"
-from django_spire.metric import Metric
+from django_spire.metric.metric import Metric
 
 
 class StoreMetric(Metric):
@@ -60,20 +60,20 @@ class StoreMetric(Metric):
     ]
 ```
 
-The first argument of every constructor is the **key** — a lowercase slug. The remaining spec fields mirror the model fields: `Domain` takes `name`, `description`, and `sub_domain_name`; `SubDomain` and `StatisticGroup` take `name` and `description`; `Statistic` takes `name`, and optionally `interval` (`daily`, `weekly`, `monthly`) and `value_type` (`number`, `currency`, `percentage`).
+The first argument of every constructor is the **key** — a lowercase slug: letters, digits, and hyphens with hyphens joining words (no underscores). The remaining spec fields mirror the model fields: `Domain` takes `name`, `description`, and `sub_domain_name`; `SubDomain` and `StatisticGroup` take `name` and `description`; `Statistic` takes `name`, and optionally `interval` (`daily`, `weekly`, `monthly`) and `value_type` (`number`, `currency`, `percentage`).
 
-Specs are validated when the class is defined: a non-enum `target` or a `domains`/`subdomains`/`statistic_groups`/`statistics` entry that is not a spec raises `TypeError`; a `REMOTE` target without `remote_target`, empty `domains`, non-slug keys, `__` in a key, duplicate keys, unknown `interval`/`value_type`, and stored keys over 64 characters all raise `ValueError` immediately.
+Specs are validated when the class is defined: a non-enum `target` or a `domains`/`subdomains`/`statistic_groups`/`statistics` entry that is not a spec raises `TypeError`; a `REMOTE` target without `remote_target`, empty `domains`, non-slug keys, `--` in a key, duplicate keys, unknown `interval`/`value_type`, and stored keys over 64 characters all raise `ValueError` immediately.
 
 ### The key contract
 
-Stored keys are namespaced by their parents so the same local key can be reused under different domains:
+Stored keys are namespaced by their parents, joined with `--` as the object separator (`-` is the word separator inside a key), so the same local key can be reused under different domains:
 
 | Spec | Stored key |
 |------|------------|
 | `store` | `store` |
-| `web` under `store` | `store__web` |
-| `orders` under `store` | `store__orders` |
-| `created` under `store`/`orders` | `store__orders__created` |
+| `web` under `store` | `store--web` |
+| `orders` under `store` | `store--orders` |
+| `created` under `store`/`orders` | `store--orders--created` |
 
 These stored keys are the public contract for `record()`, `check()`, and the tracking middleware settings. Renaming a **name** in the spec is safe (the build updates it); changing a **key** after values have been recorded is destructive, because the statistic gets a new key and the old row (with its values) becomes an orphan.
 
@@ -94,7 +94,7 @@ The build walks each registry top-down and find-or-creates every level by key. I
 
 ### Existing rows
 
-Rows created through the admin before the registry existed get name-derived keys (for example `sales-web`) that usually do not match the spec's namespaced keys (`sales__web`). The first build creates the spec rows and lists the legacy rows as orphans; clean those up manually once the registry is authoritative.
+Rows created through the admin before the registry existed get name-derived keys (for example `sales-web`) that usually do not match the spec's namespaced keys (`sales--web`). The first build creates the spec rows and lists the legacy rows as orphans; clean those up manually once the registry is authoritative.
 
 ## Checking and recording from code
 
@@ -107,10 +107,10 @@ StoreMetric.check()
 worker = StoreMetric.record(
     'store', 'web', 'orders', 'created', reference=['order', 'created'], value=3
 )
-# Returns immediately; the write happens on a short-lived background thread.
+# Returns immediately; the write happens on a background worker thread.
 # worker.join()  # wait for the write to finish (mainly useful in tests)
 ```
 
-- `check()` queries the database for a local target, or probes the remote API (`GET {key}/total`) for a `REMOTE` target. A probe that fails — an HTTP error or a network error — is counted as missing, so a downed remote reports as drift instead of crashing the check.
-- `record(domain_key, sub_domain_key, statistic_group_key, statistic_key, reference, value=1, *, source_model=None)` validates the keys against the declared spec synchronously (an unknown key or sub-domain raises `ValueError` immediately), then dispatches the write on a short-lived daemon thread and returns that thread. The `reference` is required and must be a list of strings — a bare string is rejected with `TypeError` — and the segments are joined with `:` for storage (e.g. `['order', 'created']` stores `order:created`). Pass a saved Django model instance as `source_model` to append `<app_label>.<model_name>:<pk>` to the stored reference (e.g. `order:created:myapp.task:7`). Write failures — a missing row in the database, a remote error — are logged and dropped, never raised, and the worker closes its own database connections before exiting. Callers normally ignore the returned thread; tests can `join()` it.
+- `check()` queries the database for a local target, or probes the remote API (`GET {key}/total`) for a `REMOTE` target. A probe that fails — an HTTP error or a network error — is counted as missing, so a downed remote reports as drift instead of crashing the check. Check mode never writes: a row whose fields drifted from the spec is reported as an error, so a drifted structure fails the check (the `metric_build --check` exit code turns non-zero).
+- `record(domain_key, sub_domain_key, statistic_group_key, statistic_key, reference, value=1, *, source_model=None)` validates the keys against the declared spec synchronously (an unknown key or sub-domain raises `ValueError` immediately), then dispatches the write to a bounded worker pool (`DJANGO_SPIRE_METRIC_RECORD_WORKERS`, default 2) and returns a joinable handle. The `reference` is required and must be a list of strings — a bare string is rejected with `TypeError` — and the segments are joined with `:` for storage (e.g. `['order', 'created']` stores `order:created`). Pass a saved Django model instance as `source_model` to append `<app_label>.<model_name>:<pk>` to the stored reference (e.g. `order:created:myapp.task:7`). Write failures — a missing row in the database, a remote error — are logged and dropped, never raised, and the worker closes its own database connections when the task finishes. Callers normally ignore the returned handle; tests can `join()` it.
 - `build()` on a `REMOTE` target raises an error — run `metric_build` on the remote installation to build its structure. Remote registries can still `record()` and `check()` against it.

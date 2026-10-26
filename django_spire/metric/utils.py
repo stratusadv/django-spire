@@ -1,55 +1,29 @@
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING, Any
 
 from django_spire.conf import settings as spire_settings
 from django_spire.contrib.utils import get_object_from_module_string
-from django_spire.exceptions import (
-    DjangoSpireConfigurationError,
-    DjangoSpireInvalidClassStringError,
-)
-from django_spire.metric.domain.key_utils import KEY_MAX_LENGTH
-from django_spire.metric.domain.statistic.constants import (
-    StatisticIntervalChoices,
-    StatisticValueTypeChoices,
-)
+from django_spire.exceptions import DjangoSpireConfigurationError, DjangoSpireInvalidClassStringError
+from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices, StatisticValueTypeChoices
+from django_spire.metric.key_utils import KEY_MAX_LENGTH, object_key, validate_local_key
 from django_spire.metric.specs import DomainSpec, StatisticGroupSpec, StatisticSpec, SubDomainSpec
 
 if TYPE_CHECKING:
     from django_spire.metric.metric import Metric
     from django_spire.metric.summary import BuildSummary
 
-_KEY_PATTERN = re.compile(r'^[a-z0-9]+(?:[-_][a-z0-9_]+)*$')
-
 
 def _sub_domain_key(domain_key: str, sub_domain: SubDomainSpec) -> str:
-    return f'{domain_key}__{sub_domain.key}'
+    return object_key(domain_key, sub_domain.key)
 
 
 def _statistic_group_key(domain_key: str, statistic_group: StatisticGroupSpec) -> str:
-    return f'{domain_key}__{statistic_group.key}'
+    return object_key(domain_key, statistic_group.key)
 
 
-def _statistic_key(
-    domain_key: str, statistic_group: StatisticGroupSpec, statistic: StatisticSpec
-) -> str:
-    return f'{domain_key}__{statistic_group.key}__{statistic.key}'
-
-
-def _validate_spec_key(key: Any, kind: str) -> None:
-    if not isinstance(key, str) or not key:
-        message = f'{kind} key must be a non-empty string, got {key!r}'
-        raise ValueError(message)
-    if '__' in key:
-        message = f'{kind} key {key!r} must not contain "__"'
-        raise ValueError(message)
-    if len(key) > KEY_MAX_LENGTH:
-        message = f'{kind} key {key!r} exceeds {KEY_MAX_LENGTH} characters'
-        raise ValueError(message)
-    if not _KEY_PATTERN.fullmatch(key):
-        message = f'{kind} key {key!r} must be lowercase letters, digits, hyphens, or underscores'
-        raise ValueError(message)
+def _statistic_key(domain_key: str, statistic_group: StatisticGroupSpec, statistic: StatisticSpec) -> str:
+    return object_key(domain_key, statistic_group.key, statistic.key)
 
 
 def _validate_spec_name(name: Any, kind: str) -> None:
@@ -62,19 +36,28 @@ def _report_deleted(summary: BuildSummary, path: str, check: bool) -> None:
     if check:
         summary.missing.append(path)
     else:
-        summary.errors.append(
-            f'{path}: exists but is deleted; undelete it or drop it from the spec'
-        )
+        summary.errors.append(f'{path}: exists but is deleted; undelete it or drop it from the spec')
 
 
-def _sync_fields(obj: Any, values: dict[str, Any]) -> bool:
+def _sync_fields(obj: Any, values: dict[str, Any], *, save: bool = True) -> bool:
     changed = [name for name, value in values.items() if getattr(obj, name) != value]
     if not changed:
         return False
-    for name, value in values.items():
-        setattr(obj, name, value)
-    obj.save(update_fields=changed)
+    if save:
+        for name, value in values.items():
+            setattr(obj, name, value)
+        obj.save(update_fields=changed)
     return True
+
+
+def _count_sync(summary: BuildSummary, obj: Any, values: dict[str, Any], path: str, check: bool) -> None:
+    if _sync_fields(obj, values, save=not check):
+        if check:
+            summary.errors.append(f'{path}: drifts from spec; run metric_build to sync')
+        else:
+            summary.updated += 1
+        return
+    summary.unchanged += 1
 
 
 def _resolve_remote_target(name: str) -> tuple[str, str]:
@@ -101,16 +84,12 @@ def _resolve_remote_target(name: str) -> tuple[str, str]:
 
 
 def _validate_sub_domain_spec(
-    cls_name: str,
-    domain: DomainSpec,
-    sub_domain: Any,
-    seen_local_keys: set[str],
-    seen_stored_keys: set[str],
+    cls_name: str, domain: DomainSpec, sub_domain: Any, seen_local_keys: set[str], seen_stored_keys: set[str]
 ) -> None:
     if not isinstance(sub_domain, SubDomainSpec):
         message = 'subdomains entries must be Metric.SubDomain specs'
         raise TypeError(message)
-    _validate_spec_key(sub_domain.key, 'sub-domain')
+    validate_local_key(sub_domain.key, 'sub-domain')
     _validate_spec_name(sub_domain.name, 'sub-domain')
     if sub_domain.key in seen_local_keys:
         message = f'domain {domain.key!r} declares duplicate sub-domain key {sub_domain.key!r}'
@@ -138,7 +117,7 @@ def _validate_statistic_spec(
     if not isinstance(statistic, StatisticSpec):
         message = 'statistics entries must be Metric.Statistic specs'
         raise TypeError(message)
-    _validate_spec_key(statistic.key, 'statistic')
+    validate_local_key(statistic.key, 'statistic')
     _validate_spec_name(statistic.name, 'statistic')
     if statistic.interval and statistic.interval not in StatisticIntervalChoices.values:
         message = f'statistic {statistic.key!r} has unknown interval {statistic.interval!r}'
@@ -147,10 +126,7 @@ def _validate_statistic_spec(
         message = f'statistic {statistic.key!r} has unknown value_type {statistic.value_type!r}'
         raise ValueError(message)
     if statistic.key in seen_local_keys:
-        message = (
-            f'statistic group {statistic_group.key!r} '
-            f'declares duplicate statistic key {statistic.key!r}'
-        )
+        message = f'statistic group {statistic_group.key!r} declares duplicate statistic key {statistic.key!r}'
         raise ValueError(message)
     seen_local_keys.add(statistic.key)
     stored_key = _statistic_key(domain.key, statistic_group, statistic)
@@ -164,21 +140,15 @@ def _validate_statistic_spec(
 
 
 def _validate_statistic_group_spec(
-    cls_name: str,
-    domain: DomainSpec,
-    statistic_group: Any,
-    seen_local_keys: set[str],
-    seen_statistic_keys: set[str],
+    cls_name: str, domain: DomainSpec, statistic_group: Any, seen_local_keys: set[str], seen_statistic_keys: set[str]
 ) -> None:
     if not isinstance(statistic_group, StatisticGroupSpec):
         message = 'statistic_groups entries must be Metric.StatisticGroup specs'
         raise TypeError(message)
-    _validate_spec_key(statistic_group.key, 'statistic group')
+    validate_local_key(statistic_group.key, 'statistic group')
     _validate_spec_name(statistic_group.name, 'statistic group')
     if statistic_group.key in seen_local_keys:
-        message = (
-            f'domain {domain.key!r} declares duplicate statistic group key {statistic_group.key!r}'
-        )
+        message = f'domain {domain.key!r} declares duplicate statistic group key {statistic_group.key!r}'
         raise ValueError(message)
     seen_local_keys.add(statistic_group.key)
     stored_key = _statistic_group_key(domain.key, statistic_group)
@@ -208,7 +178,7 @@ def _validate_domain_spec(
     if not isinstance(domain, DomainSpec):
         message = f'{cls_name}.domains entries must be Metric.Domain specs'
         raise TypeError(message)
-    _validate_spec_key(domain.key, 'domain')
+    validate_local_key(domain.key, 'domain')
     _validate_spec_name(domain.name, 'domain')
     if domain.key in seen_domain_keys:
         message = f'{cls_name} declares duplicate domain key {domain.key!r}'
@@ -217,9 +187,7 @@ def _validate_domain_spec(
 
     seen_sub_domain_local_keys: set[str] = set()
     for sub_domain in domain.subdomains:
-        _validate_sub_domain_spec(
-            cls_name, domain, sub_domain, seen_sub_domain_local_keys, seen_sub_domain_keys
-        )
+        _validate_sub_domain_spec(cls_name, domain, sub_domain, seen_sub_domain_local_keys, seen_sub_domain_keys)
 
     seen_statistic_group_local_keys: set[str] = set()
     for statistic_group in domain.statistic_groups:

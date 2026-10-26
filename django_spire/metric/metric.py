@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import logging
 import threading
+from concurrent.futures import Future, ThreadPoolExecutor
 from decimal import Decimal
 from enum import StrEnum
 
 from django.db import connections, models
 from requests.exceptions import RequestException
 
+from django_spire.conf import settings as spire_settings
 from django_spire.contrib.rest.connector.exceptions import RestConnectorError, RestConnectorTimeoutException
 from django_spire.metric.domain.statistic.models import Statistic
 from django_spire.metric.domain.statistic.services.rest_connector import SpireMetricRestConnector
@@ -26,6 +28,29 @@ logger = logging.getLogger(__name__)
 
 
 _REMOTE_API_PATH = 'api/v1/metric/domain/statistic'
+
+_RECORD_EXECUTOR: ThreadPoolExecutor | None = None
+_RECORD_EXECUTOR_LOCK = threading.Lock()
+
+
+def _record_executor() -> ThreadPoolExecutor:
+    global _RECORD_EXECUTOR  # noqa: PLW0603
+    if _RECORD_EXECUTOR is None:
+        with _RECORD_EXECUTOR_LOCK:
+            if _RECORD_EXECUTOR is None:
+                workers = spire_settings.DJANGO_SPIRE_METRIC_RECORD_WORKERS
+                _RECORD_EXECUTOR = ThreadPoolExecutor(
+                    max_workers=max(workers or 2, 1), thread_name_prefix='django-spire-metric-record'
+                )
+    return _RECORD_EXECUTOR
+
+
+class _RecordHandle:
+    def __init__(self, future: Future) -> None:
+        self._future = future
+
+    def join(self, timeout: float | None = None) -> None:
+        self._future.result(timeout=timeout)
 
 
 class Metric:
@@ -147,7 +172,7 @@ class Metric:
         value: float | Decimal = 1,
         *,
         source_model: models.Model | None = None,
-    ) -> threading.Thread:
+    ) -> _RecordHandle:
         domain_spec, statistic_group_spec, statistic_spec = cls._resolve_statistic(
             domain_key, statistic_group_key, statistic_key
         )
@@ -157,16 +182,11 @@ class Metric:
         stored_sub_domain_key = _sub_domain_key(domain_spec.key, sub_domain_spec)
         stored_reference = cls._join_reference(cls._postfix_reference(reference, source_model))
 
-        worker = threading.Thread(
-            target=cls._record_dispatch,
-            args=(stored_statistic_key, stored_sub_domain_key, stored_reference, value),
-            daemon=True,
-            name=f'django-spire-metric-record-{stored_statistic_key}',
+        future = _record_executor().submit(
+            cls._record_dispatch, stored_statistic_key, stored_sub_domain_key, stored_reference, value
         )
 
-        worker.start()
-
-        return worker
+        return _RecordHandle(future)
 
     @staticmethod
     def _postfix_reference(reference: list[str], model: models.Model | None) -> list[str]:

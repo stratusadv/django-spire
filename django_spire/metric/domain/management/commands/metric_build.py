@@ -5,9 +5,10 @@ from typing import TYPE_CHECKING
 from django.core.management.base import BaseCommand, CommandError
 
 from django_spire.contrib.utils import get_object_from_module_string
-from django_spire.metric import Metric, discover_metric_registries
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup
+from django_spire.metric.metric import Metric
+from django_spire.metric.utils import discover_metric_registries
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
@@ -98,17 +99,14 @@ class Command(BaseCommand):
             ('statistic', Statistic, 'statistics'),
         ):
             keys = declared[level]
-            to_flag: list[int] = []
-            to_clear: list[int] = []
+            active = model_class.objects.active().not_deleted()
+            orphans = active.exclude(key__in=keys)
 
-            for instance in model_class.objects.active().not_deleted():
-                if instance.key in keys:
-                    if instance.is_orphaned:
-                        to_clear.append(instance.pk)
-                else:
-                    self.stdout.write(self.style.WARNING(f'  orphan (not in any registry): {label} {instance.key}'))
-                    if not instance.is_orphaned:
-                        to_flag.append(instance.pk)
+            for key in orphans.values_list('key', flat=True):
+                self.stdout.write(self.style.WARNING(f'  orphan (not in any registry): {label} {key}'))
+
+            to_flag = list(orphans.exclude(is_orphaned=True).values_list('pk', flat=True))
+            to_clear = list(active.filter(key__in=keys, is_orphaned=True).values_list('pk', flat=True))
 
             if to_flag:
                 model_class.objects.filter(pk__in=to_flag).update(is_orphaned=True)

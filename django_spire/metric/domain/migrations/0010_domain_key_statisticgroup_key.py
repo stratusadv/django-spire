@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.db import migrations, models
 
-from django_spire.metric.domain.key_utils import unique_key_from_name
+from django_spire.metric.key_utils import unique_key_from_name
 
 if TYPE_CHECKING:
     from django.db.migrations.schema import MigrationSchemaEditor

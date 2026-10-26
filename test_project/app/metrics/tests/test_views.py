@@ -28,14 +28,14 @@ class MetricRecordTestPageTestCase(TransactionTestCase):
     def test_click_records_value_with_collection_reference(self):
         self.client.post(reverse('metrics:page:record_click'), {'action': 'created_web'})
 
-        value = StatisticValue.objects.get(statistic__key='store__orders__created', sub_domain__key='store__web')
+        value = StatisticValue.objects.get(statistic__key='store--orders--created', sub_domain__key='store--web')
         assert value.reference == 'order:created'
         assert value.value == Decimal('3.0000')
 
     def test_click_records_value_with_multi_segment_reference(self):
         self.client.post(reverse('metrics:page:record_click'), {'action': 'created_retail'})
 
-        value = StatisticValue.objects.get(statistic__key='store__orders__created', sub_domain__key='store__retail')
+        value = StatisticValue.objects.get(statistic__key='store--orders--created', sub_domain__key='store--retail')
         assert value.reference == 'order:created:checkout'
         assert value.value == Decimal('1.0000')
 

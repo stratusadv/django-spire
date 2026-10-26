@@ -80,8 +80,8 @@ def record_click_view(request: WSGIRequest) -> HttpResponseRedirect:
                 spec['sub_domain'],
                 spec['statistic_group'],
                 spec['statistic'],
-                reference=spec['reference'],
-                value=spec['value'],
+                spec['reference'],
+                spec['value'],
             )
             worker.join()
 

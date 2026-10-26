@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.metric.domain.key_utils import unique_key_base_from_name
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.seeding.constants import DOMAIN_SEEDS, SUB_DOMAIN_KEYS, SUBDOMAIN_SEEDS
+from django_spire.metric.key_utils import unique_key_base_from_name
 
 
 class DomainSeeder(Seeder):

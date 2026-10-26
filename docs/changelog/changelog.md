@@ -23,6 +23,16 @@
 - `django_spire/js/search_palette.js` moved to `django_spire/js/components/search_palette.js`,
   beside the other scripts that register an Alpine component. Spire's `base.html` loads it
   from there; a project that loads it by path updates the path.
+- The metric stored-key separator changes from `__` to `--`
+  (`store--web`, `store--orders--created`); the migration
+  `0012_metric_key_object_separator` rewrites the existing rows in the four metric tables.
+  Metric spec keys are strict lowercase slugs (underscores are rejected), the API
+  `MetricKey` pattern no longer accepts underscores or `--`, and the click-tracking
+  settings `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`
+  must use the stored key form.
+- `BaseReport.add_column()`'s `type` argument is renamed `column_type`. Positional
+  calls are unaffected; a report that passes `type=` by keyword raises `TypeError`
+  until the name is updated.
 
 ### Added
 
@@ -87,7 +97,7 @@
   class must be defined at module level.
 - The metric registry, a declarative way to declare and sync the metric structure
   (domains, sub-domains, statistic groups, and statistics) in code instead of the admin.
-  - `Metric` (in `django_spire.metric`) declares the structure with nested spec
+  - `Metric` (in `django_spire.metric.metric`) declares the structure with nested spec
     constructors: a subclass sets `domains` to a list of `Metric.Domain` specs, each
     holding `Metric.SubDomain` and `Metric.StatisticGroup` specs, and each group holding
     `Metric.Statistic` specs. The first argument of every constructor is the **key**, a
@@ -96,32 +106,36 @@
   - The registry is registered in settings: `DJANGO_SPIRE_METRIC_REGISTRY` is a list of
     dotted paths to `Metric` subclasses (default `[]`).
   - Specs are validated when the class is defined: a `target` that is not a
-    `Metric.Target`, a non-spec entry, empty `domains`, a non-slug key, `__` in a key,
+    `Metric.Target`, a non-spec entry, empty `domains`, a non-slug key, `--` in a key,
     duplicate keys, an unknown `interval` or `value_type`, and a stored key over
     64 characters all raise immediately.
   - `Domain` and `StatisticGroup` gain a unique `key` field, backfilled from the name for
-    existing rows. Stored keys are namespaced by their parents (`store__web`,
-    `store__orders__created`), so the same local key can be reused under different
-    domains. Renaming a spec's **name** is safe; changing a **key** after values have been
-    recorded gives the row a new key and orphans the old one.
+    existing rows. Stored keys are namespaced by their parents, joined with `--` as the
+    object separator (`store--web`, `store--orders--created`), so the same local key can
+    be reused under different domains. Renaming a spec's **name** is safe; changing a
+    **key** after values have been recorded gives the row a new key and orphans the old
+    one.
   - `Metric.build()` syncs the structure into the database: it find-or-creates every
     level by key, updates `name`, `description`, `sub_domain_name`, `interval` and
     `value_type` when they drifted from the spec, never touches `is_active` or
     `is_deleted`, and reports a soft-deleted row as an error instead of resurrecting it.
-  - `Metric.check()` performs the same walk without writing. For a `REMOTE` target it
-    probes the remote installation's API, and a probe that fails — an HTTP error or a
-    network error — is counted as missing, so a downed remote reports as drift instead of
-    crashing the check.
+  - `Metric.check()` performs the same walk without writing: a row whose fields drifted
+    from the spec is reported as an error, so a drifted structure fails the check. For a
+    `REMOTE` target it probes the remote installation's API, and a probe that fails — an
+    HTTP error or a network error — is counted as missing, so a downed remote reports as
+    drift instead of crashing the check.
   - `Metric.record(domain_key, sub_domain_key, statistic_group_key, statistic_key,
     reference, value=1, *, source_model=None)` writes a value. It validates the keys
     against the declared spec synchronously (an unknown key or sub-domain raises
-    `ValueError`), then dispatches the write on a short-lived daemon thread and returns
-    that thread, so a record never blocks the caller or raises: a failed write is logged
-    and dropped. `reference` is required and must be a list of strings — a bare string is
-    rejected with `TypeError` — and the segments are joined with `:` for storage. A saved
-    Django model instance passed as `source_model` appends `<app_label>.<model_name>:<pk>`
-    to the stored reference, so `['order', 'created']` plus a task with pk 7 stores
-    `order:created:myapp.task:7`.
+    `ValueError`), then dispatches the write to a bounded worker pool (sized by
+    `DJANGO_SPIRE_METRIC_RECORD_WORKERS`, default 2) and returns a handle whose
+    `join()` waits for the write, so a record never blocks the caller or raises: a failed
+    write is logged and dropped, and the worker closes its own database connections when
+    the task finishes. `reference` is required and must be a list of strings — a bare
+    string is rejected with `TypeError` — and the segments are joined with `:` for
+    storage. A saved Django model instance passed as `source_model` appends
+    `<app_label>.<model_name>:<pk>` to the stored reference, so `['order', 'created']`
+    plus a task with pk 7 stores `order:created:myapp.task:7`.
   - A registry targets `Metric.Target.LOCAL` (the default), which stores `StatisticValue`
     rows in this database, or `Metric.Target.REMOTE` with a `remote_target` name, which
     posts to that installation through the `DJANGO_SPIRE_METRIC_REMOTE_TARGETS` setting
@@ -180,6 +194,9 @@
   `Signage` seeder seeds its UUID key with `Seeder.fake.uuid4()`. Seeding onto an existing
   database, or seeding with `SEEDING_MULTIPLIER` above 1.0, now produces suffixed (or
   fresh) unique keys instead of a duplicate-key error.
+- The Django admin's site header and title now read `Django <version> Spire
+  <version> Admin Panel`, with `Glue <version>` included when django-glue is
+  installed, applied from the core app config on startup.
 
 ## v1.3.0
 

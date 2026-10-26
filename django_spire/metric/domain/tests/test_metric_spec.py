@@ -6,7 +6,8 @@ import pytest
 from django.test import SimpleTestCase, override_settings
 
 from django_spire.exceptions import DjangoSpireInvalidClassStringError
-from django_spire.metric import Metric, Target, discover_metric_registries
+from django_spire.metric.metric import Metric, Target
+from django_spire.metric.utils import discover_metric_registries
 
 if TYPE_CHECKING:
     from django_spire.metric.specs import DomainSpec
@@ -61,9 +62,9 @@ class SpecConstructorTestCase(SimpleTestCase):
         keys = registry.stored_keys()
 
         assert keys['domains'] == {'store'}
-        assert keys['subdomains'] == {'store__web', 'store__retail'}
-        assert keys['statistic_groups'] == {'store__orders'}
-        assert keys['statistics'] == {'store__orders__created', 'store__orders__revenue'}
+        assert keys['subdomains'] == {'store--web', 'store--retail'}
+        assert keys['statistic_groups'] == {'store--orders'}
+        assert keys['statistics'] == {'store--orders--created', 'store--orders--revenue'}
 
 
 class SpecValidationTestCase(SimpleTestCase):
@@ -125,7 +126,7 @@ class SpecValidationTestCase(SimpleTestCase):
                 ),
             ]
         )
-        assert registry.stored_keys()['subdomains'] == {'store__web', 'shop__web'}
+        assert registry.stored_keys()['subdomains'] == {'store--web', 'shop--web'}
 
     def test_duplicate_group_keys_within_domain(self):
         with pytest.raises(ValueError, match='declares duplicate statistic group key'):
@@ -167,9 +168,13 @@ class SpecValidationTestCase(SimpleTestCase):
         with pytest.raises(ValueError, match='must be lowercase letters'):
             _registry(domains=[Metric.Domain('Store', name='Store')])
 
-    def test_key_must_not_contain_double_underscore(self):
+    def test_key_must_not_contain_underscore(self):
+        with pytest.raises(ValueError, match='must be lowercase letters'):
+            _registry(domains=[Metric.Domain('my_key', name='Store')])
+
+    def test_key_must_not_contain_double_hyphen(self):
         with pytest.raises(ValueError, match='must not contain'):
-            _registry(domains=[Metric.Domain('sto__re', name='Store')])
+            _registry(domains=[Metric.Domain('sto--re', name='Store')])
 
     def test_key_length_is_capped(self):
         with pytest.raises(ValueError, match='exceeds 64 characters'):

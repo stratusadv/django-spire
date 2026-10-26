@@ -9,8 +9,12 @@ from django.test import SimpleTestCase, override_settings
 from django_spire.contrib.rest.connector.exceptions import RestConnectorError
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.exceptions import DjangoSpireConfigurationError
-from django_spire.metric import BuildSummary, Metric
+from django_spire.metric.metric import Metric
 from django_spire.metric.utils import _resolve_remote_target
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django_spire.metric.summary import BuildSummary
 
 
 class RemoteMetric(Metric):
@@ -63,7 +67,7 @@ class RemoteTargetResolutionTestCase(SimpleTestCase):
 class RemoteRecordTestCase(BaseTestCase):
     def test_record_posts_to_remote(self):
         response = MagicMock()
-        response.json.return_value = {'statistic_key': 'store__orders__created'}
+        response.json.return_value = {'statistic_key': 'store--orders--created'}
         connector = MagicMock()
         connector.record.return_value = response
 
@@ -76,7 +80,7 @@ class RemoteRecordTestCase(BaseTestCase):
 
         mock_connector.assert_called_once_with(base_url='https://metrics.example.com', api_key='secret-key')
         connector.record.assert_called_once_with(
-            'store__orders__created', {'reference': 'web:click', 'sub_domain_key': 'store__web', 'value': '2'}
+            'store--orders--created', {'reference': 'web:click', 'sub_domain_key': 'store--web', 'value': '2'}
         )
 
     def test_record_accepts_explicit_reference(self):
@@ -93,7 +97,7 @@ class RemoteRecordTestCase(BaseTestCase):
             worker.join()
 
         connector.record.assert_called_once_with(
-            'store__orders__created', {'reference': 'checkout', 'sub_domain_key': 'store__web', 'value': '1'}
+            'store--orders--created', {'reference': 'checkout', 'sub_domain_key': 'store--web', 'value': '1'}
         )
 
     def test_record_swallows_remote_errors(self):
@@ -108,7 +112,7 @@ class RemoteRecordTestCase(BaseTestCase):
             worker.join()
 
         connector.record.assert_called_once_with(
-            'store__orders__created', {'reference': 'click', 'sub_domain_key': 'store__web', 'value': '1'}
+            'store--orders--created', {'reference': 'click', 'sub_domain_key': 'store--web', 'value': '1'}
         )
 
 
@@ -142,15 +146,15 @@ class RemoteCheckTestCase(BaseTestCase):
         assert summary.missing == []
 
     def test_check_reports_missing_statistic(self):
-        summary = self._check(self._connector(missing_statistics={'store__orders__created'}))
+        summary = self._check(self._connector(missing_statistics={'store--orders--created'}))
         assert summary.missing == ['store/orders/created']
 
     def test_check_reports_missing_sub_domain(self):
-        summary = self._check(self._connector(missing_sub_domains={'store__retail'}))
+        summary = self._check(self._connector(missing_sub_domains={'store--retail'}))
         assert summary.missing == ['store/retail']
 
     def test_check_reports_unreachable_domain_sub_domains(self):
-        summary = self._check(self._connector(missing_statistics={'store__orders__created'}))
+        summary = self._check(self._connector(missing_statistics={'store--orders--created'}))
         assert summary.missing == ['store/orders/created']
         assert any('sub-domains not checked' in error for error in summary.errors)
 
