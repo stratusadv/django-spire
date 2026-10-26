@@ -33,6 +33,11 @@
 - `BaseReport.add_column()`'s `type` argument is renamed `column_type`. Positional
   calls are unaffected; a report that passes `type=` by keyword raises `TypeError`
   until the name is updated.
+- The `password_reset_key_form`, `password_reset_key_form_done` and `password_set_form`
+  URLs in `django_spire:auth:admin:` are removed, with their views and their
+  `password_reset_key_form_page.html`, `password_reset_key_done_page.html` and
+  `password_set_form_page.html` templates. Nothing linked to them, and their pages linked
+  to URLs Spire does not have. The password reset flow is unchanged.
 
 ### Added
 
@@ -197,6 +202,20 @@
 - The Django admin's site header and title now read `Django <version> Spire
   <version> Admin Panel`, with `Glue <version>` included when django-glue is
   installed, applied from the core app config on startup.
+
+### Fixes
+
+- The page a password reset email links to renders again. Since 1.1.0 it raised
+  `ValueError` for every link, because it still used the Glue field API from before 1.1.0.
+  It is now a plain form like the other auth pages: it shows the form's errors, and a used
+  or expired link asks the user to request a new one.
+- `django_spire/form/delete_form.html`, included by `form/card/delete_form_card.html`,
+  renders again. It raised the same `ValueError`; it now posts `should_delete` from a hidden
+  input.
+- The iOS install prompt on the auth pages shows Spire's icon by default. Its `app_icon`
+  block pointed at `favicons/android-chrome-192x192.png`, which Spire does not ship; it now
+  uses `favicons/android-icon-192x192.png`. A project that overrides `app_icon` is
+  unaffected.
 
 ## v1.3.0
 
