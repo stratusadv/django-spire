@@ -1,0 +1,23 @@
+{% extends 'django_spire/component/scroll/table.html' %}
+
+{% block scroll_header %}
+    <div class="row pb-3">
+        <div class="col">
+            <input
+                class="form-control"
+                placeholder="Search pirates ..."
+                type="search"
+                x-model="component.search"
+                @input.debounce="reloadItems()"
+            >
+        </div>
+    </div>
+{% endblock %}
+
+{% block scroll_table_header %}
+    <tr>
+        <th>Name</th>
+        <th>Username</th>
+        <th>Email</th>
+    </tr>
+{% endblock %}

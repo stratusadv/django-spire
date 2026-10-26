@@ -3,6 +3,11 @@
 {% block full_page_content %}
     <div class="card">
         <div class="card-body">
+            {% if group.is_orphaned %}
+                <div class="mb-3">
+                    {% include 'django_spire/metric/domain/orphan_badge.html' with is_orphaned=group.is_orphaned %}
+                </div>
+            {% endif %}
             {% include 'django_spire/metric/domain/statistic/form/group_form.html' %}
         </div>
     </div>

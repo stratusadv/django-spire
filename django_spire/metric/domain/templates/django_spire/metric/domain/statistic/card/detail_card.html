@@ -3,6 +3,11 @@
 <div class="card">
     <div class="card-body">
         <div class="row g-3">
+            {% if statistic.is_orphaned %}
+                <div class="col-12">
+                    {% include 'django_spire/metric/domain/orphan_badge.html' with is_orphaned=statistic.is_orphaned %}
+                </div>
+            {% endif %}
             <div class="col">
                 <div class="row">
                     <div class="col-6 col-lg-3">

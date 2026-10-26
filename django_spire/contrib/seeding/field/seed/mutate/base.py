@@ -13,11 +13,14 @@ class BaseMutateFieldSeed(BaseFieldSeed, ABC):
     def generate_cache_key(self) -> str:
         return f'{self.__class__.__name__}:{self.field_seed.generate_cache_key()}'
 
+    @property
+    def is_cache_unsafe(self) -> bool:
+        return self.field_seed.is_cache_unsafe
+
     def generate_value(self, seed_index: int) -> Any:
         if seed_index == -1:
             return self.field_seed
-        else:
-            return self._mutate_value(seed_index)
+        return self._mutate_value(seed_index)
 
     @abstractmethod
     def _mutate_value(self, seed_index: int) -> Any:

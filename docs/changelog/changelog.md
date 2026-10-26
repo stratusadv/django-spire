@@ -1,5 +1,222 @@
 # Changelog
 
+## v1.4.0 - Unreleased
+
+### Breaking
+
+- `FormComponent` and `ModelFormComponent` are reworked. A subclass that still uses a
+  removed name raises `TypeError` when it is defined:
+  - `form` is renamed `form_class`.
+  - `attr` is removed. The child is always `form` on a `FormComponent` and `model` on a
+    `ModelFormComponent`, so a template that reached it by a custom name, such as
+    `modal.time_entry.form`, reads `modal.model.form`. Templates that use
+    `component.glue_form_path` need no change.
+  - `ModelFormComponent.model_class` is removed; the model is the form's own. `fields` is
+    optional and defaults to the form's fields.
+  - `build_child()` is removed. Override `get_form()`, or the hooks on
+    `ModelFormComponent`, instead.
+  - `ModelFormComponent` no longer inherits from `FormComponent`. Both inherit from the new
+    `BaseFormComponent`.
+- The components moved from `django_spire.core.glue.components` to
+  `django_spire.core.components`, with no alias at the old path. Import every component
+  from there: `from django_spire.core.components import ModelFormComponent`.
+- `django_spire/js/search_palette.js` moved to `django_spire/js/components/search_palette.js`,
+  beside the other scripts that register an Alpine component. Spire's `base.html` loads it
+  from there; a project that loads it by path updates the path.
+- The metric stored-key separator changes from `__` to `--`
+  (`store--web`, `store--orders--created`); the migration
+  `0012_metric_key_object_separator` rewrites the existing rows in the four metric tables.
+  Metric spec keys are strict lowercase slugs (underscores are rejected), the API
+  `MetricKey` pattern no longer accepts underscores or `--`, and the click-tracking
+  settings `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`
+  must use the stored key form.
+- `BaseReport.add_column()`'s `type` argument is renamed `column_type`. Positional
+  calls are unaffected; a report that passes `type=` by keyword raises `TypeError`
+  until the name is updated.
+- The `password_reset_key_form`, `password_reset_key_form_done` and `password_set_form`
+  URLs in `django_spire:auth:admin:` are removed, with their views and their
+  `password_reset_key_form_page.html`, `password_reset_key_done_page.html` and
+  `password_set_form_page.html` templates. Nothing linked to them, and their pages linked
+  to URLs Spire does not have. The password reset flow is unchanged.
+
+### Added
+
+- Scroll components, in `django_spire.core.components`, for infinite lists
+  built as Glue components. The template scroll in `django_spire/glue/scroll/` is unchanged
+  (ADR 0002):
+  - `BaseScrollComponent` lists items of any kind. A subclass writes
+    `get_items(offset, limit)`, `get_item(key)` and `get_item_key(item)`.
+    `item_template` is the markup for one row, and `item_render_mode` is a
+    `ScrollItemRenderMode`: `CLIENT`, the default, sends rows as data and draws them in the
+    template's `scroll_item` block, and `SERVER` renders them on the server. Controls are
+    editable attributes the subclass declares, and the template's `reloadItems()` applies
+    them.
+  - `QuerySetScrollComponent` lists the rows of `get_queryset()`, by primary key when it has
+    no ordering. `get_instance(pk)` returns one row of that queryset for a callable that
+    acts on it, and reports a row outside the list as a 404.
+  - `GlueScrollItemsMixin` sends each row of a queryset scroll as a Glue model, so row
+    markup can call the model's Glue methods and services and save its fields.
+  - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a
+    `ComponentFormOptions`, which shows a form component in a modal, or a
+    `PageFormOptions`, which sends the user to a page. `item_delete_options` is a
+    `ComponentDeleteOptions`, which shows a confirmation component in a modal and
+    soft-deletes by default, or a `PageDeleteOptions`, which sends the user to a delete
+    page. A page link carries a `return_url`: the route named by the options'
+    `return_url_name`, or the address the list is shown at. The template gains
+    `createItem()`, `editItem(item)` and `deleteItem(item)`. The browser fetches the modal
+    components with the `load_item_form` and `load_item_delete_confirmation` callables,
+    which check the user's access and that the row is in the list.
+  - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
+    `removeItem(key)`, or by firing `item_added`, `item_changed` or `item_removed` from a
+    callable.
+  - Templates are `django_spire/component/scroll/base.html`, `table.html` and
+    `crud.html`, with `item.html` and `table_row.html` for server-rendered rows.
+  - The client behaviour is the `scrollComponent` and `crudScrollComponent` Alpine
+    components in `django_spire/js/components/scroll.js`, which Spire's `base.html` loads.
+- `django_spire/button/async_button.html`, a button that runs one awaited call and is off,
+  showing a spinner, until it settles. It takes `x_button_click`, `button_text`,
+  `button_class`, `button_icon` and `button_title`. Buttons given the same `x_busy` flag
+  take turns. The behaviour is `asyncButton` in
+  `django_spire/js/components/async_button.js`, which any element can use directly with
+  one attribute: `x-bind="asyncButton(() => component.save())"`.
+- A project that does not extend Spire's `base.html` must load the scripts in
+  `django_spire/js/components/` itself.
+- Confirmation components, in `django_spire.core.components`.
+  `BaseConfirmationComponent` asks the user to confirm one action and fires `confirmed` or
+  `cancelled`. Its prompt is worded with `title`, `message` and `confirm_label` when it is
+  built. Cancelling makes no request: the template raises `cancelled` in the browser with
+  Glue's `$dispatch`, which needs `django-glue` 1.3.0.
+  - `BaseModelActionConfirmationComponent` confirms one action on one model row, built as
+    `(instance=row)`. A subclass writes `perform_action()`, and `confirmed` carries the
+    row's `pk`.
+  - `BaseModelDeleteConfirmationComponent` words that as a delete and requires `DELETE`
+    access. `ModelSetDeletedConfirmationComponent` soft-deletes the row with
+    `set_deleted()`, and `ModelDeleteConfirmationComponent` deletes it from the database.
+    Both work for any model with no subclass.
+- `ScrollComponent`, a Playwright helper in `django_spire.testing.playwright` for the new
+  scroll.
+- `django_spire/component/page/full_page.html`, a full page whose content is one Glue
+  component. A component served as a page names it as its `view_template`.
+- A form component can be built without a subclass:
+  `ModelFormComponent(form_class=TaskForm, template='task/form.html', pk=pk)`. The form
+  class must be defined at module level.
+- The metric registry, a declarative way to declare and sync the metric structure
+  (domains, sub-domains, statistic groups, and statistics) in code instead of the admin.
+  - `Metric` (in `django_spire.metric.metric`) declares the structure with nested spec
+    constructors: a subclass sets `domains` to a list of `Metric.Domain` specs, each
+    holding `Metric.SubDomain` and `Metric.StatisticGroup` specs, and each group holding
+    `Metric.Statistic` specs. The first argument of every constructor is the **key**, a
+    lowercase slug, and the remaining fields mirror the model fields (`name`,
+    `description`, `sub_domain_name`, `interval`, `value_type`).
+  - The registry is registered in settings: `DJANGO_SPIRE_METRIC_REGISTRY` is a list of
+    dotted paths to `Metric` subclasses (default `[]`).
+  - Specs are validated when the class is defined: a `target` that is not a
+    `Metric.Target`, a non-spec entry, empty `domains`, a non-slug key, `--` in a key,
+    duplicate keys, an unknown `interval` or `value_type`, and a stored key over
+    64 characters all raise immediately.
+  - `Domain` and `StatisticGroup` gain a unique `key` field, backfilled from the name for
+    existing rows. Stored keys are namespaced by their parents, joined with `--` as the
+    object separator (`store--web`, `store--orders--created`), so the same local key can
+    be reused under different domains. Renaming a spec's **name** is safe; changing a
+    **key** after values have been recorded gives the row a new key and orphans the old
+    one.
+  - `Metric.build()` syncs the structure into the database: it find-or-creates every
+    level by key, updates `name`, `description`, `sub_domain_name`, `interval` and
+    `value_type` when they drifted from the spec, never touches `is_active` or
+    `is_deleted`, and reports a soft-deleted row as an error instead of resurrecting it.
+  - `Metric.check()` performs the same walk without writing: a row whose fields drifted
+    from the spec is reported as an error, so a drifted structure fails the check. For a
+    `REMOTE` target it probes the remote installation's API, and a probe that fails — an
+    HTTP error or a network error — is counted as missing, so a downed remote reports as
+    drift instead of crashing the check.
+  - `Metric.record(domain_key, sub_domain_key, statistic_group_key, statistic_key,
+    reference, value=1, *, source_model=None)` writes a value. It validates the keys
+    against the declared spec synchronously (an unknown key or sub-domain raises
+    `ValueError`), then dispatches the write to a bounded worker pool (sized by
+    `DJANGO_SPIRE_METRIC_RECORD_WORKERS`, default 2) and returns a handle whose
+    `join()` waits for the write, so a record never blocks the caller or raises: a failed
+    write is logged and dropped, and the worker closes its own database connections when
+    the task finishes. `reference` is required and must be a list of strings — a bare
+    string is rejected with `TypeError` — and the segments are joined with `:` for
+    storage. A saved Django model instance passed as `source_model` appends
+    `<app_label>.<model_name>:<pk>` to the stored reference, so `['order', 'created']`
+    plus a task with pk 7 stores `order:created:myapp.task:7`.
+  - A registry targets `Metric.Target.LOCAL` (the default), which stores `StatisticValue`
+    rows in this database, or `Metric.Target.REMOTE` with a `remote_target` name, which
+    posts to that installation through the `DJANGO_SPIRE_METRIC_REMOTE_TARGETS` setting
+    (a name-to-`{url, api_key}` mapping, falling back to `DJANGO_SPIRE_REMOTE_API_URL`
+    and `DJANGO_SPIRE_REMOTE_API_KEY`). A remote registry can `record()` and `check()`
+    against its target but not `build()`; run the build on the target installation.
+  - The `metric_build` management command builds every registered registry. `--check`
+    validates without writing and exits non-zero when anything is missing or drifted, for
+    a CI gate, and `--registry` builds one registry by its dotted path.
+  - The build also flags orphans: rows that exist in the database but are declared in no
+    registry are listed as warnings (never deleted) and get `is_orphaned` set to `True`,
+    while rows the registry declares get it cleared. The flag is idempotent — it mirrors
+    the registry state at the last build — and `--check` never writes it. The domain,
+    sub-domain, group, and statistic pages show a warning "Orphaned" badge (with a hover
+    explanation) on list rows, detail cards, the statistics and storage tables, and the
+    edit forms, and the admin lists the flag for domains and sub-domains.
+  - Docs: `docs/app_guides/metric/registry.md`.
+- `Seeder.unique(...)`, a field seed that guarantees the values it generates are unique
+  both within the seeded batch and against rows already in the database. It takes exactly
+  one base-value source: `field_seed=` (another field seed), `row_field=` (a row field
+  name to copy from), or `row_value_callable=` (a callable that receives the row values
+  generated so far). A collision gets a numeric suffix (`a`, `a-2`, `a-3`, ...) truncated
+  to the field's `max_length`, and the seed disables the seed cache for its seeder.
+  `UserSeeder`'s `username` is now seeded this way from the seeded email, so seeded users
+  keep unique usernames within a batch, against existing users, and across re-seeds.
+
+### Changes
+
+- Migrated from `django-glue` v1.2.2 to v1.3.0. A confirmation's Cancel uses `$dispatch`,
+  which arrived in 1.3.0.
+- `FormComponent.form` and `ModelFormComponent.model` are declared with Glue's
+  `Glue.child`, which replaces a `Glue.property` that returns a Glue object. A child
+  declared this way is sent with each call its component makes, so a callable on a
+  subclass can read `self.form` or `self.model` with what the user typed. Those calls are
+  larger as a result; nothing else changes.
+- A `ModelFormComponent` whose row no longer exists reports Glue's
+  `model_instance_not_found` error, a 404, in place of a server error. A CRUD scroll's
+  edit and delete actions report the same for a row outside its queryset.
+- A failed Glue call tells the user. Spire's `base.html` registers `Glue.onError`, which
+  shows one of three fixed messages as an error toast: the item no longer exists, the user
+  lacks permission, or something went wrong. A component's own `onError`, or an
+  application's `Glue.onError`, replaces it.
+- A CRUD scroll removes a row from the list when editing or deleting it finds the row is
+  gone.
+- The `--primary` custom property is defined again, as Bootstrap's `--bs-primary`. Its
+  definition was removed with the theme picker while the loader, the item hover, the
+  panel borders, the button focus outline and the stepper went on using it, so those
+  rules were dropped by the browser. A project gets it by compiling its theme again.
+- The field seeding bot generates a row in a single forward pass split around the LLM
+  fields by declaration order, instead of every non-LLM field before the LLM ones. A
+  field declared after an LLM field can now consume the LLM-generated value (which
+  `UserSeeder`'s `username` uses), and the fields declared before it still form the LLM
+  prompt's context.
+- The metric seeders' unique keys survive re-seeding: the `SubDomain`, `Statistic`, and
+  `VisualRegion` seeders wrap their curated key lists in `Seeder.unique`, and the
+  `Signage` seeder seeds its UUID key with `Seeder.fake.uuid4()`. Seeding onto an existing
+  database, or seeding with `SEEDING_MULTIPLIER` above 1.0, now produces suffixed (or
+  fresh) unique keys instead of a duplicate-key error.
+- The Django admin's site header and title now read `Django <version> Spire
+  <version> Admin Panel`, with `Glue <version>` included when django-glue is
+  installed, applied from the core app config on startup.
+
+### Fixes
+
+- The page a password reset email links to renders again. Since 1.1.0 it raised
+  `ValueError` for every link, because it still used the Glue field API from before 1.1.0.
+  It is now a plain form like the other auth pages: it shows the form's errors, and a used
+  or expired link asks the user to request a new one.
+- `django_spire/form/delete_form.html`, included by `form/card/delete_form_card.html`,
+  renders again. It raised the same `ValueError`; it now posts `should_delete` from a hidden
+  input.
+- The iOS install prompt on the auth pages shows Spire's icon by default. Its `app_icon`
+  block pointed at `favicons/android-chrome-192x192.png`, which Spire does not ship; it now
+  uses `favicons/android-icon-192x192.png`. A project that overrides `app_icon` is
+  unaffected.
+
 ## v1.3.0
 
 ### Features

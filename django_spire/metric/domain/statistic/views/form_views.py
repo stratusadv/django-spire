@@ -13,10 +13,7 @@ from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.metric.domain.statistic import forms, models
-from django_spire.metric.domain.statistic.navigation import (
-    StatisticGroupNavigation,
-    StatisticNavigation,
-)
+from django_spire.metric.domain.statistic.navigation import StatisticGroupNavigation, StatisticNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -35,9 +32,7 @@ def group_update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('django_spire_metric_domain.delete_statisticgroup')
 def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.StatisticGroup, pk=pk)
-    return_url = safe_redirect_url(
-        request, fallback=reverse('django_spire:metric:domain:statistic:page:group_list')
-    )
+    return_url = safe_redirect_url(request, fallback=reverse('django_spire:metric:domain:statistic:page:group_list'))
 
     form = DeleteConfirmationForm(request.POST, obj=group)
 
@@ -55,9 +50,7 @@ def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form_title'] = f'Delete {group}'
-    context['form_description'] = (
-        f'Are you sure you would like to delete statistic group "{group}"?'
-    )
+    context['form_description'] = f'Are you sure you would like to delete statistic group "{group}"?'
     context['return_url'] = return_url
     return TemplateResponse(
         request,
@@ -81,10 +74,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     statistic = get_object_or_404(models.Statistic, pk=pk)
     return_url = safe_redirect_url(
         request,
-        fallback=reverse(
-            'django_spire:metric:domain:statistic:page:group_detail',
-            kwargs={'pk': statistic.group.pk},
-        ),
+        fallback=reverse('django_spire:metric:domain:statistic:page:group_detail', kwargs={'pk': statistic.group.pk}),
     )
 
     form = DeleteConfirmationForm(request.POST, obj=statistic)
@@ -138,10 +128,12 @@ def _group_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.form(request, 'group_form', form, Glue.Access.DELETE)
 
+    context = nav.as_context()
+    if group.pk:
+        context['group'] = group
+
     return TemplateResponse(
-        request,
-        context=nav.as_context(),
-        template='django_spire/metric/domain/statistic/page/group_form_page.html',
+        request, context=context, template='django_spire/metric/domain/statistic/page/group_form_page.html'
     )
 
 
@@ -178,9 +170,9 @@ def _form_view(request: WSGIRequest, group_pk: int = 0, pk: int = 0) -> Template
 
     context = nav.as_context()
     context['original_key'] = statistic.key if statistic.pk else ''
+    if statistic.pk:
+        context['statistic'] = statistic
 
     return TemplateResponse(
-        request,
-        context=context,
-        template='django_spire/metric/domain/statistic/page/statistic_form_page.html',
+        request, context=context, template='django_spire/metric/domain/statistic/page/statistic_form_page.html'
     )

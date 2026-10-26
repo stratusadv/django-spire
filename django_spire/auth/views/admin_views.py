@@ -62,23 +62,3 @@ class PasswordResetConfirmation(auth_views.PasswordResetConfirmView):
 
 class PasswordResetDone(auth_views.PasswordResetDoneView):
     template_name = 'django_spire/auth/page/password_reset_done_page.html'
-
-
-class PasswordResetKeyForm(auth_views.PasswordResetView):
-    template_name = 'django_spire/auth/page/password_reset_key_form_page.html'
-
-    def form_invalid(self, form):
-        show_form_errors(self.request, form)
-        return super().form_invalid(form)
-
-
-class PasswordResetKeyFormDone(auth_views.PasswordResetView):
-    template_name = 'django_spire/auth/page/password_reset_key_done_page.html'
-
-
-class PasswordSetForm(auth_views.PasswordResetView):
-    template_name = 'django_spire/auth/page/password_set_form_page.html'
-
-    def form_invalid(self, form):
-        show_form_errors(self.request, form)
-        return super().form_invalid(form)

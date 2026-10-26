@@ -1,0 +1,52 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Metric Record Test</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">
+                Each button calls <code>StoreMetric.record(...)</code>: the keys are validated
+                synchronously and the value is written on a short-lived background thread.
+                The view joins the worker before redirecting back, so the table reflects
+                the click.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                {% for action_key, action in actions.items %}
+                    <form method="post" action="{% url 'metrics:page:record_click' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="{{ action_key }}">
+                        <button type="submit" class="btn btn-sm btn-primary">{{ action.label }}</button>
+                    </form>
+                {% endfor %}
+            </div>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Statistic</th>
+                        <th>Sub-domain</th>
+                        <th>Reference</th>
+                        <th>Value</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in values %}
+                        <tr>
+                            <td>{{ value.statistic.key }}</td>
+                            <td>{{ value.sub_domain.key }}</td>
+                            <td>{{ value.reference }}</td>
+                            <td>{{ value.value }}</td>
+                            <td>{{ value.timestamp }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-muted">No values recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

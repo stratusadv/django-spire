@@ -1,0 +1,26 @@
+{% load django_glue %}
+
+<div class="row border-bottom py-2 align-items-center">
+    <div class="col">
+        <a class="row" :href="{% js_url 'comment:page:detail' pk='item.pk' %}">
+            <div class="col-6">
+                <div class="attribute-label">Name</div>
+                <div x-text="item.name"></div>
+            </div>
+            <div class="col-6">
+                <div class="attribute-label">Description</div>
+                <div x-text="item.description"></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-auto">
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            type="button"
+            title="Edit Comment"
+            @click="editItem(item)"
+        >
+            <i class="bi bi-pencil"></i>
+        </button>
+    </div>
+</div>

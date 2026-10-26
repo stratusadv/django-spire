@@ -88,6 +88,9 @@ Pagination is plain Django `Paginator` on top of the filtered queryset; column s
 
 ## Client-Side (Glue Scroll Lists)
 
+!!! note
+    A list can also be built as a Glue component, which declares its own search and filter controls and can list something other than a queryset. See [Scroll Components](../components/scroll.md). The template scroll below is unchanged.
+
 For interactive list pages, Spire ships a base scroll template that wires a `QuerySetGlue` queryset to search, sort, and infinite scroll:
 
 `django_spire/glue/scroll/scroll.html`

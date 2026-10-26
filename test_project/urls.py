@@ -20,6 +20,7 @@ urlpatterns = [
     path('help_desk/', include('test_project.app.help_desk.urls', namespace='help_desk')),
     path('history/', include('test_project.app.history.urls', namespace='history')),
     path('home/', include('test_project.app.home.urls', namespace='home')),
+    path('metrics/', include('test_project.app.metrics.urls', namespace='metrics')),
     path('notification/', include('test_project.app.notification.urls', namespace='notification')),
     path('order/', include('test_project.app.ordering.urls', namespace='order')),
     path('rest/', include('test_project.app.rest.urls', namespace='rest')),

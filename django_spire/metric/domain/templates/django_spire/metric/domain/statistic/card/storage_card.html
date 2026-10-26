@@ -47,6 +47,7 @@
                             <td>
                                 {% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk as detail_url %}
                                 <a class="text-decoration-none" href="{{ detail_url }}">{{ statistic.name }}</a>
+                                {% include 'django_spire/metric/domain/orphan_badge.html' with is_orphaned=statistic.is_orphaned %}
                             </td>
                             <td class="text-end">{{ statistic.value_count|intcomma }}</td>
                         </tr>

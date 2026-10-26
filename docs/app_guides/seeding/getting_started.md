@@ -134,6 +134,25 @@ File fields:
 
 ---
 
+## Unique Values
+
+`Seeder.unique` takes one base-value source: another field seed (`seed=`), a row field name to copy from (`row_field=`), or a callable that receives the row values generated so far (`row_value_callable=`) — and guarantees each generated value is unique both within the seeded batch and against rows already in the database. Collisions get a numeric suffix (`a`, `b`, `a-2`, `b-2`, ...) and long values are truncated to the field's `max_length`:
+
+```python
+# Wrap any seed: duplicates get a numeric suffix
+'badge': Seeder.unique(field_seed=Seeder.ordered.choice(['bronze', 'silver'], wrap=True)),
+
+# Copy another field's value, made unique
+'username': Seeder.unique(row_field='email'),
+
+# Derive the base value from other fields on the same row
+'slug': Seeder.unique(row_value_callable=lambda row: slugify(row['name'])),
+```
+
+A seeder containing a unique seed is always generated fresh: the seed cache is bypassed, because cached values can no longer be unique against the database. Fields a unique base depends on must be declared before it in `fields_seeds`.
+
+---
+
 ## Mutating Default Generation
 
 `Seeder.mutate` wraps another field seed and changes its behaviour — handy for generating edge cases:

@@ -40,7 +40,18 @@ class SignageSeederTestCase(BaseTestCase):
 
         assert len(signages) == len(SIGNAGE_SEEDS)
         assert [signage.name for signage in signages] == [seed['name'] for seed in SIGNAGE_SEEDS]
-        assert [str(signage.key) for signage in signages] == [seed['key'] for seed in SIGNAGE_SEEDS]
+        assert all(signage.key for signage in signages)
+        assert len({signage.key for signage in signages}) == len(signages)
+
+    def test_reseeding_signages_generates_unique_keys(self) -> None:
+        seeder = SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False)
+        seeder.seed_database()
+        seeder.reseed_database()
+
+        keys = list(Signage.objects.values_list('key', flat=True))
+
+        assert len(keys) == len(SIGNAGE_SEEDS) * 2
+        assert len(set(keys)) == len(keys)
 
     def test_seeds_slide_display_seconds(self) -> None:
         SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False).seed_database()
