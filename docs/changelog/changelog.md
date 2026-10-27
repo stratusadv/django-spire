@@ -217,6 +217,11 @@
   block pointed at `favicons/android-chrome-192x192.png`, which Spire does not ship; it now
   uses `favicons/android-icon-192x192.png`. A project that overrides `app_icon` is
   unaffected.
+- The search, notification and account buttons in the open mobile menu take the side
+  navigation's link color (`--side-navigation-link-color`). They used the primary color, so
+  a theme whose side navigation background is its primary showed only the close button, and
+  no way to log out. Themes whose link color is their primary, like the default, look the
+  same. A project with its own compiled theme runs `spire_compile_scss` to pick this up.
 
 ## v1.3.0
 

@@ -12552,6 +12552,10 @@ textarea.form-control-lg {
   color: var(--side-navigation-link-hover-color) !important;
 }
 
+.side-navigation-mobile-header .text-primary:not(.dropdown-menu *) {
+  color: var(--side-navigation-link-color) !important;
+}
+
 .side-navigation-fade-bottom {
   background: linear-gradient(to bottom, transparent, var(--side-navigation-bg-color));
   height: 32px;
@@ -12626,6 +12630,9 @@ textarea.form-control-lg {
 @media (hover: hover) and (pointer: fine) {
   .side-navigation a:hover {
     background-color: color-mix(in srgb, var(--side-navigation-link-color) 8%, transparent);
+    color: var(--side-navigation-link-hover-color) !important;
+  }
+  .side-navigation-mobile-header .text-primary:not(.dropdown-menu *):hover {
     color: var(--side-navigation-link-hover-color) !important;
   }
 }
