@@ -4,8 +4,8 @@
 
 ### Breaking
 
-- `FormComponent` and `ModelFormComponent` are reworked. A subclass that still uses a
-  removed name raises `TypeError` when it is defined:
+- `FormComponent` and `ModelFormComponent` are reworked. A subclass written for 1.3
+  updates these names:
   - `form` is renamed `form_class`.
   - `attr` is removed. The child is always `form` on a `FormComponent` and `model` on a
     `ModelFormComponent`, so a template that reached it by a custom name, such as
@@ -224,6 +224,10 @@
   a theme whose side navigation background is its primary showed only the close button, and
   no way to log out. Themes whose link color is their primary, like the default, look the
   same. A project with its own compiled theme runs `spire_compile_scss` to pick this up.
+
+### Chores
+
+- Spire's Alpine components have JavaScript unit tests, run with `bun test` and in CI.
 
 ## v1.3.0
 

@@ -7,7 +7,7 @@ from django.forms import ModelForm
 from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
 
-from django_spire.core.components.form.base import BaseFormComponent
+from django_spire.core.components.form.base_component import BaseFormComponent
 
 
 class ModelFormComponent(BaseFormComponent):

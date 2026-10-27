@@ -33,17 +33,6 @@ class BaseFormComponent(Glue.Component, ABC):
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
-        if 'attr' in cls.__dict__:
-            message = (
-                f'{cls.__name__}.attr was removed: the child is no longer named by attr. '
-                'Read the form from glue_form_path().'
-            )
-            raise TypeError(message)
-
-        if isinstance(cls.__dict__.get('form'), type):
-            message = f'{cls.__name__}.form was removed: set the form class as form_class.'
-            raise TypeError(message)
-
         if cls.form_class is not None:
             cls.validate_form_class(cls.form_class)
 

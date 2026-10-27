@@ -1,4 +1,4 @@
-from django_spire.core.components.confirmation.base import BaseConfirmationComponent
+from django_spire.core.components.confirmation.base_component import BaseConfirmationComponent
 from django_spire.core.components.confirmation.model import (
     BaseModelActionConfirmationComponent,
     BaseModelDeleteConfirmationComponent,

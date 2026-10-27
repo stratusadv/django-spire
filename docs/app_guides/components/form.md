@@ -230,11 +230,11 @@ class TaskFormComponent(ModelFormComponent):
 
 ---
 
-## Upgrading From 1.2
+## Upgrading From 1.3
 
-The form components were reworked in 1.3.0. A subclass that still uses a removed name raises `TypeError` when it is defined, naming the replacement.
+The form components were reworked in 1.4.0. A subclass written for 1.3 updates these names.
 
-| In 1.2 | In 1.3 |
+| In 1.3 | In 1.4 |
 |---|---|
 | `from django_spire.core.glue.components import ...` | `from django_spire.core.components import ...` |
 | `form = TaskForm` | `form_class = TaskForm` |

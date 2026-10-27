@@ -57,9 +57,8 @@ class SkippedSuperScrollComponent(NumberScrollComponent):
         self.count = 5
 
 
-class CallingSuperScrollComponent(NumberScrollComponent):
+class SkippedSuperUnextendedTemplateScrollComponent(UnextendedTemplateScrollComponent):
     def __post_init__(self, request: HttpRequest) -> None:
-        super().__post_init__(request)
         self.count = 5
 
 
@@ -169,15 +168,15 @@ class BaseScrollComponentTestCase(BaseTestCase):
 
         assert NumberScrollComponent in BaseScrollComponent._validated_classes
 
-    def test_post_init_that_skips_super_is_refused(self) -> None:
-        with pytest.raises(ImproperlyConfigured, match=r'super\(\)\.__post_init__'):
-            self._introduce(SkippedSuperScrollComponent())
-
-    def test_post_init_that_calls_super_is_accepted(self) -> None:
-        component = self._introduce(CallingSuperScrollComponent())
+    def test_post_init_does_not_need_to_call_super(self) -> None:
+        component = self._introduce(SkippedSuperScrollComponent())
 
         assert component.first_batch.keys == [0, 1, 2]
         assert component.first_batch.has_more is True
+
+    def test_templates_are_checked_when_post_init_skips_super(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='template'):
+            self._introduce(SkippedSuperUnextendedTemplateScrollComponent())
 
     def test_the_base_cannot_be_used_without_its_item_methods(self) -> None:
         with pytest.raises(TypeError):

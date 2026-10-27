@@ -156,18 +156,3 @@ class ModelFormComponentTestCase(BaseTestCase):
             class PlainFormModelFormComponent(ModelFormComponent):
                 template = 'task/modal/task_form_modal.html'
                 form_class = PlainForm
-
-    def test_the_removed_attr_setting_is_refused_by_name(self) -> None:
-        with pytest.raises(TypeError, match='attr was removed'):
-
-            class NamedChildModelFormComponent(ModelFormComponent):
-                template = 'task/modal/task_form_modal.html'
-                attr = 'task'
-                form_class = TaskModelForm
-
-    def test_the_removed_form_setting_is_refused_by_name(self) -> None:
-        with pytest.raises(TypeError, match='form was removed'):
-
-            class OldStyleModelFormComponent(ModelFormComponent):
-                template = 'task/modal/task_form_modal.html'
-                form = TaskModelForm

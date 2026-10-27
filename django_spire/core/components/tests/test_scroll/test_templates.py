@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from django.template import TemplateDoesNotExist
 
-from django_spire.core.components.scroll.base import ITEM_TEMPLATES, SCROLL_TEMPLATES
+from django_spire.core.components.scroll.base_component import ITEM_TEMPLATES, SCROLL_TEMPLATES
 from django_spire.core.components.scroll.templates import template_extends
 from django_spire.core.tests.test_cases import BaseTestCase
 

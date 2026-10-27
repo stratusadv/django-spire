@@ -4,7 +4,7 @@ from abc import ABC
 
 from django_glue import Glue
 
-from django_spire.core.components.confirmation.model.action import (
+from django_spire.core.components.confirmation.model.action_component import (
     BaseModelActionConfirmationComponent,
 )
 

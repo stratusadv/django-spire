@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django_glue import Glue
 
-from django_spire.core.components.form.base import BaseFormComponent
+from django_spire.core.components.form.base_component import BaseFormComponent
 
 if TYPE_CHECKING:
     from django.forms import BaseForm

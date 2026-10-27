@@ -85,7 +85,7 @@ from django_spire.core.components import BaseScrollComponent
 | `batch_size` | How many rows are loaded at a time. Defaults to `25` |
 | `view_template` | The page the component is shown in when served by `as_view()` |
 
-A subclass that overrides `__post_init__(self, request)` must call `super().__post_init__(request)`. The base refuses to run without it.
+The templates are checked the first time each list is shown, and a list whose templates do not extend these raises `ImproperlyConfigured`.
 
 ### `QuerySetScrollComponent`
 

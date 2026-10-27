@@ -72,36 +72,24 @@ class BaseScrollComponent(Glue.Component, ABC):
 
     @abstractmethod
     def get_item(self, key: Any) -> Any | None:
-        """
-        Return the item with this key, or ``None`` when it no longer belongs
-        in the list.
-        """
+        """Return the item with this key, or ``None`` when it no longer belongs in the list."""
 
     @abstractmethod
     def get_item_key(self, item: Any) -> Any:
         """Return the value that identifies ``item`` among all items."""
 
     def introduce(self, request: HttpRequest) -> None:
-        self._base_post_init_ran = False
-        super().introduce(request)
-
-        if not self._base_post_init_ran:
-            message = (
-                f'{type(self).__name__}.__post_init__() must call '
-                'super().__post_init__(request).'
-            )
-            raise ImproperlyConfigured(message)
-
-    def __post_init__(self, request: HttpRequest) -> None:
-        """
-        Check, once per class, that its templates extend the scroll's own. A
-        subclass that overrides this must call ``super().__post_init__(request)``.
-        """
-        self._base_post_init_ran = True
+        """Check, once per class, that its templates extend the scroll's own."""
         scroll_class = type(self)
 
-        if scroll_class in self._validated_classes:
-            return
+        if scroll_class not in self._validated_classes:
+            self._validate_templates()
+            self._validated_classes.add(scroll_class)
+
+        super().introduce(request)
+
+    def _validate_templates(self) -> None:
+        scroll_class = type(self)
 
         if not template_extends(scroll_class.template, SCROLL_TEMPLATES):
             message = (
@@ -127,8 +115,6 @@ class BaseScrollComponent(Glue.Component, ABC):
                 'server, and none of them when they are drawn in the browser.'
             )
             raise ImproperlyConfigured(message)
-
-        self._validated_classes.add(scroll_class)
 
     @property
     def renders_items_on_server(self) -> bool:

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ImproperlyConfigured
 
-from django_spire.core.components.form.model import ModelFormComponent
+from django_spire.core.components.form.model_component import ModelFormComponent
 
 if TYPE_CHECKING:
     from django.forms import ModelForm

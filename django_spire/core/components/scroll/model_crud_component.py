@@ -10,7 +10,7 @@ from django_spire.core.components.confirmation import BaseModelDeleteConfirmatio
 from django_spire.core.components.confirmation import options as delete_options
 from django_spire.core.components.form import ModelFormComponent
 from django_spire.core.components.form import options as form_options
-from django_spire.core.components.scroll.queryset import QuerySetScrollComponent
+from django_spire.core.components.scroll.queryset_component import QuerySetScrollComponent
 
 
 class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):

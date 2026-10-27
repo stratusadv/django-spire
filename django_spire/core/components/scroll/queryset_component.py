@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied, Valid
 from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
 
-from django_spire.core.components.scroll.base import BaseScrollComponent
+from django_spire.core.components.scroll.base_component import BaseScrollComponent
 
 if TYPE_CHECKING:
     from django.db.models import Model, QuerySet

@@ -6,7 +6,7 @@ from typing import Any
 from django.db.models import Model  # noqa: TC002
 from django_glue import Glue
 
-from django_spire.core.components.confirmation.base import BaseConfirmationComponent
+from django_spire.core.components.confirmation.base_component import BaseConfirmationComponent
 
 
 class BaseModelActionConfirmationComponent(BaseConfirmationComponent, ABC):

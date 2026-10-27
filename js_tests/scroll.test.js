@@ -279,7 +279,7 @@ describe('crudScrollComponent', () => {
     test('a load that finds the row gone removes it and ends there', async () => {
         const scroll = await mountScroll(glueComponent([row(1), row(2)]), {name: 'crudScrollComponent'})
 
-        const loaded = await scroll.loadForItem(1, async () => {
+        const loaded = await scroll.loadOrRemoveItem(1, async () => {
             throw codedError('model_instance_not_found')
         })
 
@@ -290,7 +290,7 @@ describe('crudScrollComponent', () => {
     test('a load that fails any other way is passed on and leaves the row', async () => {
         const scroll = await mountScroll(glueComponent([row(1), row(2)]), {name: 'crudScrollComponent'})
 
-        await expect(scroll.loadForItem(1, async () => {
+        await expect(scroll.loadOrRemoveItem(1, async () => {
             throw codedError('not_authorized')
         })).rejects.toThrow('not_authorized')
         expect(scroll.keys).toEqual([1, 2])
@@ -299,7 +299,7 @@ describe('crudScrollComponent', () => {
     test('a load that succeeds returns what it loaded', async () => {
         const scroll = await mountScroll(glueComponent([row(1)]), {name: 'crudScrollComponent'})
 
-        expect(await scroll.loadForItem(1, async () => 'the form')).toBe('the form')
+        expect(await scroll.loadOrRemoveItem(1, async () => 'the form')).toBe('the form')
         expect(scroll.keys).toEqual([1])
     })
 })

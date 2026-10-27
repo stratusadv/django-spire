@@ -306,7 +306,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const confirmation = await this.loadForItem(
+            const confirmation = await this.loadOrRemoveItem(
                 key,
                 () => this.component.load_item_delete_confirmation({pk: key}),
             );
@@ -330,7 +330,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const form = await this.loadForItem(
+            const form = await this.loadOrRemoveItem(
                 key,
                 () => this.component.load_item_form({pk: key}),
             );
@@ -345,9 +345,7 @@ document.addEventListener('alpine:init', () => {
             });
             await Spire.modal.dispatchGlueComponent(form);
         },
-        // A row the server no longer has is taken out of the list, and the
-        // failed load, which the user has already been told about, ends there.
-        async loadForItem(key, load) {
+        async loadOrRemoveItem(key, load) {
             try {
                 return await load();
             } catch (error) {
