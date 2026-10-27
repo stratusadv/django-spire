@@ -15,11 +15,11 @@ class TestStaticFieldSeed(TestCase):
         assert seed.generate_value(0) == 42
 
     def test_returns_bool_true(self):
-        seed = StaticFieldSeed(True)
+        seed = StaticFieldSeed(value=True)
         assert seed.generate_value(0) is True
 
     def test_returns_bool_false(self):
-        seed = StaticFieldSeed(False)
+        seed = StaticFieldSeed(value=False)
         assert seed.generate_value(0) is False
 
     def test_returns_list(self):

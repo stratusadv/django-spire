@@ -1,6 +1,8 @@
 from django.test import TestCase
 
-from django_spire.contrib.seeding.field.seed.mutate.transform_seed import TypeCoercionMutateFieldSeed
+from django_spire.contrib.seeding.field.seed.mutate.transform_seed import (
+    TypeCoercionMutateFieldSeed,
+)
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 
 

@@ -15,10 +15,7 @@ from django_spire.conf import settings
 from django_spire.constants import BASE_URL_NAME
 from django_spire.metric.domain.statistic import models
 from django_spire.metric.domain.statistic.constants import STATISTIC_VALUE_COUNT_MAX
-from django_spire.metric.domain.statistic.navigation import (
-    StatisticGroupNavigation,
-    StatisticNavigation,
-)
+from django_spire.metric.domain.statistic.navigation import StatisticGroupNavigation, StatisticNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -34,7 +31,7 @@ def group_list_view(request: WSGIRequest) -> TemplateResponse:
         groups,
         Glue.Access.CHANGE,
         fields=Glue.fields(
-            'id', 'name', 'description', 'created_datetime', domain=('name', 'sub_domain_name')
+            'id', 'name', 'description', 'is_orphaned', 'created_datetime', domain=('name', 'sub_domain_name')
         ),
     )
 
@@ -42,9 +39,7 @@ def group_list_view(request: WSGIRequest) -> TemplateResponse:
     context = nav.as_context()
 
     return TemplateResponse(
-        request,
-        context=context,
-        template='django_spire/metric/domain/statistic/page/group_list_page.html',
+        request, context=context, template='django_spire/metric/domain/statistic/page/group_list_page.html'
     )
 
 
@@ -64,9 +59,7 @@ def group_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['group'] = group
     context['statistics'] = group.statistics.active().not_deleted()
     return TemplateResponse(
-        request,
-        context=context,
-        template='django_spire/metric/domain/statistic/page/group_detail_page.html',
+        request, context=context, template='django_spire/metric/domain/statistic/page/group_detail_page.html'
     )
 
 
@@ -87,9 +80,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         view_kwargs={'pk': statistic.pk},
     )
 
-    record_path = reverse(
-        f'{BASE_URL_NAME}:api_v1:record_value', kwargs={'statistic_key': str(statistic.key)}
-    )
+    record_path = reverse(f'{BASE_URL_NAME}:api_v1:record_value', kwargs={'statistic_key': str(statistic.key)})
 
     context = nav.as_context()
     context['statistic'] = statistic
@@ -97,13 +88,11 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['sub_domains'] = statistic.group.domain.subdomains.active().order_by('name')
     context['record_path'] = record_path
     context['today_total'] = statistic.services.transformation.total_for_interval()
-    context['values'] = statistic.services.transformation.values_for_interval().order_by(
-        '-timestamp'
-    )[:STATISTIC_VALUE_COUNT_MAX]
+    context['values'] = statistic.services.transformation.values_for_interval().order_by('-timestamp')[
+        :STATISTIC_VALUE_COUNT_MAX
+    ]
     return TemplateResponse(
-        request,
-        context=context,
-        template='django_spire/metric/domain/statistic/page/detail_page.html',
+        request, context=context, template='django_spire/metric/domain/statistic/page/detail_page.html'
     )
 
 
@@ -119,9 +108,7 @@ def storage_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = StatisticNavigation()
     nav.page_title = 'Storage'
-    nav.breadcrumbs.add(
-        name='Storage', view_name='django_spire:metric:domain:statistic:page:storage'
-    )
+    nav.breadcrumbs.add(name='Storage', view_name='django_spire:metric:domain:statistic:page:storage')
 
     context = nav.as_context()
     context['value_total'] = models.StatisticValue.objects.count()
@@ -132,12 +119,8 @@ def storage_view(request: WSGIRequest) -> TemplateResponse:
         .order_by('-value_count', 'name')
     )
     context['retention_days'] = retention_days
-    context['tracking_values_max'] = getattr(
-        settings, 'DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX', 1000
-    )
+    context['tracking_values_max'] = getattr(settings, 'DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX', 1000)
     context['prune_eligible_count'] = prune_eligible_count
     return TemplateResponse(
-        request,
-        context=context,
-        template='django_spire/metric/domain/statistic/page/storage_page.html',
+        request, context=context, template='django_spire/metric/domain/statistic/page/storage_page.html'
     )

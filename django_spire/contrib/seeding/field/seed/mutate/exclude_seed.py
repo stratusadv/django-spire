@@ -1,5 +1,4 @@
 import random
-from typing import Any
 
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate.base import BaseMutateFieldSeed
@@ -13,7 +12,7 @@ class ExcludeMutateFieldSeed(BaseMutateFieldSeed):
     def generate_cache_key(self) -> str:
         return f'{super().generate_cache_key()}:{self.exclude_chance}'
 
-    def _mutate_value(self, seed_index: int) -> BaseFieldSeed | None:
+    def _mutate_value(self, _seed_index: int) -> BaseFieldSeed | None:
         if random.random() < self.exclude_chance:
             return None
 

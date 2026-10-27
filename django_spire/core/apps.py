@@ -13,4 +13,7 @@ class DjangoSpireConfig(AppConfig):
     URLPATTERNS_NAMESPACE = 'core'
 
     def ready(self) -> None:
+        from django_spire.contrib.admin.site import apply_admin_site_title  # noqa: PLC0415
         import django_spire.core.signals  # noqa: F401, PLC0415
+
+        apply_admin_site_title()

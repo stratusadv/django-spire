@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from django.test import TestCase
-from django.utils import timezone
 
 from django_spire.contrib.seeding.field.seed.mutate.corrupt_seed import CorruptMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate.choices import MutateSeverity
@@ -137,7 +136,7 @@ class TestCorruptMutateFieldSeed(TestCase):
             seed.generate_value(0)
 
     def test_chaos_corruption_of_datetime_does_not_error(self):
-        wrapped = StaticFieldSeed(timezone.make_aware(datetime(2026, 8, 14, 12, 30)))
+        wrapped = StaticFieldSeed(datetime(2026, 8, 14, 12, 30, tzinfo=UTC))
         seed = CorruptMutateFieldSeed(
             field_seed=wrapped, corrupt_chance=1.0, severity=MutateSeverity.CHAOS
         )

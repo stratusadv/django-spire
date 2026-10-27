@@ -3,7 +3,6 @@ from django.db import models
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeding.seed.factory.model_factory import ModelSeedFactory
 
 
@@ -14,6 +13,9 @@ class DummyModel(models.Model):
 
     class Meta:
         app_label = 'contrib'
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class TestModelSeedFactory(TestCase):
@@ -73,7 +75,7 @@ class TestModelSeedFactory(TestCase):
 
         seeder = ModelSeeder(count=1, verbose=False)
 
-        with pytest.raises(ValueError) as ctx:
+        with pytest.raises(ValueError, match='Invalid field name') as ctx:
             ModelSeedFactory(seeder=seeder)
 
         assert 'fake_field_1' in str(ctx.value)

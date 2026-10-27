@@ -14,7 +14,9 @@ class TestIndexFieldSeed:
             (10, 5, [10, 15, 20]),
         ],
     )
-    def test_generate_value_produces_correct_sequence(self, index_start, index_step, expected):
+    def test_generate_value_produces_correct_sequence(
+        self, index_start: int, index_step: int, expected: list[int]
+    ):
         seed = IndexFieldSeed(index_start=index_start, index_step=index_step)
         results = [seed.generate_value(i) for i in range(3)]
         assert results == expected

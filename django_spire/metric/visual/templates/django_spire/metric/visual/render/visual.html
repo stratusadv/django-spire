@@ -2,7 +2,7 @@
 {% load django_spire_string_formatting %}
 
 {% if visual.is_chart %}
-    <div class="card px-3 pt-3">
+    <div class="card px-3 pt-3 bg-body">
         <div class="d-flex align-items-start justify-content-between">
             <div>
                 <div class="fs--1 text-uppercase text-secondary fw-semibold">
@@ -51,7 +51,7 @@
         {% endif %}
     </div>
 {% else %}
-    <div class="card {% block visual_render_card_class %}{% endblock %}">
+    <div class="card bg-body {% block visual_render_card_class %}{% endblock %}">
         <div class="card-body {% block visual_render_body_class %}p-3{% endblock %}">
             <div class="d-flex align-items-start justify-content-between">
                 <div>

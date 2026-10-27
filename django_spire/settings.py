@@ -11,7 +11,8 @@ DJANGO_SPIRE_AI_CHAT_ROUTERS = {'SPIRE': 'django_spire.ai.chat.router.SpireChatR
 
 DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS = {
     'KNOWLEDGE_SEARCH': {
-        'INTENT_DESCRIPTION': 'The user is asking about information, help or support that could be found in knowledge base.',
+        'INTENT_DESCRIPTION': 'The user is asking about information, help or support'
+        ' that could be found in knowledge base.',
         'REQUIRED_PERMISSION': 'django_spire_knowledge.view_collection',
         'CHAT_ROUTER': 'django_spire.knowledge.intelligence.router.KnowledgeSearchRouter',
     }
@@ -55,9 +56,15 @@ DJANGO_SPIRE_REMOTE_API_KEY = ''
 
 DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX = 1000
 
+DJANGO_SPIRE_METRIC_REGISTRY = []
+
+DJANGO_SPIRE_METRIC_REMOTE_TARGETS = {}
+
 DJANGO_SPIRE_METRIC_RETENTION_DAYS = 90
 
 DJANGO_SPIRE_METRIC_TRACKING_QUEUE_MAXSIZE = 1000
+
+DJANGO_SPIRE_METRIC_RECORD_WORKERS = 2
 
 DJANGO_SPIRE_METRIC_STATISTIC_KEY = ''
 DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY = ''

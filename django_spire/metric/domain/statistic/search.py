@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from django.db.models import QuerySet
-from django.http import HttpRequest
 from django.urls import reverse
 
 from django_spire.core.search import Search
 from django_spire.metric.domain.statistic import models
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+    from django.db.models import QuerySet
 
 
 class StatisticSearch(Search):
@@ -34,7 +37,7 @@ class StatisticSearch(Search):
         ),
     ]
 
-    def base_queryset(self, request: HttpRequest) -> QuerySet:
+    def base_queryset(self, _request: HttpRequest) -> QuerySet:
         return self.model_class.objects.not_deleted().select_related('group__domain')
 
     def generate_list_url(self) -> str:
@@ -71,7 +74,7 @@ class StatisticGroupSearch(Search):
         )
     ]
 
-    def base_queryset(self, request: HttpRequest) -> QuerySet:
+    def base_queryset(self, _request: HttpRequest) -> QuerySet:
         return self.model_class.objects.not_deleted().select_related('domain')
 
     def generate_list_url(self) -> str:

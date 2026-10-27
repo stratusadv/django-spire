@@ -2,6 +2,7 @@ import pytest
 from django.test import TestCase
 
 from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
+from django_spire.exceptions import DjangoSpireError
 from django_spire.contrib.seeding.seed.seed import Seed
 
 
@@ -73,20 +74,23 @@ class TestSeedContainer(TestCase):
 
 class TestDjangoSpireSeederError(TestCase):
     def test_inherits_from_django_spire_error(self):
-        from django_spire.exceptions import DjangoSpireError
         assert issubclass(DjangoSpireSeederError, DjangoSpireError)
 
     def test_can_be_raised_with_message(self):
-        with pytest.raises(DjangoSpireSeederError, match='Test error message'):
-            raise DjangoSpireSeederError('Test error message')
+        message = 'Test error message'
+
+        with pytest.raises(DjangoSpireSeederError, match=message):
+            raise DjangoSpireSeederError(message)
 
     def test_can_be_raised_without_message(self):
         with pytest.raises(DjangoSpireSeederError):
-            raise DjangoSpireSeederError()
+            raise DjangoSpireSeederError
 
     def test_can_catch_as_parent_exception(self):
-        with pytest.raises(Exception, match='Field name error'):
-            raise DjangoSpireSeederError('Field name error')
+        message = 'Field name error'
+
+        with pytest.raises(Exception, match=message):
+            raise DjangoSpireSeederError(message)
 
     def test_equality_of_messages(self):
         error1 = DjangoSpireSeederError('Same message')

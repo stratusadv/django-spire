@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
-from django.http import HttpRequest
 from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
@@ -13,6 +12,7 @@ from django_spire.metric.visual.presentation.models import Presentation
 from django_spire.metric.visual.signage import models
 
 if TYPE_CHECKING:
+    from django.http import HttpRequest
     from typing import ClassVar
 
 
@@ -26,7 +26,7 @@ class SignageModelForm(forms.ModelForm):
         return max(value, 1) if value is not None else value
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             signage, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -48,7 +48,7 @@ class SignagePresentationModelForm(forms.ModelForm):
         self.fields['presentation'].queryset = Presentation.objects.not_deleted()
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             link, created = self.instance.services.save_model_obj(**self.cleaned_data)
 
