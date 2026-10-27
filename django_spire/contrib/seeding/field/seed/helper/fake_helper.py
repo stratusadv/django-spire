@@ -36,8 +36,14 @@ class FakeFieldSeedHelper(FieldSeedHelper):
     def email(self) -> CallableFieldSeed:
         return CallableFieldSeed(callable_=self.faker.email)
 
-    def file_name(self, category: str | None = None, extension: str | None = None) -> CallableFieldSeed:
-        return CallableFieldSeed(callable_=self.faker.file_name, category=category, extension=extension)
+    def file_name(
+        self, category: str | None = None, extension: str | None = None
+    ) -> CallableFieldSeed:
+        return CallableFieldSeed(
+            callable_=self.faker.file_name,
+            category=category,
+            extension=extension,
+        )
 
     def first_name(self) -> CallableFieldSeed:
         return CallableFieldSeed(callable_=self.faker.first_name)

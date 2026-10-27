@@ -1,0 +1,10 @@
+<button
+    class="btn btn-sm btn-outline-success"
+    type="button"
+    x-bind="asyncButton(async () => {
+        await item.complete()
+        refreshItem(item.$pk)
+    })"
+>
+    Complete
+</button>

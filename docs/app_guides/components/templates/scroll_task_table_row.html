@@ -1,0 +1,6 @@
+{% extends 'django_spire/component/scroll/item/table_item.html' %}
+
+{% block scroll_item_content %}
+    <td>{{ item.name }}</td>
+    <td>{{ item.get_status_display }}</td>
+{% endblock %}

@@ -36,6 +36,7 @@ from django_spire.testing.playwright.components.navigation import (
     UserMenu,
 )
 from django_spire.testing.playwright.components.notification_bell import NotificationBell
+from django_spire.testing.playwright.components.scroll_component import ScrollComponent
 from django_spire.testing.playwright.components.theme_selector import ThemeSelector
 from django_spire.testing.playwright.components.toast import Toast
 
@@ -63,6 +64,7 @@ __all__ = [
     'Modal',
     'NavAccordion',
     'NotificationBell',
+    'ScrollComponent',
     'SideNavigation',
     'ThemeSelector',
     'TitleCard',

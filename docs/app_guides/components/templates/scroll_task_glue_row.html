@@ -1,0 +1,18 @@
+<div class="row border-bottom py-2 align-items-center">
+    <div class="col" x-text="item.name"></div>
+    <div class="col-auto">
+        <select
+            class="form-select form-select-sm"
+            aria-label="Task status"
+            x-model="item.form.status"
+            @change="
+                await item.form.save_model_obj()
+                refreshItem(item.$pk)
+            "
+        >
+            {% for value, label in component.status_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

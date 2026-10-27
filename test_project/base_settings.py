@@ -10,11 +10,9 @@ from typing import TYPE_CHECKING
 
 from dotenv import load_dotenv
 
-from django_spire.metric.domain.seeding.constants import (
-    INTERNAL_TRACKING_STATISTIC_KEY,
-    INTERNAL_TRACKING_SUB_DOMAIN_KEY,
-)
 from test_project.celery_settings import *  # noqa: F403
+
+from test_project.metric_settings import *  # noqa: F403
 
 if TYPE_CHECKING:
     from django.http import HttpRequest
@@ -43,11 +41,6 @@ BASE_FOLDER_NAME = 'test_project'
 # Notification Settings
 DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
 
-# Metric Internal Tracking Settings
-# The statistic + sub-domain the metric click-tracking middleware records against.
-# Both keys come from the seeded metric data (django_spire/metric/domain/seeding).
-DJANGO_SPIRE_METRIC_STATISTIC_KEY = INTERNAL_TRACKING_STATISTIC_KEY
-DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY = INTERNAL_TRACKING_SUB_DOMAIN_KEY
 
 # Email Settings
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
@@ -125,7 +118,6 @@ INSTALLED_APPS += [
     'django_spire.contrib.ordering',
 ]
 
-DJANGO_SPIRE_METRIC_VISUAL_REGIONS = ['home:dashboard:hero', 'home:dashboard:conversion']
 
 INSTALLED_APPS += [
     'test_project.app.activity',
@@ -136,6 +128,7 @@ INSTALLED_APPS += [
     'test_project.app.help_desk',
     'test_project.app.home',
     'test_project.app.landing',
+    'test_project.app.metrics',
     'test_project.app.ordering',
     'test_project.app.history',
     'test_project.app.notification',
@@ -219,11 +212,6 @@ TEMPLATES = [
             'debug': DEBUG,
         },
     }
-]
-
-# Report Registry
-DJANGO_SPIRE_REPORT_REGISTRIES = [
-    'test_project.app.task.reports.task_report_registry.TaskReportRegistry'
 ]
 
 # Search Registry

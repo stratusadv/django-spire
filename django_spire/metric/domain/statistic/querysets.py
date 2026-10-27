@@ -57,6 +57,9 @@ def reference_pattern_q(pattern: str) -> Q:
 
 
 class StatisticGroupQuerySet(HistoryQuerySet, SearchQuerySetMixin):
+    def for_key(self, key: str) -> QuerySet[StatisticGroup]:
+        return self.filter(key=key)
+
     def bulk_filter(self, filter_data: dict) -> QuerySet[StatisticGroup]:
         queryset = self
 

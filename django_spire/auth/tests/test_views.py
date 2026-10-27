@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import re
+
 from django.contrib.auth import get_user
+from django.core import mail
 from django.urls import reverse
 from django.utils import timezone
 
@@ -385,6 +388,89 @@ class PasswordResetDoneViewTestCase(BaseTestCase):
     def test_password_reset_done_page_loads(self) -> None:
         response = self.client.get(reverse('django_spire:auth:admin:password_reset_done'))
         assert response.status_code == 200
+
+
+class PasswordResetConfirmationViewTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.client.logout()
+        self.user = create_user(username='testuser', email='test@example.com')
+        self.user.set_password('testpassword123')
+        self.user.save()
+
+        self.client.post(
+            reverse('django_spire:auth:admin:password_reset'), data={'email': 'test@example.com'}
+        )
+
+        [email] = mail.outbox
+        match = re.search(r'/\S*/password/reset/confirmation/[\w-]+/[\w-]+/', email.body)
+        assert match is not None
+        self.link = match.group(0)
+
+    def open_link(self, link: str):
+        # Django moves the token into the session and redirects before it shows the form.
+        return self.client.get(link, follow=True)
+
+    def set_password(self, new_password1: str, new_password2: str):
+        form_page = self.open_link(self.link)
+        return self.client.post(
+            form_page.redirect_chain[-1][0],
+            data={'new_password1': new_password1, 'new_password2': new_password2},
+        )
+
+    def test_a_valid_link_shows_the_form(self) -> None:
+        response = self.open_link(self.link)
+
+        assert response.status_code == 200
+        assert response.context['validlink'] is True
+        assert 'name="new_password1"' in response.content.decode()
+        assert 'name="new_password2"' in response.content.decode()
+
+    def test_matching_passwords_set_the_new_password(self) -> None:
+        response = self.set_password('new-password-456', 'new-password-456')
+
+        assert response.status_code == 302
+        assert response.url == reverse('django_spire:auth:admin:password_reset_complete')
+
+        self.user.refresh_from_db()
+
+        assert self.user.check_password('new-password-456')
+        assert not self.user.check_password('testpassword123')
+
+    def test_mismatched_passwords_show_the_error(self) -> None:
+        response = self.set_password('new-password-456', 'new-password-789')
+
+        [error] = response.context['form'].errors['new_password2']
+
+        assert response.status_code == 200
+        assert error in response.content.decode()
+
+        self.user.refresh_from_db()
+
+        assert self.user.check_password('testpassword123')
+
+    def test_a_used_link_asks_for_a_new_one(self) -> None:
+        self.set_password('new-password-456', 'new-password-456')
+
+        response = self.open_link(self.link)
+
+        assert response.status_code == 200
+        assert response.context['validlink'] is False
+        assert 'name="new_password1"' not in response.content.decode()
+        assert reverse('django_spire:auth:admin:password_reset') in response.content.decode()
+
+    def test_a_made_up_link_asks_for_a_new_one(self) -> None:
+        link = reverse(
+            'django_spire:auth:admin:password_reset_confirmation',
+            kwargs={'uidb64': 'bogus', 'token': 'bogus-token'},
+        )
+
+        response = self.open_link(link)
+
+        assert response.status_code == 200
+        assert response.context['validlink'] is False
+        assert 'name="new_password1"' not in response.content.decode()
 
 
 class LogoutRedirectViewTestCase(BaseTestCase):

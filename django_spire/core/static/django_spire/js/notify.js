@@ -38,6 +38,22 @@ Spire.notify = {
     },
 
     /**
+     * Tell the user a Glue call failed. The server's own message is written
+     * for developers, so one of a fixed few is shown in its place.
+     * @param {Error} error - the error the call failed with. Glue gives it a
+     *     `code`, and a `status` as well when the whole request failed.
+     */
+    glueError(error) {
+        if (error?.code === 'model_instance_not_found' || error?.status === 404) {
+            Spire.notify.error('That item no longer exists.');
+        } else if (error?.code === 'not_authorized' || error?.status === 403) {
+            Spire.notify.error('You do not have permission to do that.');
+        } else {
+            Spire.notify.error('Something went wrong. Please try again.');
+        }
+    },
+
+    /**
      * @param {string} message
      */
     info(message) {

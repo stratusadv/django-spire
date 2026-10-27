@@ -1,6 +1,11 @@
 <div class="card">
     <div class="card-body">
         <div class="row g-3">
+            {% if subdomain.is_orphaned %}
+                <div class="col-12">
+                    {% include 'django_spire/metric/domain/orphan_badge.html' with is_orphaned=subdomain.is_orphaned %}
+                </div>
+            {% endif %}
             <div class="col">
                 <div class="attribute-label">Description</div>
                 <div>{{ subdomain.description }}</div>

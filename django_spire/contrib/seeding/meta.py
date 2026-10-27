@@ -26,10 +26,14 @@ class SeederMetaData:
             if self.speed_per_seed <= speed:
                 return verbose_output
 
-        return f'\033[31mSlow :(\n -> Recommendation ... Look into Caching and Optimizations\n -> Note {"."*13} If this is Pre-Caching, Ignore this Warning\033[0m'
+        return (
+            f'\033[31mSlow :(\n'
+            f' -> Recommendation ... Look into Caching and Optimizations\n'
+            f' -> Note {"." * 13} If this is Pre-Caching, Ignore this Warning\033[0m'
+        )
 
     def print_overview(self) -> None:
-        print(f'\n\033[4m\033[1m\033[34mSeeding Overview\033[0m')
+        print('\n\033[4m\033[1m\033[34mSeeding Overview\033[0m')
         print(f' -> Speed ............ {self.speed_per_seed_verbose}')
         print(f' -> Run Time ......... {self.run_time:10,.2f}s')
         print(f' -> Seeds ............ {self.total_seed_count:10,}')
