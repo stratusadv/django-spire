@@ -224,6 +224,10 @@
   a theme whose side navigation background is its primary showed only the close button, and
   no way to log out. Themes whose link color is their primary, like the default, look the
   same. A project with its own compiled theme runs `spire_compile_scss` to pick this up.
+- The account menu opened from the mobile menu keeps Bootstrap's dropdown colors. The side
+  navigation's link colors reached its links, so a theme with white navigation links
+  showed Change Password and Logout as white on the white dropdown. Side navigation link
+  styles now leave links inside a `.dropdown-menu` alone.
 
 ### Chores
 
