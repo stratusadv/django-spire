@@ -37,7 +37,7 @@ class CommentScrollComponent(QuerySetScrollComponent):
 
 
 class RenderedCommentScrollComponent(CommentScrollComponent):
-    template = 'django_spire/component/scroll/base.html'
+    template = 'django_spire/component/scroll/scroll.html'
     item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'comment/item/scroll_item.html'
 
@@ -71,7 +71,7 @@ class KeptCommentScrollComponent(CommentScrollComponent):
 
 
 class DefaultOrderingScrollComponent(QuerySetScrollComponent):
-    template = 'django_spire/component/scroll/base.html'
+    template = 'django_spire/component/scroll/scroll.html'
     item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'comment/item/scroll_item.html'
 

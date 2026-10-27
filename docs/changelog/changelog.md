@@ -59,8 +59,9 @@
   - One row is updated at a time with the template's `addItem(key)`, `refreshItem(key)` and
     `removeItem(key)`, or by firing `item_added`, `item_changed` or `item_removed` from a
     callable.
-  - Templates are `django_spire/component/scroll/base.html`, `table.html` and
-    `crud.html`, with `item.html` and `table_row.html` for server-rendered rows.
+  - Templates are `django_spire/component/scroll/scroll.html`, `table_scroll.html` and
+    `crud_scroll.html`, with `item/item.html` and `item/table_item.html` for
+    server-rendered rows.
   - The client behaviour is the `scrollComponent` and `crudScrollComponent` Alpine
     components in `django_spire/js/components/scroll.js`, which Spire's `base.html` loads.
 - `django_spire/button/async_button.html`, a button that runs one awaited call and is off,

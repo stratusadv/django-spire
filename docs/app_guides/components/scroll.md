@@ -79,7 +79,7 @@ from django_spire.core.components import BaseScrollComponent
 
 | Setting | Description |
 |---|---|
-| `template` | The list's template. It must extend `django_spire/component/scroll/base.html` |
+| `template` | The list's template. It must extend `django_spire/component/scroll/scroll.html` |
 | `item_template` | The markup for one row |
 | `item_render_mode` | Where a row is drawn. A `ScrollItemRenderMode`, `CLIENT` by default |
 | `batch_size` | How many rows are loaded at a time. Defaults to `25` |
@@ -98,7 +98,7 @@ from django_spire.core.components import ScrollItemRenderMode
 | Member | Rows are | The row template |
 |---|---|---|
 | `CLIENT` | Sent as data and drawn in the browser | Uses Alpine attributes that read `item`. Optional: a list may fill the `scroll_item` block of its own template instead |
-| `SERVER` | Rendered on the server and sent as HTML | Uses Django tags. Required, and must extend `item.html` or `table_row.html` |
+| `SERVER` | Rendered on the server and sent as HTML | Uses Django tags. Required, and must extend `item/item.html` or `item/table_item.html` |
 
 A row template written for one mode is refused in the other, when the component is first used.
 
@@ -178,25 +178,25 @@ A page link carries a `return_url` query parameter: the route named by `return_u
 
 | Template | Description |
 |---|---|
-| `django_spire/component/scroll/base.html` | The list. Every list template extends it, directly or through one of the next two |
-| `django_spire/component/scroll/table.html` | The list as a table |
-| `django_spire/component/scroll/crud.html` | The list with create, edit and delete |
-| `django_spire/component/scroll/item.html` | One server-rendered row, as a `div` |
-| `django_spire/component/scroll/table_row.html` | One server-rendered row, as a `tr` |
+| `django_spire/component/scroll/scroll.html` | The list. Every list template extends it, directly or through one of the next two |
+| `django_spire/component/scroll/table_scroll.html` | The list as a table |
+| `django_spire/component/scroll/crud_scroll.html` | The list with create, edit and delete |
+| `django_spire/component/scroll/item/item.html` | One server-rendered row, as a `div` |
+| `django_spire/component/scroll/item/table_item.html` | One server-rendered row, as a `tr` |
 | `django_spire/component/page/full_page.html` | A full page that shows one component |
 
 | Block | In | Description |
 |---|---|---|
-| `scroll_header` | `base.html` | Markup above the rows, such as a search box or a New button |
-| `scroll_item` | `base.html` | One row in `CLIENT` mode. Draws `item_template` unless overridden |
-| `scroll_empty` | `base.html` | What is shown when the list has no rows |
-| `scroll_loading` | `base.html` | What is shown while a batch loads |
-| `scroll_footer` | `base.html` | Markup below the rows |
-| `scroll_container_class` | `base.html` | Classes on the list's outer element |
-| `scroll_table_header` | `table.html` | The table's header row |
-| `scroll_table_class` | `table.html` | Classes on the `table` |
-| `scroll_item_content` | `item.html`, `table_row.html` | The content of one server-rendered row |
-| `scroll_item_class` | `item.html`, `table_row.html` | Classes on one server-rendered row |
+| `scroll_header` | `scroll.html` | Markup above the rows, such as a search box or a New button |
+| `scroll_item` | `scroll.html` | One row in `CLIENT` mode. Draws `item_template` unless overridden |
+| `scroll_empty` | `scroll.html` | What is shown when the list has no rows |
+| `scroll_loading` | `scroll.html` | What is shown while a batch loads |
+| `scroll_footer` | `scroll.html` | Markup below the rows |
+| `scroll_container_class` | `scroll.html` | Classes on the list's outer element |
+| `scroll_table_header` | `table_scroll.html` | The table's header row |
+| `scroll_table_class` | `table_scroll.html` | Classes on the `table` |
+| `scroll_item_content` | `item/item.html`, `item/table_item.html` | The content of one server-rendered row |
+| `scroll_item_class` | `item/item.html`, `item/table_item.html` | Classes on one server-rendered row |
 
 ### In the browser
 

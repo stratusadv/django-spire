@@ -30,7 +30,7 @@ class BaseConfirmationComponent(Glue.Component, ABC):
     ``confirm_access`` is the access the user needs in order to confirm.
     """
 
-    template = 'django_spire/component/confirmation/base.html'
+    template = 'django_spire/component/confirmation/confirmation.html'
     confirm_access: ClassVar[Glue.Access] = Glue.Access.VIEW
 
     title: str | None = Glue.ComponentParameter(None)

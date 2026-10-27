@@ -18,12 +18,12 @@ if TYPE_CHECKING:
     from django_glue.response import GlueResponse
 
 
-SCROLL_TEMPLATES = frozenset({'django_spire/component/scroll/base.html'})
+SCROLL_TEMPLATES = frozenset({'django_spire/component/scroll/scroll.html'})
 ITEM_TEMPLATES = frozenset({
-    'django_spire/component/scroll/item.html',
-    'django_spire/component/scroll/table_row.html',
+    'django_spire/component/scroll/item/item.html',
+    'django_spire/component/scroll/item/table_item.html',
 })
-BATCH_TEMPLATE = 'django_spire/component/scroll/batch.html'
+BATCH_TEMPLATE = 'django_spire/component/scroll/scroll_batch.html'
 
 
 class ScrollItemRenderMode(StrEnum):
@@ -56,14 +56,14 @@ class BaseScrollComponent(Glue.Component, ABC):
     the template is Alpine markup that reads ``item``, drawn by the
     ``scroll_item`` block of the component template, which a list may fill in
     itself instead. ``SERVER`` renders each item on the server: the template
-    is required and must extend the scroll's ``item.html`` or
-    ``table_row.html``.
+    is required and must extend the scroll's ``item/item.html`` or
+    ``item/table_item.html``.
 
     A callable that changes an item fires ``item_added``, ``item_changed`` or
     ``item_removed`` with ``key=``, and the list updates that one row.
     """
 
-    template = 'django_spire/component/scroll/base.html'
+    template = 'django_spire/component/scroll/scroll.html'
     item_template: ClassVar[str | None] = None
     item_render_mode: ClassVar[ScrollItemRenderMode] = ScrollItemRenderMode.CLIENT
     batch_size: ClassVar[int] = 25

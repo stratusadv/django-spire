@@ -13,7 +13,7 @@ SCROLL_SELECTOR = '[data-scroll-component]'
 
 class ScrollComponent:
     """
-    Playwright component for django_spire/component/scroll/base.html, the
+    Playwright component for django_spire/component/scroll/scroll.html, the
     scroll a BaseScrollComponent renders.
 
     Row markup belongs to the consumer, so pass the selector matching one row

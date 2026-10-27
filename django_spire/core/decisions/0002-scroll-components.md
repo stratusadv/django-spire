@@ -173,9 +173,9 @@ confirmation component.
   template scroll.
 - The scroll's client behaviour is two Alpine components in
   `django_spire/js/components/scroll.js`, not script in the template, so a list
-  renders only its markup. `base.html` names its component in the
+  renders only its markup. `scroll.html` names its component in the
   `scroll_data_name` block and passes it options in `scroll_options`, which is
-  how `crud.html` swaps in `crudScrollComponent` and its page URLs. A project
+  how `crud_scroll.html` swaps in `crudScrollComponent` and its page URLs. A project
   that does not extend Spire's `base.html` loads that script itself.
 - The sizes and timings above come from single runs on one machine and are
   indicative. Database queries were counted in tests, not in those runs.

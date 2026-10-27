@@ -14,7 +14,7 @@
         <div x-ref="list">
             {% block scroll_rows %}
                 {% if component.renders_items_on_server %}
-                    {% include 'django_spire/component/scroll/batch.html' with batch=component.first_batch %}
+                    {% include 'django_spire/component/scroll/scroll_batch.html' with batch=component.first_batch %}
                 {% else %}
                     <template x-for="(item, itemIndex) in items" :key="keys[itemIndex]">
                         {% block scroll_item %}

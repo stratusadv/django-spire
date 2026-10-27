@@ -11,7 +11,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class TemplateExtendsTestCase(BaseTestCase):
     def test_an_ancestor_extends_itself(self) -> None:
         assert template_extends(
-            'django_spire/component/scroll/base.html',
+            'django_spire/component/scroll/scroll.html',
             SCROLL_TEMPLATES,
         )
 
@@ -21,7 +21,7 @@ class TemplateExtendsTestCase(BaseTestCase):
             SCROLL_TEMPLATES,
         )
         assert template_extends(
-            'django_spire/component/scroll/table.html',
+            'django_spire/component/scroll/table_scroll.html',
             SCROLL_TEMPLATES,
         )
 
@@ -46,7 +46,7 @@ class TemplateExtendsTestCase(BaseTestCase):
         )
         assert not template_extends(
             'comment/item/scroll_item.html',
-            frozenset({'django_spire/component/scroll/table_row.html'}),
+            frozenset({'django_spire/component/scroll/item/table_item.html'}),
         )
         assert not template_extends(
             'comment/item/scroll_item.html',

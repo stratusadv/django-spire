@@ -44,7 +44,7 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
     callables.
     """
 
-    template = 'django_spire/component/scroll/crud.html'
+    template = 'django_spire/component/scroll/crud_scroll.html'
     item_delete_options: ClassVar[ComponentDeleteOptions | PageDeleteOptions | None] = (
         ComponentDeleteOptions()
     )

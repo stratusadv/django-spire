@@ -18,7 +18,7 @@ class BaseModelDeleteConfirmationComponent(BaseModelActionConfirmationComponent,
     A subclass deletes the row in ``perform_action()``.
     """
 
-    template = 'django_spire/component/confirmation/model_delete.html'
+    template = 'django_spire/component/confirmation/model_delete_confirmation.html'
     confirm_access = Glue.Access.DELETE
 
 
