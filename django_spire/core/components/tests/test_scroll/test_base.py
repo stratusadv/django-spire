@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -9,7 +11,7 @@ from django.test import RequestFactory
 from django_glue import Glue
 from django_glue.exceptions import GlueRequestError
 
-from django_spire.core.components.scroll import BaseScrollComponent, ScrollItemRenderMode
+from django_spire.core.components.scroll import BaseScrollComponent
 from django_spire.core.tests.test_cases import BaseTestCase
 
 if TYPE_CHECKING:
@@ -17,7 +19,8 @@ if TYPE_CHECKING:
 
 
 class NumberScrollComponent(BaseScrollComponent):
-    template = 'comment/component/comment_list.html'
+    template = 'django_spire/component/scroll/scroll.html'
+    item_template = 'comment/item/scroll_item.html'
     batch_size = 3
 
     count: int = Glue.ComponentParameter(0)
@@ -37,40 +40,16 @@ class NumberScrollComponent(BaseScrollComponent):
         return item['pk']
 
 
-class RenderedNumberScrollComponent(NumberScrollComponent):
-    template = 'django_spire/component/scroll/scroll.html'
-    item_render_mode = ScrollItemRenderMode.SERVER
-    item_template = 'comment/item/scroll_item.html'
-
-
-class ClientItemTemplateScrollComponent(NumberScrollComponent):
-    template = 'django_spire/component/scroll/scroll.html'
-    item_template = 'comment/item/comment_row.html'
-
-
 class UnextendedTemplateScrollComponent(NumberScrollComponent):
-    template = 'comment/item/comment_row.html'
+    template = 'comment/item/item.html'
 
 
 class UnextendedItemTemplateScrollComponent(NumberScrollComponent):
-    template = 'django_spire/component/scroll/scroll.html'
-    item_render_mode = ScrollItemRenderMode.SERVER
-    item_template = 'comment/item/comment_row.html'
+    item_template = 'task/item/task_row.html'
 
 
-class ServerItemTemplateOnClientScrollComponent(NumberScrollComponent):
-    template = 'django_spire/component/scroll/scroll.html'
-    item_template = 'comment/item/scroll_item.html'
-
-
-class TemplatelessServerScrollComponent(NumberScrollComponent):
-    template = 'django_spire/component/scroll/scroll.html'
-    item_render_mode = ScrollItemRenderMode.SERVER
-
-
-class StringRenderModeScrollComponent(NumberScrollComponent):
-    template = 'django_spire/component/scroll/scroll.html'
-    item_render_mode = 'server'
+class TemplatelessScrollComponent(NumberScrollComponent):
+    item_template = None
 
 
 class SkippedSuperScrollComponent(NumberScrollComponent):
@@ -107,36 +86,20 @@ class BaseScrollComponentTestCase(BaseTestCase):
             assert [item['pk'] for item in batch.items] == keys
             assert batch.has_more is has_more
 
-    def test_first_batch_data_carries_the_first_batch_only_in_data_mode(self) -> None:
-        data_component = self._introduce(NumberScrollComponent(count=4))
-        rendered_component = self._introduce(RenderedNumberScrollComponent(count=4))
-
-        assert data_component.first_batch_data == {
-            'items': [
-                {'pk': 0, 'name': 'Item 0'},
-                {'pk': 1, 'name': 'Item 1'},
-                {'pk': 2, 'name': 'Item 2'},
-            ],
-            'keys': [0, 1, 2],
-            'has_more': True,
-        }
-        assert rendered_component.first_batch_data is None
-
-    def test_load_items_returns_the_batch_at_an_offset(self) -> None:
+    def test_load_items_renders_the_batch_at_an_offset(self) -> None:
         component = self._introduce(NumberScrollComponent(count=7))
         expected_by_offset = {
-            3: ([3, 4, 5], True),
-            6: ([6], False),
-            7: ([], False),
-            100: ([], False),
+            3: (['3', '4', '5'], 'true'),
+            6: (['6'], 'false'),
+            7: ([], 'false'),
+            100: ([], 'false'),
         }
 
         for offset, (keys, has_more) in expected_by_offset.items():
-            batch = component.load_items(component.request, offset)
+            html = component.load_items(component.request, offset).html
 
-            assert batch['keys'] == keys
-            assert [item['pk'] for item in batch['items']] == keys
-            assert batch['has_more'] is has_more
+            assert re.findall(r'data-scroll-key="(\d+)"', html) == keys
+            assert f'data-scroll-has-more="{has_more}"' in html
 
     def test_load_items_rejects_a_negative_offset(self) -> None:
         component = self._introduce(NumberScrollComponent(count=7))
@@ -144,19 +107,10 @@ class BaseScrollComponentTestCase(BaseTestCase):
         with pytest.raises(GlueRequestError):
             component.load_items(component.request, -1)
 
-        assert component.load_items(component.request, 0)['keys'] == [0, 1, 2]
-
-    def test_load_item_returns_one_item_or_nothing(self) -> None:
-        component = self._introduce(NumberScrollComponent(count=4))
-
-        assert component.load_item(component.request, 2) == {
-            'item': {'pk': 2, 'name': 'Item 2'},
-            'key': 2,
-        }
-        assert component.load_item(component.request, 4) is None
+        assert 'data-scroll-key="0"' in component.load_items(component.request, 0).html
 
     def test_load_items_renders_each_item_and_marks_whether_more_remain(self) -> None:
-        component = self._introduce(RenderedNumberScrollComponent(count=4))
+        component = self._introduce(NumberScrollComponent(count=4))
 
         first_html = component.load_items(component.request, 0).html
         last_html = component.load_items(component.request, 3).html
@@ -175,7 +129,7 @@ class BaseScrollComponentTestCase(BaseTestCase):
         assert 'data-scroll-has-more="false"' in last_html
 
     def test_load_item_renders_one_row_without_a_batch_end(self) -> None:
-        component = self._introduce(RenderedNumberScrollComponent(count=4))
+        component = self._introduce(NumberScrollComponent(count=4))
 
         html = component.load_item(component.request, 2).html
 
@@ -197,36 +151,23 @@ class BaseScrollComponentTestCase(BaseTestCase):
 
         assert UnextendedItemTemplateScrollComponent not in BaseScrollComponent._validated_classes
 
-    def test_a_server_row_template_on_a_client_rendered_list_is_refused(self) -> None:
-        with pytest.raises(ImproperlyConfigured, match='item_template'):
-            self._introduce(ServerItemTemplateOnClientScrollComponent())
-
-    def test_rendering_on_the_server_needs_an_item_template(self) -> None:
+    def test_a_list_needs_an_item_template(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='needs an item_template'):
-            self._introduce(TemplatelessServerScrollComponent())
+            self._introduce(TemplatelessScrollComponent())
 
-    def test_a_render_mode_that_is_not_the_enum_is_refused(self) -> None:
-        with pytest.raises(ImproperlyConfigured, match='ScrollItemRenderMode'):
-            self._introduce(StringRenderModeScrollComponent())
-
-    def test_a_client_rendered_list_draws_its_item_template_in_the_item_block(self) -> None:
-        component = self._introduce(ClientItemTemplateScrollComponent(count=2))
+    def test_a_list_renders_its_first_batch_with_the_page(self) -> None:
+        component = self._introduce(NumberScrollComponent(count=2))
 
         html = render_to_string(component.template, {'component': component})
 
-        assert component.renders_items_on_server is False
-        assert component.first_batch_data['keys'] == [0, 1]
-        assert 'x-text="item.name"' in html
-        assert 'rendersRows: false' in html
+        assert 'data-scroll-key="1"' in html
+        assert 'Item 1' in html
+        assert 'rendersRows: true' in html
 
     def test_valid_templates_are_accepted_and_recorded(self) -> None:
         self._introduce(NumberScrollComponent())
-        self._introduce(RenderedNumberScrollComponent())
-        self._introduce(ClientItemTemplateScrollComponent())
 
         assert NumberScrollComponent in BaseScrollComponent._validated_classes
-        assert RenderedNumberScrollComponent in BaseScrollComponent._validated_classes
-        assert ClientItemTemplateScrollComponent in BaseScrollComponent._validated_classes
 
     def test_post_init_that_skips_super_is_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match=r'super\(\)\.__post_init__'):

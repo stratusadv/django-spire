@@ -5,11 +5,7 @@ from typing import TYPE_CHECKING, Any
 from django_glue import Glue
 
 from django_spire.contrib.rest.connector.exceptions import RestConnectorError
-from django_spire.core.components import (
-    BaseScrollComponent,
-    QuerySetScrollComponent,
-    ScrollItemRenderMode,
-)
+from django_spire.core.components import BaseScrollComponent, QuerySetScrollComponent
 from test_project.app.rest.models import Pirate
 from test_project.app.rest.navigation import RestNavigation
 from test_project.app.rest.rest import PirateRestSchema
@@ -20,7 +16,6 @@ if TYPE_CHECKING:
 
 
 class PirateApiListComponent(BaseScrollComponent):
-    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'rest/item/pirate_api_row.html'
     view_template = 'django_spire/component/page/full_page.html'
 
@@ -47,7 +42,6 @@ class PirateApiListComponent(BaseScrollComponent):
 
 class PirateTableComponent(QuerySetScrollComponent):
     template = 'rest/component/pirate_table.html'
-    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'rest/item/pirate_row.html'
     view_template = 'django_spire/component/page/full_page.html'
 

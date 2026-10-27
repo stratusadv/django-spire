@@ -6,16 +6,10 @@ from typing import Any, ClassVar
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django_glue import Glue
 
-from django_spire.core.components.confirmation import (
-    BaseModelDeleteConfirmationComponent,
-    ComponentDeleteOptions,
-    PageDeleteOptions,
-)
-from django_spire.core.components.form import (
-    ComponentFormOptions,
-    ModelFormComponent,
-    PageFormOptions,
-)
+from django_spire.core.components.confirmation import BaseModelDeleteConfirmationComponent
+from django_spire.core.components.confirmation import options as delete_options
+from django_spire.core.components.form import ModelFormComponent
+from django_spire.core.components.form import options as form_options
 from django_spire.core.components.scroll.queryset import QuerySetScrollComponent
 
 
@@ -26,15 +20,15 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
     perform them, and each takes the item or its key.
 
     ``item_form_options`` says how a row is created and edited: a
-    :class:`ComponentFormOptions` shows a form component in a modal, and
-    a :class:`PageFormOptions` sends the user to a page. Left as ``None``,
-    the list has no create or edit.
+    ``ModelCrudScrollComponent.FormOptions`` shows a form component in a
+    modal, and a ``ModelCrudScrollComponent.PageFormOptions`` sends the user
+    to a page. Left as ``None``, the list has no create or edit.
 
     ``item_delete_options`` says how a row is deleted: a
-    :class:`ComponentDeleteOptions` shows a confirmation component in a
-    modal, and a :class:`PageDeleteOptions` sends the user to a page. The
-    default is a confirmation that soft-deletes the row with
-    ``set_deleted()``. Left as ``None``, the list has no delete.
+    ``ModelCrudScrollComponent.DeleteOptions`` shows a confirmation component
+    in a modal, and a ``ModelCrudScrollComponent.PageDeleteOptions`` sends the
+    user to a page. The default is a confirmation that soft-deletes the row
+    with ``set_deleted()``. Left as ``None``, the list has no delete.
 
     Only rows in ``get_queryset()`` can be edited or deleted. The browser
     fetches the form and the confirmation with ``load_item_form()`` and
@@ -44,38 +38,43 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
     callables.
     """
 
+    DeleteOptions = delete_options.DeleteOptions
+    PageDeleteOptions = delete_options.PageDeleteOptions
+    FormOptions = form_options.FormOptions
+    PageFormOptions = form_options.PageFormOptions
+
     template = 'django_spire/component/scroll/crud_scroll.html'
-    item_delete_options: ClassVar[ComponentDeleteOptions | PageDeleteOptions | None] = (
-        ComponentDeleteOptions()
-    )
-    item_form_options: ClassVar[ComponentFormOptions | PageFormOptions | None] = None
+    item_delete_options: ClassVar[DeleteOptions | PageDeleteOptions | None] = DeleteOptions()
+    item_form_options: ClassVar[FormOptions | PageFormOptions | None] = None
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
         if cls.item_delete_options is not None and not isinstance(
             cls.item_delete_options,
-            ComponentDeleteOptions | PageDeleteOptions,
+            cls.DeleteOptions | cls.PageDeleteOptions,
         ):
             message = (
-                f'{cls.__name__}.item_delete_options must be a ComponentDeleteOptions, a '
-                'PageDeleteOptions, or None.'
+                f'{cls.__name__}.item_delete_options must be a '
+                'ModelCrudScrollComponent.DeleteOptions, a '
+                'ModelCrudScrollComponent.PageDeleteOptions, or None.'
             )
             raise ImproperlyConfigured(message)
 
         if cls.item_form_options is not None and not isinstance(
             cls.item_form_options,
-            ComponentFormOptions | PageFormOptions,
+            cls.FormOptions | cls.PageFormOptions,
         ):
             message = (
-                f'{cls.__name__}.item_form_options must be a ComponentFormOptions, a '
-                'PageFormOptions, or None.'
+                f'{cls.__name__}.item_form_options must be a '
+                'ModelCrudScrollComponent.FormOptions, a '
+                'ModelCrudScrollComponent.PageFormOptions, or None.'
             )
             raise ImproperlyConfigured(message)
 
     @Glue.attr(required_access=Glue.Access.DELETE)
     def load_item_delete_confirmation(self, pk: int | str) -> BaseModelDeleteConfirmationComponent:
-        if not isinstance(self.item_delete_options, ComponentDeleteOptions):
+        if not isinstance(self.item_delete_options, self.DeleteOptions):
             message = f'{type(self).__name__} has no confirmation component to delete a row with.'
             raise PermissionDenied(message)
 
@@ -86,7 +85,7 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def load_item_form(self, pk: int | str | None = None) -> ModelFormComponent:
-        if not isinstance(self.item_form_options, ComponentFormOptions):
+        if not isinstance(self.item_form_options, self.FormOptions):
             message = f'{type(self).__name__} has no form component to create or edit a row with.'
             raise PermissionDenied(message)
 

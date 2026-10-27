@@ -1,16 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django_glue import Glue
 
-from django_spire.core.components import (
-    ComponentFormOptions,
-    GlueScrollItemsMixin,
-    ModelCrudScrollComponent,
-    ModelFormComponent,
-    PageDeleteOptions,
-)
+from django_spire.core.components import ModelCrudScrollComponent, ModelFormComponent
 from test_project.app.task.choices import TaskOrderingChoices, TaskStatusChoices
 from test_project.app.task.forms import TaskModalForm
 from test_project.app.task.models import Task
@@ -21,13 +15,13 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
 
 
-class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
+class TaskListComponent(ModelCrudScrollComponent):
     template = 'task/component/task_list.html'
     item_template = 'task/item/task_row.html'
     view_template = 'django_spire/component/page/full_page.html'
-    fields = ('name', 'status')
+    glue_items = True
 
-    item_form_options = ComponentFormOptions(
+    item_form_options = ModelCrudScrollComponent.FormOptions(
         form_class=TaskModalForm,
         template='task/component/task_form_modal.html',
     )
@@ -61,8 +55,14 @@ class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
 
         return queryset.order_by(TaskOrderingChoices.NAME)
 
-    def get_glue_item(self, item: Task, name: str, **kwargs: Any) -> Glue.Model:
-        return super().get_glue_item(item, name, form=TaskModalForm, **kwargs)
+    def get_glue_item(self, item: Task, name: str) -> Glue.Model:
+        return Glue.model(
+            target=item,
+            unique_name=name,
+            access=self.access,
+            fields=('name', 'status'),
+            form=TaskModalForm,
+        )
 
     @Glue.attr
     def child_list(self, pk: int) -> TaskChildListComponent:
@@ -78,8 +78,8 @@ class TaskChildListComponent(TaskListComponent):
     template = 'task/component/task_child_list.html'
     batch_size = 10
 
-    item_delete_options = PageDeleteOptions('task:form:delete')
-    item_form_options = ComponentFormOptions(component=TaskFormComponent)
+    item_delete_options = ModelCrudScrollComponent.PageDeleteOptions('task:form:delete')
+    item_form_options = ModelCrudScrollComponent.FormOptions(component=TaskFormComponent)
 
     parent_id: int = Glue.attr(parameter=True)
 

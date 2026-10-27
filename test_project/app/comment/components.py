@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.comment.navigation import CommentNavigation
-from django_spire.core.components import ModelCrudScrollComponent, PageFormOptions
+from django_spire.core.components import ModelCrudScrollComponent
 from test_project.app.comment.models import CommentExample
 
 if TYPE_CHECKING:
@@ -15,8 +15,7 @@ class CommentListComponent(ModelCrudScrollComponent):
     template = 'comment/component/comment_list.html'
     item_template = 'comment/item/comment_row.html'
     view_template = 'django_spire/component/page/full_page.html'
-    fields = ('name', 'description')
-    item_form_options = PageFormOptions('comment:page:form')
+    item_form_options = ModelCrudScrollComponent.PageFormOptions('comment:page:form')
 
     def __post_init__(self, request: HttpRequest) -> None:
         super().__post_init__(request)

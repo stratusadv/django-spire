@@ -5,11 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.forms import ModelForm
 from django_glue import Glue
 
-from django_spire.core.components import (
-    ComponentFormOptions,
-    ModelFormComponent,
-    PageFormOptions,
-)
+from django_spire.core.components.form import FormOptions, ModelFormComponent, PageFormOptions
 from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.comment.models import CommentExample
 from test_project.app.comment.tests.factories import create_test_comment_example
@@ -28,10 +24,10 @@ class CommentFormComponent(ModelFormComponent):
     form_class = CommentForm
 
 
-class ComponentFormOptionsTestCase(BaseTestCase):
+class FormOptionsTestCase(BaseTestCase):
     def test_a_form_class_and_template_build_the_generic_form_component(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
-        options = ComponentFormOptions(form_class=CommentForm, template=FORM_TEMPLATE)
+        options = FormOptions(form_class=CommentForm, template=FORM_TEMPLATE)
 
         form = options.build_component(pk=comment.pk, access=Glue.Access.CHANGE)
 
@@ -42,7 +38,7 @@ class ComponentFormOptionsTestCase(BaseTestCase):
         assert form.access == Glue.Access.CHANGE
 
     def test_a_component_is_built_with_its_own_form_and_template(self) -> None:
-        options = ComponentFormOptions(component=CommentFormComponent)
+        options = FormOptions(component=CommentFormComponent)
 
         form = options.build_component(pk=None, access=Glue.Access.CHANGE)
 
@@ -53,20 +49,20 @@ class ComponentFormOptionsTestCase(BaseTestCase):
 
     def test_a_component_beside_a_form_class_or_template_is_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='not both'):
-            ComponentFormOptions(component=CommentFormComponent, form_class=CommentForm)
+            FormOptions(component=CommentFormComponent, form_class=CommentForm)
 
         with pytest.raises(ImproperlyConfigured, match='not both'):
-            ComponentFormOptions(component=CommentFormComponent, template=FORM_TEMPLATE)
+            FormOptions(component=CommentFormComponent, template=FORM_TEMPLATE)
 
     def test_half_of_the_form_class_and_template_pair_is_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='together with'):
-            ComponentFormOptions(form_class=CommentForm)
+            FormOptions(form_class=CommentForm)
 
         with pytest.raises(ImproperlyConfigured, match='together with'):
-            ComponentFormOptions(template=FORM_TEMPLATE)
+            FormOptions(template=FORM_TEMPLATE)
 
         with pytest.raises(ImproperlyConfigured, match='together with'):
-            ComponentFormOptions()
+            FormOptions()
 
 
 class PageFormOptionsTestCase(BaseTestCase):

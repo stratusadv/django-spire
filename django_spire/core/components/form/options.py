@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, kw_only=True)
-class ComponentFormOptions:
+class FormOptions:
     """
     A row is created and edited in a form component, shown in a modal. Give
     the application's own ``component``, or a ``form_class`` with the
@@ -30,14 +30,14 @@ class ComponentFormOptions:
             self.form_class is not None or self.template is not None
         ):
             message = (
-                'ComponentFormOptions takes a component, or a form_class with a template, '
+                'FormOptions takes a component, or a form_class with a template, '
                 'not both: a component declares its own form and template.'
             )
             raise ImproperlyConfigured(message)
 
         if self.component is None and (self.form_class is None or self.template is None):
             message = (
-                'ComponentFormOptions needs a component, or a form_class together with a '
+                'FormOptions needs a component, or a form_class together with a '
                 'template.'
             )
             raise ImproperlyConfigured(message)

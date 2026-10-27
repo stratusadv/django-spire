@@ -35,16 +35,17 @@ supplies `get_items(offset, limit)` in a stable order, `get_item(key)` and
 holds. The base asks for `batch_size + 1` items, trims, and reports whether
 there are more. The limit never comes from the client.
 
-**Rows are rendered one of two ways**, chosen by `item_render_mode`. `SERVER`
-renders each item on the server and a batch arrives as HTML. `CLIENT`, the
-default, sends items as data and renders them in the `scroll_item` block.
-`item_template` is the markup for one row in either mode, so the two settings
-are independent: the template is always the row, and the mode says only where
-it is drawn. A row template is written for one mode, Django tags for the server
-and Alpine attributes for the browser, and the base refuses one used in the
-other. This is one branch in the base and its template, taken deliberately:
-making rendering a class would cross it with the item source and need a class
-for each pair.
+**Rows are rendered on the server.** `item_template` is the markup for one row,
+written with Django tags, and a batch arrives as HTML. The row receives the
+item itself, so it can use model methods, related objects and `{% url %}`, and
+Alpine attributes in it still reach the list and the component. The only rows
+drawn in the browser are Glue rows (below), because only a row that edits
+itself in place needs to be data in the browser. Plain data rows were
+considered and left out: everything they show, a server row shows too, and
+each list would have had to choose between two ways of writing the same
+read-only row. A row template is written for one of the two, Django tags for
+the server and Alpine attributes for Glue rows, and the base refuses one used
+for the other.
 
 **Controls belong to the application.** A subclass declares any it wants as
 editable attributes and reads them where it selects its items. A control
@@ -64,15 +65,27 @@ that finishes after a newer reload began is discarded.
 **`QuerySetScrollComponent`** takes its items from `get_queryset()`. It
 appends the primary key to the queryset's ordering, so that the order is total
 and offsets are stable. An unordered queryset is therefore listed by primary
-key. Data rows are dicts of `pk` and `fields`. `get_instance(pk)` returns one
+key. Each item is a model instance. `get_instance(pk)` returns one
 row of the queryset for a callable that acts on it, and reports a row outside
 the list as Glue's 404.
 
-**`GlueScrollItemsMixin`** sends each row of a queryset scroll as a Glue model.
-It holds everything about Glue rows, including `get_glue_item()`, so the
-queryset scroll does not know it exists, and it refuses to be mixed into any
-other kind of scroll. The row markup can call a model's Glue methods and
-services and save its fields with no callable on the component. A load returns
+**Glue rows are one setting on the queryset scroll.** `glue_items = True`
+sends each row as the Glue model the list's `get_glue_item(item, name)` builds,
+and a list that sets it without overriding the hook is refused when it is
+defined. There is no default build from a list of fields: the hook is where a
+list states exactly what a row exposes, its fields, access and form, since a
+row with `CHANGE` access can save those fields from the browser. The row
+markup can call a model's Glue methods and services and save its fields with
+no callable on the component.
+
+Glue fixes whether a callable returns Glue objects from its return annotation,
+when the class is defined, so one callable cannot return HTML for one list and
+Glue models for another. Glue rows therefore have their own pair,
+`load_glue_items` and `load_glue_item`, beside `load_items` and `load_item`.
+Every queryset scroll declares all four, the template tells the client which
+pair to call, and each pair refuses to run on a list whose rows are the other
+kind. The Glue pair stays off `BaseScrollComponent`, since its rows are model
+instances. A load returns
 a `SequenceGlue` of up to `batch_size` rows, and a full batch means there may
 be more, because Glue does not allow Glue objects inside a plain result to say
 so. A list whose length is an exact multiple of the batch size makes one empty
@@ -86,19 +99,22 @@ released on its own, in each case after Alpine has stopped rendering it.
 **Glue rows never arrive with the render.** Glue does not run a child-producing
 property again when its component refreshes (django-glue state-model.md §10),
 so a first batch held in a property would never follow a control change. Every
-batch comes from the `load_items` callable, and a reload is a refresh followed
-by a load.
+batch comes from the `load_glue_items` callable, and a reload is a refresh
+followed by a load.
 
 **`ModelCrudScrollComponent`** adds ready-made actions. `item_form_options`
-says how a row is created and edited: `ComponentFormOptions` shows a form
-component in a modal, and `PageFormOptions` sends the user to a page. Both live
-in the form package, since nothing in them is about lists.
+says how a row is created and edited: `FormOptions` shows a form component in
+a modal, and `PageFormOptions` sends the user to a page.
 `item_delete_options` says how a row is deleted in the same two ways:
-`ComponentDeleteOptions` shows a confirmation component in a modal, which
-soft-deletes by default, and `PageDeleteOptions` sends the user to a delete
-page, so a list can use the delete view its app already has. The kind of
-options object is the mode, so there is no mode setting that could disagree
-with the others. A page link carries a `return_url`, the route named by
+`DeleteOptions` shows a confirmation component in a modal, which soft-deletes
+by default, and `PageDeleteOptions` sends the user to a delete page, so a list
+can use the delete view its app already has. The kind of options object is the
+mode, so there is no mode setting that could disagree with the others. The
+modal is the plain name because it is the list's own flow, and the page is the
+named variant. The four classes are defined in the form and confirmation
+packages, beside the components they build, and `ModelCrudScrollComponent`
+carries them as class attributes, so a list writes
+`ModelCrudScrollComponent.FormOptions(...)` with nothing else to import. A page link carries a `return_url`, the route named by
 `return_url_name` or else the address the list is shown at, which a page
 following Spire's convention sends the user back to.
 
@@ -150,10 +166,22 @@ confirmation component.
   `FormOptions.page(...)`. Each would be a one-line pass-through to a
   constructor that already takes keyword arguments, on a base class that names
   its own subclasses.
-- **A mixin for server-rendered rows**, to match the Glue rows mixin. It would
-  have removed the base's branches on the render mode, at the cost of a second
-  name in every server-rendered list's class line. A setting was preferred for
-  being one explicit line.
+- **A mixin for Glue rows**, supplying Glue versions of `load_items` and
+  `load_item`. It worked only when listed ahead of the scroll class, and listed
+  after it the list silently sent HTML. It also needed its own checks that it
+  sat on a queryset scroll and not on one rendered on the server.
+- **Rewriting the loads when the class is defined**, so that one pair of
+  callables could follow the setting. It fights how Glue reads a callable's
+  return type, and is harder to follow than a second pair.
+- **Deciding Glue rows without a setting**: from whether the row template
+  extends a server row template, from whether `get_glue_item()` is overridden,
+  or from a non-empty list of fields. Each makes the choice to put live,
+  possibly editable models in the browser a side effect of something else, and
+  a slip in the template or the class would switch it silently.
+- **Plain data rows drawn in the browser**, as a third kind beside server rows
+  and Glue rows. They cost less to send than either, but show nothing a server
+  row cannot, and only the columns they list. The smaller payload did not
+  justify a second way to write a read-only row.
 - **Hooks for building the form and confirmation components.** Nothing passes
   parameters from a list into the component it opens yet. When something does,
   the hook is a `get_` method the `load_` callable calls.
@@ -164,10 +192,15 @@ confirmation component.
 ## Consequences
 
 - A Glue row costs about 2.9 KB with three fields, and about 6.6 KB with a form
-  attached, against a small fraction of that for a dict. A list opts in with
-  the mixin.
-- A reload of Glue rows is two requests. Dict and server-rendered reloads are
-  one.
+  attached, against the HTML of a server-rendered row. A list opts in with
+  `glue_items`.
+- Every queryset scroll declares four load callables, two of which refuse to
+  run for that list, and a Glue list writes its own `Glue.model(...)` call in
+  `get_glue_item()`.
+- A reload of Glue rows is two requests. A server-rendered reload is one.
+- A server row can read related objects, so a list that shows them loads them
+  in `get_queryset()` with `select_related` or `prefetch_related` to keep a
+  batch at one query.
 - Offset paging can repeat or skip a row when rows are inserted while a user
   scrolls. Continuation paging (ADR 0001) does not, and stays available in the
   template scroll.

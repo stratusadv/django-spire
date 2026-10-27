@@ -1,15 +1,17 @@
-{% load django_glue %}
+{% extends 'django_spire/component/scroll/item/item.html' %}
 
-<div class="row border-bottom py-2 align-items-center">
+{% block scroll_item_class %}row border-bottom py-2 align-items-center{% endblock %}
+
+{% block scroll_item_content %}
     <div class="col">
-        <a class="row" :href="{% js_url 'comment:page:detail' pk='item.pk' %}">
+        <a class="row" href="{% url 'comment:page:detail' pk=item.pk %}">
             <div class="col-6">
                 <div class="attribute-label">Name</div>
-                <div x-text="item.name"></div>
+                <div data-comment-name>{{ item.name }}</div>
             </div>
             <div class="col-6">
                 <div class="attribute-label">Description</div>
-                <div x-text="item.description"></div>
+                <div>{{ item.description }}</div>
             </div>
         </a>
     </div>
@@ -18,9 +20,9 @@
             class="btn btn-sm btn-outline-secondary"
             type="button"
             title="Edit Comment"
-            @click="editItem(item)"
+            @click="editItem({{ item.pk }})"
         >
             <i class="bi bi-pencil"></i>
         </button>
     </div>
-</div>
+{% endblock %}

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db import connection
+from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django.test.utils import CaptureQueriesContext
 from django_glue import Glue
@@ -13,12 +14,7 @@ from django_glue.glue.objects.django.model.object import ModelGlue
 from django_glue.glue.sequence import SequenceGlue
 
 from django_spire.api.models import ApiAccess
-from django_spire.core.components.scroll import (
-    BaseScrollComponent,
-    GlueScrollItemsMixin,
-    QuerySetScrollComponent,
-    ScrollItemRenderMode,
-)
+from django_spire.core.components.scroll import BaseScrollComponent, QuerySetScrollComponent
 from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.comment.models import CommentExample
 from test_project.app.comment.tests.factories import create_test_comment_example
@@ -28,31 +24,20 @@ if TYPE_CHECKING:
 
 
 class CommentScrollComponent(QuerySetScrollComponent):
-    template = 'comment/component/comment_list.html'
+    template = 'django_spire/component/scroll/scroll.html'
+    item_template = 'comment/item/scroll_item.html'
     batch_size = 2
-    fields = ('name',)
 
     def get_queryset(self) -> QuerySet[CommentExample]:
         return CommentExample.objects.order_by('name')
 
 
-class RenderedCommentScrollComponent(CommentScrollComponent):
-    template = 'django_spire/component/scroll/scroll.html'
-    item_render_mode = ScrollItemRenderMode.SERVER
-    item_template = 'comment/item/scroll_item.html'
+class GlueItemCommentScrollComponent(CommentScrollComponent):
+    item_template = None
+    glue_items = True
 
-
-class GlueItemCommentScrollComponent(GlueScrollItemsMixin, CommentScrollComponent):
-    pass
-
-
-class FieldlessGlueItemCommentScrollComponent(GlueItemCommentScrollComponent):
-    fields = ()
-
-
-class WiderGlueItemCommentScrollComponent(GlueItemCommentScrollComponent):
-    def get_glue_item(self, item: CommentExample, name: str, **kwargs: Any) -> ModelGlue:
-        return super().get_glue_item(item, name, fields=('name', 'description'), **kwargs)
+    def get_glue_item(self, item: CommentExample, name: str) -> ModelGlue:
+        return Glue.model(target=item, unique_name=name, access=self.access, fields=('name',))
 
 
 class UnorderedCommentScrollComponent(CommentScrollComponent):
@@ -72,7 +57,6 @@ class KeptCommentScrollComponent(CommentScrollComponent):
 
 class DefaultOrderingScrollComponent(QuerySetScrollComponent):
     template = 'django_spire/component/scroll/scroll.html'
-    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'comment/item/scroll_item.html'
 
     def get_queryset(self) -> QuerySet[ApiAccess]:
@@ -80,19 +64,16 @@ class DefaultOrderingScrollComponent(QuerySetScrollComponent):
 
 
 class QuerySetScrollComponentTestCase(BaseTestCase):
-    def test_data_mode_items_hold_only_the_key_and_the_listed_fields(self) -> None:
+    def _introduce(self, component: BaseScrollComponent) -> BaseScrollComponent:
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+        request.session = self.client.session
+
+        return Glue.object(request, component)
+
+    def test_items_are_model_instances(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
         component = CommentScrollComponent()
-
-        items = component.get_items(0, 3)
-
-        assert items == [{'pk': comment.pk, 'name': 'Budget Review'}]
-        assert 'description' not in items[0]
-        assert component.get_item_key(items[0]) == comment.pk
-
-    def test_rendered_mode_items_are_model_instances(self) -> None:
-        comment = create_test_comment_example(name='Budget Review')
-        component = RenderedCommentScrollComponent()
 
         items = component.get_items(0, 3)
 
@@ -100,32 +81,38 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         assert isinstance(items[0], CommentExample)
         assert component.get_item_key(items[0]) == comment.pk
 
-    def test_glue_items_declares_its_loads_as_returning_glue_objects(self) -> None:
-        request = RequestFactory().get('/')
-        request.user = self.super_user
-        request.session = self.client.session
+    def test_the_glue_loads_return_glue_objects_and_the_html_loads_do_not(self) -> None:
+        callables = self._introduce(CommentScrollComponent()).get_static_data()['callables']
 
-        glue_callables = Glue.object(
-            request,
-            GlueItemCommentScrollComponent(),
-        ).get_static_data()['callables']
-        dict_callables = Glue.object(
-            request,
-            CommentScrollComponent(),
-        ).get_static_data()['callables']
+        assert callables['load_glue_items']['returns_glue'] is True
+        assert callables['load_glue_item']['returns_glue'] is True
+        assert callables['load_items']['returns_glue'] is False
+        assert callables['load_item']['returns_glue'] is False
 
-        assert glue_callables['load_items']['returns_glue'] is True
-        assert glue_callables['load_item']['returns_glue'] is True
-        assert dict_callables['load_items']['returns_glue'] is False
-        assert dict_callables['load_item']['returns_glue'] is False
+    def test_a_list_uses_only_the_loads_for_its_kind_of_row(self) -> None:
+        comment = create_test_comment_example(name='Budget Review')
+        rendered = self._introduce(CommentScrollComponent())
+        glue = self._introduce(GlueItemCommentScrollComponent())
+
+        with pytest.raises(PermissionDenied, match='renders its rows on the server'):
+            rendered.load_glue_items(offset=0)
+
+        with pytest.raises(PermissionDenied, match='renders its rows on the server'):
+            rendered.load_glue_item(key=comment.pk)
+
+        with pytest.raises(PermissionDenied, match='sends its rows as Glue items'):
+            glue.load_items(glue.request, 0)
+
+        with pytest.raises(PermissionDenied, match='sends its rows as Glue items'):
+            glue.load_item(glue.request, comment.pk)
 
     def test_a_glue_items_batch_holds_up_to_a_batch_of_glue_models(self) -> None:
         comments = [create_test_comment_example(name=f'Comment {number}') for number in range(5)]
         component = GlueItemCommentScrollComponent()
 
-        batch = component.load_items(offset=0)
-        last_batch = component.load_items(offset=4)
-        past_the_end = component.load_items(offset=6)
+        batch = component.load_glue_items(offset=0)
+        last_batch = component.load_glue_items(offset=4)
+        past_the_end = component.load_glue_items(offset=6)
 
         assert isinstance(batch, SequenceGlue)
         assert [type(item) for item in batch.items] == [ModelGlue, ModelGlue]
@@ -140,54 +127,44 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         comment = create_test_comment_example(name='Budget Review')
         component = GlueItemCommentScrollComponent()
 
-        assert component.load_item(key=comment.pk).instance == comment
-        assert component.load_item(key=comment.pk + 1) is None
+        row = component.load_glue_item(key=comment.pk)
 
-    def test_an_overridden_glue_item_passes_its_options_through_super(self) -> None:
-        comment = create_test_comment_example(name='Budget Review')
+        assert row.instance == comment
+        assert row.fields == ('name',)
+        assert row.name == f'item_{comment.pk}'
+        assert component.load_glue_item(key=comment.pk + 1) is None
 
-        default_item = GlueItemCommentScrollComponent().load_item(key=comment.pk)
-        wider_item = WiderGlueItemCommentScrollComponent().load_item(key=comment.pk)
+    def test_glue_items_without_get_glue_item_are_refused_by_name(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='HooklessGlueItemScrollComponent'):
 
-        assert default_item.fields == ('name',)
-        assert wider_item.fields == ('name', 'description')
-        assert wider_item.instance == comment
-        assert wider_item.name == f'item_{comment.pk}'
+            class HooklessGlueItemScrollComponent(CommentScrollComponent):
+                glue_items = True
 
-    def test_glue_items_without_fields_are_refused_by_name(self) -> None:
+    def test_glue_items_sends_no_rows_with_the_render(self) -> None:
         create_test_comment_example(name='Budget Review')
-
-        with pytest.raises(ImproperlyConfigured, match='FieldlessGlueItemCommentScrollComponent'):
-            FieldlessGlueItemCommentScrollComponent().load_items(offset=0)
-
-    def test_glue_items_sends_no_first_batch_with_the_render(self) -> None:
-        create_test_comment_example(name='Budget Review')
+        component = self._introduce(GlueItemCommentScrollComponent())
 
         with self.assertNumQueries(0):
-            assert GlueItemCommentScrollComponent().first_batch_data is None
+            html = render_to_string(component.template, {'component': component})
 
-        assert CommentScrollComponent().first_batch_data['keys'] != []
+        assert 'data-scroll-key' not in html
+        assert 'rendersRows: false' in html
 
-    def test_glue_items_take_a_client_item_template(self) -> None:
+    def test_glue_items_take_an_item_template_drawn_in_the_browser(self) -> None:
         class TemplatedGlueItemScrollComponent(GlueItemCommentScrollComponent):
-            item_template = 'comment/item/comment_row.html'
+            item_template = 'task/item/task_row.html'
 
-        assert TemplatedGlueItemScrollComponent().renders_items_on_server is False
+        component = self._introduce(TemplatedGlueItemScrollComponent())
 
-    def test_glue_items_on_a_scroll_that_is_not_a_queryset_scroll_are_refused(self) -> None:
-        with pytest.raises(ImproperlyConfigured, match='without a QuerySetScrollComponent'):
+        assert component.renders_items_on_server is False
+        assert TemplatedGlueItemScrollComponent in BaseScrollComponent._validated_classes
 
-            class GlueItemBaseScrollComponent(GlueScrollItemsMixin, BaseScrollComponent):
-                pass
+    def test_glue_items_with_a_row_template_rendered_on_the_server_are_refused(self) -> None:
+        class RenderedGlueItemScrollComponent(GlueItemCommentScrollComponent):
+            item_template = 'comment/item/scroll_item.html'
 
-    def test_glue_items_rendered_on_the_server_are_refused(self) -> None:
-        with pytest.raises(ImproperlyConfigured, match='item_render_mode SERVER'):
-
-            class RenderedGlueItemScrollComponent(
-                GlueScrollItemsMixin,
-                RenderedCommentScrollComponent,
-            ):
-                pass
+        with pytest.raises(ImproperlyConfigured, match='item_template'):
+            self._introduce(RenderedGlueItemScrollComponent())
 
     def test_an_unordered_queryset_is_listed_by_primary_key(self) -> None:
         first = create_test_comment_example(name='Zebra Notes')
@@ -196,12 +173,12 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         component = UnorderedCommentScrollComponent()
 
         assert UnorderedCommentScrollComponent().get_queryset().ordered is False
-        assert [item['pk'] for item in component.get_items(0, 2)] == [first.pk, second.pk]
-        assert [item['pk'] for item in component.get_items(2, 2)] == [third.pk]
+        assert component.get_items(0, 2) == [first, second]
+        assert component.get_items(2, 2) == [third]
 
     def test_rows_that_tie_on_the_ordering_are_each_returned_once(self) -> None:
         comments = [create_test_comment_example(name='Same Name') for _ in range(5)]
-        component = RenderedCommentScrollComponent()
+        component = CommentScrollComponent()
 
         with CaptureQueriesContext(connection) as queries:
             keys = [
@@ -219,7 +196,7 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         for name in ('Alpha', 'Bravo', 'Charlie'):
             create_test_comment_example(name=name)
 
-        names = [item['name'] for item in DescendingCommentScrollComponent().get_items(0, 3)]
+        names = [item.name for item in DescendingCommentScrollComponent().get_items(0, 3)]
 
         assert names == ['Charlie', 'Bravo', 'Alpha']
 
@@ -236,8 +213,8 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         dropped = create_test_comment_example(name='Dropped Notes')
         component = KeptCommentScrollComponent()
 
-        assert component.get_item(kept.pk) == {'pk': kept.pk, 'name': 'Kept Notes'}
-        assert component.get_item(str(kept.pk)) == {'pk': kept.pk, 'name': 'Kept Notes'}
+        assert component.get_item(kept.pk) == kept
+        assert component.get_item(str(kept.pk)) == kept
         assert component.get_item(dropped.pk) is None
         assert component.get_item(kept.pk + dropped.pk + 1) is None
         assert component.get_item('not-a-key') is None
@@ -260,16 +237,14 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         for number in range(7):
             create_test_comment_example(name=f'Comment {number}')
 
-        for component_class in (CommentScrollComponent, RenderedCommentScrollComponent):
-            component = component_class()
+        component = CommentScrollComponent()
 
-            for offset in (0, 2, 6):
-                with self.assertNumQueries(1):
-                    component.get_items(offset, 3)
+        for offset in (0, 2, 6):
+            with self.assertNumQueries(1):
+                component.get_items(offset, 3)
 
     def test_a_single_row_costs_one_query(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
 
-        for component_class in (CommentScrollComponent, RenderedCommentScrollComponent):
-            with self.assertNumQueries(1):
-                assert component_class().get_item(comment.pk) is not None
+        with self.assertNumQueries(1):
+            assert CommentScrollComponent().get_item(comment.pk) is not None

@@ -19,11 +19,11 @@ if TYPE_CHECKING:
 
 pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
-ROW_SELECTOR = '[data-history-row]'
+ROW_SELECTOR = '[data-scroll-key]'
 NAME_SELECTOR = '[data-history-name]'
 
 
-def test_scrolling_a_read_only_list_of_dict_rows_shows_every_row_in_order(
+def test_scrolling_a_read_only_list_shows_every_row_in_order(
     page: Page, demo_start: Callable[..., Demo], transactional_db: None
 ) -> None:
     del transactional_db
@@ -43,11 +43,8 @@ def test_scrolling_a_read_only_list_of_dict_rows_shows_every_row_in_order(
     assert scroll.rows.locator(NAME_SELECTOR).all_inner_texts() == [
         history.name for history in histories
     ]
-    assert state['items'][0] == {
-        'pk': histories[0].pk,
-        'name': 'History 01',
-        'description': 'Note 1',
-    }
+    assert scroll.rows.first.get_attribute('data-scroll-key') == str(histories[0].pk)
+    assert 'Note 1' in scroll.rows.first.inner_text()
     assert state['loadedCount'] == 60
     assert state['hasMore'] is False
     assert scroll.rows.first.locator(NAME_SELECTOR).get_attribute('href') == reverse(

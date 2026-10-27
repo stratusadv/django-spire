@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from django.urls import reverse
@@ -23,7 +23,8 @@ if TYPE_CHECKING:
 
 pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
-ROW_SELECTOR = '.row.border-bottom'
+ROW_SELECTOR = '[data-scroll-key]'
+NAME_SELECTOR = '[data-comment-name]'
 
 
 def _create_comments(count: int) -> list[str]:
@@ -46,8 +47,8 @@ def _open_comment_list(page: Page, demo_start: Callable[..., Demo]) -> ScrollCom
     return scroll
 
 
-def _names(state: dict[str, Any]) -> list[str]:
-    return [item['name'] for item in state['items']]
+def _names(scroll: ScrollComponent) -> list[str]:
+    return scroll.rows.locator(NAME_SELECTOR).all_inner_texts()
 
 
 def test_scrolling_appends_every_batch_once_and_in_order(
@@ -63,7 +64,7 @@ def test_scrolling_appends_every_batch_once_and_in_order(
     scroll.wait_until_idle()
     state = scroll.state()
 
-    assert _names(state) == names
+    assert _names(scroll) == names
     assert state['loadedCount'] == 60
     assert state['hasMore'] is False
     assert scroll.row_count() == 60
@@ -83,7 +84,7 @@ def test_reloading_shows_the_current_first_batch(
 
     state = scroll.reload_items()
 
-    assert _names(state) == names[1:26]
+    assert _names(scroll) == names[1:26]
     assert state['loadedCount'] == 25
     assert state['hasMore'] is True
     assert state['isLoading'] is False
@@ -112,14 +113,14 @@ def test_a_batch_in_flight_when_a_reload_begins_is_never_shown(
         held_batch_first_name = page.evaluate(f"""
             (names) => {{
                 const scroll = {scroll.data_expression}
-                const heldBatchFirstName = names[scroll.items.length]
+                const heldBatchFirstName = names[scroll.loadedCount]
 
                 window.heldBatchWasShown = false
-                Alpine.effect(() => {{
-                    if (scroll.items.some(item => item.name === heldBatchFirstName)) {{
+                new MutationObserver(() => {{
+                    if (scroll.$refs.list.textContent.includes(heldBatchFirstName)) {{
                         window.heldBatchWasShown = true
                     }}
-                }})
+                }}).observe(scroll.$refs.list, {{childList: true, subtree: true}})
                 window.heldLoad = scroll.loadMoreItems()
 
                 return heldBatchFirstName
@@ -143,7 +144,7 @@ def test_a_batch_in_flight_when_a_reload_begins_is_never_shown(
     """)
 
     assert state['heldBatchWasShown'] is False
-    assert _names(state) == names[:25]
+    assert _names(scroll) == names[:25]
     assert state['loadedCount'] == 25
     assert state['isLoading'] is False
     assert state['hasMore'] is True
@@ -163,7 +164,7 @@ def test_a_viewport_taller_than_the_list_still_loads_every_batch(
     scroll.wait_until_idle()
     state = scroll.state()
 
-    assert _names(state) == names
+    assert _names(scroll) == names
     assert state['loadedCount'] == 60
     assert state['hasMore'] is False
 

@@ -4,8 +4,9 @@
  * scroll's Glue component.
  *
  * scrollComponent({batchSize, rendersRows}) loads the list a batch at a time.
- * `rendersRows` says the server sends rows as markup; otherwise it sends them
- * as data and the template draws `items`.
+ * `rendersRows` says the server sends rows as markup through `load_items` and
+ * `load_item`; otherwise it sends them as Glue models through
+ * `load_glue_items` and `load_glue_item`, and the template draws `items`.
  *
  * crudScrollComponent adds createItem(), editItem() and deleteItem(). It takes
  * the same options, and more for a list whose form or delete is a page:
@@ -58,7 +59,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const result = await this.component.load_item({key});
+            const result = await this.loadRow(key);
 
             if (result === null || result === undefined) {
                 return;
@@ -68,10 +69,8 @@ document.addEventListener('alpine:init', () => {
                 await result.renderInsertAdjacentHtmlAfterBegin(this.$refs.list);
             }
             else {
-                const added = this.readItem(result);
-
-                this.items.unshift(added.item);
-                this.keys.unshift(added.key);
+                this.items.unshift(result);
+                this.keys.unshift(result.$pk);
             }
 
             this.updateCount();
@@ -115,11 +114,14 @@ document.addEventListener('alpine:init', () => {
             this.isLoading = true;
 
             try {
-                const result = await this.component.load_items({offset: this.loadedCount});
+                const offset = this.loadedCount;
+                const result = this.rendersRows
+                    ? await this.component.load_items({offset})
+                    : await this.component.load_glue_items({offset});
 
                 if (generation !== this.loadGeneration) {
                     if (!this.rendersRows) {
-                        result.$dispose?.();
+                        result.$dispose();
                     }
 
                     return;
@@ -147,11 +149,12 @@ document.addEventListener('alpine:init', () => {
 
             this.checkSentinel();
         },
+        loadRow(key) {
+            return this.rendersRows
+                ? this.component.load_item({key})
+                : this.component.load_glue_item({key});
+        },
         readBatch(result) {
-            if (typeof result.$dispose !== 'function') {
-                return {items: [...result.items], keys: [...result.keys], hasMore: result.has_more};
-            }
-
             const items = [...result.items];
 
             this.glueBatches.push(result);
@@ -162,15 +165,8 @@ document.addEventListener('alpine:init', () => {
                 hasMore: items.length === this.batchSize,
             };
         },
-        readItem(result) {
-            if (typeof result.$dispose !== 'function') {
-                return {item: result.item, key: result.key};
-            }
-
-            return {item: result, key: result.$pk};
-        },
         async refreshItem(key) {
-            const result = await this.component.load_item({key});
+            const result = await this.loadRow(key);
 
             if (result === null || result === undefined) {
                 this.removeItem(key);
@@ -190,12 +186,11 @@ document.addEventListener('alpine:init', () => {
             const index = this.indexOfKey(key);
 
             if (index !== -1) {
-                const refreshed = this.readItem(result).item;
                 const replaced = this.items[index];
 
-                this.items[index] = refreshed;
+                this.items[index] = result;
 
-                if (replaced !== refreshed) {
+                if (replaced !== result) {
                     this.disposeAfterRender([replaced]);
                 }
             }
@@ -250,11 +245,10 @@ document.addEventListener('alpine:init', () => {
             }
 
             const generation = this.loadGeneration;
-            const result = this.component.first_batch_data
-                ?? await this.component.load_items({offset: 0});
+            const result = await this.component.load_glue_items({offset: 0});
 
             if (generation !== this.loadGeneration) {
-                result.$dispose?.();
+                result.$dispose();
 
                 return;
             }

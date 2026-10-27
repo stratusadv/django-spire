@@ -55,7 +55,7 @@ class TemplateExtendsTestCase(BaseTestCase):
 
     def test_a_template_without_extends_does_not_extend_an_ancestor(self) -> None:
         assert not template_extends(
-            'comment/item/comment_row.html',
+            'comment/item/item.html',
             ITEM_TEMPLATES,
         )
 

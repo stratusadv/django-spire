@@ -171,7 +171,7 @@ class TaskDeleteConfirmationComponent(BaseModelDeleteConfirmationComponent):
         self.instance.set_inactive()
 ```
 
-The confirmation keeps the delete wording and the `DELETE` access check, and deletes however the model needs. Give it to a list with `ComponentDeleteOptions(component=TaskDeleteConfirmationComponent)`.
+The confirmation keeps the delete wording and the `DELETE` access check, and deletes however the model needs. Give it to a list with `ModelCrudScrollComponent.DeleteOptions(component=TaskDeleteConfirmationComponent)`.
 
 ### Requiring More Access to Confirm
 

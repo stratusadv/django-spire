@@ -11,7 +11,7 @@ from django_spire.core.components.confirmation.model import (
 
 
 @dataclass(frozen=True, kw_only=True)
-class ComponentDeleteOptions:
+class DeleteOptions:
     """
     A row is deleted through a confirmation component, shown in a modal.
     ``component`` is the confirmation, which soft-deletes the row with
@@ -27,7 +27,7 @@ class ComponentDeleteOptions:
             BaseModelDeleteConfirmationComponent,
         ):
             message = (
-                'ComponentDeleteOptions needs component to be a '
+                'DeleteOptions needs component to be a '
                 'BaseModelDeleteConfirmationComponent class.'
             )
             raise ImproperlyConfigured(message)

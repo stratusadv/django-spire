@@ -70,11 +70,11 @@ The component's own template, in `task/component/task_form_modal.html`:
 ### 3. Give the form to a list
 
 ```python
-from django_spire.core.components import ComponentFormOptions, ModelCrudScrollComponent
+from django_spire.core.components import ModelCrudScrollComponent
 
 
 class TaskListComponent(ModelCrudScrollComponent):
-    item_form_options = ComponentFormOptions(
+    item_form_options = ModelCrudScrollComponent.FormOptions(
         form_class=TaskForm,
         template='task/component/task_form_modal.html',
     )
@@ -130,21 +130,17 @@ from django_spire.core.components import BaseFormComponent
 
 `glue_form_path()` returns the path from the template to the form: `component.model.form` or `component.form`. A form partial reads it as `component.glue_form_path`, and `django_spire/glue/form/modal_form.html` uses it by default, so the same partial works under either component.
 
-### `ComponentFormOptions` and `PageFormOptions`
+### `FormOptions` and `PageFormOptions`
 
-Tell a CRUD scroll how its rows are created and edited.
-
-```python
-from django_spire.core.components import ComponentFormOptions, PageFormOptions
-```
+Tell a CRUD scroll how its rows are created and edited. Both are class attributes of `ModelCrudScrollComponent`, so a list needs no other import.
 
 | Options | Arguments | Description |
 |---|---|---|
-| `ComponentFormOptions` | `component` | The application's own form component class |
-| `ComponentFormOptions` | `form_class`, `template` | A form class and a template, shown by `ModelFormComponent` itself |
-| `PageFormOptions` | `url_name`, `create_url_name`, `return_url_name` | A form page. `url_name` takes the row's key as `pk` |
+| `ModelCrudScrollComponent.FormOptions` | `component` | The application's own form component class, in a modal |
+| `ModelCrudScrollComponent.FormOptions` | `form_class`, `template` | A form class and a template, shown in a modal by `ModelFormComponent` itself |
+| `ModelCrudScrollComponent.PageFormOptions` | `url_name`, `create_url_name`, `return_url_name` | A form page. `url_name` takes the row's key as `pk` |
 
-`ComponentFormOptions` takes a component, or a form class together with a template, and refuses any other combination when it is created.
+`FormOptions` takes a component, or a form class together with a template, and refuses any other combination when it is created.
 
 ---
 

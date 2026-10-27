@@ -11,13 +11,7 @@ from django.urls import reverse
 from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
 
-from django_spire.core.components import (
-    ComponentDeleteOptions,
-    ComponentFormOptions,
-    ModelFormComponent,
-    PageDeleteOptions,
-    PageFormOptions,
-)
+from django_spire.core.components import ModelFormComponent
 from django_spire.core.components.confirmation import ModelSetDeletedConfirmationComponent
 from django_spire.core.components.scroll import ModelCrudScrollComponent
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -37,18 +31,24 @@ class CommentForm(ModelForm):
 
 
 class FormlessCommentCrudScrollComponent(ModelCrudScrollComponent):
-    fields = ('name',)
+    item_template = 'comment/item/scroll_item.html'
 
     def get_queryset(self) -> QuerySet[CommentExample]:
         return CommentExample.objects.order_by('name')
 
 
 class CommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
-    item_form_options = ComponentFormOptions(form_class=CommentForm, template=FORM_TEMPLATE)
+    item_form_options = ModelCrudScrollComponent.FormOptions(
+        form_class=CommentForm,
+        template=FORM_TEMPLATE,
+    )
 
 
 class PagedCommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
-    item_form_options = PageFormOptions('order:update', create_url_name='order:create')
+    item_form_options = ModelCrudScrollComponent.PageFormOptions(
+        'order:update',
+        create_url_name='order:create',
+    )
 
 
 class ArchiveCommentConfirmationComponent(ModelSetDeletedConfirmationComponent):
@@ -56,11 +56,16 @@ class ArchiveCommentConfirmationComponent(ModelSetDeletedConfirmationComponent):
 
 
 class ArchivingCommentCrudScrollComponent(CommentCrudScrollComponent):
-    item_delete_options = ComponentDeleteOptions(component=ArchiveCommentConfirmationComponent)
+    item_delete_options = ModelCrudScrollComponent.DeleteOptions(
+        component=ArchiveCommentConfirmationComponent,
+    )
 
 
 class PageDeletingCommentCrudScrollComponent(CommentCrudScrollComponent):
-    item_delete_options = PageDeleteOptions('order:delete', return_url_name='order:list')
+    item_delete_options = ModelCrudScrollComponent.PageDeleteOptions(
+        'order:delete',
+        return_url_name='order:list',
+    )
 
 
 class UndeletableCommentCrudScrollComponent(CommentCrudScrollComponent):

@@ -1,12 +1,12 @@
 from django_spire.core.components.form.base import BaseFormComponent
 from django_spire.core.components.form.form import FormComponent
 from django_spire.core.components.form.model import ModelFormComponent
-from django_spire.core.components.form.options import ComponentFormOptions, PageFormOptions
+from django_spire.core.components.form.options import FormOptions, PageFormOptions
 
 __all__ = [
     'BaseFormComponent',
-    'ComponentFormOptions',
     'FormComponent',
+    'FormOptions',
     'ModelFormComponent',
     'PageFormOptions',
 ]

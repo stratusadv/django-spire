@@ -1,11 +1,15 @@
-<div class="row border-bottom py-2 align-items-center">
-    <div class="col" x-text="item.name"></div>
+{% extends 'django_spire/component/scroll/item/item.html' %}
+
+{% block scroll_item_class %}row border-bottom py-2 align-items-center{% endblock %}
+
+{% block scroll_item_content %}
+    <div class="col">{{ item.name }}</div>
     <div class="col-auto">
-        <button class="btn btn-sm btn-outline-secondary" type="button" title="Edit Task" @click="editItem(item)">
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Edit Task" @click="editItem({{ item.pk }})">
             <i class="bi bi-pencil"></i>
         </button>
-        <button class="btn btn-sm btn-outline-danger" type="button" title="Delete Task" @click="deleteItem(item)">
+        <button class="btn btn-sm btn-outline-danger" type="button" title="Delete Task" @click="deleteItem({{ item.pk }})">
             <i class="bi bi-trash"></i>
         </button>
     </div>
-</div>
+{% endblock %}

@@ -46,22 +46,24 @@
   (ADR 0002):
   - `BaseScrollComponent` lists items of any kind. A subclass writes
     `get_items(offset, limit)`, `get_item(key)` and `get_item_key(item)`.
-    `item_template` is the markup for one row, and `item_render_mode` is a
-    `ScrollItemRenderMode`: `CLIENT`, the default, sends rows as data and draws them in the
-    template's `scroll_item` block, and `SERVER` renders them on the server. Controls are
+    `item_template` is the markup for one row, rendered on the server. Controls are
     editable attributes the subclass declares, and the template's `reloadItems()` applies
     them.
   - `QuerySetScrollComponent` lists the rows of `get_queryset()`, by primary key when it has
     no ordering. `get_instance(pk)` returns one row of that queryset for a callable that
     acts on it, and reports a row outside the list as a 404.
-  - `GlueScrollItemsMixin` sends each row of a queryset scroll as a Glue model, so row
-    markup can call the model's Glue methods and services and save its fields.
-  - `ModelCrudScrollComponent` adds create, edit and delete. `item_form_options` is a
-    `ComponentFormOptions`, which shows a form component in a modal, or a
-    `PageFormOptions`, which sends the user to a page. `item_delete_options` is a
-    `ComponentDeleteOptions`, which shows a confirmation component in a modal and
-    soft-deletes by default, or a `PageDeleteOptions`, which sends the user to a delete
-    page. A page link carries a `return_url`: the route named by the options'
+  - `glue_items = True` on a queryset scroll sends each row as the Glue model its
+    `get_glue_item(item, name)` builds, drawn in the browser in the template's `scroll_item`
+    block, so row markup can call the model's Glue methods and services and save its fields.
+    The browser loads these rows with the `load_glue_items` and `load_glue_item` callables.
+  - `ModelCrudScrollComponent` adds create, edit and delete, configured with option
+    classes it carries as attributes. `item_form_options` is a
+    `ModelCrudScrollComponent.FormOptions`, which shows a form component in a modal, or a
+    `ModelCrudScrollComponent.PageFormOptions`, which sends the user to a page.
+    `item_delete_options` is a `ModelCrudScrollComponent.DeleteOptions`, which shows a
+    confirmation component in a modal and soft-deletes by default, or a
+    `ModelCrudScrollComponent.PageDeleteOptions`, which sends the user to a delete page.
+    The classes are defined in the form and confirmation packages. A page link carries a `return_url`: the route named by the options'
     `return_url_name`, or the address the list is shown at. The template gains
     `createItem()`, `editItem(item)` and `deleteItem(item)`. The browser fetches the modal
     components with the `load_item_form` and `load_item_delete_confirmation` callables,

@@ -3,9 +3,9 @@ from __future__ import annotations
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
-from django_spire.core.components import (
+from django_spire.core.components.confirmation import (
     BaseConfirmationComponent,
-    ComponentDeleteOptions,
+    DeleteOptions,
     ModelDeleteConfirmationComponent,
     ModelSetDeletedConfirmationComponent,
     PageDeleteOptions,
@@ -13,20 +13,20 @@ from django_spire.core.components import (
 from django_spire.core.tests.test_cases import BaseTestCase
 
 
-class ComponentDeleteOptionsTestCase(BaseTestCase):
+class DeleteOptionsTestCase(BaseTestCase):
     def test_the_confirmation_soft_deletes_unless_another_is_given(self) -> None:
-        assert ComponentDeleteOptions().component is ModelSetDeletedConfirmationComponent
+        assert DeleteOptions().component is ModelSetDeletedConfirmationComponent
         assert (
-            ComponentDeleteOptions(component=ModelDeleteConfirmationComponent).component
+            DeleteOptions(component=ModelDeleteConfirmationComponent).component
             is ModelDeleteConfirmationComponent
         )
 
     def test_a_component_that_is_not_a_delete_confirmation_is_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='BaseModelDeleteConfirmationComponent'):
-            ComponentDeleteOptions(component=BaseConfirmationComponent)
+            DeleteOptions(component=BaseConfirmationComponent)
 
         with pytest.raises(ImproperlyConfigured, match='BaseModelDeleteConfirmationComponent'):
-            ComponentDeleteOptions(component='order:delete')
+            DeleteOptions(component='order:delete')
 
 
 class PageDeleteOptionsTestCase(BaseTestCase):

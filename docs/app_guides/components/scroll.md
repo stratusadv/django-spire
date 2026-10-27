@@ -9,7 +9,7 @@
 A list page usually needs the same things: load more rows as the user scrolls, reload when a search or filter changes, and redraw a row after it is edited. **The scroll components** provide:
 
 - Paging on the server, one query per batch, with no position held between requests
-- Rows drawn in the browser from data, or rendered on the server from a template
+- Rows rendered on the server from a template, or sent as Glue models that edit themselves in place
 - Search and filter controls declared on the component and applied with one call
 - Updates to a single row by key, from the browser or from a callable
 - Ready-made create, edit and delete, each in a modal or on a page
@@ -32,7 +32,6 @@ from app.task.models import Task
 class TaskListComponent(QuerySetScrollComponent):
     item_template = 'task/item/task_row.html'
     view_template = 'django_spire/component/page/full_page.html'
-    fields = ('name', 'status')
 
     def get_queryset(self):
         return Task.objects.active().order_by('name')
@@ -43,6 +42,8 @@ class TaskListComponent(QuerySetScrollComponent):
 ```html
 --8<-- "docs/app_guides/components/templates/scroll_task_row.html"
 ```
+
+The row template extends `item.html`, which gives the row the attribute the list finds it by. The row receives `item`, the model instance, so it can use anything a Django template can, such as `get_status_display`. Load anything a row reads from a related model in `get_queryset()`, with `select_related` or `prefetch_related`, so a batch stays one query.
 
 ### 3. Add a route
 
@@ -80,27 +81,11 @@ from django_spire.core.components import BaseScrollComponent
 | Setting | Description |
 |---|---|
 | `template` | The list's template. It must extend `django_spire/component/scroll/scroll.html` |
-| `item_template` | The markup for one row |
-| `item_render_mode` | Where a row is drawn. A `ScrollItemRenderMode`, `CLIENT` by default |
+| `item_template` | The markup for one row, rendered on the server. It must extend `item/item.html` or `item/table_item.html` |
 | `batch_size` | How many rows are loaded at a time. Defaults to `25` |
 | `view_template` | The page the component is shown in when served by `as_view()` |
 
 A subclass that overrides `__post_init__(self, request)` must call `super().__post_init__(request)`. The base refuses to run without it.
-
-### `ScrollItemRenderMode`
-
-Says where a row is drawn. `item_template` is the row in both modes, but it is written differently for each.
-
-```python
-from django_spire.core.components import ScrollItemRenderMode
-```
-
-| Member | Rows are | The row template |
-|---|---|---|
-| `CLIENT` | Sent as data and drawn in the browser | Uses Alpine attributes that read `item`. Optional: a list may fill the `scroll_item` block of its own template instead |
-| `SERVER` | Rendered on the server and sent as HTML | Uses Django tags. Required, and must extend `item/item.html` or `item/table_item.html` |
-
-A row template written for one mode is refused in the other, when the component is first used.
 
 ### `QuerySetScrollComponent`
 
@@ -113,27 +98,22 @@ from django_spire.core.components import QuerySetScrollComponent
 | Member | Description |
 |---|---|
 | `get_queryset()` | Return the rows the list shows, in the order it shows them |
-| `fields` | The fields each row carries to the browser in `CLIENT` mode, beside `pk` |
 | `get_instance(pk)` | Return one row of the queryset for a callable that acts on it. A row outside the list is reported as a 404 |
 
-The primary key is added to the end of the queryset's ordering, so rows that tie on the ordering never repeat or go missing between batches. A queryset with no ordering is listed by primary key.
+The primary key is added to the end of the queryset's ordering, so rows that tie on the ordering never repeat or go missing between batches. A queryset with no ordering is listed by primary key. Each item is the model instance.
 
-In `CLIENT` mode an item is a dict of `pk` and `fields`. In `SERVER` mode it is the model instance.
+### Glue rows
 
-### `GlueScrollItemsMixin`
-
-Sends each row to the browser as a Glue model instead of a dict, so the row's markup can call the model's Glue methods and save its fields. List it ahead of a queryset scroll.
-
-```python
-from django_spire.core.components import GlueScrollItemsMixin
-```
+A queryset scroll can send each row to the browser as a Glue model instead of rendering it on the server, so the row's markup can call the model's Glue methods and save its fields.
 
 | Member | Description |
 |---|---|
-| `fields` | The fields each Glue model exposes |
-| `get_glue_item(item, name, **kwargs)` | Build the Glue model for one row. Override it to pass further `Glue.model` options, such as a `form` |
+| `glue_items` | `True` sends the rows as Glue models. `False`, the default, renders them on the server |
+| `get_glue_item(item, name)` | Build the Glue model for one row, with `name` as its `unique_name`. A list that sets `glue_items` must override it, and is refused when it is defined otherwise |
 
-It applies to `CLIENT` mode only. A Glue row costs more to send than a dict, so use it for lists whose rows are edited in place.
+`get_glue_item()` is where a list says exactly what each row exposes: its `fields`, its `access`, and any `form`. Pass `access=self.access` for the row to have the list's access.
+
+The rows are drawn in the browser, so `item_template` is Alpine markup that reads `item` and must not extend `item/item.html` or `item/table_item.html`. A list may leave it out and fill the `scroll_item` block of its own template instead. A Glue row costs more to send than a rendered row, so use it for lists whose rows are edited in place.
 
 ### `ModelCrudScrollComponent`
 
@@ -152,23 +132,14 @@ Only rows in `get_queryset()` can be edited or deleted, and each action checks t
 
 ### Form and delete options
 
-Each action happens in a component shown in a modal, or on a page. The class of the options object says which.
-
-```python
-from django_spire.core.components import (
-    ComponentDeleteOptions,
-    ComponentFormOptions,
-    PageDeleteOptions,
-    PageFormOptions,
-)
-```
+Each action happens in a component shown in a modal, or on a page. The class of the options object says which. The four classes are attributes of `ModelCrudScrollComponent`, so a list needs no other import.
 
 | Options | Arguments | Description |
 |---|---|---|
-| `ComponentFormOptions` | `component`, or `form_class` with `template` | A form component in a modal. See [Form Components](form.md) |
-| `PageFormOptions` | `url_name`, `create_url_name`, `return_url_name` | A form page. `url_name` takes the row's key as `pk` |
-| `ComponentDeleteOptions` | `component` | A confirmation in a modal. See [Confirmation Components](confirmation.md) |
-| `PageDeleteOptions` | `url_name`, `return_url_name` | A delete page. `url_name` takes the row's key as `pk` |
+| `ModelCrudScrollComponent.FormOptions` | `component`, or `form_class` with `template` | A form component in a modal. See [Form Components](form.md) |
+| `ModelCrudScrollComponent.PageFormOptions` | `url_name`, `create_url_name`, `return_url_name` | A form page. `url_name` takes the row's key as `pk` |
+| `ModelCrudScrollComponent.DeleteOptions` | `component` | A confirmation in a modal. See [Confirmation Components](confirmation.md) |
+| `ModelCrudScrollComponent.PageDeleteOptions` | `url_name`, `return_url_name` | A delete page. `url_name` takes the row's key as `pk` |
 
 With `PageFormOptions`, creating goes to `create_url_name`, or to `url_name` with a `pk` of `0` when that is left out.
 
@@ -188,7 +159,7 @@ A page link carries a `return_url` query parameter: the route named by `return_u
 | Block | In | Description |
 |---|---|---|
 | `scroll_header` | `scroll.html` | Markup above the rows, such as a search box or a New button |
-| `scroll_item` | `scroll.html` | One row in `CLIENT` mode. Draws `item_template` unless overridden |
+| `scroll_item` | `scroll.html` | One Glue row, drawn in the browser. Draws `item_template` unless overridden |
 | `scroll_empty` | `scroll.html` | What is shown when the list has no rows |
 | `scroll_loading` | `scroll.html` | What is shown while a batch loads |
 | `scroll_footer` | `scroll.html` | Markup below the rows |
@@ -204,7 +175,7 @@ Markup inside the list can read the list's state and call its methods.
 
 | Name | Description |
 |---|---|
-| `items`, `keys` | The rows shown and their keys, in `CLIENT` mode |
+| `items`, `keys` | The Glue rows shown and their keys |
 | `loadedCount` | How many rows are shown |
 | `hasMore` | Whether another batch may exist |
 | `isLoading` | Whether a batch is loading |
@@ -218,32 +189,11 @@ Markup inside the list can read the list's state and call its methods.
 
 ## Main Operations
 
-### Rendering Rows on the Server
-
-```python
-from django_spire.core.components import QuerySetScrollComponent, ScrollItemRenderMode
-
-
-class TaskListComponent(QuerySetScrollComponent):
-    item_render_mode = ScrollItemRenderMode.SERVER
-    item_template = 'task/item/task_row.html'
-
-    def get_queryset(self):
-        return Task.objects.active().order_by('name')
-```
-
-```html
---8<-- "docs/app_guides/components/templates/scroll_task_row_server.html"
-```
-
-The row template extends `item.html`, which gives the row the attribute the list finds it by. The row receives `item`, the model instance, so it can use anything a Django template can, such as `get_status_display`.
-
 ### Listing as a Table
 
 ```python
 class TaskTableComponent(QuerySetScrollComponent):
     template = 'task/component/task_table.html'
-    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'task/item/task_table_row.html'
 
     def get_queryset(self):
@@ -271,7 +221,6 @@ from app.task.choices import TaskStatusChoices
 class TaskListComponent(QuerySetScrollComponent):
     template = 'task/component/task_list.html'
     item_template = 'task/item/task_row.html'
-    fields = ('name', 'status')
 
     status_choices = tuple(TaskStatusChoices.choices)
 
@@ -298,7 +247,6 @@ A control is an editable attribute on the component. The markup binds an input t
 ```python
 class TaskListComponent(QuerySetScrollComponent):
     item_template = 'task/item/task_row.html'
-    fields = ('name', 'status')
 
     def get_queryset(self):
         return Task.objects.active().order_by('name')
@@ -320,10 +268,7 @@ The button is an [async button](async_button.md), so a second click sends nothin
 ### Creating, Editing and Deleting
 
 ```python
-from django_spire.core.components import (
-    ComponentFormOptions,
-    ModelCrudScrollComponent,
-)
+from django_spire.core.components import ModelCrudScrollComponent
 
 from app.task.forms import TaskForm
 
@@ -331,9 +276,8 @@ from app.task.forms import TaskForm
 class TaskListComponent(ModelCrudScrollComponent):
     template = 'task/component/task_list.html'
     item_template = 'task/item/task_row.html'
-    fields = ('name', 'status')
 
-    item_form_options = ComponentFormOptions(
+    item_form_options = ModelCrudScrollComponent.FormOptions(
         form_class=TaskForm,
         template='task/form/task_form.html',
     )
@@ -365,12 +309,12 @@ Creating and editing need `CHANGE` access and deleting needs `DELETE`. A compone
 ### Using Pages for the Form or the Delete
 
 ```python
-from django_spire.core.components import PageDeleteOptions, PageFormOptions
-
-
 class TaskListComponent(ModelCrudScrollComponent):
-    item_form_options = PageFormOptions('task:form:update', create_url_name='task:form:create')
-    item_delete_options = PageDeleteOptions('task:form:delete')
+    item_form_options = ModelCrudScrollComponent.PageFormOptions(
+        'task:form:update',
+        create_url_name='task:form:create',
+    )
+    item_delete_options = ModelCrudScrollComponent.PageDeleteOptions('task:form:delete')
 ```
 
 The same three methods then send the user to those pages. Use this when the app already has form and delete views. Each link carries `return_url`, so a view that reads it brings the user back to the list.
@@ -380,7 +324,7 @@ The same three methods then send the user to those pages. Use this when the app 
 ```python
 from django_spire.core.components import (
     BaseModelDeleteConfirmationComponent,
-    ComponentDeleteOptions,
+    ModelCrudScrollComponent,
     ModelDeleteConfirmationComponent,
 )
 
@@ -391,11 +335,15 @@ class TaskArchiveConfirmationComponent(BaseModelDeleteConfirmationComponent):
 
 
 class TaskListComponent(ModelCrudScrollComponent):
-    item_delete_options = ComponentDeleteOptions(component=TaskArchiveConfirmationComponent)
+    item_delete_options = ModelCrudScrollComponent.DeleteOptions(
+        component=TaskArchiveConfirmationComponent,
+    )
 
 
 class AuditLogListComponent(ModelCrudScrollComponent):
-    item_delete_options = ComponentDeleteOptions(component=ModelDeleteConfirmationComponent)
+    item_delete_options = ModelCrudScrollComponent.DeleteOptions(
+        component=ModelDeleteConfirmationComponent,
+    )
 ```
 
 The first list deletes through its own confirmation. The second deletes the row from the database, where the default only marks it deleted. Set `item_delete_options = None` for a list that cannot delete.
@@ -403,20 +351,28 @@ The first list deletes through its own confirmation. The second deletes the row 
 ### Editing a Row in Place
 
 ```python
-from django_spire.core.components import GlueScrollItemsMixin, QuerySetScrollComponent
+from django_glue import Glue
+
+from django_spire.core.components import QuerySetScrollComponent
 
 
-class TaskListComponent(GlueScrollItemsMixin, QuerySetScrollComponent):
-    item_template = 'task/item/task_row.html'
-    fields = ('name', 'status')
+class TaskListComponent(QuerySetScrollComponent):
+    item_template = 'task/item/task_glue_row.html'
+    glue_items = True
 
     status_choices = tuple(TaskStatusChoices.choices)
 
     def get_queryset(self):
         return Task.objects.active().order_by('name')
 
-    def get_glue_item(self, item, name, **kwargs):
-        return super().get_glue_item(item, name, form=TaskForm, **kwargs)
+    def get_glue_item(self, item, name):
+        return Glue.model(
+            target=item,
+            unique_name=name,
+            access=self.access,
+            fields=('name', 'status'),
+            form=TaskForm,
+        )
 ```
 
 ```html
@@ -428,11 +384,10 @@ Each row is a Glue model with the form attached. The select is bound to the row'
 ### Listing Something That Is Not a Queryset
 
 ```python
-from django_spire.core.components import BaseScrollComponent, ScrollItemRenderMode
+from django_spire.core.components import BaseScrollComponent
 
 
 class CustomerListComponent(BaseScrollComponent):
-    item_render_mode = ScrollItemRenderMode.SERVER
     item_template = 'customer/item/customer_row.html'
 
     def get_items(self, offset, limit):
