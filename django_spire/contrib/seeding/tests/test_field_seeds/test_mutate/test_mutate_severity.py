@@ -28,6 +28,6 @@ class TestMutateSeverity(TestCase):
         assert MutateSeverity.CHAOS.value == 'chaos'
 
     def test_equality_by_value(self):
-        assert MutateSeverity.MILD == MutateSeverity('mild')
-        assert MutateSeverity.MODERATE == MutateSeverity('moderate')
-        assert MutateSeverity.CHAOS == MutateSeverity('chaos')
+        assert MutateSeverity('mild') == MutateSeverity.MILD
+        assert MutateSeverity('moderate') == MutateSeverity.MODERATE
+        assert MutateSeverity('chaos') == MutateSeverity.CHAOS

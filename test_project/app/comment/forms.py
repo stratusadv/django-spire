@@ -8,8 +8,6 @@ from test_project.app.comment import models
 
 
 class CommentExampleForm(forms.ModelForm):
-    field = forms.JSONField(required=False)
-
     class Meta:
-        model = models.Comment
-        fields: ClassVar = []
+        model = models.CommentExample
+        fields: ClassVar = ['name', 'description']

@@ -19,3 +19,8 @@ class PirateRestSchemaSet(RestSchemaSet['PirateRestSchema']):
         data = response.json()
 
         return [PirateRestSchema(**user) for user in data.get('users', [])]
+
+    def _read_one(self, **request_params) -> PirateRestSchema:
+        response = self.connector.get(f'users/{request_params["id"]}')
+
+        return self.schema_class(**response.json())

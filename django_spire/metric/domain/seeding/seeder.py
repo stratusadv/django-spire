@@ -2,11 +2,8 @@ from __future__ import annotations
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.metric.domain.models import Domain, SubDomain
-from django_spire.metric.domain.seeding.constants import (
-    DOMAIN_SEEDS,
-    SUB_DOMAIN_KEYS,
-    SUBDOMAIN_SEEDS,
-)
+from django_spire.metric.domain.seeding.constants import DOMAIN_SEEDS, SUB_DOMAIN_KEYS, SUBDOMAIN_SEEDS
+from django_spire.metric.key_utils import unique_key_base_from_name
 
 
 class DomainSeeder(Seeder):
@@ -17,14 +14,12 @@ class DomainSeeder(Seeder):
         'id': Seeder.exclude(),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'name': Seeder.ordered.choice([seed['name'] for seed in DOMAIN_SEEDS], wrap=True),
-        'description': Seeder.ordered.choice(
-            [seed['description'] for seed in DOMAIN_SEEDS], wrap=True
-        ),
-        'sub_domain_name': Seeder.ordered.choice(
-            [seed['sub_domain_name'] for seed in DOMAIN_SEEDS], wrap=True
-        ),
+        'key': Seeder.unique(row_value_callable=lambda row: unique_key_base_from_name(Domain(**row))),
+        'description': Seeder.ordered.choice([seed['description'] for seed in DOMAIN_SEEDS], wrap=True),
+        'sub_domain_name': Seeder.ordered.choice([seed['sub_domain_name'] for seed in DOMAIN_SEEDS], wrap=True),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
+        'is_orphaned': Seeder.static(False),
     }
 
 
@@ -34,15 +29,14 @@ class SubDomainSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        'key': Seeder.ordered.choice(SUB_DOMAIN_KEYS, wrap=True),
+        'key': Seeder.unique(field_seed=Seeder.ordered.choice(SUB_DOMAIN_KEYS, wrap=True)),
         'domain_id': Seeder.model.ordered_queryset_foreign_key(Domain.objects.active(), wrap=True),
         'name': Seeder.ordered.choice([seed['name'] for seed in SUBDOMAIN_SEEDS], wrap=True),
-        'description': Seeder.ordered.choice(
-            [seed['description'] for seed in SUBDOMAIN_SEEDS], wrap=True
-        ),
+        'description': Seeder.ordered.choice([seed['description'] for seed in SUBDOMAIN_SEEDS], wrap=True),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
+        'is_orphaned': Seeder.static(False),
     }
 
     def __post_seed_database__(self) -> None:

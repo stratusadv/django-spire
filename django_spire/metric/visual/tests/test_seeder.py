@@ -71,3 +71,13 @@ class VisualRegionSeederTestCase(BaseTestCase):
             assert region.visual.name == seed['visual_name']
             assert region.title == seed['title']
             assert region.is_live_updated is seed['is_live_updated']
+
+    def test_reseeding_regions_skips_existing_keys(self) -> None:
+        seeder = VisualRegionSeeder(count=len(VISUAL_REGION_SEEDS), verbose=False)
+        seeder.seed_database()
+        seeder.reseed_database()
+
+        keys = list(VisualRegion.objects.values_list('key', flat=True))
+
+        assert len(keys) == len(VISUAL_REGION_SEEDS) * 2
+        assert len(set(keys)) == len(keys)

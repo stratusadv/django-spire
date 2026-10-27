@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
+from django_spire.contrib.redirects import safe_redirect_url
 
 from test_project.app.ordering import forms, models
 
@@ -47,6 +48,8 @@ def duck_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def duck_create_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateResponse:
+    return_url = safe_redirect_url(request, fallback=reverse('order:list'))
+
     if request.method == 'POST':
         form = forms.DuckForm(request.POST)
 
@@ -59,13 +62,14 @@ def duck_create_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateRes
                 destination_objects=all_ducks, position=duck.order
             )
 
-            return redirect(reverse('order:list'))
+            return redirect(return_url)
 
         context = {'form': form}
     else:
         form = forms.DuckForm()
         context = {'form': form}
 
+    context['return_url'] = return_url
     context['page_title'] = 'Duck'
     context['page_description'] = 'Create'
     context['breadcrumbs'] = [
@@ -78,19 +82,21 @@ def duck_create_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateRes
 
 def duck_update_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateResponse:
     duck = get_object_or_404(models.Duck, pk=pk)
+    return_url = safe_redirect_url(request, fallback=reverse('order:list'))
 
     if request.method == 'POST':
         form = forms.DuckForm(request.POST, instance=duck)
 
         if form.is_valid():
             duck.services.save_model_obj(**form.cleaned_data)
-            return redirect(reverse('order:list'))
+            return redirect(return_url)
 
         context = {'form': form, 'duck': duck}
     else:
         form = forms.DuckForm(instance=duck)
         context = {'form': form, 'duck': duck}
 
+    context['return_url'] = return_url
     context['page_title'] = str(duck)
     context['page_description'] = 'Edit'
     context['breadcrumbs'] = [

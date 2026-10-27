@@ -4,10 +4,6 @@ from django.db import models
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
-from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
-from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
-from django_spire.contrib.seeding.field.seed.random_seed import RandomEnumFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 
 
@@ -66,7 +62,7 @@ class ModifiedSeeder(Seeder):
         'description': Seeder.llm(str),
     }
 
-    def __post_seed__(self):
+    def __post_seed__(self) -> None:
         for seed in self.seeds:
             seed['name'] = 'Modified Name'
             seed['value'] = 'modified_value'
@@ -195,7 +191,6 @@ class TestFullIntegration(TestCase):
 class TestIntegrationWithDatabase(TestCase):
     @pytest.mark.django_db
     def test_to_model_instances_creates_instances(self):
-        from django.db import models
 
         class TestModel(models.Model):
             name = models.CharField(max_length=100)
@@ -203,6 +198,9 @@ class TestIntegrationWithDatabase(TestCase):
 
             class Meta:
                 app_label = 'seeding_test'
+
+            def __str__(self) -> str:
+                return self.name
 
         class DbSeeder(Seeder):
             model_class = TestModel

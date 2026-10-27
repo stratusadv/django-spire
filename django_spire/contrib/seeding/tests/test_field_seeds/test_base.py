@@ -14,6 +14,7 @@ from django_spire.contrib.seeding.field.seed.mutate import corrupt_seed  # noqa:
 from django_spire.contrib.seeding.field.seed.mutate import exclude_seed as mutate_exclude_seed  # noqa: F401
 from django_spire.contrib.seeding.field.seed.mutate import nullable_seed  # noqa: F401
 from django_spire.contrib.seeding.field.seed.mutate import transform_seed  # noqa: F401
+from django_spire.contrib.seeding.field.seed.mutate.nullable_seed import NullableMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 
 
@@ -76,3 +77,30 @@ class TestBaseFieldSeedInterface(TestCase):
         assert seed.generate_value(0) == 42
         assert seed.generate_value(1) == 42
         assert seed.generate_value(99) == 42
+
+
+class TestBaseFieldSeedContext(TestCase):
+    def test_is_cache_unsafe_defaults_to_false(self):
+        seed = StaticFieldSeed('test')
+        assert seed.is_cache_unsafe is False
+
+    def test_generate_value_context_delegates_to_generate_value_by_default(self):
+        seed = StaticFieldSeed('test')
+        assert seed.generate_value_context(seed_index=0) == 'test'
+
+    def test_generate_value_context_ignores_context_by_default(self):
+        seed = StaticFieldSeed('test')
+        result = seed.generate_value_context(
+            seed_index=3, model_class=object, field_name='name', row_values={'a': 1}
+        )
+        assert result == 'test'
+
+    def test_mutate_seed_delegates_is_cache_unsafe_to_inner_seed(self):
+        seed = NullableMutateFieldSeed(StaticFieldSeed('test'))
+        assert seed.is_cache_unsafe is False
+
+        class UnsafeSeed(StaticFieldSeed):
+            is_cache_unsafe = True
+
+        seed = NullableMutateFieldSeed(UnsafeSeed('test'))
+        assert seed.is_cache_unsafe is True

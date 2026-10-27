@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
-from django.http import HttpRequest
 from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
@@ -12,6 +11,7 @@ from django_spire.metric.domain import models as domain_models
 from django_spire.metric.domain.statistic import models
 
 if TYPE_CHECKING:
+    from django.http import HttpRequest
     from typing import ClassVar
 
 
@@ -22,7 +22,7 @@ class StatisticGroupForm(forms.ModelForm):
         self.fields['domain'].queryset = domain_models.Domain.objects.not_deleted()
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             group, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -74,7 +74,7 @@ class StatisticForm(forms.ModelForm):
         return key
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             statistic, _ = self.instance.services.save_model_obj(**self.cleaned_data)
 
