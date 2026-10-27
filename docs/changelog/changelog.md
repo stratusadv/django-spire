@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.4.0 - Unreleased
+## v1.4.0 - October 27, 2026
 
 ### Breaking
 
