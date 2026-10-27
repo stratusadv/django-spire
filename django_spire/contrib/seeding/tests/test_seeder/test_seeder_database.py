@@ -72,9 +72,7 @@ class TestSeederDatabaseWithModel(TestCase):
         class ModelSeeder(Seeder):
             model_class = None
             cache_enabled = False
-            fields_seeds = {
-                'name': StaticFieldSeed('Test'),
-            }
+            fields_seeds = {'name': StaticFieldSeed('Test')}
 
         seeder = ModelSeeder(count=1, verbose=False)
         seeder.seeds = [Seed({'name': 'Test'})]
@@ -95,7 +93,7 @@ class AuthUserSeeder(Seeder):
 
 
 class TestSeederSeedDatabase(TestCase):
-    def _auth_user_seeder(self, count):
+    def _auth_user_seeder(self, count: int) -> Seeder:
         class AuthUserSeeder(Seeder):
             model_class = AuthUser
             cache_enabled = False
@@ -174,7 +172,7 @@ class TestSeederSeedDatabase(TestCase):
             hook_calls = 0
             fields_seeds = {'username': Seeder.fake.uuid4()}
 
-            def __post_seed_database__(self):
+            def __post_seed_database__(self) -> None:
                 type(self).hook_calls += 1
 
         HookSeeder(count=1, verbose=False).seed_database()
@@ -199,10 +197,7 @@ class TestSeederSeedDatabase(TestCase):
         class RowSeeder(Seeder):
             model_class = SimpleRow
             cache_enabled = False
-            fields_seeds = {
-                'name': Seeder.static('Seeded'),
-                'count': Seeder.static(7),
-            }
+            fields_seeds = {'name': Seeder.static('Seeded'), 'count': Seeder.static(7)}
 
         payload = json.loads(RowSeeder(count=2, verbose=False).to_json())
         assert len(payload) == 2
@@ -224,7 +219,9 @@ class TestSeederSeedDatabase(TestCase):
 
     def test_seed_class_builds_plain_objects(self):
         class Row:
-            def __init__(self, username, first_name, last_name, email, is_active):
+            def __init__(
+                self, username: str, first_name: str, last_name: str, email: str, is_active: bool
+            ) -> None:
                 self.username = username
                 self.first_name = first_name
                 self.last_name = last_name
@@ -238,7 +235,7 @@ class TestSeederSeedDatabase(TestCase):
 
 
 class TestSeederReseedDatabase(TestCase):
-    def _auth_user_seeder(self, count):
+    def _auth_user_seeder(self, count: int) -> Seeder:
         class AuthUserSeeder(Seeder):
             model_class = AuthUser
             cache_enabled = False
@@ -260,3 +257,67 @@ class TestSeederReseedDatabase(TestCase):
         seeder.reseed_database()
         assert seeder._model_object_ids != first_ids
         assert len(seeder._model_object_ids) == 2
+
+
+class TestSeederUniqueField(TestCase):
+    def _unique_username_seeder(self, count: int) -> Seeder:
+        class UniqueUsernameSeeder(Seeder):
+            model_class = AuthUser
+            cache_enabled = False
+            fields_seeds = {
+                'username': Seeder.unique(field_seed=Seeder.ordered.choice(['a', 'b'], wrap=True))
+            }
+
+        return UniqueUsernameSeeder(count=count, verbose=False)
+
+    def test_seed_database_wrapped_duplicates_stay_unique(self):
+        seeder = self._unique_username_seeder(5)
+        seeder.seed_database()
+
+        usernames = list(AuthUser.objects.values_list('username', flat=True))
+
+        assert len(usernames) == 5
+        assert len(set(usernames)) == 5
+
+    def test_seed_database_is_unique_against_existing_rows(self):
+        AuthUser.objects.create(username='a')
+        self._unique_username_seeder(4).seed_database()
+
+        usernames = set(AuthUser.objects.values_list('username', flat=True))
+
+        assert usernames == {'a', 'a-2', 'b', 'a-3', 'b-2'}
+
+    def test_seed_database_parallel_generation_stays_unique(self):
+        self._unique_username_seeder(50).seed_database()
+
+        assert AuthUser.objects.count() == 50
+        assert AuthUser.objects.values_list('username', flat=True).distinct().count() == 50
+
+    def test_reseed_database_skips_rows_from_previous_batch(self):
+        seeder = self._unique_username_seeder(2)
+        seeder.seed_database()
+        seeder.reseed_database()
+
+        usernames = list(AuthUser.objects.values_list('username', flat=True))
+
+        assert len(usernames) == 4
+        assert len(set(usernames)) == 4
+
+    def test_cache_is_bypassed_when_unique_seed_present(self):
+        class CachedUniqueUsernameSeeder(Seeder):
+            model_class = AuthUser
+            cache_enabled = True
+            fields_seeds = {
+                'username': Seeder.unique(field_seed=Seeder.ordered.choice(['a', 'b'], wrap=True))
+            }
+
+        seeder = CachedUniqueUsernameSeeder(count=3, verbose=False)
+        seeder.reset_meta()
+        seeder.seed()
+        assert seeder.meta.fresh_seed_count == 3
+        assert seeder.meta.cached_seed_count == 0
+
+        seeder_again = CachedUniqueUsernameSeeder(count=3, verbose=False)
+        seeder_again.seed()
+        assert seeder_again.meta.fresh_seed_count == 6
+        assert seeder_again.meta.cached_seed_count == 0

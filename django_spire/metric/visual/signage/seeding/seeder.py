@@ -16,7 +16,7 @@ class SignageSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        'key': Seeder.ordered.choice([seed['key'] for seed in SIGNAGE_SEEDS], wrap=True),
+        'key': Seeder.fake.uuid4(),
         'name': Seeder.ordered.choice([seed['name'] for seed in SIGNAGE_SEEDS], wrap=True),
         'title': Seeder.ordered.choice([seed['title'] for seed in SIGNAGE_SEEDS], wrap=True),
         'description': Seeder.ordered.choice(

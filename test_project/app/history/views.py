@@ -19,25 +19,9 @@ def history_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context_data['page_title'] = str(history)
     context_data['page_description'] = 'Detail View'
     context_data['breadcrumbs'] = [
-        {'name': 'History Examples', 'href': reverse('history:page:list')},
+        {'name': 'History Examples', 'href': reverse('history:list')},
         {'name': str(history), 'href': None},
     ]
     return TemplateResponse(
         request, context=context_data, template='history/page/history_detail_page.html'
-    )
-
-
-def history_home_view(request: WSGIRequest) -> TemplateResponse:
-    template = 'history/page/history_home_page.html'
-    return TemplateResponse(request, template)
-
-
-def history_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {'history': models.HistoryExample.objects.all()}
-    context_data['page_title'] = 'History Example'
-    context_data['page_description'] = 'List View'
-    context_data['breadcrumbs'] = [{'name': 'History Examples', 'href': None}]
-
-    return TemplateResponse(
-        request, context=context_data, template='history/page/history_list_page.html'
     )

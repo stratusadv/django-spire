@@ -12,6 +12,9 @@ if TYPE_CHECKING:
 
 
 class DomainQuerySet(HistoryQuerySet, SearchQuerySetMixin):
+    def for_key(self, key: str) -> QuerySet[Domain]:
+        return self.filter(key=key)
+
     def bulk_filter(self, filter_data: dict) -> QuerySet[Domain]:
         queryset = self
 

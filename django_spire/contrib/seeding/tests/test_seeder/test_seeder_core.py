@@ -1,10 +1,10 @@
 import pytest
 from pathlib import PurePath
+from typing import Any
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding import settings
-from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeding.field.seed.file_seed import FileFieldSeed
 from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
@@ -190,7 +190,7 @@ class TestSeederSeedMethod(TestCase):
             cache_enabled = False
             fields_seeds = {'name': StaticFieldSeed('Test')}
 
-            def __post_seed__(self):
+            def __post_seed__(self) -> None:
                 self.hook_called = True
 
         seeder = TestSeeder(count=1, verbose=False)
@@ -241,7 +241,7 @@ class TestSeederOutputMethods(TestCase):
 
     def test_seed_class_instantiation(self):
         class SimpleClass:
-            def __init__(self, **kwargs):
+            def __init__(self, **kwargs: Any) -> None:
                 for key, value in kwargs.items():
                     setattr(self, key, value)
 

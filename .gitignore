@@ -17,7 +17,6 @@ robit.log*
 .crush/
 .opencode/
 .claude/
-.backplan/
 
 dev_tool.exe
 dev_tool*.exe

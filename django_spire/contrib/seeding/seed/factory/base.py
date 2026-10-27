@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from dandy import DandyRecoverableError, SqliteCache, generate_cache_key
 
@@ -32,6 +32,7 @@ class BaseSeedFactory(ABC):
                     seeder_name=self.seeder.name_verbose,
                     fields_seeds=self.seeder.fields_seeds,
                     seed_index=i,
+                    model_class=self.seeder.model_class,
                 )
             )
 
@@ -49,6 +50,11 @@ class BaseSeedFactory(ABC):
         return seeds
 
     def generate_seeds(self, count: int, cache_enabled: bool, cache_name: str) -> list[Seed]:
+        if cache_enabled and any(
+            seed.is_cache_unsafe for seed in self.seeder.fields_seeds.values()
+        ):
+            cache_enabled = False
+
         if cache_enabled:
             fields_cache_keys = [
                 (
@@ -80,10 +86,10 @@ class BaseSeedFactory(ABC):
                 self._print_retry()
 
                 fresh_seeds = self._generate_seeds(count)
-            except DandyRecoverableError:
-                message = f'Failed to generate a seed with an LLM please try again'
+            except DandyRecoverableError as err:
+                message = 'Failed to generate a seed with an LLM please try again'
 
-                raise DandyRecoverableError(message)
+                raise DandyRecoverableError(message) from err
 
         if cache_enabled:
             cache.set(cache_key, fresh_seeds)
@@ -99,6 +105,7 @@ class BaseSeedFactory(ABC):
             seeder_name=self.seeder.name_verbose,
             fields_seeds=self.seeder.fields_seeds,
             seed_index=-1,
+            model_class=self.seeder.model_class,
         )
 
     def _print_cached(self) -> None:
@@ -126,7 +133,7 @@ class BaseSeedFactory(ABC):
 
     def _print_init(self) -> None:
         if self.seeder.verbose:
-            print(f'Init', end='', flush=True)
+            print('Init', end='', flush=True)
 
     @abstractmethod
     def _validate(self) -> None:

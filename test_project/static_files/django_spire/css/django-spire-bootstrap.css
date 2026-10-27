@@ -12520,7 +12520,7 @@ textarea.form-control-lg {
   width: var(--side-navigation-width);
 }
 
-.side-navigation a {
+.side-navigation a:not(.dropdown-menu *) {
   color: var(--side-navigation-link-color) !important;
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -12528,7 +12528,7 @@ textarea.form-control-lg {
   white-space: nowrap;
 }
 
-.side-navigation a:focus-visible {
+.side-navigation a:not(.dropdown-menu *):focus-visible {
   outline: 2px solid var(--side-navigation-link-hover-color);
   outline-offset: -2px;
 }
@@ -12550,6 +12550,10 @@ textarea.form-control-lg {
 
 .side-navigation a.active i {
   color: var(--side-navigation-link-hover-color) !important;
+}
+
+.side-navigation-mobile-header .text-primary:not(.dropdown-menu *) {
+  color: var(--side-navigation-link-color) !important;
 }
 
 .side-navigation-fade-bottom {
@@ -12624,15 +12628,18 @@ textarea.form-control-lg {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .side-navigation a:hover {
+  .side-navigation a:not(.dropdown-menu *):hover {
     background-color: color-mix(in srgb, var(--side-navigation-link-color) 8%, transparent);
+    color: var(--side-navigation-link-hover-color) !important;
+  }
+  .side-navigation-mobile-header .text-primary:not(.dropdown-menu *):hover {
     color: var(--side-navigation-link-hover-color) !important;
   }
 }
 
 @media (hover: none) {
-  .side-navigation a:hover,
-.side-navigation a:active {
+  .side-navigation a:not(.dropdown-menu *):hover,
+.side-navigation a:not(.dropdown-menu *):active {
     color: var(--side-navigation-link-color) !important;
   }
 }
@@ -13160,6 +13167,7 @@ textarea.form-control-lg {
 
 :root {
   --app-a-primary: var(--app-primary);
+  --primary: var(--bs-primary);
 }
 
 .dropdown-item {

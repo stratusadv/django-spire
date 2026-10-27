@@ -1,0 +1,16 @@
+<button
+    class="btn btn-sm btn-outline-warning"
+    type="button"
+    @click="
+        const confirmation = await component.archive_confirmation({pk: {{ task.pk }}})
+
+        confirmation.$on('cancelled', () => Spire.modal.close())
+        confirmation.$on('confirmed', ({ detail }) => {
+            Spire.notify.success('Task archived.')
+            Spire.modal.close()
+        })
+        await Spire.modal.dispatchGlueComponent(confirmation)
+    "
+>
+    Archive
+</button>

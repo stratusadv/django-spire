@@ -5,8 +5,10 @@ from django_spire.contrib.seeding.field.seed.mutate.corrupt_seed import CorruptM
 from django_spire.contrib.seeding.field.seed.mutate.exclude_seed import ExcludeMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate.choices import MutateSeverity
 from django_spire.contrib.seeding.field.seed.mutate.nullable_seed import NullableMutateFieldSeed
-from django_spire.contrib.seeding.field.seed.mutate.transform_seed import TransformMutateFieldSeed
-from django_spire.contrib.seeding.field.seed.mutate.transform_seed import TypeCoercionMutateFieldSeed
+from django_spire.contrib.seeding.field.seed.mutate.transform_seed import (
+    TransformMutateFieldSeed,
+    TypeCoercionMutateFieldSeed,
+)
 
 
 class TestMutateFieldSeedHelper(TestCase):

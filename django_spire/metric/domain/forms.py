@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from django import forms
 from django.forms import ModelForm
-from django.http import HttpRequest
 from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
@@ -12,12 +11,13 @@ from django_glue.message import GlueMessage
 from django_spire.metric.domain import models
 
 if TYPE_CHECKING:
+    from django.http import HttpRequest
     from typing import ClassVar
 
 
 class DomainForm(ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             domain, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 
@@ -39,7 +39,9 @@ class DomainForm(ModelForm):
 
 class SubDomainForm(ModelForm):
     key = forms.SlugField(
-        required=False, label='Key', help_text='Leave blank to automatically generate a slug from the name.'
+        required=False,
+        label='Key',
+        help_text='Leave blank to automatically generate a slug from the name.',
     )
 
     def clean_key(self) -> str:
@@ -61,7 +63,7 @@ class SubDomainForm(ModelForm):
         return key
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self, _request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             subdomain, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 

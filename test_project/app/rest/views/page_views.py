@@ -19,7 +19,9 @@ if TYPE_CHECKING:
 def list_page(request: WSGIRequest) -> TemplateResponse:
     pirates = models.Pirate.objects.active().search(request.GET.get('search'))
 
-    Glue.queryset(request, 'pirates', pirates, Glue.Access.CHANGE, fields='__all__')
+    Glue.queryset(
+        request, 'pirates', pirates, Glue.Access.CHANGE, fields='__all__', batch_size=25
+    )
 
     nav = RestNavigation()
     nav.set_page_title_from_model_plural_name(models.Pirate)

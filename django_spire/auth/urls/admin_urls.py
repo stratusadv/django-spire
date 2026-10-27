@@ -32,15 +32,4 @@ urlpatterns += [
     path(
         'password/reset/done/', admin_views.PasswordResetDone.as_view(), name='password_reset_done'
     ),
-    path(
-        'password/reset/key/form/',
-        admin_views.PasswordResetKeyForm.as_view(),
-        name='password_reset_key_form',
-    ),
-    path(
-        'password/reset/key/form/done/',
-        admin_views.PasswordResetKeyFormDone.as_view(),
-        name='password_reset_key_form_done',
-    ),
-    path('password/reset/set/', admin_views.PasswordSetForm.as_view(), name='password_set_form'),
 ]

@@ -70,10 +70,13 @@ class TestTransformMutateFieldSeed(TestCase):
         assert seed.generate_value(0) == 10
 
     def test_complex_transform(self):
+        def zigzag(value: str) -> str:
+            return ''.join(c.upper() if i % 2 == 0 else c.lower() for i, c in enumerate(value))
+
         wrapped = StaticFieldSeed('hello world')
         seed = TransformMutateFieldSeed(
             field_seed=wrapped,
-            transform=lambda v: ''.join(c.upper() if i % 2 == 0 else c.lower() for i, c in enumerate(v)),
+            transform=zigzag,
             change_chance=1.0,
         )
         assert seed.generate_value(0) == 'HeLlO WoRlD'

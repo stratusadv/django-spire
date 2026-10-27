@@ -1,0 +1,8 @@
+<button
+    class="btn btn-sm btn-outline-primary"
+    type="button"
+    title="Duplicate Task"
+    x-bind="asyncButton(() => component.duplicate({pk: {{ task.pk }}}))"
+>
+    <i class="bi bi-copy"></i>
+</button>
