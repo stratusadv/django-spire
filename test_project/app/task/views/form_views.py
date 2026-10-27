@@ -47,7 +47,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
 
     nav = TaskNavigation()
     nav.page_title = f'Delete {task.name}'
-    nav.breadcrumbs.add('Tasks', 'task:page:list')
     nav.breadcrumbs.add(f'Delete {task.name}')
 
     context = nav.as_context()

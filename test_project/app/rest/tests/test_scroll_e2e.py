@@ -8,8 +8,8 @@ from playwright.sync_api import expect
 
 from django_spire.testing.playwright.components.glue_scroll import GlueScroll
 
-from test_project.app.task.models import Task
-from test_project.app.task.tests.factories import create_test_task
+from test_project.app.rest.models import Pirate
+from test_project.app.rest.tests.factories import create_test_pirate
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 
 
 pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
+
+ROW_SELECTOR = '.row.border-bottom:has([title="Edit"])'
 
 
 def test_reset_and_load_busts_the_stale_scroll_query_cache(
@@ -37,14 +39,14 @@ def test_reset_and_load_busts_the_stale_scroll_query_cache(
     """
     del transactional_db
 
-    keep = create_test_task(name='Keep Task')
-    doomed = create_test_task(name='Doomed Task')
+    keep = create_test_pirate(first_name='Keep')
+    doomed = create_test_pirate(first_name='Doomed')
 
     demo = demo_start()
     demo.title('Scroll Reset Busts Its Stale Cache', kicker='django-spire')
-    demo.goto('task:page:list')
+    demo.goto('rest:page:list')
 
-    scroll = GlueScroll(page, row_selector='.row.border-bottom')
+    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
     scroll.wait_for_row_count(2)
 
     demo.narrate('scrollQuerySet has now cached this page of results', step='1')
@@ -53,7 +55,7 @@ def test_reset_and_load_busts_the_stale_scroll_query_cache(
     # delete or a filter-changing edit would, then fire the event a consumer
     # dispatches on removal.
     doomed_pk = doomed.pk
-    Task.objects.filter(pk=doomed_pk).update(is_deleted=True)
+    Pirate.objects.filter(pk=doomed_pk).update(is_deleted=True)
 
     page.evaluate(
         '(pk) => window.dispatchEvent('
@@ -65,8 +67,8 @@ def test_reset_and_load_busts_the_stale_scroll_query_cache(
     demo.narrate('The removed row disappears instead of replaying the stale cache', step='2')
 
     scroll.wait_for_row_count(1)
-    expect(scroll.rows.first).to_contain_text(keep.name)
-    expect(scroll.rows).not_to_contain_text('Doomed Task')
+    expect(scroll.rows.first).to_contain_text(keep.first_name)
+    expect(scroll.rows).not_to_contain_text('Doomed')
 
 
 SCROLL_DATA = """
@@ -95,7 +97,9 @@ OVERLAPPING_RESETS = f"""
 
         try {{
             scroll.filterField = ''
-            scroll.scrollQuerySet = scroll.scrollQuerySet.filter({{name__icontains: 'Needle'}})
+            scroll.scrollQuerySet = scroll.scrollQuerySet.filter({{
+                first_name__icontains: 'Needle'
+            }})
             const first = scroll.resetAndLoad()
             const second = scroll.resetAndLoad()
             await first
@@ -105,7 +109,7 @@ OVERLAPPING_RESETS = f"""
             prototype.refresh = originalRefresh
         }}
 
-        return scroll.items.map((item) => item.name)
+        return scroll.items.map((item) => item.first_name)
     }}
 """
 
@@ -127,7 +131,7 @@ LOAD_MORE_DURING_RESET = f"""
 
         try {{
             const loadMore = scroll.loadMoreItems()
-            scroll.orderBy = '-name'
+            scroll.orderBy = '-first_name'
             await new Promise((resolve) => setTimeout(resolve, 1500))
             releaseLoadMore()
             await loadMore
@@ -136,7 +140,7 @@ LOAD_MORE_DURING_RESET = f"""
             prototype.loadMore = originalLoadMore
         }}
 
-        return scroll.items.map((item) => item.name)
+        return scroll.items.map((item) => item.first_name)
     }}
 """
 
@@ -147,21 +151,21 @@ def test_an_overtaken_reset_does_not_replace_the_newer_reset_results(
     del transactional_db
 
     for number in range(1, 31):
-        create_test_task(name=f'Task {number:02d}')
+        create_test_pirate(first_name=f'Pirate {number:02d}')
 
-    create_test_task(name='Needle Task')
+    create_test_pirate(first_name='Needle')
 
     demo = demo_start()
-    demo.goto('task:page:list')
+    demo.goto('rest:page:list')
 
-    scroll = GlueScroll(page, row_selector='.row.border-bottom')
+    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
     scroll.wait_for_rows()
 
     names = page.evaluate(OVERLAPPING_RESETS)
 
-    assert names == ['Needle Task']
+    assert names == ['Needle']
     scroll.wait_for_row_count(1)
-    expect(scroll.rows.first).to_contain_text('Needle Task')
+    expect(scroll.rows.first).to_contain_text('Needle')
 
 
 def test_a_page_load_in_flight_does_not_overwrite_a_reordered_reset(
@@ -170,16 +174,16 @@ def test_a_page_load_in_flight_does_not_overwrite_a_reordered_reset(
     del transactional_db
 
     for number in range(1, 81):
-        create_test_task(name=f'Task {number:02d}')
+        create_test_pirate(first_name=f'Pirate {number:02d}')
 
     demo = demo_start()
-    demo.goto('task:page:list')
+    demo.goto('rest:page:list')
 
-    scroll = GlueScroll(page, row_selector='.row.border-bottom')
+    scroll = GlueScroll(page, row_selector=ROW_SELECTOR)
     scroll.wait_for_rows()
 
     names = page.evaluate(LOAD_MORE_DURING_RESET)
 
-    assert names[0] == 'Task 80'
+    assert names[0] == 'Pirate 80'
     assert names == sorted(names, reverse=True)
     assert len(names) == len(set(names))

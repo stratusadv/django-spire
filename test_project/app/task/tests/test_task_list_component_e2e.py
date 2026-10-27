@@ -31,7 +31,7 @@ NAME_SELECTOR = '[data-task-name]'
 
 def _open_task_list(page: Page, demo_start: Callable[..., Demo], row_count: int) -> ScrollComponent:
     demo = demo_start()
-    demo.goto('task:page:list_component')
+    demo.goto('task:page:list')
 
     scroll = ScrollComponent(page, row_selector=ROW_SELECTOR)
     scroll.wait_for_row_count(row_count)
@@ -475,7 +475,7 @@ def test_deleting_a_child_task_goes_to_its_delete_page_and_returns_to_the_list(
     del transactional_db
 
     parent, children = _open_child_list(page, demo_start, child_count=2)
-    list_path = reverse('task:page:list_component')
+    list_path = reverse('task:page:list')
     delete_path = reverse('task:form:delete', kwargs={'pk': children[0].pk})
 
     _row(page, children[0]).get_by_title('Delete Task').click()

@@ -47,8 +47,7 @@ class TaskListComponent(GlueScrollItemsMixin, ModelCrudScrollComponent):
         self.access = Glue.Access.DELETE
 
         nav = TaskNavigation()
-        nav.page_title = 'Task List Component'
-        nav.breadcrumbs.add('List Component')
+        nav.set_page_title_from_model_plural_name(Task)
         self.context_data.update(nav.as_context())
 
     def get_queryset(self) -> QuerySet[Task]:
