@@ -74,7 +74,7 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             raise ImproperlyConfigured(message)
 
     @Glue.attr(required_access=Glue.Access.DELETE)
-    def load_item_delete_confirmation(self, pk: int) -> BaseModelDeleteConfirmationComponent:
+    def load_item_delete_confirmation(self, pk: int | str) -> BaseModelDeleteConfirmationComponent:
         if not isinstance(self.item_delete_options, ComponentDeleteOptions):
             message = f'{type(self).__name__} has no confirmation component to delete a row with.'
             raise PermissionDenied(message)
@@ -85,7 +85,7 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
         )
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def load_item_form(self, pk: int | None = None) -> ModelFormComponent:
+    def load_item_form(self, pk: int | str | None = None) -> ModelFormComponent:
         if not isinstance(self.item_form_options, ComponentFormOptions):
             message = f'{type(self).__name__} has no form component to create or edit a row with.'
             raise PermissionDenied(message)
