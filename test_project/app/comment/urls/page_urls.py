@@ -13,5 +13,5 @@ urlpatterns = [
          ),
          name='list'),
     path('<int:pk>/detail/', views.comment_detail_view, name='detail'),
-    path('<int:pk>/form/', views.comment_detail_view, name='form'),
+    path('<int:pk>/form/', views.comment_form_view, name='form'),
 ]
