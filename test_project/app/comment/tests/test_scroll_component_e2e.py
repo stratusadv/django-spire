@@ -38,7 +38,7 @@ def _create_comments(count: int) -> list[str]:
 
 def _open_comment_list(page: Page, demo_start: Callable[..., Demo]) -> ScrollComponent:
     demo = demo_start()
-    demo.goto('comment:page:list_component')
+    demo.goto('comment:page:list')
 
     scroll = ScrollComponent(page, row_selector=ROW_SELECTOR)
     scroll.rows.first.wait_for()
@@ -184,7 +184,7 @@ def test_creating_and_editing_go_to_the_one_form_route(
         lambda route: route.fulfill(status=200, content_type='text/html', body='Comment form'),
     )
     returning_to_the_list = r'\?return_url=' + re.escape(
-        quote(reverse('comment:page:list_component'), safe='')
+        quote(reverse('comment:page:list'), safe='')
     )
 
     page.get_by_role('button', name='New Comment').click()

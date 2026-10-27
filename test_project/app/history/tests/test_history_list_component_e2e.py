@@ -34,7 +34,7 @@ def test_scrolling_a_read_only_list_shows_every_row_in_order(
     ]
 
     demo = demo_start()
-    demo.goto('history:list_component')
+    demo.goto('history:list')
 
     scroll = ScrollComponent(page, row_selector=ROW_SELECTOR)
     scroll.scroll_until_row_count(60)
@@ -62,7 +62,7 @@ def test_a_plain_queryset_scroll_has_no_create_edit_or_delete(
     create_test_history_example(name='History 01')
 
     demo = demo_start()
-    demo.goto('history:list_component')
+    demo.goto('history:list')
 
     scroll = ScrollComponent(page, row_selector=ROW_SELECTOR)
     scroll.wait_for_row_count(1)

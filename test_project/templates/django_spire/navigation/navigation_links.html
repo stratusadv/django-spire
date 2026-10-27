@@ -23,7 +23,7 @@
 {% url 'celery:home' as celery_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Celery' link_icon='bi bi-ui-checks' link_url=celery_url %}
 
-{% url 'comment:page:home' as comment_url %}
+{% url 'comment:page:list' as comment_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Comment' link_icon='bi bi-chat-text' link_url=comment_url %}
 
 {% url 'file:page:list' as file_url %}
@@ -31,7 +31,7 @@
 
 {% url 'help_desk:home' as help_desk_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Help Desk' link_icon='bi bi-headset' link_url=help_desk_url %}
-{% url 'history:home' as history_url %}
+{% url 'history:list' as history_url %}
 {% include 'django_spire/navigation/link.html' with link_text='History' link_icon='bi bi-clock-history' link_url=history_url %}
 
 {% url 'metrics:page:record_test' as metric_record_test_url %}
@@ -39,6 +39,9 @@
 
 {% url 'order:list' as ordering_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Ordering' link_icon='bi bi-list-ol' link_url=ordering_url %}
+
+{% url 'order:list_component' as duck_list_component_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Duck List Component' link_icon='bi bi-list-ul' link_url=duck_list_component_url %}
 
 {% url 'notification:page:list' as notification_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Notification' link_icon='bi bi-bell' link_url=notification_url %}
@@ -50,6 +53,12 @@
 
 {% url 'rest:page:list' as rest_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Rest Clients' link_icon='bi bi-arrow-down-up' link_url=rest_url %}
+
+{% url 'rest:page:api_list' as pirate_api_list_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Pirates From the API' link_icon='bi bi-cloud-download' link_url=pirate_api_list_url %}
+
+{% url 'rest:page:table' as pirate_table_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Pirate Table' link_icon='bi bi-table' link_url=pirate_table_url %}
 
 {% url 'django_spire:api:page:list' as api_list_url %}
 {% include 'django_spire/navigation/link.html' with link_text='API Access' link_icon='bi bi-key' link_url=api_list_url %}

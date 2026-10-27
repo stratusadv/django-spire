@@ -25,24 +25,3 @@ def comment_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request, context=context, template='comment/page/comment_detail_page.html'
     )
-
-
-def comment_home_view(request: WSGIRequest) -> TemplateResponse:
-    template = 'comment/page/comment_list_page.html'
-    return TemplateResponse(request, template)
-
-
-def comment_list_view(request: WSGIRequest) -> TemplateResponse:
-    nav = CommentNavigation()
-    context = nav.as_context()
-    context['comment_examples'] = models.CommentExample.objects.all()
-    context['page_description'] = 'List View'
-
-    return TemplateResponse(
-        request, context=context, template='comment/page/comment_list_page.html'
-    )
-
-
-def comment_form_view(request: WSGIRequest) -> TemplateResponse:
-    template = 'comment/page/comment_form.html'
-    return TemplateResponse(request, template)

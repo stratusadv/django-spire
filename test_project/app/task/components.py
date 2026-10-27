@@ -37,7 +37,6 @@ class TaskListComponent(ModelCrudScrollComponent):
     def __post_init__(self, request: HttpRequest) -> None:
         super().__post_init__(request)
 
-        # Stands in for a permission check: a real list sets this from what the user may do.
         self.access = Glue.Access.DELETE
 
         nav = TaskNavigation()
