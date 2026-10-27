@@ -18,6 +18,8 @@ pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 SCROLL_CONTAINER = '[data-side-navigation-scroll]'
 TOGGLE = r'[x-data="sideNavigation()"] [\@click="toggle_collapse()"]'
 SHORT_VIEWPORT = {'width': 1280, 'height': 400}
+PHONE_VIEWPORT = {'width': 400, 'height': 800}
+LINK_COLOR = 'rgb(1, 2, 3)'
 
 
 def open_home(page: Page, demo_start: Callable[..., Demo]) -> None:
@@ -97,3 +99,25 @@ def test_fades_show_which_way_the_navigation_can_scroll(
 
     expect(top_fade).to_be_visible()
     expect(bottom_fade).to_be_hidden()
+
+
+def test_the_mobile_menu_header_takes_the_side_navigation_link_color(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    page.set_viewport_size(PHONE_VIEWPORT)
+    open_home(page, demo_start)
+
+    # The default theme's link color is its primary, so a distinct one tells the two apart.
+    page.add_style_tag(content=f':root {{ --side-navigation-link-color: {LINK_COLOR} !important; }}')
+    page.locator('.d-lg-none .bi-list').click()
+
+    header = page.locator('.side-navigation-mobile-header')
+
+    for icon in ('.bi-search', '.bi-bell-fill', '.bi-person-circle'):
+        expect(header.locator(icon)).to_have_css('color', LINK_COLOR)
+
+    header.locator('.bi-person-circle').click()
+
+    expect(header.get_by_role('link', name='Logout')).to_be_visible()

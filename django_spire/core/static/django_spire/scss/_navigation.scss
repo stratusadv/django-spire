@@ -89,6 +89,13 @@
     color: var(--side-navigation-link-hover-color) !important;
 }
 
+// The mobile menu's header holds the top navigation's buttons, colored primary
+// for the top bar, on the side navigation's background: they take its link
+// color instead, so a theme whose side navigation is its primary still shows them.
+.side-navigation-mobile-header .text-primary:not(.dropdown-menu *) {
+    color: var(--side-navigation-link-color) !important;
+}
+
 .side-navigation-fade-bottom {
     background: linear-gradient(to bottom, transparent, var(--side-navigation-bg-color));
     height: 32px;
@@ -163,6 +170,10 @@
 @media (hover: hover) and (pointer: fine) {
     .side-navigation a:hover {
         background-color: color-mix(in srgb, var(--side-navigation-link-color) 8%, transparent);
+        color: var(--side-navigation-link-hover-color) !important;
+    }
+
+    .side-navigation-mobile-header .text-primary:not(.dropdown-menu *):hover {
         color: var(--side-navigation-link-hover-color) !important;
     }
 }
