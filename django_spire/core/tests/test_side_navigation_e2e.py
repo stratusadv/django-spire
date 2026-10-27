@@ -120,4 +120,8 @@ def test_the_mobile_menu_header_takes_the_side_navigation_link_color(
 
     header.locator('.bi-person-circle').click()
 
-    expect(header.get_by_role('link', name='Logout')).to_be_visible()
+    # The account menu is a dropdown on its own surface, not a side navigation link.
+    for name in ('Change Password', 'Logout'):
+        link = header.get_by_role('link', name=name)
+        expect(link).to_be_visible()
+        expect(link).not_to_have_css('color', LINK_COLOR)
