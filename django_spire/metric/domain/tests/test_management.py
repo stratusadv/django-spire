@@ -11,13 +11,59 @@ from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.domain.models import Domain
-from django_spire.metric.domain.statistic.models import StatisticValue
+from django_spire.metric.domain.statistic.models import Statistic, StatisticValue
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
     create_test_statistic,
     create_test_statistic_group,
     create_test_subdomain,
 )
+from django_spire.metric.metric import Metric
+
+
+class AlphaMetric(Metric):
+    domains = [
+        Metric.Domain(
+            'alpha',
+            name='Alpha',
+            statistic_groups=[
+                Metric.StatisticGroup('sales', name='Sales', statistics=[Metric.Statistic('count', name='Sales count')])
+            ],
+        )
+    ]
+
+
+class BetaMetric(Metric):
+    domains = [
+        Metric.Domain(
+            'beta',
+            name='Beta',
+            statistic_groups=[
+                Metric.StatisticGroup('stock', name='Stock', statistics=[Metric.Statistic('count', name='Stock count')])
+            ],
+        )
+    ]
+
+
+class RemoteGammaMetric(Metric):
+    target = Metric.Target.REMOTE
+    remote_target = 'central'
+    domains = [
+        Metric.Domain(
+            'gamma',
+            name='Gamma',
+            statistic_groups=[
+                Metric.StatisticGroup(
+                    'shipments', name='Shipments', statistics=[Metric.Statistic('count', name='Shipments count')]
+                )
+            ],
+        )
+    ]
+
+
+ALPHA_METRIC = 'django_spire.metric.domain.tests.test_management.AlphaMetric'
+BETA_METRIC = 'django_spire.metric.domain.tests.test_management.BetaMetric'
+GAMMA_METRIC = 'django_spire.metric.domain.tests.test_management.RemoteGammaMetric'
 
 
 class PruneMetricStatisticValuesCommandTestCase(BaseTestCase):
@@ -135,3 +181,51 @@ class MetricBuildOrphanFlagTestCase(BaseTestCase):
         self.domain.refresh_from_db()
         assert self.domain.is_orphaned is False
         assert 'orphan (not in any registry): domain' not in out.getvalue()
+
+
+class MetricBuildPartialAndRemoteTestCase(BaseTestCase):
+    def test_partial_build_does_not_flag_other_registries(self) -> None:
+        with override_settings(DJANGO_SPIRE_METRIC_REGISTRY=[ALPHA_METRIC, BETA_METRIC]):
+            call_command('metric_build', stdout=StringIO())
+            out = StringIO()
+            call_command('metric_build', '--registry', ALPHA_METRIC, stdout=out)
+
+        output = out.getvalue()
+        assert 'unchanged 3' in output
+        assert 'orphan (not in any registry): domain beta' not in output
+        assert Domain.objects.for_key('beta').get().is_orphaned is False
+        assert Statistic.objects.for_key('beta--stock--count').get().is_orphaned is False
+
+    def test_build_skips_remote_registries(self) -> None:
+        with override_settings(DJANGO_SPIRE_METRIC_REGISTRY=[ALPHA_METRIC, GAMMA_METRIC]):
+            out = StringIO()
+            call_command('metric_build', stdout=out)
+
+        output = out.getvalue()
+        assert 'skipped: targets a remote installation' in output
+        assert Domain.objects.for_key('alpha').exists()
+        assert not Domain.objects.for_key('gamma').exists()
+
+    def test_remote_keys_do_not_count_as_declared(self) -> None:
+        gamma = create_test_domain(name='gamma')
+
+        with override_settings(DJANGO_SPIRE_METRIC_REGISTRY=[ALPHA_METRIC, GAMMA_METRIC]):
+            out = StringIO()
+            call_command('metric_build', stdout=out)
+
+        assert 'orphan (not in any registry): domain gamma' in out.getvalue()
+        gamma.refresh_from_db()
+        assert gamma.is_orphaned is True
+
+    def test_build_with_only_remote_registries_flags_nothing(self) -> None:
+        stray = create_test_domain(name='stray')
+
+        with override_settings(DJANGO_SPIRE_METRIC_REGISTRY=[GAMMA_METRIC]):
+            out = StringIO()
+            call_command('metric_build', stdout=out)
+
+        output = out.getvalue()
+        assert 'skipped: targets a remote installation' in output
+        assert 'orphan' not in output
+        stray.refresh_from_db()
+        assert stray.is_orphaned is False

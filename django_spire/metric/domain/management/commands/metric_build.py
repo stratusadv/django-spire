@@ -37,6 +37,20 @@ class Command(BaseCommand):
             self.stdout.write('No metric registries configured in DJANGO_SPIRE_METRIC_REGISTRY.')
             return
 
+        if not options['check']:
+            local_registries = []
+
+            for registry in registries:
+                if registry.target is Metric.Target.REMOTE:
+                    label = f'{registry.__module__}.{registry.__qualname__}'
+                    self.stdout.write(label)
+                    self.stdout.write('  skipped: targets a remote installation; run metric_build on that installation')
+                    continue
+
+                local_registries.append(registry)
+
+            registries = local_registries
+
         failures = []
 
         for registry in registries:
@@ -54,7 +68,7 @@ class Command(BaseCommand):
             if not summary.ok:
                 failures.append(label)
 
-        if not options['check']:
+        if not options['check'] and options['registry'] is None and registries:
             self._apply_orphans(registries)
 
         if failures:

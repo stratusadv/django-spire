@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.4.1
+
+### Fixed
+
+- `metric_build --registry` no longer flags rows declared by other registered
+  registries as orphaned; the orphan pass now runs only on a full build.
+- `metric_build` no longer crashes when a `REMOTE`-targeted registry is
+  registered: build mode skips each one with a printed line, and `--check`
+  still probes it. A remote registry's keys are not counted as declared for
+  the orphan pass, since they describe rows on the target installation.
+
+### Docs
+
+- The v1.4.0 entry said the API `MetricKey` pattern "no longer accepts
+  underscores or `--`". It accepts `--`, because the API takes the stored key
+  form; the v1.4.0 entry is corrected.
+
 ## v1.4.0 - October 27, 2026
 
 ### Breaking
@@ -27,8 +44,9 @@
   (`store--web`, `store--orders--created`); the migration
   `0012_metric_key_object_separator` rewrites the existing rows in the four metric tables.
   Metric spec keys are strict lowercase slugs (underscores are rejected), the API
-  `MetricKey` pattern no longer accepts underscores or `--`, and the click-tracking
-  settings `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`
+  `MetricKey` pattern no longer accepts underscores (it accepts `--`, because the
+  API takes the stored key form), and the click-tracking settings
+  `DJANGO_SPIRE_METRIC_STATISTIC_KEY` and `DJANGO_SPIRE_METRIC_SUB_DOMAIN_KEY`
   must use the stored key form.
 - `BaseReport.add_column()`'s `type` argument is renamed `column_type`. Positional
   calls are unaffected; a report that passes `type=` by keyword raises `TypeError`
