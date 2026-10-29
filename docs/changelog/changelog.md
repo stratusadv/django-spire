@@ -9,6 +9,10 @@
   action cannot be performed, such as one on a row that changed while the
   prompt was open: `confirmed` is not fired, and the prompt stays open and
   shows the error's message. Before, the call failed or reported success.
+- A project adds its own controls to the top bar by overriding
+  `django_spire/navigation/top/menu/project_buttons.html`, which is empty by
+  default. The top bar's buttons include it first, on desktop and in the
+  mobile header, so a project no longer copies `buttons.html` to add one.
 
 ### Fixed
 

@@ -1,3 +1,5 @@
+{% include 'django_spire/navigation/top/menu/project_buttons.html' %}
+
 {% if request.user.is_authenticated %}
     {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-search' icon_class='mx-1' x_icon_click='Spire.searchPalette.open()' %}
 {% endif %}
