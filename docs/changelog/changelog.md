@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.4.1
+## v1.4.1 - October 29, 2026
 
 ### Added
 
