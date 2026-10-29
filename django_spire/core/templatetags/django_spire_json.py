@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from typing import Sequence
+from typing import Any, Sequence
 
 from django import template
 
@@ -16,3 +16,11 @@ def to_json(value: dict | Sequence) -> str:
         return json.dumps(value)
     except (TypeError, ValueError):
         return ''
+
+
+@register.filter(name='dict_items')
+def dict_items(value: Any) -> list[tuple[Any, Any]]:
+    if isinstance(value, dict):
+        return list(value.items())
+
+    return []

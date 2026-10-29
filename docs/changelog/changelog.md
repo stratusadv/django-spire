@@ -22,6 +22,10 @@
   registered: build mode skips each one with a printed line, and `--check`
   still probes it. A remote registry's keys are not counted as declared for
   the orphan pass, since they describe rows on the target installation.
+- `JsonTreeWidget` no longer crashes on a JSON object with a key named
+  `items`: the tree template's `dict.items` resolved to that key's value
+  before the dict's `.items()` method, so the key/value loop tried to unpack
+  it. The tree now iterates an explicit `dict_items` filter.
 
 ### Docs
 

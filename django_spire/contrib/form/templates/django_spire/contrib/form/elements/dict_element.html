@@ -2,7 +2,7 @@
 {% load django_spire_variable_types %}
 {% load django_spire_string_formatting %}
 
-{% for key, value in dict.items %}
+{% for key, value in dict|dict_items %}
     {% with 'display_'|add:key|dashes_and_spaces_to_underscore as key_display %}
         <div x-data="{
                 {{ key_display }}: {% if open_dropdowns %}true{% elif value|is_not_dict and value|is_not_list_or_tuple %}true{% else %}false{% endif %}
