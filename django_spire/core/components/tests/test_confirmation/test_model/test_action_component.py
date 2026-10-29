@@ -4,7 +4,10 @@ from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django_glue import Glue
 
-from django_spire.core.components.confirmation import BaseModelActionConfirmationComponent
+from django_spire.core.components.confirmation import (
+    BaseModelActionConfirmationComponent,
+    ConfirmationRefusedError,
+)
 from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.comment.tests.factories import create_test_comment_example
 
@@ -15,7 +18,27 @@ class RenameCommentConfirmationComponent(BaseModelActionConfirmationComponent):
         self.instance.save()
 
 
+class LockedCommentConfirmationComponent(BaseModelActionConfirmationComponent):
+    def perform_action(self) -> None:
+        message = f'{self.instance.name} was locked by someone else.'
+        raise ConfirmationRefusedError(message)
+
+
 class BaseModelActionConfirmationComponentTestCase(BaseTestCase):
+    def test_a_refusal_from_the_action_reaches_the_user(self) -> None:
+        comment = create_test_comment_example(name='Budget Review')
+        component = LockedCommentConfirmationComponent(instance=comment)
+
+        response = component.confirm()
+
+        comment.refresh_from_db()
+
+        assert comment.name == 'Budget Review'
+        assert [message.message for message in response.messages] == [
+            'Budget Review was locked by someone else.',
+        ]
+        assert component.__dict__.get('_pending_events', []) == []
+
     def test_confirming_performs_the_action_and_fires_the_rows_key(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
         component = RenameCommentConfirmationComponent(instance=comment)
