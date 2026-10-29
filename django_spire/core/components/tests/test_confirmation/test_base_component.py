@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django_glue import Glue
 
-from django_spire.core.components.confirmation import BaseConfirmationComponent
+from django_spire.core.components.confirmation import BaseConfirmationComponent, ConfirmationRefusedError
 from django_spire.core.tests.test_cases import BaseTestCase
 
 
@@ -17,6 +19,18 @@ class GreetingConfirmationComponent(BaseConfirmationComponent):
 
 class GuardedConfirmationComponent(GreetingConfirmationComponent):
     confirm_access = Glue.Access.CHANGE
+
+
+class RefusingConfirmationComponent(BaseConfirmationComponent):
+    def on_confirm(self) -> dict[str, Any]:
+        message = 'The greeting was already sent.'
+        raise ConfirmationRefusedError(message)
+
+
+class FailingConfirmationComponent(BaseConfirmationComponent):
+    def on_confirm(self) -> dict[str, Any]:
+        message = 'The mail server is down.'
+        raise RuntimeError(message)
 
 
 class BaseConfirmationComponentTestCase(BaseTestCase):
@@ -33,11 +47,31 @@ class BaseConfirmationComponentTestCase(BaseTestCase):
     def test_confirming_fires_confirmed_with_what_the_action_returned(self) -> None:
         component = GreetingConfirmationComponent()
 
-        component.confirm()
+        response = component.confirm()
 
+        assert response is None
         assert component.__dict__['_pending_events'] == [
             {'name': 'confirmed', 'detail': {'greeting': 'hello'}},
         ]
+
+    def test_a_refused_action_reports_why_and_fires_nothing(self) -> None:
+        component = RefusingConfirmationComponent()
+
+        response = component.confirm()
+
+        assert [message.to_dict()['message'] for message in response.messages] == [
+            'The greeting was already sent.',
+        ]
+        assert response.messages[0].level_tag == 'error'
+        assert component.__dict__.get('_pending_events', []) == []
+
+    def test_an_action_that_fails_otherwise_still_raises(self) -> None:
+        component = FailingConfirmationComponent()
+
+        with pytest.raises(RuntimeError):
+            component.confirm()
+
+        assert component.__dict__.get('_pending_events', []) == []
 
     def test_cancelling_is_raised_in_the_browser_and_has_no_callable(self) -> None:
         html = render_to_string(

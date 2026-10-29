@@ -2,6 +2,7 @@ from django_spire.core.components.confirmation import (
     BaseConfirmationComponent,
     BaseModelActionConfirmationComponent,
     BaseModelDeleteConfirmationComponent,
+    ConfirmationRefusedError,
     ModelDeleteConfirmationComponent,
     ModelSetDeletedConfirmationComponent,
 )
@@ -22,6 +23,7 @@ __all__ = [
     'BaseModelActionConfirmationComponent',
     'BaseModelDeleteConfirmationComponent',
     'BaseScrollComponent',
+    'ConfirmationRefusedError',
     'FormComponent',
     'ModelCrudScrollComponent',
     'ModelDeleteConfirmationComponent',

@@ -2,6 +2,14 @@
 
 ## v1.4.1
 
+### Added
+
+- A confirmation component can refuse its action. `on_confirm()`, or a model
+  confirmation's `perform_action()`, raises `ConfirmationRefusedError` when the
+  action cannot be performed, such as one on a row that changed while the
+  prompt was open: `confirmed` is not fired, and the prompt stays open and
+  shows the error's message. Before, the call failed or reported success.
+
 ### Fixed
 
 - `metric_build --registry` no longer flags rows declared by other registered
