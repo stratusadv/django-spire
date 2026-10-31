@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pickle
+import time
 import uuid
 from datetime import timedelta
 from unittest.mock import MagicMock
@@ -10,6 +11,7 @@ from django.test import TestCase
 from django.utils.timezone import now
 
 from django_spire.celery.choices import CeleryTaskSourceChoices
+from django_spire.celery.meta import CeleryTaskMeta
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.tests.factories import create_test_celery_task
 from django_spire.celery.result import CeleryExceptionResult, CeleryNoResult, SendFailedError
@@ -288,3 +290,45 @@ class CeleryTaskSendFailedExceptionResultTestCase(TestCase):
 
         assert task.send_failed is False
         assert task.result == {'test': 'data'}
+
+
+class CeleryTaskMetaEstimatedProgressTestCase(TestCase):
+    def test_none_when_no_progress(self) -> None:
+        assert CeleryTaskMeta().estimated_progress is None
+
+    def test_none_when_progress_is_zero(self) -> None:
+        meta = CeleryTaskMeta()
+        meta.progress = 0.0
+        assert meta.estimated_progress is None
+
+    def test_no_extrapolation_when_estimated_completion_time_not_set(self) -> None:
+        meta = CeleryTaskMeta()
+        meta.progress = 0.42
+        assert meta.estimated_completed_time is None
+        assert meta.estimated_progress == 0.42
+
+    def test_extrapolates_within_estimated_completion_time(self) -> None:
+        meta = CeleryTaskMeta()
+        meta.progress = 0.42
+        meta.last_update_time = time.time() - 30
+        meta.estimated_completed_time = time.time() + 100
+
+        estimated = meta.estimated_progress
+        assert estimated is not None
+        assert 0.42 < estimated < 0.7
+
+    def test_falls_back_to_progress_when_estimated_completion_time_expired(self) -> None:
+        meta = CeleryTaskMeta()
+        meta.progress = 0.42
+        meta.last_update_time = time.time() - 120
+        meta.estimated_completed_time = time.time() - 60
+
+        assert meta.estimated_progress == 0.42
+
+    def test_capped_at_one_when_extrapolation_exceeds_completion(self) -> None:
+        meta = CeleryTaskMeta()
+        meta.progress = 0.99
+        meta.last_update_time = time.time() - 30
+        meta.estimated_completed_time = time.time() + 10
+
+        assert meta.estimated_progress == 1.0

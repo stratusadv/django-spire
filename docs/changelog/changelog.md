@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- `CeleryTaskMeta.estimated_progress` no longer returns `None` once a task's
+  estimated completion time has passed: it falls back to the task's real
+  progress, so a long-running task that outlasts its ETA keeps reporting its
+  actual progress instead of the web side reading zero.
+- `prune_stale_started_celery_tasks` now collects stale CeleryTasks in every
+  non-terminal state (including custom progress states such as `GENERATING`),
+  not only `STARTED`: ones whose backend already reached a terminal state are
+  synced, stale PENDING/RECEIVED ones are skipped as before, and the rest are
+  marked FAILURE behind the same live-worker and active-task guards. The
+  sweep thread now also runs the command periodically, every
+  `DJANGO_SPIRE_CELERY_SWEEP_REAPER_INTERVAL_SECONDS` (default 600; 0
+  disables), so a worker that dies mid-task no longer leaves a permanent
+  non-terminal row behind.
+
 ## v1.4.1 - October 29, 2026
 
 ### Added

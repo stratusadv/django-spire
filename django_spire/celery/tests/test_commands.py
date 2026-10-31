@@ -3,17 +3,14 @@ from __future__ import annotations
 import time
 from io import StringIO
 from types import SimpleNamespace
-from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, PropertyMock, patch
 
 from celery import states
 from django.core.management import call_command
 from django.test import TestCase
 
+from django_spire.celery.models import CeleryTask
 from django_spire.celery.tests.factories import create_test_celery_task
-
-if TYPE_CHECKING:
-    from django_spire.celery.models import CeleryTask
 
 _COMMAND_MODULE = 'django_spire.celery.management.commands.prune_stale_started_celery_tasks'
 
@@ -94,13 +91,18 @@ class PruneStaleStartedCeleryTasksCommandTestCase(TestCase):
         pending_celery_task = _with_last_update(
             create_test_celery_task(state=states.PENDING), time.time() - 700
         )
+        received_celery_task = _with_last_update(
+            create_test_celery_task(state=states.RECEIVED), time.time() - 700
+        )
 
         call_command('prune_stale_started_celery_tasks')
 
         success_celery_task.refresh_from_db()
         pending_celery_task.refresh_from_db()
+        received_celery_task.refresh_from_db()
         assert success_celery_task.state == states.SUCCESS
         assert pending_celery_task.state == states.PENDING
+        assert received_celery_task.state == states.RECEIVED
 
     @patch(f'{_COMMAND_MODULE}.current_app')
     @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
@@ -286,4 +288,87 @@ class PruneStaleStartedCeleryTasksCommandTestCase(TestCase):
 
         celery_task.refresh_from_db()
         assert celery_task.state == states.PENDING
-        assert 'No stale STARTED CeleryTasks found.' in out.getvalue()
+        assert 'No stale CeleryTasks found.' in out.getvalue()
+
+    @patch(f'{_COMMAND_MODULE}.current_app')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_stale_custom_state_celery_task_is_marked_failure(
+        self, mock_async_result: PropertyMock, mock_app: MagicMock
+    ) -> None:
+        celery_task = _with_last_update(
+            create_test_celery_task(state='GENERATING'), time.time() - 700
+        )
+        mock_async_result.return_value = SimpleNamespace(state=states.STARTED)
+        _fake_active_inspect(mock_app, {})
+
+        call_command('prune_stale_started_celery_tasks')
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.FAILURE
+        assert celery_task.exception_result is not None
+        assert celery_task.exception_result.exc_type == 'StaleStartedError'
+        assert 'worker presumed dead' in celery_task.exception_result.message
+
+    @patch(f'{_COMMAND_MODULE}.current_app')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_stale_custom_state_celery_task_skipped_when_active_on_worker(
+        self, mock_async_result: PropertyMock, mock_app: MagicMock
+    ) -> None:
+        celery_task = _with_last_update(
+            create_test_celery_task(state='GENERATING'), time.time() - 700
+        )
+        mock_async_result.return_value = SimpleNamespace(state=states.STARTED)
+        _fake_active_inspect(
+            mock_app, {'worker-1': [{'id': str(celery_task.task_id), 'name': 'song'}]}
+        )
+
+        call_command('prune_stale_started_celery_tasks')
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == 'GENERATING'
+        assert celery_task.completed_datetime is None
+
+    @patch(f'{_COMMAND_MODULE}.current_app')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_include_received_never_stamps(
+        self, mock_async_result: PropertyMock, mock_app: MagicMock
+    ) -> None:
+        celery_task = create_test_celery_task(state=states.RECEIVED)
+        mock_async_result.return_value = SimpleNamespace(state=states.STARTED)
+        _fake_active_inspect(mock_app, {})
+        out = StringIO()
+
+        call_command('prune_stale_started_celery_tasks', include_pending=True, stdout=out)
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.RECEIVED
+        assert celery_task.completed_datetime is None
+        assert 'Marked 0 stale CeleryTask(s) as FAILURE.' in out.getvalue()
+
+    @patch(f'{_COMMAND_MODULE}.current_app')
+    @patch('django_spire.celery.models.CeleryTask.async_result', new_callable=PropertyMock)
+    def test_stamp_skips_row_that_reaches_terminal_state_first(
+        self, mock_async_result: PropertyMock, mock_app: MagicMock
+    ) -> None:
+        celery_task = _with_last_update(
+            create_test_celery_task(state=states.STARTED), time.time() - 700
+        )
+        mock_async_result.return_value = SimpleNamespace(state=states.STARTED)
+        _fake_active_inspect(mock_app, {})
+
+        original_manager = CeleryTask.objects
+        fake_manager = MagicMock(wraps=original_manager)
+
+        def filter_for_stamp(**kwargs) -> object:
+            original_manager.filter(pk=celery_task.pk).update(state=states.SUCCESS)
+            return original_manager.filter(**kwargs)
+
+        fake_manager.filter.side_effect = filter_for_stamp
+        out = StringIO()
+
+        with patch.object(CeleryTask, 'objects', new=fake_manager):
+            call_command('prune_stale_started_celery_tasks', stdout=out)
+
+        celery_task.refresh_from_db()
+        assert celery_task.state == states.SUCCESS
+        assert 'Marked 0 stale CeleryTask(s) as FAILURE.' in out.getvalue()

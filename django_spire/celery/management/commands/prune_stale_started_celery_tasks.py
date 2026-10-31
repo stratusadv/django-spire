@@ -20,14 +20,14 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = (
-        'Resolves stale STARTED CeleryTasks (no meta update past the threshold): '
+        'Resolves stale non-terminal CeleryTasks (no meta update past the threshold): '
         'syncs CeleryTasks whose backend already reached a terminal state, skips '
         'CeleryTasks still active on a worker, and marks the rest FAILURE with a '
         'StaleStarted error (worker presumed dead). Stamping is skipped entirely when no '
         'live worker answers a ping (an unacked message may still be requeued). '
-        '--include-pending additionally collects stale PENDING CeleryTasks: ones whose '
-        'backend is terminal are synced, the rest are skipped (never stamped, since the '
-        'message may still be queued or in flight).'
+        '--include-pending additionally collects stale PENDING/RECEIVED CeleryTasks: ones '
+        'whose backend is terminal are synced, the rest are skipped (never stamped, since '
+        'the message may still be queued or in flight).'
     )
 
     def add_arguments(self, parser: CommandParser) -> None:
@@ -36,15 +36,15 @@ class Command(BaseCommand):
             type=float,
             default=DEFAULT_THRESHOLD_SECONDS,
             help=(
-                'Seconds without a meta progress update before a STARTED CeleryTask is '
+                'Seconds without a meta progress update before a non-terminal CeleryTask is '
                 f'considered stale (default: {DEFAULT_THRESHOLD_SECONDS}).'
             ),
         )
         parser.add_argument(
             '--include-pending',
             action='store_true',
-            help='Also collect stale PENDING CeleryTasks (sync when the backend is terminal; '
-            'never marked FAILURE).',
+            help='Also collect stale PENDING/RECEIVED CeleryTasks (sync when the backend is '
+            'terminal; never marked FAILURE).',
         )
         parser.add_argument(
             '--dry-run', action='store_true', help='Report stale CeleryTasks without updating them.'
@@ -57,7 +57,7 @@ class Command(BaseCommand):
 
         stale_celery_tasks = self._collect_stale_celery_tasks(cutoff_time, include_pending)
         if not stale_celery_tasks:
-            self.stdout.write('No stale STARTED CeleryTasks found.')
+            self.stdout.write('No stale CeleryTasks found.')
             return
 
         sync_pks: list[int] = []
@@ -75,7 +75,7 @@ class Command(BaseCommand):
 
         for pk in pending_failure_candidates:
             logger.info(
-                'Reaper: skipping stale PENDING CeleryTask %s (backend not terminal; the '
+                'Reaper: skipping stale queued CeleryTask %s (backend not terminal; the '
                 'message may still be queued or in flight)',
                 stale_celery_tasks[pk].task_id,
             )
@@ -112,8 +112,14 @@ class Command(BaseCommand):
 
         stamped = 0
         if failed_pks:
-            stamped = CeleryTask.objects.filter(pk__in=failed_pks, state=states.STARTED).update(
-                state=states.FAILURE, completed_datetime=now(), _result=self._stale_stamp()
+            stamped = (
+                CeleryTask.objects.filter(pk__in=failed_pks)
+                .exclude(state__in=[*states.READY_STATES, *states.EXCEPTION_STATES])
+                .update(
+                    state=states.FAILURE,
+                    completed_datetime=now(),
+                    _result=self._stale_stamp(),
+                )
             )
 
         self.stdout.write(
@@ -129,12 +135,14 @@ class Command(BaseCommand):
     def _collect_stale_celery_tasks(
         self, cutoff_time: float, include_pending: bool
     ) -> dict[int, CeleryTask]:
-        stale_states = [states.STARTED]
-        if include_pending:
-            stale_states.append(states.PENDING)
+        queryset = CeleryTask.objects.exclude(
+            state__in=[*states.READY_STATES, *states.EXCEPTION_STATES]
+        )
+        if not include_pending:
+            queryset = queryset.exclude(state__in=[states.PENDING, states.RECEIVED])
 
         stale_celery_tasks: dict[int, CeleryTask] = {}
-        for celery_task in CeleryTask.objects.filter(state__in=stale_states).iterator():
+        for celery_task in queryset.iterator():
             last_update_time = celery_task.meta.last_update_time
             if last_update_time is None or last_update_time < cutoff_time:
                 stale_celery_tasks[celery_task.pk] = celery_task
@@ -148,7 +156,7 @@ class Command(BaseCommand):
             return 'skip'
         if backend_state in states.READY_STATES:
             return 'sync'
-        if celery_task.state == states.PENDING:
+        if celery_task.state in (states.PENDING, states.RECEIVED):
             return 'pending'
         return 'failure'
 

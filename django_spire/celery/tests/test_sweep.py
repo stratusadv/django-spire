@@ -7,7 +7,7 @@ import time
 import uuid
 from datetime import timedelta
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 from celery import states
@@ -144,6 +144,55 @@ class TestSweepLoop:
 
         celery_task.refresh_from_db()
         assert celery_task.result == 'swept'
+
+
+@pytest.mark.django_db(transaction=True)
+class TestSweepReaperWiring:
+    def test_loop_runs_reaper_once_when_interval_elapsed(self):
+        key = _unique_key('sweep_reaper')
+        CeleryTaskSweep.objects.create(
+            key=key, last_swept_datetime=now() - timedelta(seconds=_INTERVAL_SECONDS * 2)
+        )
+
+        with (
+            patch('django_spire.celery.sweep.call_command') as mock_call,
+            override_settings(DJANGO_SPIRE_CELERY_SWEEP_REAPER_INTERVAL_SECONDS=3600),
+        ):
+            thread = threading.Thread(target=_sweep_loop, args=(key, 0.1, None), daemon=True)
+            thread.start()
+            try:
+                assert _wait_until(lambda: mock_call.call_count >= 1, timeout=10)
+            finally:
+                _STATE.stop_event.set()
+                thread.join(timeout=30)
+                _STATE.stop_event.clear()
+
+        assert mock_call.call_count == 1
+        mock_call.assert_called_once_with(
+            'prune_stale_started_celery_tasks', include_pending=True, stdout=ANY
+        )
+
+    def test_loop_skips_reaper_when_interval_is_zero(self):
+        key = _unique_key('sweep_reaper_off')
+        CeleryTaskSweep.objects.create(
+            key=key, last_swept_datetime=now() - timedelta(seconds=_INTERVAL_SECONDS * 2)
+        )
+
+        with (
+            patch('django_spire.celery.sweep.call_command') as mock_call,
+            patch('django_spire.celery.sweep.resolve_celery_tasks') as mock_resolve,
+            override_settings(DJANGO_SPIRE_CELERY_SWEEP_REAPER_INTERVAL_SECONDS=0),
+        ):
+            thread = threading.Thread(target=_sweep_loop, args=(key, 0.1, None), daemon=True)
+            thread.start()
+            try:
+                assert _wait_until(lambda: mock_resolve.call_count >= 2, timeout=10)
+            finally:
+                _STATE.stop_event.set()
+                thread.join(timeout=30)
+                _STATE.stop_event.clear()
+
+        assert mock_call.call_count == 0
 
 
 @pytest.mark.django_db

@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, UTC
-from typing import Any, Callable, Generic, Self, TypeVar
+from typing import Any, Callable, Self
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
@@ -17,10 +17,7 @@ def derive_final_meta_key(task_id: str) -> str:
     return f'{task_id}{FINAL_META_KEY_SUFFIX}'
 
 
-DataT = TypeVar('DataT')
-
-
-class CeleryTaskMeta(BaseModel, Generic[DataT]):
+class CeleryTaskMeta[DataT](BaseModel):
     model_config = ConfigDict(extra='allow')
 
     data: DataT = Field(default_factory=dict)
@@ -44,13 +41,16 @@ class CeleryTaskMeta(BaseModel, Generic[DataT]):
 
     @property
     def estimated_progress(self) -> float | None:
-        if self.progress and self.estimated_remaining_seconds:
-            time_since_last_update_seconds = time.time() - self.last_update_time
-            new_progress = self.estimated_progress_per_second * time_since_last_update_seconds
+        if not self.progress:
+            return None
 
-            return min(self.progress + new_progress, 1.0)
+        if not self.estimated_remaining_seconds:
+            return self.progress
 
-        return None
+        time_since_last_update_seconds = time.time() - self.last_update_time
+        new_progress = self.estimated_progress_per_second * time_since_last_update_seconds
+
+        return min(self.progress + new_progress, 1.0)
 
     @property
     def estimated_progress_per_second(self) -> float:
@@ -78,7 +78,7 @@ class CeleryTaskMeta(BaseModel, Generic[DataT]):
                 remaining_seconds = estimated_total_seconds - elapsed_seconds
 
                 new_estimated_end_time_seconds = current_time + (
-                    remaining_seconds * (_ESTIMATED_TIME_BUFFER + 1.0)
+                        remaining_seconds * (_ESTIMATED_TIME_BUFFER + 1.0)
                 )
 
                 if self.estimated_completed_time is None:
@@ -86,7 +86,7 @@ class CeleryTaskMeta(BaseModel, Generic[DataT]):
 
                 else:
                     difference_seconds = (
-                        self.estimated_completed_time - new_estimated_end_time_seconds
+                            self.estimated_completed_time - new_estimated_end_time_seconds
                     )
                     change_threshold = _ESTIMATED_TIME_BUFFER * self.estimated_run_time_seconds
 

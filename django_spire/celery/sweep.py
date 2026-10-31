@@ -4,8 +4,11 @@ import logging
 import os
 import socket
 import threading
+import time
 from datetime import timedelta
+from io import StringIO
 
+from django.core.management import call_command
 from django.db import close_old_connections
 from django.utils.timezone import now as django_now
 
@@ -48,8 +51,28 @@ def _instance_id() -> str:
     return f'{socket.gethostname()}:{os.getpid()}'
 
 
+def _run_stale_task_reaper() -> None:
+    try:
+        call_command(
+            'prune_stale_started_celery_tasks', include_pending=True, stdout=StringIO()
+        )
+    except Exception:
+        logger.exception('Failed to run stale CeleryTask reaper')
+
+
+def _reaper_due(last_reaper_run: float) -> bool:
+    interval_seconds = float(
+        spire_settings.DJANGO_SPIRE_CELERY_SWEEP_REAPER_INTERVAL_SECONDS or 0
+    )
+    if interval_seconds <= 0:
+        return False
+
+    return time.monotonic() - last_reaper_run >= interval_seconds
+
+
 def _sweep_loop(key: str, interval_seconds: float, task_limit: int | None) -> None:
     claimed_by = _instance_id()
+    last_reaper_run = 0.0
 
     logger.info('Celery task sweep started with key %s', key)
 
@@ -66,6 +89,10 @@ def _sweep_loop(key: str, interval_seconds: float, task_limit: int | None) -> No
                     resolve_celery_tasks(CeleryTask.objects.by_unready(), limit=task_limit)
                 except Exception:
                     logger.exception('Failed to run CeleryTask sweep for key %s', key)
+
+                if _reaper_due(last_reaper_run):
+                    last_reaper_run = time.monotonic()
+                    _run_stale_task_reaper()
 
             close_old_connections()
             _STATE.stop_event.wait(interval_seconds)
