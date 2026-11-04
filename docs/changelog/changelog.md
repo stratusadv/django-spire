@@ -1,9 +1,13 @@
 # Changelog
 
-## Unreleased
+## v1.4.2 - November 4, 2026
 
 ### Fixed
 
+- The report page no longer throws `has_content is not defined` on load. Its
+  Browse toggle still called the global `has_content()`, which was replaced
+  by `Spire.ui.hasContent()`; it now calls the replacement, so the toggle
+  hides again when the report sidebar is empty.
 - `CeleryTaskMeta.estimated_progress` no longer returns `None` once a task's
   estimated completion time has passed: it falls back to the task's real
   progress, so a long-running task that outlasts its ETA keeps reporting its
