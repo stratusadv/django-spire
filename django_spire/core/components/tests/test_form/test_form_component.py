@@ -72,7 +72,7 @@ class FormComponentTestCase(BaseTestCase):
 
     def test_modal_form_names_the_form_after_the_component(self) -> None:
         class NamedFormComponent(TaskFormComponent):
-            glue_form_property_name = 'task_form'
+            glue_form_object_name = 'task_form'
 
         html = render_to_string(
             'django_spire/glue/form/modal_form.html',
@@ -88,7 +88,7 @@ class FormComponentTestCase(BaseTestCase):
     def test_a_context_name_wins_over_the_components(self) -> None:
         html = render_to_string(
             'django_spire/glue/form/modal_form.html',
-            {'component': TaskFormComponent(), 'glue_form_property_name': 'taskForm'},
+            {'component': TaskFormComponent(), 'glue_form_object_name': 'taskForm'},
         )
 
         assert 'taskForm: component.form,' in html

@@ -130,15 +130,15 @@ from django_spire.core.components import BaseFormComponent
 
 `glue_form_path()` returns the path from the template to the form: `component.model.form` or `component.form`. A form partial reads it as `component.glue_form_path`, and `django_spire/glue/form/modal_form.html` uses it by default, so the same partial works under either component.
 
-`glue_form_property_name` is the name the form gets in the template's Alpine scope, `glue_form` by default. Set it on the component to name the form after what it edits:
+`glue_form_object_name` is the name the form gets in the template's Alpine scope, `glue_form` by default. Set it on the component to name the form after what it edits:
 
 ```python
 class AccountFormComponent(ModelFormComponent):
     form_class = AccountForm
-    glue_form_property_name = 'account_form'
+    glue_form_object_name = 'account_form'
 ```
 
-The partial then reads its fields as `account_form.name`, and `form.html` and `modal_form.html` validate, save and report through `this.account_form`. A `glue_form_property_name` passed in the template context still wins.
+The partial then reads its fields as `account_form.name`, and `form.html` and `modal_form.html` validate, save and report through `this.account_form`. A `glue_form_object_name` passed in the template context still wins.
 
 ### `FormOptions` and `PageFormOptions`
 

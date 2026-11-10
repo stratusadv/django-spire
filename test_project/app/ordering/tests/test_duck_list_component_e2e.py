@@ -100,12 +100,17 @@ def test_deleting_a_duck_is_confirmed_and_uses_the_overridden_delete(
     _row(page, alpha).get_by_title('Delete Duck').click()
     expect(modal).to_contain_text('Alpha Duck')
 
-    requests_while_cancelling: list[str] = []
-    page.on('request', lambda request: requests_while_cancelling.append(request.url))
+    # Only Glue calls count: the browser may fetch a font the modal's text uses at any time.
+    glue_calls_while_cancelling: list[str] = []
+    page.on(
+        'request',
+        lambda request: glue_calls_while_cancelling.append(request.url)
+        if '/__dg__/' in request.url else None,
+    )
     modal.get_by_role('button', name='Cancel').click()
     expect(modal).to_be_hidden()
 
-    assert requests_while_cancelling == []
+    assert glue_calls_while_cancelling == []
 
     assert scroll.row_count() == 2
     assert Duck.objects.get(pk=alpha.pk).is_active is True

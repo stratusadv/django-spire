@@ -10,7 +10,7 @@
 {# modal content template: the JS expression for this modal's glue form instance     #}
 {# (e.g. 'glueForm', matching what the caller passed into Spire.modal.open's         #}
 {# scopeData). Inside a FormComponent's template it defaults to the component's      #}
-{# glue_form_path. The form is named in the Alpine scope by glue_form_property_name, #}
+{# glue_form_path. The form is named in the Alpine scope by glue_form_object_name, #}
 {# from the context or the component (glue_form by default).                         #}
 {# Override glue_form_content as usual for the actual fields.                        #}
 {#                                                                                    #}
@@ -19,7 +19,7 @@
 {# core/modal/content/delete_modal_content.html's same onSaved/updated-item          #}
 {# convention for delete.                                                            #}
 
-{% block glue_form_binding %}{{ glue_form_property_name }}: {% firstof glue_form component.glue_form_path %},{% endblock %}
+{% block glue_form_binding %}{{ glue_form_object_name }}: {% firstof glue_form component.glue_form_path %},{% endblock %}
 
 {% block glue_form_on_saved %}
     if (result?.pk) {
@@ -28,7 +28,7 @@
         } else {
             $dispatch('updated-item', { pk: result.pk })
         }
-        Spire.notify.success(`{% block entity_label %}{% endblock %} ${this.{{ glue_form_property_name }}.$pk ? 'updated' : 'added'} successfully!`)
+        Spire.notify.success(`{% block entity_label %}{% endblock %} ${this.{{ glue_form_object_name }}.$pk ? 'updated' : 'added'} successfully!`)
         hideModal()
     }
 {% endblock %}

@@ -1,15 +1,15 @@
 # Changelog
 
-## Unreleased
+## v1.4.4 - November 10, 2026
 
 ### Added
 
 - A form component can name its form in the template's Alpine scope with
-  `glue_form_property_name` (default `glue_form`), so a partial reads
+  `glue_form_object_name` (default `glue_form`), so a partial reads
   `account_form.name` instead of `glue_form.name`. `form.html` and
   `modal_form.html` use it for the binding, the save and the saved toast;
   before, `modal_form.html` always bound `glue_form` and a component had no
-  way to pass the name. A `glue_form_property_name` in the template context
+  way to pass the name. A `glue_form_object_name` in the template context
   still wins.
 - A confirmation template can act once the action is done, such as showing a
   toast: its `on_confirmed` block runs in the browser after a successful
@@ -20,12 +20,20 @@
 
 ### Changed
 
+- The template variable that names the form in `form.html`'s Alpine scope is
+  now `glue_form_object_name`, matching the new component attribute. A
+  template that included `form.html` with `glue_form_property_name` passes
+  `glue_form_object_name` instead.
 - `ModelFormComponent`'s row parameter is now `model_pk`, so it no longer
   reads as the component's own primary key. `pk` still works as a deprecated
   alias, both as a parameter (`ModelFormComponent(pk=...)`) and as an
   attribute (`self.pk`), and raises a `DeprecationWarning`; passing both is an
   error. A form rendered before the upgrade, whose signed identity still
   carries `pk`, is rebuilt through the same alias.
+- Requires django-glue 1.3.1. Its relation fields keep their choices once
+  loaded: in 1.3.0 a field's choices cache key changed after its choices
+  loaded, so an open search-and-select dropdown could empty and re-render
+  under the user's click.
 
 ## v1.4.3 - November 10, 2026
 
