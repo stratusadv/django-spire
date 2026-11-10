@@ -1,45 +1,83 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.data('multiSearchAndSelect', (glueField) => ({
+    const escapeHtml = (text) => String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+
+    /**
+     * A multi-select dropdown over a choice source, rendered by
+     * django_spire/widget/multi_search_and_select_widget.html.
+     *
+     * A source has `choices` ([{value, label}]), `selectedChoices`,
+     * `addChoice(value)` and `removeChoice(value)`. It may also have `disabled`,
+     * `disabled_choices`, `hasErrors` and `choiceLabelHtml(choice)`, and, for
+     * choices searched on the server, `choices_searchable`,
+     * `isSearchingChoices`, `searchChoices(text)` and `clearSearch()`. A Glue
+     * form field is a source; `Spire.widget.choiceSource()` builds one over any value.
+     */
+    Alpine.data('multiSearchAndSelect', (source) => ({
         isOpen: false,
         search: '',
 
         get selectedChoices() {
-            return glueField?.selectedChoices || [];
+            return source?.selectedChoices || [];
+        },
+
+        get hasErrors() {
+            return Boolean(source?.hasErrors);
+        },
+
+        get isDisabled() {
+            return Boolean(source?.disabled);
+        },
+
+        get isSearchable() {
+            return Boolean(source?.choices_searchable);
+        },
+
+        get isSearching() {
+            return Boolean(source?.isSearchingChoices);
         },
 
         get filteredChoices() {
-            if (glueField?.choices_searchable && glueField.isSearchingChoices) return [];
+            if (this.isSearchable && this.isSearching) return [];
 
             const selectedValues = new Set(this.selectedChoices.map(choice => String(choice.value)));
             const query = this.search.trim().toLowerCase();
-            return (glueField?.choices || []).filter(choice =>
+            return (source?.choices || []).filter(choice =>
                 !selectedValues.has(String(choice.value))
                 && (
-                    glueField?.choices_searchable
+                    this.isSearchable
                     || String(choice.label).toLowerCase().includes(query)
                 )
             );
         },
 
+        labelHtml(choice) {
+            return source?.choiceLabelHtml ? source.choiceLabelHtml(choice) : escapeHtml(choice.label);
+        },
+
         open() {
-            if (glueField.disabled) return;
+            if (this.isDisabled) return;
             this.search = '';
-            glueField.clearSearch?.();
+            source.clearSearch?.();
             this.isOpen = true;
             this.$nextTick(() => this.$refs.searchInput?.focus());
         },
 
         isChoiceDisabled(choice) {
-            return glueField.disabled || glueField.disabled_choices?.some(
+            return this.isDisabled || Boolean(source.disabled_choices?.some(
                 value => String(value) === String(choice.value)
-            );
+            ));
         },
 
         addChoice(choice) {
             if (!choice || this.isChoiceDisabled(choice)) return;
-            glueField.addChoice(choice.value);
+            source.addChoice(choice.value);
             this.search = '';
-            glueField.clearSearch?.();
+            source.clearSearch?.();
             this.dispatchValueEvents();
             this.$nextTick(() => this.$refs.searchInput?.focus());
         },
@@ -47,12 +85,12 @@ document.addEventListener('alpine:init', () => {
         close() {
             this.isOpen = false;
             this.search = '';
-            glueField.clearSearch?.();
+            source.clearSearch?.();
         },
 
         removeChoice(choice) {
             if (this.isChoiceDisabled(choice)) return;
-            glueField.removeChoice(choice.value);
+            source.removeChoice(choice.value);
             this.dispatchValueEvents();
         },
 
@@ -62,8 +100,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         async searchChoices() {
-            if (!glueField?.choices_searchable) return;
-            await glueField.searchChoices(this.search.trim());
+            if (!this.isSearchable) return;
+            await source.searchChoices(this.search.trim());
         }
     }));
 });

@@ -34,8 +34,8 @@ class ShowcasePageTestCase(TestCase):
         assert '<select' in html
         assert 'x-data="searchAndSelect(field' in html
         assert 'x-data="multiSearchAndSelect(field)"' in html
-        assert 'glueField?.selectedChoices || []' in multi_js
-        assert 'glueField.searchChoices(this.search.trim())' in multi_js
+        assert 'source?.selectedChoices || []' in multi_js
+        assert 'source.searchChoices(this.search.trim())' in multi_js
         assert 'String(choice.label).toLowerCase().includes(query)' in search_js
         assert 'type="radio"' in html
 

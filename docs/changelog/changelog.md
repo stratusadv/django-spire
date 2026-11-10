@@ -2,6 +2,24 @@
 
 ## v1.4.3 - November 10, 2026
 
+### Added
+
+- The multi-select dropdown works over any list of values, not only a Glue
+  form field. `django_spire/widget/multi_search_and_select_widget.html` takes
+  a `source`: `field` for a Glue form field, or one built with
+  `Spire.widget.choiceSource({choices, getSelected, setSelected})`, such as
+  over a component's editable attribute. It also takes `empty_label`,
+  `search_placeholder` and `max_height`. The Glue field widget now includes
+  it, and renders as before.
+
+### Changed
+
+- The multi-select choice item moved from
+  `django_spire/glue/form/widget/item/multi_search_and_select_choice_item.html`
+  to `django_spire/widget/item/multi_search_and_select_choice_item.html`, and
+  reads the label through the dropdown's `labelHtml(choice)`. A project that
+  overrides the item template moves its override to the new path.
+
 ### Fixed
 
 - The report page's Browse toggle hides when the report sidebar is empty,

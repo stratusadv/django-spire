@@ -26,8 +26,8 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         assert 'x-data="searchAndSelect(field' in html
         assert 'x-data="multiSearchAndSelect(field)"' in html
         assert 'glueField.searchChoices(this.searchQuery.trim())' in search_js
-        assert 'glueField.searchChoices(this.search.trim())' in multi_js
-        assert 'glueField?.selectedChoices || []' in multi_js
+        assert 'source.searchChoices(this.search.trim())' in multi_js
+        assert 'source?.selectedChoices || []' in multi_js
         assert '<select' in html
         assert 'type="checkbox"' not in html
 
@@ -43,7 +43,7 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
 
         assert '<select' in single_html
         assert 'field.searchChoices' not in single_html
-        assert 'glueField?.selectedChoices || []' in multi_js
+        assert 'source?.selectedChoices || []' in multi_js
         assert 'type="checkbox"' not in adaptive_multiple_html
 
     def test_search_widget_supports_server_and_local_choice_sources(self) -> None:
@@ -69,8 +69,36 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         multi_js = _core_js('multi_search_and_select.js')
 
         assert 'x-data="multiSearchAndSelect(field)"' in html
-        assert 'field.choices_searchable' in html
-        assert 'field.isSearchingChoices' in html
-        assert 'glueField.searchChoices(this.search.trim())' in multi_js
-        assert 'glueField.clearSearch?.()' in multi_js
-        assert 'glueField?.selectedChoices || []' in multi_js
+        assert 'x-show="isSearchable && isSearching"' in html
+        assert 'source?.choices_searchable' in multi_js
+        assert 'source?.isSearchingChoices' in multi_js
+        assert 'source.searchChoices(this.search.trim())' in multi_js
+        assert 'source.clearSearch?.()' in multi_js
+        assert 'source?.selectedChoices || []' in multi_js
+
+    def test_the_multiple_search_widget_is_the_generic_widget_over_the_glue_field(self) -> None:
+        glue_html = render_to_string(
+            'django_spire/glue/form/widget/multi_search_and_select_widget.html',
+            {'glue_field': 'form.companies'},
+        )
+        generic_html = render_to_string(
+            'django_spire/widget/multi_search_and_select_widget.html',
+            {'source': 'typeSource', 'empty_label': 'All types'},
+        )
+
+        assert 'x-data="glueField(' in glue_html
+        assert 'x-data="multiSearchAndSelect(field)"' in glue_html
+        assert 'x-data="multiSearchAndSelect(typeSource)"' in generic_html
+        assert 'glueField(' not in generic_html
+        assert 'field.' not in generic_html
+        assert 'All types' in generic_html
+
+    def test_a_choice_source_can_be_built_over_any_values(self) -> None:
+        source_js = _core_js('choice_source.js')
+        multi_js = _core_js('multi_search_and_select.js')
+
+        assert 'Spire.widget.choiceSource = ({choices, getSelected, setSelected})' in source_js
+        assert 'get selectedChoices()' in source_js
+        assert 'addChoice(value)' in source_js
+        assert 'removeChoice(value)' in source_js
+        assert 'escapeHtml(choice.label)' in multi_js
