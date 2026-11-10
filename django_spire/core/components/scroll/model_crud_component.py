@@ -92,4 +92,4 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
         if pk is not None:
             self.get_instance(pk)
 
-        return self.item_form_options.build_component(pk=pk, access=self.access)
+        return self.item_form_options.build_component(model_pk=pk, access=self.access)

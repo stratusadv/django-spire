@@ -34,9 +34,25 @@ class ModelFormComponentTestCase(BaseTestCase):
 
         assert component_registry.from_identifier(identifier) is TaskModelFormComponent
 
-    def test_pk_parameter_defaults_to_none_and_accepts_a_value(self) -> None:
-        assert TaskModelFormComponent().pk is None
-        assert TaskModelFormComponent(pk=3).pk == 3
+    def test_model_pk_parameter_defaults_to_none_and_accepts_a_value(self) -> None:
+        assert TaskModelFormComponent().model_pk is None
+        assert TaskModelFormComponent(model_pk=3).model_pk == 3
+
+    def test_pk_parameter_is_a_deprecated_alias_of_model_pk(self) -> None:
+        with pytest.warns(DeprecationWarning, match='pass model_pk instead'):
+            component = TaskModelFormComponent(pk=3)
+
+        assert component.model_pk == 3
+
+    def test_pk_attribute_is_a_deprecated_alias_of_model_pk(self) -> None:
+        component = TaskModelFormComponent(model_pk=3)
+
+        with pytest.warns(DeprecationWarning, match='use model_pk instead'):
+            assert component.pk == 3
+
+    def test_pk_and_model_pk_together_are_rejected(self) -> None:
+        with pytest.raises(GlueComponentParameterError):
+            TaskModelFormComponent(pk=3, model_pk=3)
 
     def test_unexpected_parameter_is_rejected(self) -> None:
         with pytest.raises(GlueComponentParameterError):
@@ -45,7 +61,7 @@ class ModelFormComponentTestCase(BaseTestCase):
     def test_the_model_is_the_forms_own(self) -> None:
         task = Task.objects.create(name='Fetched')
 
-        assert TaskModelFormComponent(pk=task.pk).model.instance.pk == task.pk
+        assert TaskModelFormComponent(model_pk=task.pk).model.instance.pk == task.pk
 
         blank = DefaultModelFormComponent()
 
@@ -58,7 +74,7 @@ class ModelFormComponentTestCase(BaseTestCase):
         task.delete()
 
         with pytest.raises(GlueModelInstanceNotFoundError) as error:
-            TaskModelFormComponent(pk=pk).get_model()
+            TaskModelFormComponent(model_pk=pk).get_model()
 
         assert error.value.status == 404
         assert error.value.pk == pk
@@ -133,7 +149,7 @@ class ModelFormComponentTestCase(BaseTestCase):
         component = ModelFormComponent(
             form_class=TaskModalForm,
             template='task/modal/task_form_modal.html',
-            pk=task.pk,
+            model_pk=task.pk,
         )
         identity = component.identity
 
@@ -145,7 +161,7 @@ class ModelFormComponentTestCase(BaseTestCase):
         assert identity['parameters'] == {
             'form_path': 'test_project.app.task.forms:TaskModalForm',
             'template_name': 'task/modal/task_form_modal.html',
-            'pk': task.pk,
+            'model_pk': task.pk,
         }
         assert rebuilt.form_class is TaskModalForm
         assert rebuilt.model.instance == task

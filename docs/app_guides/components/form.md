@@ -98,9 +98,9 @@ from django_spire.core.components import ModelFormComponent
 |---|---|
 | `form_class` | The `ModelForm` class. The model is the form's own |
 | `template` | The component's template |
-| `pk` | A parameter. `None` creates a row, a value edits that row |
+| `model_pk` | A parameter. `None` creates a row, a value edits that row. `pk` is its deprecated name |
 | `fields` | The fields the Glue model exposes. Defaults to the form's fields |
-| `get_model()` | Return the row. A blank one, or the row with `pk`, by default |
+| `get_model()` | Return the row. A blank one, or the row with `model_pk`, by default |
 | `get_fields()` | Return the exposed fields |
 | `get_choices(instance)` | Return a dict of choice querysets for relation fields. `None` by default |
 
@@ -130,6 +130,16 @@ from django_spire.core.components import BaseFormComponent
 
 `glue_form_path()` returns the path from the template to the form: `component.model.form` or `component.form`. A form partial reads it as `component.glue_form_path`, and `django_spire/glue/form/modal_form.html` uses it by default, so the same partial works under either component.
 
+`glue_form_property_name` is the name the form gets in the template's Alpine scope, `glue_form` by default. Set it on the component to name the form after what it edits:
+
+```python
+class AccountFormComponent(ModelFormComponent):
+    form_class = AccountForm
+    glue_form_property_name = 'account_form'
+```
+
+The partial then reads its fields as `account_form.name`, and `form.html` and `modal_form.html` validate, save and report through `this.account_form`. A `glue_form_property_name` passed in the template context still wins.
+
 ### `FormOptions` and `PageFormOptions`
 
 Tell a CRUD scroll how its rows are created and edited. Both are class attributes of `ModelCrudScrollComponent`, so a list needs no other import.
@@ -152,7 +162,7 @@ Tell a CRUD scroll how its rows are created and edited. Both are class attribute
 form = ModelFormComponent(
     form_class=TaskForm,
     template='task/component/task_form_modal.html',
-    pk=task.pk,
+    model_pk=task.pk,
 )
 ```
 
@@ -166,7 +176,7 @@ class TaskFormComponent(ModelFormComponent):
     form_class = TaskForm
 ```
 
-Write a class when the component needs hooks of its own, or parameters beyond `pk`.
+Write a class when the component needs hooks of its own, or parameters beyond `model_pk`.
 
 ### Opening a Form From a Callable
 
@@ -179,7 +189,7 @@ class TaskBoardComponent(Glue.Component):
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def task_form(self, pk: int | None = None) -> TaskFormComponent:
-        return TaskFormComponent(pk=pk, access=self.access)
+        return TaskFormComponent(model_pk=pk, access=self.access)
 ```
 
 ```html
@@ -196,10 +206,10 @@ class TaskFormComponent(ModelFormComponent):
     form_class = TaskForm
 
     def get_model(self) -> Task:
-        if self.pk is None:
+        if self.model_pk is None:
             return Task(assigned_to=self.request.user)
 
-        return Task.objects.active().get(pk=self.pk, assigned_to=self.request.user)
+        return Task.objects.active().get(pk=self.model_pk, assigned_to=self.request.user)
 ```
 
 `get_model()` picks the row. Override it to give a new row its defaults, or to limit which rows the component will open. The default looks a row up by primary key with no other condition.

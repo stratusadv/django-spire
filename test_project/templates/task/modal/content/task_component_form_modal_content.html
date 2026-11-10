@@ -1,7 +1,7 @@
 {% extends 'django_spire/modal/content/title_modal_content.html' %}
 
 {% block modal_title %}
-    {% if component.pk %}Edit Task{% else %}New Task{% endif %}
+    {% if component.model_pk %}Edit Task{% else %}New Task{% endif %}
 {% endblock %}
 
 {% block modal_body %}

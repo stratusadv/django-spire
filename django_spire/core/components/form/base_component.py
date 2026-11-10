@@ -20,12 +20,15 @@ class BaseFormComponent(Glue.Component, ABC):
     the component is rebuilt on each request from its signed path.
 
     ``glue_form_path()`` is the dot path to the form, read by the template
-    and its partials as ``component.glue_form_path``. Whether the component
-    is shown in a modal, inline or on a page is the choice of whoever shows it.
+    and its partials as ``component.glue_form_path``. ``glue_form_property_name``
+    is the name the form's Alpine scope gives it, so a template can call it
+    ``account_form`` instead of ``glue_form``. Whether the component is shown
+    in a modal, inline or on a page is the choice of whoever shows it.
     """
 
     form_base: ClassVar[type[BaseForm]] = BaseForm
     form_class: ClassVar[type[BaseForm] | None] = None
+    glue_form_property_name: ClassVar[str] = 'glue_form'
 
     form_path: str | None = Glue.ComponentParameter(None)
     template_name: str | None = Glue.ComponentParameter(None)

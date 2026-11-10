@@ -29,6 +29,11 @@ class BaseConfirmationComponent(Glue.Component, ABC):
     Cancelling does nothing on the server, so the template raises
     ``cancelled`` in the browser.
 
+    What the user sees once the action is done, such as a toast, is the
+    template's: its ``on_confirmed`` block runs in the browser after a
+    successful ``confirm()``, with what ``on_confirm()`` returned as
+    ``result``, as a form's ``glue_form_on_saved`` block does after a save.
+
     An action that cannot be performed, because its row changed while the
     prompt was open say, raises ``ConfirmationRefusedError``: ``confirmed`` is
     not fired, and the prompt stays open and shows the error's message.
@@ -54,7 +59,7 @@ class BaseConfirmationComponent(Glue.Component, ABC):
         """
 
     @Glue.attr(required_access=lambda component: component.confirm_access, skip_rerender=True)
-    def confirm(self) -> Glue.Response | None:
+    def confirm(self) -> Glue.Response:
         try:
             detail = self.on_confirm()
         except ConfirmationRefusedError as error:
@@ -62,4 +67,4 @@ class BaseConfirmationComponent(Glue.Component, ABC):
 
         self.confirmed(**detail)
 
-        return None
+        return Glue.Response(result={'confirmed': True, **detail})

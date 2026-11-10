@@ -47,12 +47,19 @@ class BaseConfirmationComponentTestCase(BaseTestCase):
     def test_confirming_fires_confirmed_with_what_the_action_returned(self) -> None:
         component = GreetingConfirmationComponent()
 
-        response = component.confirm()
+        component.confirm()
 
-        assert response is None
         assert component.__dict__['_pending_events'] == [
             {'name': 'confirmed', 'detail': {'greeting': 'hello'}},
         ]
+
+    def test_confirming_answers_the_browser_with_what_the_action_returned(self) -> None:
+        component = GreetingConfirmationComponent()
+
+        response = component.confirm()
+
+        assert response.result == {'confirmed': True, 'greeting': 'hello'}
+        assert response.messages == []
 
     def test_a_refused_action_reports_why_and_fires_nothing(self) -> None:
         component = RefusingConfirmationComponent()
@@ -63,7 +70,17 @@ class BaseConfirmationComponentTestCase(BaseTestCase):
             'The greeting was already sent.',
         ]
         assert response.messages[0].level_tag == 'error'
+        assert response.result is None
         assert component.__dict__.get('_pending_events', []) == []
+
+    def test_the_on_confirmed_block_runs_after_a_successful_confirm(self) -> None:
+        html = ' '.join(render_to_string(
+            'django_spire/component/confirmation/confirmation.html',
+            {'component': GreetingConfirmationComponent()},
+        ).split())
+
+        assert 'const result = await component.confirm() if (result?.confirmed) {' in html
+        assert 'x-bind="asyncButton(() => confirm_action(), ' in html
 
     def test_an_action_that_fails_otherwise_still_raises(self) -> None:
         component = FailingConfirmationComponent()

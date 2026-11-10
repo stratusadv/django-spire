@@ -8,7 +8,16 @@
     {% endblock %}
 
     {# Confirm sets isSettling for the length of its call, so Cancel is off until it settles. #}
-    <div class="d-flex justify-content-end gap-2 mt-3" x-data="{ isSettling: false }">
+    {# on_confirmed runs after a successful confirm, with what on_confirm() returned as result. #}
+    <div class="d-flex justify-content-end gap-2 mt-3" x-data="{
+        isSettling: false,
+        async confirm_action() {
+            const result = await component.confirm()
+            if (result?.confirmed) {
+                {% block on_confirmed %}{% endblock %}
+            }
+        }
+    }">
         <button
             class="btn btn-outline-secondary"
             type="button"
@@ -19,7 +28,7 @@
         </button>
 
         {% block confirmation_button %}
-            {% include 'django_spire/button/async_button.html' with x_button_click='component.confirm()' x_busy='isSettling' button_text=component.confirm_label|default:'Confirm' %}
+            {% include 'django_spire/button/async_button.html' with x_button_click='confirm_action()' x_busy='isSettling' button_text=component.confirm_label|default:'Confirm' %}
         {% endblock %}
     </div>
 </div>

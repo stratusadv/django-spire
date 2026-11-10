@@ -29,7 +29,7 @@ class FormOptionsTestCase(BaseTestCase):
         comment = create_test_comment_example(name='Budget Review')
         options = FormOptions(form_class=CommentForm, template=FORM_TEMPLATE)
 
-        form = options.build_component(pk=comment.pk, access=Glue.Access.CHANGE)
+        form = options.build_component(model_pk=comment.pk, access=Glue.Access.CHANGE)
 
         assert type(form) is ModelFormComponent
         assert form.form_class is CommentForm
@@ -40,7 +40,7 @@ class FormOptionsTestCase(BaseTestCase):
     def test_a_component_is_built_with_its_own_form_and_template(self) -> None:
         options = FormOptions(component=CommentFormComponent)
 
-        form = options.build_component(pk=None, access=Glue.Access.CHANGE)
+        form = options.build_component(model_pk=None, access=Glue.Access.CHANGE)
 
         assert type(form) is CommentFormComponent
         assert form.form_class is CommentForm

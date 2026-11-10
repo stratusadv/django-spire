@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- A form component can name its form in the template's Alpine scope with
+  `glue_form_property_name` (default `glue_form`), so a partial reads
+  `account_form.name` instead of `glue_form.name`. `form.html` and
+  `modal_form.html` use it for the binding, the save and the saved toast;
+  before, `modal_form.html` always bound `glue_form` and a component had no
+  way to pass the name. A `glue_form_property_name` in the template context
+  still wins.
+- A confirmation template can act once the action is done, such as showing a
+  toast: its `on_confirmed` block runs in the browser after a successful
+  `confirm()`, with what `on_confirm()` returned as `result`, as a form's
+  `glue_form_on_saved` block does after a save. `confirm()` now answers with
+  `{'confirmed': True, ...}` plus that detail, instead of nothing; a refused
+  action still answers with its message and no result.
+
+### Changed
+
+- `ModelFormComponent`'s row parameter is now `model_pk`, so it no longer
+  reads as the component's own primary key. `pk` still works as a deprecated
+  alias, both as a parameter (`ModelFormComponent(pk=...)`) and as an
+  attribute (`self.pk`), and raises a `DeprecationWarning`; passing both is an
+  error. A form rendered before the upgrade, whose signed identity still
+  carries `pk`, is rebuilt through the same alias.
+
 ## v1.4.3 - November 10, 2026
 
 ### Added

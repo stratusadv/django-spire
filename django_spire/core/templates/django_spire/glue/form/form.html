@@ -1,4 +1,4 @@
-{% with glue_form_property_name=glue_form_property_name|default:'glue_form' %}
+{% firstof glue_form_property_name component.glue_form_property_name 'glue_form' as glue_form_property_name %}
 <div x-data="{
     {% block glue_form_binding %}{{ glue_form_property_name }}: {% block glue_form %}Glue.form.{% block glue_form_unique_name %}{% endblock %}{% endblock %},{% endblock %}
     is_processing: false,
@@ -26,4 +26,3 @@
     </div>
 
 </div>
-{% endwith %}

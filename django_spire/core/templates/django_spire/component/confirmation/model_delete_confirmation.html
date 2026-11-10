@@ -17,5 +17,5 @@
 {% endblock %}
 
 {% block confirmation_button %}
-    {% include 'django_spire/button/async_button.html' with x_button_click='component.confirm()' x_busy='isSettling' button_text=component.confirm_label|default:'Delete' button_class='btn-danger' button_icon='bi bi-trash' %}
+    {% include 'django_spire/button/async_button.html' with x_button_click='confirm_action()' x_busy='isSettling' button_text=component.confirm_label|default:'Delete' button_class='btn-danger' button_icon='bi bi-trash' %}
 {% endblock %}
