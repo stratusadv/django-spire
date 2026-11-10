@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import os
 import socket
 import threading
@@ -72,7 +73,8 @@ def _reaper_due(last_reaper_run: float) -> bool:
 
 def _sweep_loop(key: str, interval_seconds: float, task_limit: int | None) -> None:
     claimed_by = _instance_id()
-    last_reaper_run = 0.0
+    # monotonic() counts from boot, so 0.0 would hold the first run back until uptime reaches the interval.
+    last_reaper_run = -math.inf
 
     logger.info('Celery task sweep started with key %s', key)
 

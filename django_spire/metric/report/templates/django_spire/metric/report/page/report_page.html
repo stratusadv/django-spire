@@ -6,18 +6,19 @@
     <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-primary flex-shrink-0 bg-layer-one"
          style="height: 52px;">
         <div class="d-flex align-items-center gap-2">
-            <a
-                    @click="toggle_sub()"
-                    class="user-select-none d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
-                    role="button"
-                    style="transition: background-color 0.15s ease;"
-                    :class="show_sub_nav ? 'bg-primary-soft text-primary' : 'text-muted'"
-                    x-cloak
-                    x-show="Spire.ui.hasContent($refs.full_page_sub_navigation)"
-            >
-                <i class="bi bi-layout-sidebar ds-fs-7"></i>
-                <span class="fw-medium">Browse</span>
-            </a>
+            {# x-show sits on a wrapper: Bootstrap's d-flex is !important and would override its display: none. #}
+            <div x-cloak x-show="Spire.ui.hasContent($refs.full_page_sub_navigation)">
+                <a
+                        @click="toggle_sub()"
+                        class="user-select-none d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
+                        role="button"
+                        style="transition: background-color 0.15s ease;"
+                        :class="show_sub_nav ? 'bg-primary-soft text-primary' : 'text-muted'"
+                >
+                    <i class="bi bi-layout-sidebar ds-fs-7"></i>
+                    <span class="fw-medium">Browse</span>
+                </a>
+            </div>
         </div>
         <div class="d-flex align-items-center gap-2">
         </div>

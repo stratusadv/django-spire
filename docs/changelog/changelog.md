@@ -1,13 +1,32 @@
 # Changelog
 
+## v1.4.3 - November 10, 2026
+
+### Fixed
+
+- The report page's Browse toggle hides when the report sidebar is empty,
+  such as on a report's own page. Its `x-show` sat beside Bootstrap's
+  `d-flex`, whose `display: flex !important` overrode the `display: none`, so
+  the toggle always showed; the `x-show` is now on a wrapper.
+- The Celery sweep runs the stale-task reaper on its first pass, as intended.
+  The time of the last run started at 0 on a clock that counts from boot, so
+  on a machine up for less than
+  `DJANGO_SPIRE_CELERY_SWEEP_REAPER_INTERVAL_SECONDS` the first run waited
+  until uptime reached the interval.
+
+### Docs
+
+- The v1.4.2 entry said the Browse toggle "hides again when the report
+  sidebar is empty". It did not, because of the `d-flex` above; the v1.4.2
+  entry is corrected.
+
 ## v1.4.2 - November 4, 2026
 
 ### Fixed
 
 - The report page no longer throws `has_content is not defined` on load. Its
   Browse toggle still called the global `has_content()`, which was replaced
-  by `Spire.ui.hasContent()`; it now calls the replacement, so the toggle
-  hides again when the report sidebar is empty.
+  by `Spire.ui.hasContent()`; it now calls the replacement.
 - `CeleryTaskMeta.estimated_progress` no longer returns `None` once a task's
   estimated completion time has passed: it falls back to the task's real
   progress, so a long-running task that outlasts its ETA keeps reporting its
