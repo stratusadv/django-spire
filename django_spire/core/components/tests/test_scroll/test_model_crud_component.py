@@ -188,7 +188,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
         component = Glue.object(request, CommentCrudScrollComponent(access=Glue.Access.DELETE))
         required_access = {
             name: component._resolve_required_access(
-                component._bound_attributes[name].definition.required_access
+                component._bound_attributes[name].attribute.required_access
             )
             for name in ('load_item_delete_confirmation', 'load_item_form')
         }

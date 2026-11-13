@@ -78,7 +78,7 @@ class BaseModelDeleteConfirmationComponentTestCase(BaseTestCase):
             component = Glue.object(request, component_class(instance=comment))
 
             assert component._resolve_required_access(
-                component._bound_attributes['confirm'].definition.required_access
+                component._bound_attributes['confirm'].attribute.required_access
             ) == Glue.Access.DELETE
 
     def test_the_prompt_names_the_row_unless_it_is_worded_when_built(self) -> None:
