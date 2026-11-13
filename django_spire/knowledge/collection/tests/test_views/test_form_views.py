@@ -155,7 +155,7 @@ class CollectionFormViewTests(BaseTestCase):
 
         response = self.client.get(self._update_url(self.collection.pk))
 
-        groups = self._glue_entry(response)['computed_data']['fields']['groups']
+        groups = self._glue_entry(response)['computed_data']['value_attributes']['groups']
 
         assert [choice['value'] for choice in groups['selected_choices']] == [auth_group.pk]
 

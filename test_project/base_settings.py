@@ -172,9 +172,9 @@ def show_toolbar(request: HttpRequest) -> bool:
     return DEBUG
 
 
-if DEBUG and importlib.util.find_spec('kaleidoscope'):
-    INSTALLED_APPS.insert(0, 'kaleidoscope')
-    MIDDLEWARE.insert(0, 'kaleidoscope.middleware.KaleidoscopeMiddleware')
+if DEBUG and importlib.util.find_spec('django_kaleidoscope'):
+    INSTALLED_APPS.insert(0, 'django_kaleidoscope')
+    MIDDLEWARE.insert(0, 'django_kaleidoscope.middleware.KaleidoscopeMiddleware')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 

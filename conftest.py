@@ -51,3 +51,10 @@ def use_vendored_assets_for_e2e(request: pytest.FixtureRequest) -> None:
         route.fulfill(path=vendor_root / relative_path)
 
     page.route('https://**', serve_asset)
+
+
+@pytest.fixture(scope='session')
+def demo_console_error_ignored_fragments_extra() -> tuple[str, ...]:
+    # Django admin's own script adds an unload listener, which Chromium's permissions policy
+    # refuses with a console error; it is not ours to fix, so only errors from that file pass.
+    return ('/static/admin/js/admin/RelatedObjectLookups.js)',)
