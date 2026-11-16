@@ -65,7 +65,7 @@ class BaseModelActionConfirmationComponentTestCase(BaseTestCase):
         assert 'Are you sure?' in html
         assert 'bi-trash' not in html
         assert introduced._resolve_required_access(
-            introduced._bound_attributes['confirm'].definition.required_access
+            introduced._bound_attributes['confirm'].attribute.required_access
         ) == Glue.Access.VIEW
 
     def test_the_row_it_was_built_with_is_read_without_a_query(self) -> None:

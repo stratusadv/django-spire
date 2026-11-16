@@ -41,7 +41,7 @@ class BaseConfirmationComponentTestCase(BaseTestCase):
         introduced = Glue.object(request, component)
 
         return introduced._resolve_required_access(
-            introduced._bound_attributes['confirm'].definition.required_access
+            introduced._bound_attributes['confirm'].attribute.required_access
         )
 
     def test_confirming_fires_confirmed_with_what_the_action_returned(self) -> None:

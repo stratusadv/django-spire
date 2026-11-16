@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.5.0 - November 13, 2026
+
+### Changed
+
+- Requires django-glue 1.4.0, whose breaking changes reach a Spire project in
+  these places (django-glue's changelog has them in full):
+  - A glued form offers the browser Glue's default `save()` only when its model
+    form's `Meta` sets `glue_default_save = True`. Spire's form components save
+    through `save_model_obj` and are unaffected. `glue/inline/editable_field.html`
+    saves through its owner's `save()`, so on a glued form that form must opt in;
+    on a `Glue.model` it works as before.
+  - A callable's arguments are checked against their annotations, so a value
+    the annotation refuses fails the call with `invalid_kwargs`.
+  - Code that reads a Glue response directly, usually a test, follows Glue's
+    new names: a derived value is `computed_data['values'][name]`, a field's
+    errors are `computed_data['value_attributes'][name]`, the field map is
+    `static_data['value_attributes']`, and a bound attribute's `.definition` is
+    `.attribute`. Spire's own tests are updated.
+
+### Added
+
+- From django-glue 1.4.0: an attribute typed as a Django form class holds that
+  form as a component's state, which Spire's field templates bind to as
+  `component.<attribute>.$fields.<name>`, and a formset builds its rows with
+  `form_kwargs`.
+
 ## v1.4.4 - November 10, 2026
 
 ### Added
