@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.urls import reverse
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
@@ -21,7 +19,6 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
         return [entry.services.transformation.to_dict() for entry in queryset]
 
     def to_dict(self):
-        site = Site.objects.get_current() if not settings.DEBUG else ''
         current_version = self.obj.current_version
 
         return {
@@ -40,33 +37,22 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
                 else ''
             ),
             'status': current_version.status,
-            'delete_url': f"""
-                {site}{
-                reverse('django_spire:knowledge:entry:page:delete', kwargs={'pk': self.obj.pk})
-            }
-            """,
-            'edit_url': f"""
-                {site}{
-                reverse(
-                    'django_spire:knowledge:entry:form:update',
-                    kwargs={'pk': self.obj.pk, 'collection_pk': self.obj.collection.pk},
-                )
-            }
-            """,
-            'view_url': f"""
-                {site}{
+            'delete_url': reverse(
+                'django_spire:knowledge:entry:page:delete', kwargs={'pk': self.obj.pk}
+            ),
+            'edit_url': reverse(
+                'django_spire:knowledge:entry:form:update',
+                kwargs={'pk': self.obj.pk, 'collection_pk': self.obj.collection.pk},
+            ),
+            'view_url': reverse(
+                'django_spire:knowledge:entry:version:page:editor',
+                kwargs={'pk': current_version.pk},
+            ),
+            'edit_version_url': (
                 reverse(
                     'django_spire:knowledge:entry:version:page:editor',
                     kwargs={'pk': current_version.pk},
                 )
-            }
-            """,
-            'edit_version_url': f"""
-                {site}{
-                reverse(
-                    'django_spire:knowledge:entry:version:page:editor',
-                    kwargs={'pk': current_version.pk},
-                )
-            }?view_mode=edit
-            """,
+                + '?view_mode=edit'
+            ),
         }

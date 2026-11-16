@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.5.1 - November 16, 2026
+
+### Fixed
+
+- Knowledge base sub-nav links (a collection's Add Entry, Import Entry,
+  Edit and Delete, and an entry's Rename, Edit and Delete) no longer
+  404 on `DEBUG=False` deployments. The transformation services
+  prefixed each URL with the current site's domain without a scheme,
+  which the browser resolved as a relative path and embedded the
+  domain in the path. The URLs are now plain `reverse()` paths that
+  resolve against the current origin, on any deployment.
+- The entry form's post-save redirect and the Ctrl+K search detail
+  link now pass the entry version's pk to the version editor URL
+  instead of the entry's pk, which 404s once the two sequences
+  drift. Search also stops listing entries without a current version.
+
 ## v1.5.0 - November 13, 2026
 
 ### Changed

@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import json
 
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.db.models import Prefetch
 from django.urls import reverse
 
@@ -58,7 +56,6 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
         return json.dumps(tree)
 
     def to_dict(self):
-        site = Site.objects.get_current() if not settings.DEBUG else ''
         entries = self.obj.entries.all()
 
         return {
@@ -69,30 +66,16 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
             'entries': (
                 entries.model.services.transformation.queryset_to_navigation_list(queryset=entries)
             ),
-            'delete_url': f"""
-                {site}{
-                reverse('django_spire:knowledge:collection:page:delete', kwargs={'pk': self.obj.pk})
-            }
-            """,
-            'edit_url': f"""
-                {site}{
-                reverse('django_spire:knowledge:collection:form:update', kwargs={'pk': self.obj.pk})
-            }
-            """,
-            'create_entry_url': f"""
-                {site}{
-                reverse(
-                    'django_spire:knowledge:entry:form:create',
-                    kwargs={'collection_pk': self.obj.pk},
-                )
-            }
-            """,
-            'import_entry_url': f"""
-                {site}{
-                reverse(
-                    'django_spire:knowledge:entry:form:import',
-                    kwargs={'collection_pk': self.obj.pk},
-                )
-            }
-            """,
+            'delete_url': reverse(
+                'django_spire:knowledge:collection:page:delete', kwargs={'pk': self.obj.pk}
+            ),
+            'edit_url': reverse(
+                'django_spire:knowledge:collection:form:update', kwargs={'pk': self.obj.pk}
+            ),
+            'create_entry_url': reverse(
+                'django_spire:knowledge:entry:form:create', kwargs={'collection_pk': self.obj.pk}
+            ),
+            'import_entry_url': reverse(
+                'django_spire:knowledge:entry:form:import', kwargs={'collection_pk': self.obj.pk}
+            ),
         }

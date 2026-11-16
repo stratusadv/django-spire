@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
+from django_spire.auth.user.tests.factories import create_user
+from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.search import EntrySearch
 from django_spire.knowledge.entry.tests.factories import create_test_collection, create_test_entry
+from django_spire.knowledge.entry.version.tests.factories import create_test_entry_version
 
 
 class TestEntrySearch(TestCase):
@@ -21,6 +26,10 @@ class TestEntrySearch(TestCase):
         self.other = create_test_entry(collection=self.collection, name='Basics')
         self.deleted = create_test_entry(collection=self.collection, name='Archive Guide')
         self.deleted.set_deleted()
+
+        for entry in (self.matching_name, self.matching_text, self.other, self.deleted):
+            entry.current_version = create_test_entry_version(entry=entry)
+            entry.save()
 
     def test_search_matches_name(self) -> None:
         results = self.search.search(self.request, 'Guide')
@@ -51,8 +60,34 @@ class TestEntrySearch(TestCase):
         assert result.label == 'Installation Guide'
         assert result.description == 'Guides'
         assert result.url == reverse(
-            'django_spire:knowledge:entry:version:page:editor', kwargs={'pk': self.matching_name.pk}
+            'django_spire:knowledge:entry:version:page:editor',
+            kwargs={'pk': self.matching_name.current_version.pk},
         )
+
+    def test_search_detail_url_resolves_to_editor(self) -> None:
+        user = create_user(username='search_detail_url_user')
+        user.user_permissions.add(
+            Permission.objects.get(
+                codename='view_collection',
+                content_type=ContentType.objects.get_for_model(Collection),
+            )
+        )
+        self.client.force_login(type(user).objects.get(pk=user.pk))
+
+        entry = next(iter(self.search.search(self.request, 'Guide')))
+
+        response = self.client.get(self.search.generate_detail_url(entry))
+
+        assert response.status_code == 200
+        assert response.context['entry'].pk == entry.pk
+        assert response.context['current_version'].pk == entry.current_version.pk
+
+    def test_search_excludes_entries_without_version(self) -> None:
+        create_test_entry(collection=self.collection, name='Orphan Draft')
+
+        results = self.search.search(self.request, 'Orphan')
+
+        assert not results.exists()
 
     def test_to_result_prefetches_collection(self) -> None:
         entry = next(iter(self.search.search(self.request, 'Guide')))

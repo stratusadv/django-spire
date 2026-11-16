@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from django.contrib.sites.models import Site
+from django.test import override_settings
+
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.knowledge.collection.tests.factories import create_test_collection
 from django_spire.knowledge.entry.models import Entry
@@ -76,12 +79,33 @@ class EntryTransformationServiceTests(BaseTestCase):
 
         assert result['entry_id'] == self.entry.pk
         assert result['name'] == self.entry.name
-        assert 'version_id' in result
+        assert result['version_id'] == self.entry_version.pk
         assert 'author' in result
         assert 'status' in result
         assert 'delete_url' in result
         assert 'edit_url' in result
         assert 'view_url' in result
+
+    def test_to_dict_urls_are_origin_relative(self):
+        self.entry.services.transformation.obj = self.entry
+        result = self.entry.services.transformation.to_dict()
+
+        for url_key in ('delete_url', 'edit_url', 'view_url', 'edit_version_url'):
+            assert result[url_key].startswith('/')
+
+        assert result['edit_version_url'].endswith('?view_mode=edit')
+
+    @override_settings(DEBUG=False)
+    def test_to_dict_urls_are_origin_relative_with_site_configured(self):
+        portal_site = Site.objects.create(domain='portal.example.com', name='Portal')
+
+        with override_settings(SITE_ID=portal_site.pk):
+            self.entry.services.transformation.obj = self.entry
+            result = self.entry.services.transformation.to_dict()
+
+        for url_key in ('delete_url', 'edit_url', 'view_url', 'edit_version_url'):
+            assert result[url_key].startswith('/')
+            assert 'portal.example.com' not in result[url_key]
 
     def test_queryset_to_navigation_list(self):
         result = Entry.services.transformation.queryset_to_navigation_list(

@@ -21,13 +21,20 @@ class EntrySearch(Search):
     permission_required = 'django_spire_knowledge.view_collection'
 
     def base_queryset(self, request: HttpRequest) -> QuerySet[Entry]:
-        return self.model_class.objects.active().select_related('collection')
+        return (
+            self.model_class.objects.active()
+            .has_current_version()
+            .select_related('collection', 'current_version')
+        )
 
     def generate_list_url(self) -> str:
         return reverse('django_spire:knowledge:page:home')
 
     def generate_detail_url(self, obj: Entry) -> str:
-        return reverse('django_spire:knowledge:entry:version:page:editor', kwargs={'pk': obj.pk})
+        return reverse(
+            'django_spire:knowledge:entry:version:page:editor',
+            kwargs={'pk': obj.current_version.pk},
+        )
 
     def result_name(self, obj: Entry) -> str:
         return obj.name
