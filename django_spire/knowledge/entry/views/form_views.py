@@ -37,8 +37,21 @@ def form_view(
             form.cleaned_data['collection'] = collection
             entry, _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
 
+            entry_version = entry.current_version or entry.versions.order_by('id').first()
+
+            if entry_version is None:
+                return HttpResponseRedirect(
+                    reverse(
+                        'django_spire:knowledge:collection:page:top_level',
+                        kwargs={'pk': collection.pk},
+                    )
+                )
+
             return HttpResponseRedirect(
-                reverse('django_spire:knowledge:entry:version:page:editor', kwargs={'pk': entry.pk})
+                reverse(
+                    'django_spire:knowledge:entry:version:page:editor',
+                    kwargs={'pk': entry_version.pk},
+                )
             )
 
         show_form_errors(request, form)

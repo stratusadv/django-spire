@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from django.contrib.sites.models import Site
 # from django.conf import settings
+from django.test import override_settings
 # from django.test import RequestFactory
 
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -100,6 +101,26 @@ class TestCollectionTransformationService(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.site = Site.objects.create(domain='', name='')
+        self.collection = create_test_collection()
+
+    def test_to_dict_urls_are_origin_relative(self):
+        self.collection.services.transformation.obj = self.collection
+        result = self.collection.services.transformation.to_dict()
+
+        for url_key in ('delete_url', 'edit_url', 'create_entry_url', 'import_entry_url'):
+            assert result[url_key].startswith('/')
+
+    @override_settings(DEBUG=False)
+    def test_to_dict_urls_are_origin_relative_with_site_configured(self):
+        portal_site = Site.objects.create(domain='portal.example.com', name='Portal')
+
+        with override_settings(SITE_ID=portal_site.pk):
+            self.collection.services.transformation.obj = self.collection
+            result = self.collection.services.transformation.to_dict()
+
+        for url_key in ('delete_url', 'edit_url', 'create_entry_url', 'import_entry_url'):
+            assert result[url_key].startswith('/')
+            assert 'portal.example.com' not in result[url_key]
 
     def _test_collection_urls_json(self, collection_json: dict):
         response = self.client.get(collection_json['delete_url'].replace(' ', ''))

@@ -10,6 +10,7 @@ from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.collection.tests.factories import create_test_collection
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.tests.factories import create_test_entry
+from django_spire.knowledge.entry.version.tests.factories import create_test_entry_version
 
 
 class EntryFormViewTests(BaseTestCase):
@@ -99,8 +100,38 @@ class EntryFormViewTests(BaseTestCase):
         entry = Entry.objects.get(name='Speedrun Glitches')
 
         assert response.url == reverse(
-            'django_spire:knowledge:entry:version:page:editor', kwargs={'pk': entry.pk}
+            'django_spire:knowledge:entry:version:page:editor',
+            kwargs={'pk': entry.current_version.pk},
         )
+
+        editor_response = self.client.get(response.url)
+
+        assert editor_response.status_code == 200
+        assert editor_response.context['entry'].pk == entry.pk
+        assert editor_response.context['current_version'].pk == entry.current_version.pk
+
+    def test_update_view_post_redirects_to_editor_with_drifted_pks(self):
+        entry = create_test_entry(collection=self.child_collection, name='Drifted Entry', pk=9901)
+        version = create_test_entry_version(entry=entry, pk=9902)
+        entry.current_version = version
+        entry.save()
+
+        response = self.client.post(
+            self._update_url(entry.pk, self.child_collection.pk),
+            data={'name': 'Drifted Entry Renamed'},
+        )
+
+        assert entry.pk != entry.current_version.pk
+        assert response.url == reverse(
+            'django_spire:knowledge:entry:version:page:editor',
+            kwargs={'pk': entry.current_version.pk},
+        )
+
+        editor_response = self.client.get(response.url)
+
+        assert editor_response.status_code == 200
+        assert editor_response.context['entry'].pk == entry.pk
+        assert editor_response.context['current_version'].pk == entry.current_version.pk
 
     def test_create_view_post_creates_current_version(self):
         self.client.post(self._create_url(), data={'name': 'Speedrun Glitches'})
@@ -119,6 +150,38 @@ class EntryFormViewTests(BaseTestCase):
 
         assert response.status_code == 302
         assert self.entry.name == 'Renamed Entry'
+
+    def test_update_view_post_redirects_to_version_editor(self):
+        entry_version = create_test_entry_version(entry=self.entry)
+        self.entry.current_version = entry_version
+        self.entry.save()
+
+        response = self.client.post(
+            self._update_url(self.entry.pk, self.child_collection.pk),
+            data={'name': 'Renamed Entry'},
+        )
+
+        assert response.url == reverse(
+            'django_spire:knowledge:entry:version:page:editor',
+            kwargs={'pk': entry_version.pk},
+        )
+
+        editor_response = self.client.get(response.url)
+
+        assert editor_response.status_code == 200
+        assert editor_response.context['entry'].pk == self.entry.pk
+
+    def test_update_view_post_without_version_redirects_to_collection(self):
+        response = self.client.post(
+            self._update_url(self.entry.pk, self.child_collection.pk),
+            data={'name': 'Versionless Entry'},
+        )
+
+        assert response.status_code == 302
+        assert response.url == reverse(
+            'django_spire:knowledge:collection:page:top_level',
+            kwargs={'pk': self.child_collection.pk},
+        )
 
     def test_create_view_post_with_invalid_data_does_not_create_entry(self):
         entry_count = Entry.objects.count()
