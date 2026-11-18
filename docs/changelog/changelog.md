@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.5.2
+
+### Fixed
+
+- The user list no longer sends every user's password hash, email, staff and
+  superuser flags, last login and permissions to the browser. It glued its
+  users with `fields='__all__'`, so anyone with `view_authuser` received them
+  all. It now exposes only what the list shows, searches and sorts by: `id`,
+  `username`, `first_name`, `last_name`, `is_active` and `groups`.
+
 ## v1.5.1 - November 16, 2026
 
 ### Fixed
