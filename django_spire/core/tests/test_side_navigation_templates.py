@@ -11,7 +11,7 @@ class SideNavigationTemplateTestCase(BaseTestCase):
     def test_a_full_page_renders_its_navigation_links_once(self) -> None:
         html = self.client.get(reverse('home:page:home')).content.decode()
 
-        hrefs = re.findall(r'<a\s+class="[^"]*text-link-side-navigation[^"]*"\s+href="([^"]*)"', html)
+        hrefs = re.findall(r'<a\s+class="side-navigation-link[^"]*"\s+href="([^"]*)"', html)
 
         assert hrefs
         assert len(hrefs) == len(set(hrefs))

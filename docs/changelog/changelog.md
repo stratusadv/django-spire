@@ -22,6 +22,10 @@
   once, so each page is 3 to 5 KB smaller, starts no Alpine component per link
   and no longer wakes every link on each click. `nav_link.js` and its
   `navLink` component are removed.
+- A navigation link is styled by one `side-navigation-link` class in spire's
+  SCSS in place of a string of utility classes, and the side navigation drops
+  `text-link-side-navigation`, `text-side-navigation` and `ds-fs-9`, which no
+  stylesheet defines. Nothing looks different.
 
 ### Fixed
 

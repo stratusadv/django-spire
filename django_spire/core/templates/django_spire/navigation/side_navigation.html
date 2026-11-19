@@ -24,12 +24,12 @@
                         style="width: 28px; height: 28px; object-fit: contain;"
                     >
                     <div class="d-flex flex-column overflow-hidden side-nav-expanded-only">
-                        <span class="fw-semibold text-truncate text-link-side-navigation fs-4">
+                        <span class="fw-semibold text-truncate fs-4">
                             {% block side_navigation_title %}
                                 Django Spire
                             {% endblock %}
                         </span>
-                        <span class="text-truncate text-side-navigation fs-8">
+                        <span class="text-truncate fs-8">
                             {% block side_navigation_subtitle %}
                             {% endblock %}
                         </span>
@@ -70,7 +70,7 @@
         <div class="d-none d-lg-block border-top px-2 py-2 mt-auto">
             <a
                 role="button"
-                class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-link-side-navigation ds-fs-9"
+                class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer"
                 @click="toggle_collapse()"
             >
                 <i class="bi bi-chevron-left flex-shrink-0 side-nav-expanded-only" style="width: 1.25rem;"></i>

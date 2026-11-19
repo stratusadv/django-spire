@@ -82,6 +82,16 @@
     outline-offset: 2px;
 }
 
+.side-navigation-link {
+    align-items: center;
+    border-radius: var(--bs-border-radius-lg);
+    cursor: pointer;
+    display: flex;
+    font-weight: 500;
+    gap: 0.5rem;
+    padding: 0.25rem 1rem;
+}
+
 .side-navigation a.active {
     background-color: color-mix(in srgb, var(--side-navigation-link-hover-color) 15%, transparent);
     color: var(--side-navigation-link-hover-color) !important;
