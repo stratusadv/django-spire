@@ -1,6 +1,15 @@
 # Changelog
 
-## v1.5.1 - November 16, 2026
+## v1.5.1 - November 19, 2026
+
+### Added
+
+- API Access keys now track when one was last used. A successful `ApiKeySecurity`
+  authentication stamps the key's `last_used_datetime` — at most once per hour per
+  key, through a throttled write that records nothing in the history/activity feed
+  — and it renders as "Last Used" (or "Never used") on the API Access list and
+  detail pages and the admin list. `DJANGO_SPIRE_API_KEY_LAST_USED_THROTTLE_MINUTES`
+  (default 60) sets the stamping window.
 
 ### Fixed
 
