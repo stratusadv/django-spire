@@ -1,3 +1,30 @@
+// echarts loads with a page's first chart, not with every page. A page that
+// loaded echarts itself keeps its own copy.
+Spire.chart = {
+    ECHARTS_URL: 'https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js',
+    ECHARTS_INTEGRITY: 'sha256-tmslrrTfhOMxmdwhaUAU0zbSIsvZ3rDlp8FL1qoND9A=',
+    _echarts: null,
+
+    loadEcharts() {
+        if (!this._echarts) {
+            this._echarts = window.echarts ? Promise.resolve(window.echarts) : new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = this.ECHARTS_URL;
+                script.integrity = this.ECHARTS_INTEGRITY;
+                script.crossOrigin = 'anonymous';
+                script.onload = () => resolve(window.echarts);
+                script.onerror = () => {
+                    this._echarts = null;
+                    reject(new Error('echarts did not load'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        return this._echarts;
+    },
+};
+
 document.addEventListener('alpine:init', () => {
     Alpine.data('spireChart', () => ({
         chart: null,
@@ -44,7 +71,11 @@ document.addEventListener('alpine:init', () => {
             return option;
         },
 
-        init() {
+        async init() {
+            const echarts = await Spire.chart.loadEcharts();
+
+            if (!this.$el.isConnected) return;
+
             this.theme = window.get_echarts_theme ? window.get_echarts_theme() : {};
             const option = this._themed(
                 this._inject_gauge_formatters(JSON.parse(this.$el.querySelector('#chart-option').textContent))

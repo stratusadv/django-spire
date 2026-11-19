@@ -41,6 +41,11 @@
 - The single and multiple file fields are components, `glueSingleFileField`
   and `glueMultiFileField`, in `django_spire/file/form/field/js/`, in place of
   their inline Alpine.
+- **echarts loads only on a page that draws a chart.** `base.html` loaded it
+  (1.1 MB, 369 KB compressed) on every page; a chart now loads it through
+  `Spire.chart.loadEcharts()`, once per page, and a page that loads echarts
+  itself keeps its own copy. Code that calls `echarts` directly and relied on
+  spire's copy loads echarts itself or awaits `Spire.chart.loadEcharts()`.
 
 ### Fixed
 
