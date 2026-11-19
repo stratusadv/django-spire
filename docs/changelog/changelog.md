@@ -31,8 +31,24 @@
   size). No stylesheet has defined them since v1.0.0, so nothing looks
   different. A project that passed a `ds-fs-*` size to `confirm_icon.html` was
   passing a class with no style.
+- A glue form field takes its events and its input's name, state and validity
+  from two binds, `glueFieldEvents` and `glueFieldInput`, in place of the same
+  inline attributes on every field: about 300 bytes less per field. The events
+  and attributes are the same. `glueField` and both binds are in
+  `django_spire/glue/form/widget/js/widget.js`, which replaces
+  `django_spire/js/glue_field.js`; a project that loads the old path itself
+  loads the new one instead.
+- The single and multiple file fields are components, `glueSingleFileField`
+  and `glueMultiFileField`, in `django_spire/file/form/field/js/`, in place of
+  their inline Alpine.
 
 ### Fixed
+
+- The multiple file field shows an image's preview. It called
+  `$forceUpdate()`, which Alpine does not have, so the preview never appeared
+  and the page logged an error.
+- The single file field no longer renders a second, broken label under the
+  field's own, which logged an Alpine error on every page that showed it.
 
 - Following a navigation link renders the page once. The link fetched the page
   to time the loading spinner and then loaded it again; it now loads it

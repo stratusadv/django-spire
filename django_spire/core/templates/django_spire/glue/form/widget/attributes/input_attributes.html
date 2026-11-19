@@ -1,10 +1,7 @@
-:name="field.name"
+x-bind="glueFieldInput"
 {% if not exclude_x_model %}
 x-model="value"
 {% endif %}
 {% if not exclude_class %}
 class="form-{{ form_class_type|default:'control' }} {{ input_class }}"
 {% endif %}
-:class="{'is-invalid': field.hasErrors}"
-:required="field.required"
-:disabled="field.disabled"
