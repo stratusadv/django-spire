@@ -64,9 +64,9 @@ class ApiKeySecurity(APIKeyBase):
     def _record_use(api_access: ApiAccess) -> None:
         cutoff = localtime() - timedelta(minutes=settings.DJANGO_SPIRE_API_KEY_LAST_USED_THROTTLE_MINUTES)
 
-        ApiAccess.objects.filter(
-            Q(pk=api_access.pk) & (Q(last_used_datetime__isnull=True) | Q(last_used_datetime__lt=cutoff))
-        ).update(last_used_datetime=localtime())
+        if api_access.last_used_datetime is None or api_access.last_used_datetime < cutoff:
+            api_access.last_used_datetime = localtime()
+            api_access.save()
 
     def _get_key(self, request: HttpRequest) -> str | None:
         headers = request.headers
