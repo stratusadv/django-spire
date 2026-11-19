@@ -72,6 +72,19 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             )
             raise ImproperlyConfigured(message)
 
+    @property
+    def can_delete(self) -> bool:
+        """
+        Whether ``deleteItem()`` can delete a row: a delete page guards itself,
+        and a confirmation needs ``DELETE`` access.
+        """
+        if isinstance(self.item_delete_options, self.PageDeleteOptions):
+            return True
+
+        return self.item_delete_options is not None and self.access.has_access(
+            Glue.Access.DELETE
+        )
+
     @Glue.attr(required_access=Glue.Access.DELETE)
     def load_item_delete_confirmation(self, pk: int | str) -> BaseModelDeleteConfirmationComponent:
         if not isinstance(self.item_delete_options, self.DeleteOptions):

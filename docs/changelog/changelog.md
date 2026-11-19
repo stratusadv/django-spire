@@ -69,6 +69,11 @@
   `class TaskListComponent(Glue.ModelAccessMixin, ModelCrudScrollComponent)`.
   The mixin is opt-in; a component without it keeps the access it is given.
   Requires django-glue 1.4.1.
+- `ModelCrudScrollComponent.can_delete` says whether `deleteItem()` can delete
+  a row, so a row template shows its delete under
+  `{% if component.can_delete %}` instead of each list working it out from
+  its access: it is true for a delete page, and for a confirmation when the
+  list's access allows `DELETE`.
 
 ### Fixed
 
