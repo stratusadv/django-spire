@@ -46,6 +46,10 @@
   `Spire.chart.loadEcharts()`, once per page, and a page that loads echarts
   itself keeps its own copy. Code that calls `echarts` directly and relied on
   spire's copy loads echarts itself or awaits `Spire.chart.loadEcharts()`.
+- `responsive_icon.html` drops its `isActive` state and the five press and
+  touch listeners that set it, which nothing ever read, and renders its classes
+  on one line: about 3 KB less per page across the top navigation's icons. Its
+  blocks and parameters are unchanged.
 
 ### Fixed
 

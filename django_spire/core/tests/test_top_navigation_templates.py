@@ -41,3 +41,17 @@ class TopNavigationButtonsTemplateTestCase(SimpleTestCase):
             html = self.render_buttons()
 
         assert html.strip().startswith('<span data-company-switcher>Northwind</span>')
+
+
+class ResponsiveIconTemplateTestCase(SimpleTestCase):
+    def test_an_icon_with_a_click_shows_it_is_loading_while_the_click_runs(self) -> None:
+        html = render_to_string(
+            'django_spire/icon/responsive_icon.html',
+            {'icon': 'bi bi-search', 'x_icon_click': 'Spire.searchPalette.open()'},
+        )
+
+        assert 'x-data="{ isLoading: false }"' in html
+        assert '@click="isLoading = true; await Spire.searchPalette.open(); isLoading = false"' in html
+        assert 'class="bi bi-search fs-2 text-primary text-primary-hover  cursor-pointer"' in html
+        assert 'isActive' not in html
+        assert '@mousedown' not in html
