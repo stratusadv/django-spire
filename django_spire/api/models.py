@@ -30,6 +30,8 @@ class ApiAccess(ActivityMixin, HistoryModelMixin):
 
     has_super_access = models.BooleanField(default=False, verbose_name='Super Access (Overrides User Access)')
 
+    last_used_datetime = models.DateTimeField(null=True, blank=True, editable=False)
+
     objects = ApiAccessQuerySet.as_manager()  # ty:ignore[missing-argument]
 
     def __str__(self) -> str:

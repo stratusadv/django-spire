@@ -1,11 +1,15 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory
+from django.utils import timezone
 
 from django_spire.api.auth.security import ApiKeySecurity
 from django_spire.api.choices import ApiPermissionChoices
 from django_spire.api.models import ApiAccess
 from django_spire.auth.user.models import AuthUser
+from django_spire.conf import settings
 from django_spire.core.tests.test_cases import BaseTestCase
 
 
@@ -110,6 +114,42 @@ class ApiKeySecurityTestCase(BaseTestCase):
     def test_authenticate_user_permission_required_fail_without_user(self) -> None:
         security = ApiKeySecurity(user_permission_required='django_spire_api.view_apiaccess')
         assert not security.authenticate(self.rf.get('/'), self.key)
+
+    def test_authenticate_stamps_last_used_datetime(self) -> None:
+        security = ApiKeySecurity()
+        assert self.access.last_used_datetime is None
+
+        security.authenticate(self.rf.get('/'), self.key)
+
+        self.access.refresh_from_db()
+        assert self.access.last_used_datetime is not None
+
+    def test_authenticate_within_throttle_window_leaves_last_used_unchanged(self) -> None:
+        security = ApiKeySecurity()
+        security.authenticate(self.rf.get('/'), self.key)
+        self.access.refresh_from_db()
+        first = self.access.last_used_datetime
+
+        security.authenticate(self.rf.get('/'), self.key)
+
+        self.access.refresh_from_db()
+        assert self.access.last_used_datetime == first
+
+    def test_authenticate_after_throttle_window_updates_last_used(self) -> None:
+        security = ApiKeySecurity()
+        stale = timezone.now() - timedelta(minutes=settings.DJANGO_SPIRE_API_KEY_LAST_USED_THROTTLE_MINUTES + 5)
+        ApiAccess.objects.filter(pk=self.access.pk).update(last_used_datetime=stale)
+
+        security.authenticate(self.rf.get('/'), self.key)
+
+        self.access.refresh_from_db()
+        assert self.access.last_used_datetime > stale
+
+    def test_failed_authenticate_does_not_stamp_last_used(self) -> None:
+        security = ApiKeySecurity()
+        assert not security.authenticate(self.rf.get('/'), 'wrong_key')
+        self.access.refresh_from_db()
+        assert self.access.last_used_datetime is None
 
     def test_get_key_from_header(self) -> None:
         security = ApiKeySecurity()
