@@ -26,6 +26,11 @@
   SCSS in place of a string of utility classes, and the side navigation drops
   `text-link-side-navigation`, `text-side-navigation` and `ds-fs-9`, which no
   stylesheet defines. Nothing looks different.
+- Spire's templates drop the `ds-fs-*` font-size classes (chat, the knowledge
+  base, reports, the full page's side panels and `confirm_icon.html`'s default
+  size). No stylesheet has defined them since v1.0.0, so nothing looks
+  different. A project that passed a `ds-fs-*` size to `confirm_icon.html` was
+  passing a class with no style.
 
 ### Fixed
 
