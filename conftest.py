@@ -23,14 +23,6 @@ VENDOR_ASSETS = {
         'bootstrap-icons/fonts/bootstrap-icons.woff2'
     ),
     '/npm/echarts@6.1.0/dist/echarts.min.js': 'echarts/echarts.min.js',
-    '/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js': 'pulltorefreshjs/index.umd.min.js',
-    '/npm/@alpinejs/intersect@3.15.x/dist/cdn.min.js': 'alpinejs/intersect.min.js',
-    '/npm/@alpinejs/mask@3.15.x/dist/cdn.min.js': 'alpinejs/mask.min.js',
-    '/npm/@alpinejs/collapse@3.15.x/dist/cdn.min.js': 'alpinejs/collapse.min.js',
-    '/npm/@alpinejs/persist@3.15.x/dist/cdn.min.js': 'alpinejs/persist.min.js',
-    '/npm/@alpinejs/focus@3.15.x/dist/cdn.min.js': 'alpinejs/focus.min.js',
-    '/npm/@alpinejs/sort@3.15.x/dist/cdn.min.js': 'alpinejs/sort.min.js',
-    '/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js': 'bootstrap/bootstrap.bundle.min.js',
 }
 
 

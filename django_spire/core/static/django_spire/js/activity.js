@@ -1,4 +1,0 @@
-Spire.activity = {
-    create() {
-    }
-}

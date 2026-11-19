@@ -6,9 +6,9 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const packages = join(root, 'node_modules');
 const vendor = join(root, 'test_project/vendor');
 
+// What pages still load from a CDN; the browser tests serve these copies instead.
+// The libraries in core's bundle come from node_modules when it is built.
 const assets = [
-  ['bootstrap/dist/js/bootstrap.bundle.min.js', 'bootstrap/bootstrap.bundle.min.js'],
-  ['bootstrap/LICENSE', 'licenses/LICENSE-bootstrap'],
   ['bootstrap-icons/font/bootstrap-icons.min.css', 'bootstrap-icons/bootstrap-icons.min.css'],
   ['bootstrap-icons/font/fonts/bootstrap-icons.woff', 'bootstrap-icons/fonts/bootstrap-icons.woff'],
   ['bootstrap-icons/font/fonts/bootstrap-icons.woff2', 'bootstrap-icons/fonts/bootstrap-icons.woff2'],
@@ -17,12 +17,6 @@ const assets = [
   ['echarts/LICENSE', 'licenses/LICENSE-echarts'],
   ['echarts/NOTICE', 'licenses/NOTICE-echarts'],
   ['echarts/licenses/LICENSE-d3', 'licenses/LICENSE-echarts-d3'],
-  ['pulltorefreshjs/dist/index.umd.min.js', 'pulltorefreshjs/index.umd.min.js'],
-  ['pulltorefreshjs/LICENSE.txt', 'licenses/LICENSE-pulltorefreshjs.txt'],
-  ...['collapse', 'focus', 'intersect', 'mask', 'persist', 'sort'].map((name) => [
-    `@alpinejs/${name}/dist/cdn.min.js`,
-    `alpinejs/${name}.min.js`,
-  ]),
 ];
 
 for (const [source, destination] of assets) {

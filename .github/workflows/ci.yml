@@ -61,9 +61,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # The bundles are built and checked with the same Bun, so a check that one
+      # is current compares like with like.
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: 1.4.3
       - run: bun test
 
   e2e-tests:
