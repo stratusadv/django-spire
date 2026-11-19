@@ -51,6 +51,16 @@
   on one line: about 3 KB less per page across the top navigation's icons. Its
   blocks and parameters are unchanged.
 
+### Added
+
+- `QuerySetScrollComponent`, `ModelFormComponent` and the model confirmation
+  components name their model with `get_permission_model()`, so a component that
+  mixes in django-glue's `ModelAccessMixin` takes its access from the user's
+  permissions on that model with no other code:
+  `class TaskListComponent(Glue.ModelAccessMixin, ModelCrudScrollComponent)`.
+  The mixin is opt-in; a component without it keeps the access it is given.
+  Requires django-glue 1.4.1.
+
 ### Fixed
 
 - The multiple file field shows an image's preview. It called

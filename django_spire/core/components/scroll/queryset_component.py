@@ -55,6 +55,10 @@ class QuerySetScrollComponent(BaseScrollComponent, ABC):
     def get_queryset(self) -> QuerySet:
         """Return the rows this scroll lists, in the order it lists them."""
 
+    def get_permission_model(self) -> type[Model]:
+        """Return the listed model, whose permissions ``Glue.ModelAccessMixin`` reads."""
+        return self.get_queryset().model
+
     @property
     def renders_items_on_server(self) -> bool:
         return not self.glue_items

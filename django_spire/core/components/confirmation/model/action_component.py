@@ -26,6 +26,10 @@ class BaseModelActionConfirmationComponent(BaseConfirmationComponent, ABC):
     def model_name(self) -> str:
         return str(self.instance._meta.verbose_name)
 
+    def get_permission_model(self) -> type[Model]:
+        """Return the row's model, whose permissions ``Glue.ModelAccessMixin`` reads."""
+        return self.instance._meta.model
+
     @abstractmethod
     def perform_action(self) -> None:
         """Perform the confirmed action on ``self.instance``."""
