@@ -8,7 +8,8 @@
         x-data="fullPage()"
     >
         <div
-            class="d-none d-lg-block side-navigation hide-on-print sticky-top vh-100 align-self-start flex-shrink-0"
+            :class="{ 'side-navigation-drawer-open': show_mobile_nav }"
+            class="side-navigation side-navigation-drawer hide-on-print sticky-top vh-100 align-self-start flex-shrink-0"
             style="width: var(--side-navigation-width, 240px);"
         >
             {% block full_page_side_navigation %}

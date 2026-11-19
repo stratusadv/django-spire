@@ -9,6 +9,14 @@
   longer needs a page template of its own. `BaseScrollComponent` sets it as
   `view_template`; a subclass or `as_view(view_template=...)` still overrides
   it.
+- A full page renders its navigation once. The mobile menu was a second copy
+  of every link; below the lg breakpoint the side navigation is now the mobile
+  menu itself, so each page is 13 to 20 KB smaller and starts one Alpine
+  component per link instead of two. The menu looks and behaves as before.
+  **Recompile your theme** (`manage.py spire_compile_scss`) when upgrading:
+  the mobile menu's styles are in spire's SCSS, and without them it does not
+  open. The `mobile_navigation_links` block of `mobile_navigation.html` is
+  removed; links come from `side_navigation_links`, as on desktop.
 
 ### Fixed
 

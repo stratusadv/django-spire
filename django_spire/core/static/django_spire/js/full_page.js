@@ -10,6 +10,7 @@ document.addEventListener('alpine:init', () => {
         resize_start_width: 0,
         resize_start_x: 0,
         show_info_nav: false,
+        show_mobile_nav: false,
         show_sub_nav: false,
         sub_nav_has_been_resized: false,
         sub_nav_max_width: 600,
@@ -51,6 +52,7 @@ document.addEventListener('alpine:init', () => {
 
             if (!this.is_narrow_viewport) {
                 this.show_info_nav = false;
+                this.show_mobile_nav = false;
             }
         },
 
@@ -73,6 +75,10 @@ document.addEventListener('alpine:init', () => {
 
             window.addEventListener('resize', () => {
                 this.update_viewport_state();
+            });
+
+            this.$watch('show_mobile_nav', (is_open) => {
+                document.body.style.overflow = is_open ? 'hidden' : '';
             });
         },
 
@@ -124,6 +130,19 @@ document.addEventListener('alpine:init', () => {
 
         close_sub() {
             this.show_sub_nav = false;
+        },
+
+        toggle_mobile_nav() {
+            this.show_mobile_nav = !this.show_mobile_nav;
+
+            this.$nextTick(() => {
+                let active = document.querySelector('[data-side-navigation-scroll] a.active');
+
+                if (this.show_mobile_nav && active) {
+                    active.scrollIntoView({ block: 'center' });
+                    document.activeElement.blur();
+                }
+            });
         },
 
         toggle_info() {

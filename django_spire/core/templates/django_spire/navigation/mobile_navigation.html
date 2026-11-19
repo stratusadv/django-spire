@@ -1,49 +1,11 @@
-{% load static %}
+{# The menu button opens the side navigation, which full_page.html shows as a drawer below the lg breakpoint. #}
+<div class="d-lg-none d-flex align-items-center">
+    {% if request.user.is_authenticated %}
+        {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-search' icon_class='ms-2' x_icon_click='Spire.searchPalette.open()' %}
+    {% endif %}
 
-<div class="d-lg-none" x-data="{ collapsed: false, show_mobile_nav: false }">
-
-    <div class="d-flex align-items-center">
-        {% if request.user.is_authenticated %}
-            {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-search' icon_class='ms-2' x_icon_click='Spire.searchPalette.open()' %}
-        {% endif %}
-
-        <i
-            class="bi bi-list fs-1 cursor-pointer ms-2 text-primary"
-            @click.stop="show_mobile_nav = !show_mobile_nav; setTimeout(() => { let active = $refs.mobile_nav.querySelector('a.active'); if (active) { active.scrollIntoView({ block: 'center' }); document.activeElement.blur(); } }, 50)"
-        ></i>
-    </div>
-
-    <div
-        @click="show_mobile_nav = false"
-        class="position-fixed top-0 start-0 w-100 h-100"
-        style="z-index: 1049; background-color: rgba(0, 0, 0, 0.5);"
-        x-cloak
-        x-show="show_mobile_nav"
-        x-transition.opacity.duration.300ms
-    ></div>
-
-    <div
-        x-show="show_mobile_nav"
-        x-cloak
-        x-ref="mobile_nav"
-        x-transition.opacity.duration.300ms
-        x-effect="document.body.style.overflow = show_mobile_nav ? 'hidden' : ''"
-        class="position-fixed top-0 start-0 w-100 side-navigation side-navigation-mobile overflow-y-auto"
-        style="z-index: 1050; height: 100vh; height: 100dvh; overscroll-behavior: contain; padding-bottom: env(safe-area-inset-bottom, 0px);"
-    >
-        <div class="side-navigation-mobile-header d-flex justify-content-between align-items-center px-3" style="height: 64px;">
-            {% include 'django_spire/navigation/top/menu/buttons.html' %}
-            <i
-                class="bi bi-x-lg fs-2 cursor-pointer"
-                @click.prevent="show_mobile_nav = false"
-                @touchstart.prevent="show_mobile_nav = false"
-            ></i>
-        </div>
-
-        <ul class="nav nav-pills flex-column mx-1 px-2">
-            {% block mobile_navigation_links %}
-                {% include 'django_spire/navigation/navigation_links.html' %}
-            {% endblock %}
-        </ul>
-    </div>
+    <i
+        class="bi bi-list fs-1 cursor-pointer ms-2 text-primary"
+        @click.stop="toggle_mobile_nav()"
+    ></i>
 </div>

@@ -101,6 +101,47 @@ def test_fades_show_which_way_the_navigation_can_scroll(
     expect(bottom_fade).to_be_hidden()
 
 
+def test_the_mobile_menu_opens_and_closes_the_side_navigation(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    page.set_viewport_size(PHONE_VIEWPORT)
+    open_home(page, demo_start)
+
+    navigation = page.locator('.side-navigation-drawer')
+    expect(navigation).to_be_hidden()
+
+    page.locator('.d-lg-none .bi-list').click()
+
+    expect(navigation).to_be_visible()
+    expect(navigation.locator(SCROLL_CONTAINER).locator('a').first).to_be_visible()
+    expect(navigation.locator('.side-navigation-mobile-header + *')).to_be_hidden()
+    expect(page.locator('body')).to_have_css('overflow', 'hidden')
+
+    navigation.locator('.side-navigation-mobile-header .bi-x-lg').click()
+
+    expect(navigation).to_be_hidden()
+    expect(page.locator('body')).not_to_have_css('overflow', 'hidden')
+
+
+def test_the_mobile_menu_shows_labels_when_the_side_navigation_is_collapsed(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    open_home(page, demo_start)
+    page.locator(TOGGLE).click()
+
+    page.set_viewport_size(PHONE_VIEWPORT)
+    page.reload()
+    page.locator('.d-lg-none .bi-list').click()
+
+    label = page.locator(f'{SCROLL_CONTAINER} .side-nav-expanded-only').first
+    expect(label).to_be_visible()
+    expect(page.locator(TOGGLE)).to_be_hidden()
+
+
 def test_the_mobile_menu_header_takes_the_side_navigation_link_color(
     page: Page, demo_start: Callable[..., Demo], transactional_db: None
 ) -> None:
