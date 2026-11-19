@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 class CommentListComponent(ModelCrudScrollComponent):
     template = 'comment/component/comment_list.html'
     item_template = 'comment/item/comment_row.html'
-    view_template = 'django_spire/component/page/full_page.html'
     item_form_options = ModelCrudScrollComponent.PageFormOptions('comment:page:form')
 
     def __post_init__(self, request: HttpRequest) -> None:

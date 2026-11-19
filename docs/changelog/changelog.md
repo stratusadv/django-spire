@@ -2,6 +2,14 @@
 
 ## v1.5.2
 
+### Changed
+
+- A scroll component served with `as_view()` fills
+  `django_spire/component/page/full_page.html` by default, so a list page no
+  longer needs a page template of its own. `BaseScrollComponent` sets it as
+  `view_template`; a subclass or `as_view(view_template=...)` still overrides
+  it.
+
 ### Fixed
 
 - The user list no longer sends every user's password hash, email, staff and

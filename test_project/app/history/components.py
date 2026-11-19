@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 class HistoryListComponent(QuerySetScrollComponent):
     item_template = 'history/item/history_row.html'
-    view_template = 'django_spire/component/page/full_page.html'
 
     def __post_init__(self, request: HttpRequest) -> None:
         super().__post_init__(request)
