@@ -1,8 +1,13 @@
+from datetime import timedelta
+
+from django.db.models import Q
 from django.http import HttpRequest
+from django.utils.timezone import localtime
 from ninja.security.apikey import APIKeyBase
 
 from django_spire.api.choices import ApiPermissionChoices
 from django_spire.api.models import ApiAccess
+from django_spire.conf import settings
 
 _API_KEY_PARAM_NAMES = ['api_key', 'User-Key', 'X-API-Key', 'Authorization', 'Bearer']
 
@@ -48,10 +53,20 @@ class ApiKeySecurity(APIKeyBase):
         return self._authorize_request(request, api_access)
 
     def _authorize_request(self, request: HttpRequest, api_access: ApiAccess) -> ApiAccess:
+        self._record_use(api_access)
+
         if request is not None and api_access.user is not None:
             request.user = api_access.user
 
         return api_access
+
+    @staticmethod
+    def _record_use(api_access: ApiAccess) -> None:
+        cutoff = localtime() - timedelta(minutes=settings.DJANGO_SPIRE_API_KEY_LAST_USED_THROTTLE_MINUTES)
+
+        ApiAccess.objects.filter(
+            Q(pk=api_access.pk) & (Q(last_used_datetime__isnull=True) | Q(last_used_datetime__lt=cutoff))
+        ).update(last_used_datetime=localtime())
 
     def _get_key(self, request: HttpRequest) -> str | None:
         headers = request.headers

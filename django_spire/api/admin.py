@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 @admin.register(ApiAccess)
 class ApiAccessAdmin(admin.ModelAdmin):
-    list_display = ('name', 'permission', 'has_super_access', 'key_hint', 'created_datetime')
+    list_display = ('name', 'permission', 'has_super_access', 'key_hint', 'created_datetime', 'last_used_datetime')
     list_filter = ('permission',)
-    readonly_fields = ('hashed_key', 'key_hint', 'created_datetime')
+    readonly_fields = ('hashed_key', 'key_hint', 'created_datetime', 'last_used_datetime')
     search_fields = ('name', 'key_hint')
 
     def get_readonly_fields(self, request: HttpRequest, obj: Model | None = None) -> list[str]:

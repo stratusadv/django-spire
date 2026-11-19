@@ -34,6 +34,11 @@
                 <div class="attribute-label">Created On</div>
                 <div>{{ api_access.created_datetime|date:'M d, Y' }}</div>
             </div>
+
+            <div class="col-6 text-start">
+                <div class="attribute-label">Last Used</div>
+                <div>{{ api_access.last_used_datetime|date:'M d, Y g:i A'|default:'Never used' }}</div>
+            </div>
         </div>
     </div>
 </div>
