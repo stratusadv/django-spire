@@ -16,6 +16,13 @@ class SideNavigationTemplateTestCase(BaseTestCase):
         assert hrefs
         assert len(hrefs) == len(set(hrefs))
 
+    def test_a_navigation_link_takes_its_behaviour_from_the_side_navigation(self) -> None:
+        html = self.client.get(reverse('home:page:home')).content.decode()
+
+        assert 'x-bind="sideNavigationLink"' in html
+        assert 'navLink(' not in html
+        assert '@nav-redirect.window' not in html
+
     def test_the_mobile_menu_opens_the_side_navigation(self) -> None:
         html = self.client.get(reverse('home:page:home')).content.decode()
 

@@ -11,15 +11,25 @@
   it.
 - A full page renders its navigation once. The mobile menu was a second copy
   of every link; below the lg breakpoint the side navigation is now the mobile
-  menu itself, so each page is 13 to 20 KB smaller and starts one Alpine
-  component per link instead of two. The menu looks and behaves as before.
+  menu itself, so each page is 13 to 20 KB smaller. The menu looks and
+  behaves as before.
   **Recompile your theme** (`manage.py spire_compile_scss`) when upgrading:
   the mobile menu's styles are in spire's SCSS, and without them it does not
   open. The `mobile_navigation_links` block of `mobile_navigation.html` is
   removed; links come from `side_navigation_links`, as on desktop.
+- A navigation link is no longer an Alpine component of its own. Each link
+  binds `sideNavigationLink`, and the side navigation holds the current path
+  once, so each page is 3 to 5 KB smaller, starts no Alpine component per link
+  and no longer wakes every link on each click. `nav_link.js` and its
+  `navLink` component are removed.
 
 ### Fixed
 
+- Following a navigation link renders the page once. The link fetched the page
+  to time the loading spinner and then loaded it again; it now loads it
+  directly, and the spinner still appears only after a second.
+- Ctrl-click, Cmd-click and Shift-click on a navigation link open it in a new
+  tab or window, as a link does; they used to be swallowed.
 - The user list no longer sends every user's password hash, email, staff and
   superuser flags, last login and permissions to the browser. It glued its
   users with `fields='__all__'`, so anyone with `view_authuser` received them
