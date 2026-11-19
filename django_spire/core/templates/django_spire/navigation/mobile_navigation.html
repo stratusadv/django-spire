@@ -1,7 +1,7 @@
 {# The menu button opens the side navigation, which full_page.html shows as a drawer below the lg breakpoint. #}
 <div class="d-lg-none d-flex align-items-center">
     {% if request.user.is_authenticated %}
-        {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-search' icon_class='ms-2' x_icon_click='Spire.searchPalette.open()' %}
+        {% include 'django_spire/button/async_icon_button.html' with button_icon='bi bi-search' button_class='ms-2' x_button_click='Spire.searchPalette.open()' %}
     {% endif %}
 
     <i

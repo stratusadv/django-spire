@@ -46,10 +46,19 @@
   `Spire.chart.loadEcharts()`, once per page, and a page that loads echarts
   itself keeps its own copy. Code that calls `echarts` directly and relied on
   spire's copy loads echarts itself or awaits `Spire.chart.loadEcharts()`.
-- `responsive_icon.html` drops its `isActive` state and the five press and
-  touch listeners that set it, which nothing ever read, and renders its classes
-  on one line: about 3 KB less per page across the top navigation's icons. Its
-  blocks and parameters are unchanged.
+- **`django_spire/icon/responsive_icon.html` is replaced by
+  `django_spire/button/async_icon_button.html`**, the icon-only form of
+  `async_button.html`: a button that awaits `x_button_click` through
+  `asyncButton`, takes `button_icon` and `button_class`, and ignores clicks
+  while its call runs. The old template's blocks and its `font_size`,
+  `icon_color`, `hover_class`, `tooltip_text`, `x_icon`, `icon_wrapper_class`,
+  `icon_attributes` and `hide_loading` parameters are gone, as is its
+  `isActive` state, which nothing read. An icon that only links is a plain
+  `<a>`. The top navigation's icons look the same, the search icon can be
+  reached with Tab, and the notification bell no longer shows a second
+  spinner over its own.
+- **`django_spire/icon/confirm_icon.html` is removed.** Nothing in spire used
+  it.
 
 ### Fixed
 

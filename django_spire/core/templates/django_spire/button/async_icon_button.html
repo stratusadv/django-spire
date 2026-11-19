@@ -1,0 +1,18 @@
+{# An icon that runs one awaited call and is off, showing a spinner over it, until it settles. #}
+{# The behaviour is the asyncButton Alpine component, in js/components/async_button.js.        #}
+{#                                                                                             #}
+{#   x_button_click  The call to await, as an Alpine expression: 'Spire.searchPalette.open()'. #}
+{#   button_icon     The icon classes, such as 'bi bi-search'.                                 #}
+{#   button_class    Optional classes for the button, such as its spacing: 'mx-1'.             #}
+<button
+    class="position-relative d-inline-flex align-items-center justify-content-center p-0 border-0 bg-transparent cursor-pointer {{ button_class }}"
+    type="button"
+    x-bind="asyncButton(() => {{ x_button_click }})"
+>
+    <i :class="{ 'opacity-50': isRunning }" class="{{ button_icon }} fs-2 text-primary text-primary-hover"></i>
+    <span x-show="isRunning" x-transition x-cloak class="position-absolute top-50 start-50 translate-middle">
+        <span class="spinner-border spinner-border-sm" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </span>
+    </span>
+</button>

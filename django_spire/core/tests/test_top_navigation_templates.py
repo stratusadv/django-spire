@@ -43,15 +43,15 @@ class TopNavigationButtonsTemplateTestCase(SimpleTestCase):
         assert html.strip().startswith('<span data-company-switcher>Northwind</span>')
 
 
-class ResponsiveIconTemplateTestCase(SimpleTestCase):
-    def test_an_icon_with_a_click_shows_it_is_loading_while_the_click_runs(self) -> None:
+class AsyncIconButtonTemplateTestCase(SimpleTestCase):
+    def test_the_icon_is_a_button_that_awaits_its_call(self) -> None:
         html = render_to_string(
-            'django_spire/icon/responsive_icon.html',
-            {'icon': 'bi bi-search', 'x_icon_click': 'Spire.searchPalette.open()'},
+            'django_spire/button/async_icon_button.html',
+            {'button_icon': 'bi bi-search', 'button_class': 'mx-1', 'x_button_click': 'Spire.searchPalette.open()'},
         )
 
-        assert 'x-data="{ isLoading: false }"' in html
-        assert '@click="isLoading = true; await Spire.searchPalette.open(); isLoading = false"' in html
-        assert 'class="bi bi-search fs-2 text-primary text-primary-hover  cursor-pointer"' in html
-        assert 'isActive' not in html
-        assert '@mousedown' not in html
+        assert '<button' in html
+        assert 'type="button"' in html
+        assert 'x-bind="asyncButton(() => Spire.searchPalette.open())"' in html
+        assert 'class="bi bi-search fs-2 text-primary text-primary-hover"' in html
+        assert ' mx-1"' in html
