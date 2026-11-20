@@ -5,9 +5,11 @@
 {% block scroll_item_content %}
     <div class="col">{{ item.name }}</div>
     <div class="col-auto">
-        <button class="btn btn-sm btn-outline-secondary" type="button" title="Edit Task" @click="editItem({{ item.pk }})">
-            <i class="bi bi-pencil"></i>
-        </button>
+        {% if component.can_edit %}
+            <button class="btn btn-sm btn-outline-secondary" type="button" title="Edit Task" @click="editItem({{ item.pk }})">
+                <i class="bi bi-pencil"></i>
+            </button>
+        {% endif %}
         {% if component.can_delete %}
             <button class="btn btn-sm btn-outline-danger" type="button" title="Delete Task" @click="deleteItem({{ item.pk }})">
                 <i class="bi bi-trash"></i>
