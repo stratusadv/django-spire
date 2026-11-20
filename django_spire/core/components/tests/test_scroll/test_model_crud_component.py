@@ -223,7 +223,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
     def test_the_actions_dropdown_offers_what_the_list_allows(self) -> None:
         def actions(component: ModelCrudScrollComponent, **context: object) -> str:
             return render_to_string(
-                'django_spire/dropdown/crud_actions_dropdown.html',
+                'django_spire/dropdown/model_crud_actions_dropdown.html',
                 {'component': component, 'item_key': 7, **context},
             )
 
