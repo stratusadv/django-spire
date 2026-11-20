@@ -5,20 +5,22 @@ from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ImproperlyConfigured
 
-from django_spire.core.components.form.model_component import ModelFormComponent
+from django_spire.core.components.form.modal_component import ModalModelFormComponent
 
 if TYPE_CHECKING:
     from django.forms import ModelForm
+
+    from django_spire.core.components.form.model_component import ModelFormComponent
 
 
 @dataclass(frozen=True, kw_only=True)
 class FormOptions:
     """
     A row is created and edited in a form component, shown in a modal. Give
-    the application's own ``component``, or a ``form_class`` with the
-    ``template`` that lays out its fields, which the generic
-    :class:`ModelFormComponent` shows. The form fires ``saved`` with the
-    row's ``pk``.
+    the application's own ``component``, which draws its own modal, or a
+    ``form_class`` with the ``template`` that lays out its fields, which
+    :class:`ModalModelFormComponent` shows under a "New" or "Edit" title.
+    The form fires ``saved`` with the row's ``pk``.
     """
 
     component: type[ModelFormComponent] | None = None
@@ -46,9 +48,9 @@ class FormOptions:
         if self.component is not None:
             return self.component(**parameters)
 
-        return ModelFormComponent(
+        return ModalModelFormComponent(
             form_class=self.form_class,
-            template=self.template,
+            form_template=self.template,
             **parameters,
         )
 

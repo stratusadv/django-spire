@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.7.0
+
+### Changed
+
+- **`ModelCrudScrollComponent.FormOptions(form_class=..., template=...)`
+  draws the modal itself.** `template` is now the partial with the form's
+  fields, and `ModalModelFormComponent` shows it in a modal titled "New Task"
+  or "Edit Task" from the model's `verbose_name`. A list that passed a
+  template with its own modal header passes the fields partial instead; a
+  list that wants its own modal passes `FormOptions(component=...)`.
+
 ## v1.6.0
 
 ### Changed
