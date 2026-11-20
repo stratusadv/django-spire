@@ -96,5 +96,9 @@ class ModelFormComponent(BaseFormComponent):
         """Return the form's model, whose permissions ``Glue.ModelAccessMixin`` reads."""
         return self.form_class._meta.model
 
+    def get_required_access(self) -> Glue.Access:
+        """``ADD`` to create a row and ``CHANGE`` to edit one, for ``Glue.ModelAccessRequiredMixin``."""
+        return Glue.Access.ADD if self.model_pk is None else Glue.Access.CHANGE
+
     def glue_form_path(self) -> str:
         return 'component.model.form'

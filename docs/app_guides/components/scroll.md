@@ -315,6 +315,8 @@ class TaskListComponent(Glue.ModelAccessMixin, ModelCrudScrollComponent):
 
 The list already knows its model from `get_queryset()`, so nothing else is needed: `view_task` gives `VIEW`, and holding `add_task`, `change_task` and `delete_task` as well gives `DELETE`. A level counts only when every level below it is held too. To read another model's permissions, such as the parent app's in a sub-app, set `permission_model = Task` on the list. Assign `self.access` after `super().__post_init__(request)` to decide differently. Spire's form and model confirmation components name their model the same way and take the mixin too.
 
+To also turn away a user without `view_task`, mix in `ModelAccessRequiredMixin` in its place. It sets the access the same way, and redirects a user without the permission to log in, so the list's URL needs no `permission_required`.
+
 ### Using Pages for the Form or the Delete
 
 ```python

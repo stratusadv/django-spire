@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.7.0
+
+### Added
+
+- `ModelFormComponent.get_required_access()` is `ADD` while the form creates
+  a row and `CHANGE` while it edits one, so a form component that mixes in
+  django-glue's `ModelAccessRequiredMixin` lets in only a user who may do
+  what the form does: `class RoleFormComponent(Glue.ModelAccessRequiredMixin,
+  ModelFormComponent)`. Requires django-glue 1.6.0 for the mixin.
+
 ## v1.6.0
 
 ### Changed
