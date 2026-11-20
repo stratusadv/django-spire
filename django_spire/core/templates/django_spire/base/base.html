@@ -68,9 +68,6 @@
             </script>
             <link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">
 
-            <script defer src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
-                    integrity="sha256-tmslrrTfhOMxmdwhaUAU0zbSIsvZ3rDlp8FL1qoND9A=" crossorigin="anonymous"></script>
-
             <script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
 
             <script type="application/javascript"
@@ -110,9 +107,7 @@
             {# window.Alpine, which is the runtime Glue exposes.                  #}
             {% django_glue_init %}
             <script type="application/javascript"
-                    src="{% static 'django_spire/js/nav_link.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/glue_field.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+                    src="{% static 'django_spire/glue/form/widget/js/widget.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript"
                     src="{% static 'django_spire/js/full_page.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript"
@@ -135,6 +130,10 @@
                     src="{% static 'django_spire/js/chart.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript"
                     src="{% static 'django_spire/notification/app/dropdown/js/notification_dropdown.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/file/form/field/js/single_file_field.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/file/form/field/js/multi_file_field.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript">
                 Glue.onMessage(({messages}) => {
                     messages.forEach((message) => {

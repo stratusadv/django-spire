@@ -200,6 +200,16 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
         assert component.load_item_delete_confirmation(pk=comment.pk).access == Glue.Access.DELETE
         assert component.load_item_form(pk=comment.pk).access == Glue.Access.DELETE
 
+    def test_a_confirmation_delete_is_offered_only_with_delete_access(self) -> None:
+        assert CommentCrudScrollComponent(access=Glue.Access.DELETE).can_delete is True
+        assert CommentCrudScrollComponent(access=Glue.Access.CHANGE).can_delete is False
+
+    def test_a_page_delete_is_offered_whatever_the_access(self) -> None:
+        assert PageDeletingCommentCrudScrollComponent().can_delete is True
+
+    def test_a_list_without_a_delete_never_offers_one(self) -> None:
+        assert UndeletableCommentCrudScrollComponent(access=Glue.Access.DELETE).can_delete is False
+
     def test_item_delete_options_of_another_kind_are_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='item_delete_options must be'):
 

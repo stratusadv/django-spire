@@ -52,8 +52,11 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         .order_by('first_name', 'last_name')
     )
 
-    Glue.queryset(request, 'active_users', active_users, Glue.Access.VIEW, fields='__all__')
-    Glue.queryset(request, 'inactive_users', inactive_users, Glue.Access.VIEW, fields='__all__')
+    # The list's own columns, search and sort: never the password hash or flags.
+    fields = ['id', 'username', 'first_name', 'last_name', 'is_active', 'groups']
+
+    Glue.queryset(request, 'active_users', active_users, Glue.Access.VIEW, fields=fields)
+    Glue.queryset(request, 'inactive_users', inactive_users, Glue.Access.VIEW, fields=fields)
 
     nav = AuthUserNavigation()
     nav.page_title = 'Users'

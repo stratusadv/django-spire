@@ -41,3 +41,17 @@ class TopNavigationButtonsTemplateTestCase(SimpleTestCase):
             html = self.render_buttons()
 
         assert html.strip().startswith('<span data-company-switcher>Northwind</span>')
+
+
+class AsyncIconButtonTemplateTestCase(SimpleTestCase):
+    def test_the_icon_is_a_button_that_awaits_its_call(self) -> None:
+        html = render_to_string(
+            'django_spire/button/async_icon_button.html',
+            {'button_icon': 'bi bi-search', 'button_class': 'mx-1', 'x_button_click': 'Spire.searchPalette.open()'},
+        )
+
+        assert '<button' in html
+        assert 'type="button"' in html
+        assert 'x-bind="asyncButton(() => Spire.searchPalette.open())"' in html
+        assert 'class="bi bi-search fs-2 text-primary text-primary-hover"' in html
+        assert ' mx-1"' in html

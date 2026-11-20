@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 class TaskListComponent(ModelCrudScrollComponent):
     template = 'task/component/task_list.html'
     item_template = 'task/item/task_row.html'
-    view_template = 'django_spire/component/page/full_page.html'
     glue_items = True
 
     item_form_options = ModelCrudScrollComponent.FormOptions(
