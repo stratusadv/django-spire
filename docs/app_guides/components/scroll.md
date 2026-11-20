@@ -306,6 +306,8 @@ The list template extends `crud.html`, which adds `createItem()`, `editItem(item
 
 Creating needs `ADD` access, editing needs `CHANGE` and deleting needs `DELETE`. A component starts with `VIEW`, so set `self.access` from what the user may do. To show a button only to a user who can use it, put it under `{% if component.can_create %}`, `{% if component.can_edit %}` or `{% if component.can_delete %}`, as the list and row above do. Each is true when the list uses a page, which guards itself, or a component and its access allows `ADD`, `CHANGE` or `DELETE`. Read them from the component rather than from `perms`: a row loaded or refreshed after the first render has only `component` in its context.
 
+`load_item_form()` asks only for `ADD`, the least that opens any form, and the form guards the rest. It takes the list's access, and its fields and save change a saved row only at `CHANGE`. To refuse even to open an edit form for a user without `CHANGE`, mix `Glue.ModelAccessRequiredMixin` into the form component: `ModelFormComponent.get_required_access()` asks for `ADD` to create and `CHANGE` to edit.
+
 A list whose rows are created but never edited, such as a list of memberships that are only added and removed, overrides `can_edit` to return `False`. Edit then leaves its rows, and `load_item_form()` refuses a row, so the form can still only create:
 
 ```python
