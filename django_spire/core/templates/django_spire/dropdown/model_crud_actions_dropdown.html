@@ -4,7 +4,7 @@
     The actions menu of a row in a ModelCrudScrollComponent list. Edit and Delete call the
     list's editItem() and deleteItem(), so they work with form and confirmation components
     and with pages, and show when the list's can_edit and can_delete allow.
-    Takes view_url, hide_edit and delete_label; item_key and component come from the row.
+    Takes view_url and delete_label; item_key and component come from the row.
 {% endcomment %}
 
 {% block dropdown_menu_class %}dropdown-menu-end{% endblock %}
@@ -17,7 +17,7 @@
             </a>
         </li>
     {% endif %}
-    {% if component.can_edit and not hide_edit %}
+    {% if component.can_edit %}
         <li>
             <a class="dropdown-item d-flex align-items-center gap-2" href="#" @click.prevent="editItem({{ item_key }})">
                 <i class="bi bi-pencil"></i>Edit

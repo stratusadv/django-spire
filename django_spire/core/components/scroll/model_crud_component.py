@@ -73,10 +73,25 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             raise ImproperlyConfigured(message)
 
     @property
+    def can_create(self) -> bool:
+        """
+        Whether ``createItem()`` can open the form: a form page guards itself,
+        and a form component needs ``ADD`` access.
+        """
+        if isinstance(self.item_form_options, self.PageFormOptions):
+            return True
+
+        return self.item_form_options is not None and self.access.has_access(
+            Glue.Access.ADD
+        )
+
+    @property
     def can_edit(self) -> bool:
         """
-        Whether ``createItem()`` and ``editItem()`` can open the form: a form
-        page guards itself, and a form component needs ``CHANGE`` access.
+        Whether ``editItem()`` can open the form on a row: a form page guards
+        itself, and a form component needs ``CHANGE`` access. A list whose
+        rows are only ever created overrides it to ``False``, and
+        ``load_item_form()`` then refuses a row.
         """
         if isinstance(self.item_form_options, self.PageFormOptions):
             return True
@@ -109,13 +124,17 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             access=self.access,
         )
 
-    @Glue.attr(required_access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.ADD)
     def load_item_form(self, pk: int | str | None = None) -> ModelFormComponent:
         if not isinstance(self.item_form_options, self.FormOptions):
             message = f'{type(self).__name__} has no form component to create or edit a row with.'
             raise PermissionDenied(message)
 
         if pk is not None:
+            if not self.can_edit:
+                message = f'{type(self).__name__} does not allow its rows to be edited.'
+                raise PermissionDenied(message)
+
             self.get_instance(pk)
 
         return self.item_form_options.build_component(model_pk=pk, access=self.access)
