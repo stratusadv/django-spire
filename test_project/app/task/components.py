@@ -22,7 +22,7 @@ class TaskListComponent(ModelCrudScrollComponent):
 
     item_form_options = ModelCrudScrollComponent.FormOptions(
         form_class=TaskModalForm,
-        template='task/form/component_form.html',
+        template='task/component/task_form_modal.html',
     )
 
     done_status = TaskStatusChoices.DONE

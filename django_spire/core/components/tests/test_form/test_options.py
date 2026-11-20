@@ -10,7 +10,6 @@ from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.comment.models import CommentExample
 from test_project.app.comment.tests.factories import create_test_comment_example
 
-FIELDS_TEMPLATE = 'task/form/component_form.html'
 FORM_TEMPLATE = 'task/component/task_form_modal.html'
 
 
@@ -28,13 +27,13 @@ class CommentFormComponent(ModelFormComponent):
 class FormOptionsTestCase(BaseTestCase):
     def test_a_form_class_and_template_build_the_generic_form_component(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
-        options = FormOptions(form_class=CommentForm, template=FIELDS_TEMPLATE)
+        options = FormOptions(form_class=CommentForm, template=FORM_TEMPLATE)
 
         form = options.build_component(model_pk=comment.pk, access=Glue.Access.CHANGE)
 
         assert type(form) is ModelFormComponent
         assert form.form_class is CommentForm
-        assert form.form_template == FIELDS_TEMPLATE
+        assert form.template == FORM_TEMPLATE
         assert form.model.instance == comment
         assert form.access == Glue.Access.CHANGE
 

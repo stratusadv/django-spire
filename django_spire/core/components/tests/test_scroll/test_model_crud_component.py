@@ -21,7 +21,7 @@ from test_project.app.comment.tests.factories import create_test_comment_example
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-FORM_TEMPLATE = 'task/form/component_form.html'
+FORM_TEMPLATE = 'task/component/task_form_modal.html'
 
 
 class CommentForm(ModelForm):

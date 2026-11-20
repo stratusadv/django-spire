@@ -6,7 +6,6 @@ from typing import Any, ClassVar, Sequence
 
 from django.db.models import Model  # noqa: TC002
 from django.forms import ModelForm
-from django.utils.text import capfirst
 from django_glue import Glue
 from django_glue.exceptions import GlueComponentParameterError, GlueModelInstanceNotFoundError
 
@@ -27,24 +26,15 @@ class ModelFormComponent(BaseFormComponent):
     querysets (none by default), so scoping, create defaults, and
     instance-dependent configuration stay subclass logic.
 
-    The default template shows ``get_title()`` above ``form_template``, the
-    partial with the form's fields; a component with its own ``template``
-    ignores both. The component does not know what it is shown in, so it
-    closes nothing: whoever shows it listens for the form's ``saved``.
-
     ``pk`` is the deprecated name of ``model_pk``, both as a parameter and as
     an attribute.
     """
-
-    template = 'django_spire/component/form/model_form.html'
 
     form_base = ModelForm
     form_class: ClassVar[type[ModelForm] | None] = None
     fields: ClassVar[Sequence[str] | None] = None
 
     model_pk: int | None = Glue.ComponentParameter(None)
-    title: str | None = Glue.ComponentParameter(None)
-    form_template: str | None = Glue.ComponentParameter(None)
 
     def __init__(self, **parameters: Any) -> None:
         if 'pk' in parameters:
@@ -88,14 +78,6 @@ class ModelFormComponent(BaseFormComponent):
         if self.fields is None:
             return tuple(self.form_class.base_fields)
         return self.fields
-
-    def get_title(self) -> str:
-        """The given title, or "New Task" / "Edit Task" from the model's verbose_name."""
-        if self.title is not None:
-            return self.title
-
-        action = 'New' if self.model_pk is None else 'Edit'
-        return f'{action} {capfirst(self.form_class._meta.model._meta.verbose_name)}'
 
     def get_model(self) -> Model:
         model_class = self.form_class._meta.model

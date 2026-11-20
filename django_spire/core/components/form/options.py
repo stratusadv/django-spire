@@ -17,8 +17,8 @@ class FormOptions:
     A row is created and edited in a form component, shown in a modal. Give
     the application's own ``component``, or a ``form_class`` with the
     ``template`` that lays out its fields, which the generic
-    :class:`ModelFormComponent` shows under its title. The form fires
-    ``saved`` with the row's ``pk``.
+    :class:`ModelFormComponent` shows. The form fires ``saved`` with the
+    row's ``pk``.
     """
 
     component: type[ModelFormComponent] | None = None
@@ -48,7 +48,7 @@ class FormOptions:
 
         return ModelFormComponent(
             form_class=self.form_class,
-            form_template=self.template,
+            template=self.template,
             **parameters,
         )
 

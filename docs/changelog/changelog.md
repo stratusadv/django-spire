@@ -1,23 +1,5 @@
 # Changelog
 
-## v1.7.0
-
-### Changed
-
-- **`ModelCrudScrollComponent.FormOptions(form_class=..., template=...)`
-  takes the form's fields as `template`.** `ModelFormComponent` has a default
-  template, like a confirmation's: a title, "New Task" or "Edit Task" from the
-  model's `verbose_name`, above `form_template`, the partial with the fields.
-  It is not a modal, so it can be shown anywhere, and a modal shows it in its
-  body. A list that passed a template with its own modal header passes the
-  fields partial instead; a list that wants its own template passes
-  `FormOptions(component=...)`.
-
-### Added
-
-- `ModelFormComponent` takes `title` and `form_template` parameters for its
-  default template, and `get_title()` returns the title it shows.
-
 ## v1.6.0
 
 ### Changed
