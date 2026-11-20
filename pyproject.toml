@@ -131,6 +131,7 @@ django_spire = [
     "**/*.css",
     "**/*.scss",
     "**/*.js",
+    "**/favicons/*",
     "**/*.png",
     "**/*.gif",
     "**/*.jpg",

@@ -1,10 +1,7 @@
 {% load django_glue %}
 <div
     x-data="glueField({{ glue_field|glue_field_metadata_path }}, () => {{ glue_field|glue_field_value_path }}, (newValue) => {{ glue_field|glue_field_value_path }} = newValue)"
-    @input="dispatchFieldEvent('field-input')"
-    @change="dispatchFieldEvent('field-change')"
-    @focusin="if (!$el.contains($event.relatedTarget)) dispatchFieldEvent('field-focus')"
-    @focusout="if (!$el.contains($event.relatedTarget)) dispatchFieldEvent('field-blur')"
+    x-bind="glueFieldEvents"
 >
     {% if not hide_label %}
         {% block widget_label %}

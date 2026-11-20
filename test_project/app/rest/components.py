@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 class PirateApiListComponent(BaseScrollComponent):
     item_template = 'rest/item/pirate_api_row.html'
-    view_template = 'django_spire/component/page/full_page.html'
 
     def __post_init__(self, request: HttpRequest) -> None:
         super().__post_init__(request)
@@ -43,7 +42,6 @@ class PirateApiListComponent(BaseScrollComponent):
 class PirateTableComponent(QuerySetScrollComponent):
     template = 'rest/component/pirate_table.html'
     item_template = 'rest/item/pirate_row.html'
-    view_template = 'django_spire/component/page/full_page.html'
 
     search: str = Glue.attr('', editable=True)
 

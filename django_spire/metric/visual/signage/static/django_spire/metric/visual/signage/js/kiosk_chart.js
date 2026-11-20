@@ -212,10 +212,7 @@
             return chart;
         };
     };
-    const echartsTag = document.querySelector('script[src*="echarts"]');
-    if (window.echarts) {
-        attach();
-    } else if (echartsTag) {
-        echartsTag.addEventListener('load', attach);
-    }
+    // Registered before any chart awaits echarts, so the patch is in place
+    // before the first echarts.init.
+    Spire.chart.loadEcharts().then(attach);
 })();

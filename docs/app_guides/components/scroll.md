@@ -304,7 +304,16 @@ class TaskListComponent(ModelCrudScrollComponent):
 
 The list template extends `crud.html`, which adds `createItem()`, `editItem(item)` and `deleteItem(item)`. With these options the form opens in a modal and the new or changed row appears in the list when it is saved. Deleting asks for confirmation and soft-deletes the row.
 
-Creating and editing need `CHANGE` access and deleting needs `DELETE`. A component starts with `VIEW`, so set `self.access` from what the user may do.
+Creating and editing need `CHANGE` access and deleting needs `DELETE`. A component starts with `VIEW`, so set `self.access` from what the user may do. To show the delete button only to a user who can use it, put it under `{% if component.can_delete %}`, as the row above does. It is true when the list deletes through a page, which guards itself, or through a confirmation and its access allows `DELETE`.
+
+To take it from the user's permissions on the listed model, mix in django-glue's `ModelAccessMixin`:
+
+```python
+class TaskListComponent(Glue.ModelAccessMixin, ModelCrudScrollComponent):
+    ...
+```
+
+The list already knows its model from `get_queryset()`, so nothing else is needed: `view_task` gives `VIEW`, and holding `add_task`, `change_task` and `delete_task` as well gives `DELETE`. A level counts only when every level below it is held too. To read another model's permissions, such as the parent app's in a sub-app, set `permission_model = Task` on the list. Assign `self.access` after `super().__post_init__(request)` to decide differently. Spire's form and model confirmation components name their model the same way and take the mixin too.
 
 ### Using Pages for the Form or the Delete
 

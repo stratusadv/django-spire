@@ -12543,6 +12543,16 @@ textarea.form-control-lg {
   outline-offset: 2px;
 }
 
+.side-navigation-link {
+  align-items: center;
+  border-radius: var(--bs-border-radius-lg);
+  cursor: pointer;
+  display: flex;
+  font-weight: 500;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem;
+}
+
 .side-navigation a.active {
   background-color: color-mix(in srgb, var(--side-navigation-link-hover-color) 15%, transparent);
   color: var(--side-navigation-link-hover-color) !important;
@@ -12550,6 +12560,30 @@ textarea.form-control-lg {
 
 .side-navigation a.active i {
   color: var(--side-navigation-link-hover-color) !important;
+}
+
+@media (max-width: 991.98px) {
+  .side-navigation-drawer {
+    height: 100dvh !important;
+    left: 0;
+    opacity: 0;
+    overscroll-behavior: contain;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    position: fixed !important;
+    top: 0;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    visibility: hidden;
+    width: 100% !important;
+    z-index: var(--spire-z-modal);
+  }
+  .side-navigation-drawer-open {
+    opacity: 1;
+    transition: opacity 0.3s ease, visibility 0s;
+    visibility: visible;
+  }
+  .side-navigation-drawer .side-navigation-mobile-header + * {
+    display: none !important;
+  }
 }
 
 .side-navigation-mobile-header .text-primary:not(.dropdown-menu *) {
@@ -12566,21 +12600,6 @@ textarea.form-control-lg {
   background: linear-gradient(to top, transparent, var(--side-navigation-bg-color));
   height: 32px;
   pointer-events: none;
-}
-
-.side-nav-collapsed .bg-side-navigation > :first-child a,
-.side-nav-collapsed .bg-side-navigation nav a,
-.side-nav-collapsed .bg-side-navigation nav .d-flex.cursor-pointer {
-  gap: 0 !important;
-  justify-content: center !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.side-nav-collapsed .bg-side-navigation nav a > i,
-.side-nav-collapsed .bg-side-navigation nav .d-flex.cursor-pointer > i {
-  font-size: 1.25rem;
-  width: auto !important;
 }
 
 .side-nav-collapsed-only {
@@ -12607,24 +12626,36 @@ textarea.form-control-lg {
   display: none;
 }
 
-.side-nav-collapsed .side-nav-accordion-indent {
-  margin-left: 0.5rem !important;
-}
-
-.side-nav-collapsed .side-nav-expanded-only {
-  display: none !important;
-}
-
-.side-nav-collapsed .side-nav-collapsed-only {
-  display: block !important;
-}
-
 .side-nav-divider {
   display: none;
 }
 
-.side-nav-collapsed .side-nav-divider {
-  display: block;
+@media (min-width: 992px) {
+  .side-nav-collapsed .bg-side-navigation > .side-navigation-mobile-header + * a,
+.side-nav-collapsed .bg-side-navigation nav a,
+.side-nav-collapsed .bg-side-navigation nav .d-flex.cursor-pointer {
+    gap: 0 !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .side-nav-collapsed .bg-side-navigation nav a > i,
+.side-nav-collapsed .bg-side-navigation nav .d-flex.cursor-pointer > i {
+    font-size: 1.25rem;
+    width: auto !important;
+  }
+  .side-nav-collapsed .side-nav-accordion-indent {
+    margin-left: 0.5rem !important;
+  }
+  .side-nav-collapsed .side-nav-expanded-only {
+    display: none !important;
+  }
+  .side-nav-collapsed .side-nav-collapsed-only {
+    display: block !important;
+  }
+  .side-nav-collapsed .side-nav-divider {
+    display: block;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {

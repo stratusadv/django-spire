@@ -27,7 +27,6 @@ class DuckDeleteConfirmationComponent(BaseModelDeleteConfirmationComponent):
 class DuckListComponent(ModelCrudScrollComponent):
     template = 'ordering/component/duck_list.html'
     item_template = 'ordering/item/duck_row.html'
-    view_template = 'django_spire/component/page/full_page.html'
 
     item_delete_options = ModelCrudScrollComponent.DeleteOptions(
         component=DuckDeleteConfirmationComponent,

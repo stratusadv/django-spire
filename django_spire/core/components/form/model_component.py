@@ -92,5 +92,9 @@ class ModelFormComponent(BaseFormComponent):
     def get_choices(self, _instance: Model) -> dict | None:
         return None
 
+    def get_permission_model(self) -> type[Model]:
+        """Return the form's model, whose permissions ``Glue.ModelAccessMixin`` reads."""
+        return self.form_class._meta.model
+
     def glue_form_path(self) -> str:
         return 'component.model.form'

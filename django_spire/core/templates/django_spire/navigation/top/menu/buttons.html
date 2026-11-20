@@ -1,12 +1,13 @@
 {% include 'django_spire/navigation/top/menu/project_buttons.html' %}
 
 {% if request.user.is_authenticated %}
-    {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-search' icon_class='mx-1' x_icon_click='Spire.searchPalette.open()' %}
+    {% include 'django_spire/button/async_icon_button.html' with button_icon='bi bi-search' button_class='mx-1' x_button_click='Spire.searchPalette.open()' %}
 {% endif %}
 
 {% if perms.django_spire_help_desk.view_helpdeskticket %}
-    {% url 'django_spire:help_desk:page:list' as help_desk_url %}
-    {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='mx-1' %}
+    <a class="d-inline-flex align-items-center justify-content-center mx-1" href="{% url 'django_spire:help_desk:page:list' %}">
+        <i class="bi bi-headset fs-2 text-primary text-primary-hover cursor-pointer"></i>
+    </a>
 {% endif %}
 
 {% if request.user.is_authenticated and not hide_notification_dropdown %}

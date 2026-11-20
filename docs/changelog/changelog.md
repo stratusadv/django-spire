@@ -1,5 +1,99 @@
 # Changelog
 
+## v1.6.0
+
+### Changed
+
+- A scroll component served with `as_view()` fills
+  `django_spire/component/page/full_page.html` by default, so a list page no
+  longer needs a page template of its own. `BaseScrollComponent` sets it as
+  `view_template`; a subclass or `as_view(view_template=...)` still overrides
+  it.
+- A full page renders its navigation once. The mobile menu was a second copy
+  of every link; below the lg breakpoint the side navigation is now the mobile
+  menu itself, so each page is 13 to 20 KB smaller. The menu looks and
+  behaves as before.
+  **Recompile your theme** (`manage.py spire_compile_scss`) when upgrading:
+  the mobile menu's styles are in spire's SCSS, and without them it does not
+  open. The `mobile_navigation_links` block of `mobile_navigation.html` is
+  removed; links come from `side_navigation_links`, as on desktop.
+- A navigation link is no longer an Alpine component of its own. Each link
+  binds `sideNavigationLink`, and the side navigation holds the current path
+  once, so each page is 3 to 5 KB smaller, starts no Alpine component per link
+  and no longer wakes every link on each click. `nav_link.js` and its
+  `navLink` component are removed.
+- A navigation link is styled by one `side-navigation-link` class in spire's
+  SCSS in place of a string of utility classes, and the side navigation drops
+  `text-link-side-navigation`, `text-side-navigation` and `ds-fs-9`, which no
+  stylesheet defines. Nothing looks different.
+- Spire's templates drop the `ds-fs-*` font-size classes (chat, the knowledge
+  base, reports, the full page's side panels and `confirm_icon.html`'s default
+  size). No stylesheet has defined them since v1.0.0, so nothing looks
+  different. A project that passed a `ds-fs-*` size to `confirm_icon.html` was
+  passing a class with no style.
+- A glue form field takes its events and its input's name, state and validity
+  from two binds, `glueFieldEvents` and `glueFieldInput`, in place of the same
+  inline attributes on every field: about 300 bytes less per field. The events
+  and attributes are the same. `glueField` and both binds are in
+  `django_spire/glue/form/widget/js/widget.js`, which replaces
+  `django_spire/js/glue_field.js`; a project that loads the old path itself
+  loads the new one instead.
+- The single and multiple file fields are components, `glueSingleFileField`
+  and `glueMultiFileField`, in `django_spire/file/form/field/js/`, in place of
+  their inline Alpine.
+- **echarts loads only on a page that draws a chart.** `base.html` loaded it
+  (1.1 MB, 369 KB compressed) on every page; a chart now loads it through
+  `Spire.chart.loadEcharts()`, once per page, and a page that loads echarts
+  itself keeps its own copy. Code that calls `echarts` directly and relied on
+  spire's copy loads echarts itself or awaits `Spire.chart.loadEcharts()`.
+- **`django_spire/icon/responsive_icon.html` is replaced by
+  `django_spire/button/async_icon_button.html`**, the icon-only form of
+  `async_button.html`: a button that awaits `x_button_click` through
+  `asyncButton`, takes `button_icon` and `button_class`, and ignores clicks
+  while its call runs. The old template's blocks and its `font_size`,
+  `icon_color`, `hover_class`, `tooltip_text`, `x_icon`, `icon_wrapper_class`,
+  `icon_attributes` and `hide_loading` parameters are gone, as is its
+  `isActive` state, which nothing read. An icon that only links is a plain
+  `<a>`. The top navigation's icons look the same, the search icon can be
+  reached with Tab, and the notification bell no longer shows a second
+  spinner over its own.
+- **`django_spire/icon/confirm_icon.html` is removed.** Nothing in spire used
+  it.
+
+### Added
+
+- `QuerySetScrollComponent`, `ModelFormComponent` and the model confirmation
+  components name their model with `get_permission_model()`, so a component that
+  mixes in django-glue's `ModelAccessMixin` takes its access from the user's
+  permissions on that model with no other code:
+  `class TaskListComponent(Glue.ModelAccessMixin, ModelCrudScrollComponent)`.
+  The mixin is opt-in; a component without it keeps the access it is given.
+  Requires django-glue 1.5.0.
+- `ModelCrudScrollComponent.can_delete` says whether `deleteItem()` can delete
+  a row, so a row template shows its delete under
+  `{% if component.can_delete %}` instead of each list working it out from
+  its access: it is true for a delete page, and for a confirmation when the
+  list's access allows `DELETE`.
+
+### Fixed
+
+- The multiple file field shows an image's preview. It called
+  `$forceUpdate()`, which Alpine does not have, so the preview never appeared
+  and the page logged an error.
+- The single file field no longer renders a second, broken label under the
+  field's own, which logged an Alpine error on every page that showed it.
+
+- Following a navigation link renders the page once. The link fetched the page
+  to time the loading spinner and then loaded it again; it now loads it
+  directly, and the spinner still appears only after a second.
+- Ctrl-click, Cmd-click and Shift-click on a navigation link open it in a new
+  tab or window, as a link does; they used to be swallowed.
+- The user list no longer sends every user's password hash, email, staff and
+  superuser flags, last login and permissions to the browser. It glued its
+  users with `fields='__all__'`, so anyone with `view_authuser` received them
+  all. It now exposes only what the list shows, searches and sorts by: `id`,
+  `username`, `first_name`, `last_name`, `is_active` and `groups`.
+
 ## v1.5.1 - November 19, 2026
 
 ### Added
