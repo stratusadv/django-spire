@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.6.0
+## v1.6.0 - November 20, 2026
 
 ### Changed
 
@@ -82,7 +82,6 @@
   and the page logged an error.
 - The single file field no longer renders a second, broken label under the
   field's own, which logged an Alpine error on every page that showed it.
-
 - Following a navigation link renders the page once. The link fetched the page
   to time the loading spinner and then loaded it again; it now loads it
   directly, and the spinner still appears only after a second.
