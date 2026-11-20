@@ -10,9 +10,10 @@
   querysets, built with the row as `self.instance`. Narrow a field in the
   form's `__init__` instead, wrapped in `Glue.choices(..., search_fields=[...])`
   for a searchable field.
-- `ModelCrudScrollComponent.load_item_form()` needs `ADD` access to create a
-  row, and `CHANGE` (through `can_edit`) only to edit one. It needed `CHANGE`
-  for both, so a user who could add but not change could not create a row.
+- `ModelCrudScrollComponent.load_item_form()` needs `ADD` access, the least
+  that opens any form, and leaves `CHANGE` to the form it returns: its fields
+  and save change a saved row only at `CHANGE`. It needed `CHANGE` for both,
+  so a user who could add but not change could not create a row.
 
 ### Added
 

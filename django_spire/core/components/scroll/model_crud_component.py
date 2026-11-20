@@ -126,6 +126,16 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
 
     @Glue.attr(required_access=Glue.Access.ADD)
     def load_item_form(self, pk: int | str | None = None) -> ModelFormComponent:
+        """
+        The form that creates a row, or with ``pk`` edits one. ``ADD`` access
+        is the least that opens any form. The form then guards what it does:
+        it takes this list's access, and Glue's ``required_save_access`` lets
+        its fields and save change a saved row only at ``CHANGE``. A form
+        component that mixes in ``Glue.ModelAccessRequiredMixin`` also refuses
+        to open for a user without that access. ``can_edit`` refuses a row
+        before any form is built: below ``CHANGE``, and in a list whose rows
+        are never edited, which no access expresses.
+        """
         if not isinstance(self.item_form_options, self.FormOptions):
             message = f'{type(self).__name__} has no form component to create or edit a row with.'
             raise PermissionDenied(message)
