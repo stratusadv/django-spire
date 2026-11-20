@@ -306,11 +306,11 @@ The list template extends `crud.html`, which adds `createItem()`, `editItem(item
 
 Creating and editing need `CHANGE` access and deleting needs `DELETE`. A component starts with `VIEW`, so set `self.access` from what the user may do. To show a button only to a user who can use it, put it under `{% if component.can_edit %}` or `{% if component.can_delete %}`, as the row above does. Each is true when the list uses a page, which guards itself, or a component and its access allows `CHANGE` or `DELETE`. Read them from the component rather than from `perms`: a row loaded or refreshed after the first render has only `component` in its context.
 
-For a ⋮ menu in place of the buttons, include `crud_actions_dropdown.html` in the row. Its Edit and Delete call `editItem()` and `deleteItem()`, so it works with modals and pages, and it shows each one by `can_edit` and `can_delete`:
+For a ⋮ menu in place of the buttons, include `model_crud_actions_dropdown.html` in the row. Its Edit and Delete call `editItem()` and `deleteItem()`, so it works with modals and pages, and it shows each one by `can_edit` and `can_delete`:
 
 ```django
 {% url 'task:page:detail' pk=item.pk as task_url %}
-{% include 'django_spire/dropdown/crud_actions_dropdown.html' with view_url=task_url %}
+{% include 'django_spire/dropdown/model_crud_actions_dropdown.html' with view_url=task_url %}
 ```
 
 `view_url` adds a View link. `hide_edit=True` leaves Edit out of a list whose form only creates, and `delete_label` renames Delete, such as `delete_label='Remove'`.

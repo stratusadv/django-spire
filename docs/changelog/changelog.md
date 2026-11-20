@@ -21,10 +21,10 @@
 - `ModelCrudScrollComponent.can_edit`, the counterpart of `can_delete`: true
   when the list edits through a page, or through a form component and its
   access allows `CHANGE`.
-- `django_spire/dropdown/crud_actions_dropdown.html`, the ⋮ menu of a CRUD
-  list's row. Its Edit and Delete call `editItem()` and `deleteItem()`, shown
-  by `can_edit` and `can_delete`; `view_url`, `hide_edit` and `delete_label`
-  adjust it. `ellipsis_dropdown.html` takes only URLs, so lists used to copy
+- `django_spire/dropdown/model_crud_actions_dropdown.html`, the ⋮ menu of a
+  CRUD list's row. Its Edit and Delete call `editItem()` and `deleteItem()`,
+  shown by `can_edit` and `can_delete`; `view_url`, `hide_edit` and
+  `delete_label` adjust it. `ellipsis_dropdown.html` takes only URLs, so lists used to copy
   their own menu to call the list's actions.
 
 ## v1.6.0
