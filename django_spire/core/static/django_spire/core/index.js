@@ -1,0 +1,26 @@
+// Core's bundle: its libraries, then its scripts in the order pages loaded them.
+import './libraries.js';
+import '../js/theme.js';
+import '../js/spire.js';
+import '../js/ui.js';
+import '../js/cookie.js';
+import '../js/ajax.js';
+import '../js/modal.js';
+import '../js/notify.js';
+import '../js/full_screen.js';
+import '../js/date.js';
+import '../js/components/search_palette.js';
+import '../js/components/async_button.js';
+import '../js/components/scroll.js';
+import '../glue/form/widget/js/widget.js';
+import '../js/full_page.js';
+import '../js/glue_scroll.js';
+import '../js/search_and_select.js';
+import '../js/multi_search_and_select.js';
+import '../js/choice_source.js';
+import '../js/form_submit.js';
+import '../js/side_navigation.js';
+import '../js/dispatch_modal.js';
+import '../js/message_widget.js';
+import '../js/chart.js';
+import '../js/pull_to_refresh.js';

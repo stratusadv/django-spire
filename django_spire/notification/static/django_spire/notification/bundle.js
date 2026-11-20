@@ -1,0 +1,4 @@
+(()=>{document.addEventListener("alpine:init",()=>{Alpine.data("notificationDropdown",(t,n,a,e)=>({hasContent:!1,hasNewNotification:!1,isLoading:!1,async init(){await this.checkForNewNotifications(),setInterval(()=>this.checkForNewNotifications(),30000)},async checkForNewNotifications(){let i=await Glue.fetch(t);this.hasNewNotification=i.has_new_notifications},async renderDropdown(){if(this.isLoading)return;this.isLoading=!0;try{await Glue.view(n,{app_notification_list_url:e}).renderInnerHtml(this.$refs.appNotificationDropdownContent),await this.markNotificationsAsViewed(),this.hasContent=!0}finally{this.isLoading=!1}},async markNotificationsAsViewed(){await Glue.fetch(a),this.hasNewNotification=!1}}))});})();
+
+//# debugId=04C31A08E6C98C8064756E2164756E21
+//# sourceMappingURL=bundle.js.map

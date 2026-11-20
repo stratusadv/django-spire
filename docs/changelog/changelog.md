@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.7.0
+
+### Changed
+
+- **Spire's JavaScript loads as one bundle per installed app.** `base.html`
+  loaded 28 of spire's scripts one by one, plus the Alpine plugins, Bootstrap
+  and pulltorefreshjs from CDNs; a page now loads a `bundle.js` for core and
+  for each installed spire app that has one, through
+  `{% django_spire_javascript %}`, and an app that is not installed adds
+  nothing. Core's bundle includes the libraries, at the versions spire's
+  `package.json` pins, so pages no longer reach a CDN for them. Bootstrap is
+  5.3.9 and Alpine's plugins 3.15.12, as the CDN served them. `window.bootstrap`,
+  `window.PullToRefresh` and every `Spire.*` global stay, so projects change
+  nothing. An app's bundle is `static/<app name, dots as slashes>/bundle.js`,
+  built from the `index.js` beside it; after editing spire's JavaScript, run
+  `just build-js`. `history.js` and `activity.js`, which no page loaded, are
+  removed, and the error page no longer loads Bootstrap's JavaScript, which it
+  did not use.
+
 ## v1.6.0
 
 ### Changed

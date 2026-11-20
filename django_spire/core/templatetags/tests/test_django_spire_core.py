@@ -328,3 +328,20 @@ class TestNavigationNamespaceIsActive(TestCase):
     def test_empty_namespaces_returns_false(self) -> None:
         request = self._request(['django_spire', 'auth', 'group'])
         assert navigation_namespace_is_active(request, '') is False
+
+
+class TestDjangoSpireJavascript(TestCase):
+    def _render(self) -> str:
+        return Template('{% load django_spire_core %}{% django_spire_javascript %}').render(Context())
+
+    def test_loads_the_bundle_of_each_installed_app_that_has_one_core_first(self) -> None:
+        sources = re.findall(r'<script src="([^"?]+)\?v=[^"]+"></script>', self._render())
+
+        assert sources == [
+            '/static/django_spire/core/bundle.js',
+            '/static/django_spire/file/bundle.js',
+            '/static/django_spire/notification/bundle.js',
+        ]
+
+    def test_an_installed_app_without_a_bundle_adds_nothing(self) -> None:
+        assert '/static/django_spire/auth/' not in self._render()

@@ -1,5 +1,6 @@
 {% load static %}
 {% load django_glue %}
+{% load django_spire_core %}
 {% load django_spire_modal %}
 
 <!doctype html>
@@ -16,7 +17,6 @@
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
             <meta name="spire-csrf-cookie-name" content="{{ DJANGO_SPIRE_CSRF_COOKIE_NAME }}">
             <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-            <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
         {% endblock %}
 
         {% block base_head_additional_meta %}
@@ -68,72 +68,11 @@
             </script>
             <link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
+            {# Each installed spire app's bundle, core's first. They register with #}
+            {# Alpine before Glue, which bundles Alpine and owns its startup.      #}
+            {% django_spire_javascript %}
 
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/theme.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/spire.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/ui.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/cookie.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/ajax.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/notify.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/full_screen.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/date.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/components/search_palette.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/components/async_button.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/components/scroll.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-
-            <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.15.x/dist/cdn.min.js"></script>
-            <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.15.x/dist/cdn.min.js"></script>
-            <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.15.x/dist/cdn.min.js"></script>
-            <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.15.x/dist/cdn.min.js"></script>
-            <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15.x/dist/cdn.min.js"></script>
-            <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/sort@3.15.x/dist/cdn.min.js"></script>
-
-            {# Glue bundles the Alpine core and its morph plugin, and owns Alpine #}
-            {# startup. The plugins above stay here: they register against        #}
-            {# window.Alpine, which is the runtime Glue exposes.                  #}
             {% django_glue_init %}
-            <script type="application/javascript"
-                    src="{% static 'django_spire/glue/form/widget/js/widget.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/full_page.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/glue_scroll.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/search_and_select.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/multi_search_and_select.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/choice_source.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/form_submit.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/side_navigation.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/dispatch_modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/message_widget.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/chart.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/notification/app/dropdown/js/notification_dropdown.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/file/form/field/js/single_file_field.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
-                    src="{% static 'django_spire/file/form/field/js/multi_file_field.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript">
                 Glue.onMessage(({messages}) => {
                     messages.forEach((message) => {
@@ -167,11 +106,7 @@
     {% render_static_modals %}
 
     {% block base_body_bottom_js %}
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
     {% endblock %}
-
-    <script type="application/javascript"
-            src="{% static 'django_spire/js/pull_to_refresh.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 
     {% block base_body_additional_bottom_js %}
     {% endblock %}

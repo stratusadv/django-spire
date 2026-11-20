@@ -4,11 +4,18 @@ import random
 import re
 import string
 
+from functools import cache
+from pathlib import Path
 from typing import Any, Sequence, TYPE_CHECKING, TypeVar
 
 from django import template
+from django.apps import apps
 from django.db.models import Model
+from django.templatetags.static import static
 from django.urls import reverse
+from django.utils.html import format_html_join
+
+from django_spire.constants import __VERSION__
 
 if TYPE_CHECKING:
     from django.template import RequestContext
@@ -31,6 +38,37 @@ def add_str(str1: str, str2: str) -> str:
     """
 
     return f'{str1}{str2}'
+
+
+@cache
+def _get_javascript_bundles() -> tuple[str, ...]:
+    """
+    The static path of each installed spire app's bundle, core's first and
+    the rest in INSTALLED_APPS order. An app's bundle is
+    static/<app name, dots as slashes>/bundle.js in its own directory.
+    """
+    bundles = []
+
+    for app_config in apps.get_app_configs():
+        if not app_config.name.startswith('django_spire.'):
+            continue
+
+        path = '/'.join(app_config.name.split('.')) + '/bundle.js'
+
+        if (Path(app_config.path) / 'static' / path).is_file():
+            bundles.append(path)
+
+    return tuple(sorted(bundles, key=lambda path: path != 'django_spire/core/bundle.js'))
+
+
+@register.simple_tag
+def django_spire_javascript() -> str:
+    """The script tags that load each installed spire app's bundle."""
+    return format_html_join(
+        '\n',
+        '<script src="{}?v={}"></script>',
+        ((static(path), __VERSION__) for path in _get_javascript_bundles()),
+    )
 
 
 @register.simple_tag()

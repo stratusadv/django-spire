@@ -65,6 +65,9 @@ run-server:
 scss:
     {{ PYTHON }} ./manage.py spire_compile_scss
 
+build-js:
+    npm run build
+
 vendor-frontend:
     npm ci --ignore-scripts
     npm run vendor

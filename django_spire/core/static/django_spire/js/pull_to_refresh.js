@@ -41,7 +41,8 @@ Spire.pullToRefresh = {
     }
 };
 
-const ptr = PullToRefresh.init({
+// The page's body is its main element, so it waits for the page to be parsed.
+document.addEventListener('DOMContentLoaded', () => PullToRefresh.init({
     mainElement: 'body',
 
     shouldPullToRefresh: function () {
@@ -61,4 +62,4 @@ const ptr = PullToRefresh.init({
     onRefresh() {
         window.location.reload();
     }
-});
+}));
