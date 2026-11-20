@@ -10,6 +10,9 @@
   querysets, built with the row as `self.instance`. Narrow a field in the
   form's `__init__` instead, wrapped in `Glue.choices(..., search_fields=[...])`
   for a searchable field.
+- `ModelCrudScrollComponent.load_item_form()` needs `ADD` access to create a
+  row, and `CHANGE` (through `can_edit`) only to edit one. It needed `CHANGE`
+  for both, so a user who could add but not change could not create a row.
 
 ### Added
 
@@ -18,14 +21,16 @@
   django-glue's `ModelAccessRequiredMixin` lets in only a user who may do
   what the form does: `class RoleFormComponent(Glue.ModelAccessRequiredMixin,
   ModelFormComponent)`. Requires django-glue 1.6.0 for the mixin.
-- `ModelCrudScrollComponent.can_edit`, the counterpart of `can_delete`: true
-  when the list edits through a page, or through a form component and its
-  access allows `CHANGE`.
+- `ModelCrudScrollComponent.can_create` and `can_edit`, the counterparts of
+  `can_delete`: true when the list creates or edits through a page, or
+  through a form component and its access allows `ADD` or `CHANGE`. A list
+  whose rows are never edited overrides `can_edit` to `False`, and
+  `load_item_form()` then refuses a row.
 - `django_spire/dropdown/model_crud_actions_dropdown.html`, the ⋮ menu of a
   CRUD list's row. Its Edit and Delete call `editItem()` and `deleteItem()`,
-  shown by `can_edit` and `can_delete`; `view_url`, `hide_edit` and
-  `delete_label` adjust it. `ellipsis_dropdown.html` takes only URLs, so lists used to copy
-  their own menu to call the list's actions.
+  shown by `can_edit` and `can_delete`; `view_url` and `delete_label` adjust
+  it. `ellipsis_dropdown.html` takes only URLs, so lists used to copy their
+  own menu to call the list's actions.
 
 ## v1.6.0
 
