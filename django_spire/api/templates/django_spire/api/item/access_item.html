@@ -3,7 +3,7 @@
 {% block item_title_col %}{% endblock %}
 
 {% block item_row_content %}
-    <div class="col-6 col-sm-4 mb-4 mb-sm-0 text-start">
+    <div class="col-6 col-sm-3 mb-3 mb-sm-0 text-start">
         <div class="attribute-label">Name</div>
         <a class="text-decoration-none"
            href="{% url 'django_spire:api:page:detail' pk=api_access.pk %}">
@@ -22,7 +22,7 @@
         {% endif %}
     </div>
 
-    <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
+    <div class="col-6 col-sm mb-2 mb-sm-0 text-start">
         <div class="attribute-label">Base Permission</div>
         {% if api_access.has_super_access %}
             <span class="text-warning">
@@ -35,14 +35,19 @@
         {% endif %}
     </div>
 
-    <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
+    <div class="col-6 col-sm mb-2 mb-sm-0 text-start">
         <div class="attribute-label">Key Hint</div>
         <div>{{ api_access.key_hint }}</div>
     </div>
 
-    <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
+    <div class="col-6 col-sm mb-2 mb-sm-0 text-start">
         <div class="attribute-label">Created On</div>
         <div>{{ api_access.created_datetime|date:'M d, Y' }}</div>
+    </div>
+
+    <div class="col-6 col-sm mb-2 mb-sm-0 text-start">
+        <div class="attribute-label">Last Used</div>
+        <div>{{ api_access.last_used_datetime|date:'M d, Y g:i A'|default:'Never used' }}</div>
     </div>
 {% endblock %}
 

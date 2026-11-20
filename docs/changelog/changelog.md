@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.5.2
+## v1.6.0
 
 ### Changed
 
@@ -82,7 +82,7 @@
   permissions on that model with no other code:
   `class TaskListComponent(Glue.ModelAccessMixin, ModelCrudScrollComponent)`.
   The mixin is opt-in; a component without it keeps the access it is given.
-  Requires django-glue 1.4.1.
+  Requires django-glue 1.5.0.
 - `ModelCrudScrollComponent.can_delete` says whether `deleteItem()` can delete
   a row, so a row template shows its delete under
   `{% if component.can_delete %}` instead of each list working it out from
@@ -108,7 +108,16 @@
   all. It now exposes only what the list shows, searches and sorts by: `id`,
   `username`, `first_name`, `last_name`, `is_active` and `groups`.
 
-## v1.5.1 - November 16, 2026
+## v1.5.1 - November 19, 2026
+
+### Added
+
+- API Access keys now track when one was last used. A successful `ApiKeySecurity`
+  authentication stamps the key's `last_used_datetime` — at most once per hour per
+  key, through a throttled write that records nothing in the history/activity feed
+  — and it renders as "Last Used" (or "Never used") on the API Access list and
+  detail pages and the admin list. `DJANGO_SPIRE_API_KEY_LAST_USED_THROTTLE_MINUTES`
+  (default 60) sets the stamping window.
 
 ### Fixed
 

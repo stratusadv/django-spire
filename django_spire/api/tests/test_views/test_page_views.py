@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.urls import reverse
+from django.utils import timezone
 
 from django_spire.api.models import ApiAccess
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -24,6 +25,15 @@ class ApiPageViewsTestCase(BaseTestCase):
 
         assert str(linked_access.user) in html
         assert 'No User' in html
+
+    def test_access_list_view_shows_last_used_column(self):
+        html = self.client.get(path=reverse('django_spire:api:page:list')).content.decode()
+        assert 'Last Used' in html
+        assert 'Never used' in html
+
+        ApiAccess.objects.filter(pk=self.test_access.pk).update(last_used_datetime=timezone.now())
+        html = self.client.get(path=reverse('django_spire:api:page:list')).content.decode()
+        assert 'Never used' not in html
 
     def test_detail_view_returns_200(self) -> None:
         url = reverse('django_spire:api:page:detail', kwargs={'pk': self.test_access.pk})
