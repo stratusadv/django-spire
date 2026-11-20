@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 from django import forms
+from django.template.loader import render_to_string
 from django_glue.exceptions import GlueComponentParameterError, GlueModelInstanceNotFoundError
 from django_glue.glue.components import component_registry
 
@@ -162,9 +163,34 @@ class ModelFormComponentTestCase(BaseTestCase):
             'form_path': 'test_project.app.task.forms:TaskModalForm',
             'template_name': 'task/modal/task_form_modal.html',
             'model_pk': task.pk,
+            'title': None,
+            'form_template': None,
         }
         assert rebuilt.form_class is TaskModalForm
         assert rebuilt.model.instance == task
+
+    def test_the_title_names_the_model_and_whether_the_row_exists(self) -> None:
+        task = Task.objects.create(name='Budget Review')
+
+        assert ModelFormComponent(form_class=TaskModalForm).get_title() == 'New Task'
+        assert ModelFormComponent(form_class=TaskModalForm, model_pk=task.pk).get_title() == 'Edit Task'
+
+    def test_a_given_title_replaces_the_default(self) -> None:
+        component = ModelFormComponent(form_class=TaskModalForm, title='Plan a Task')
+
+        assert component.get_title() == 'Plan a Task'
+
+    def test_the_default_template_shows_the_title_above_the_form_template(self) -> None:
+        component = ModelFormComponent(
+            form_class=TaskModalForm,
+            form_template='task/form/component_form.html',
+        )
+
+        html = render_to_string(component.template, {'component': component})
+
+        assert 'New Task' in html
+        assert 'glue_form.name' in html
+        assert 'modal-header' not in html
 
     def test_rejects_a_non_model_form(self) -> None:
         with pytest.raises(TypeError, match='ModelForm'):

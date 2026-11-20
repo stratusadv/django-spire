@@ -68,7 +68,7 @@ class TaskListComponent(ModelCrudScrollComponent):
     )
 ```
 
-The list's New and Edit buttons now open the form in a modal titled "New Task" or "Edit Task", and a saved row appears or updates in the list.
+The list's New and Edit buttons now open the form in a modal under the title "New Task" or "Edit Task", and a saved row appears or updates in the list.
 
 ---
 
@@ -85,29 +85,19 @@ from django_spire.core.components import ModelFormComponent
 | Member | Description |
 |---|---|
 | `form_class` | The `ModelForm` class. The model is the form's own |
-| `template` | The component's template |
+| `template` | The component's template. Defaults to the title above `form_template` |
 | `model_pk` | A parameter. `None` creates a row, a value edits that row. `pk` is its deprecated name |
+| `title` | A parameter. The title the default template shows. Defaults to `get_title()`'s wording |
+| `form_template` | A parameter. The partial with the form's fields, which the default template includes |
 | `fields` | The fields the Glue model exposes. Defaults to the form's fields |
+| `get_title()` | Return `title`, or "New Task" / "Edit Task" from the model's `verbose_name` |
 | `get_model()` | Return the row. A blank one, or the row with `model_pk`, by default |
 | `get_fields()` | Return the exposed fields |
 | `get_choices(instance)` | Return a dict of choice querysets for relation fields. `None` by default |
 
 A row that no longer exists is reported as Glue's `model_instance_not_found`, a 404.
 
-### `ModalModelFormComponent`
-
-A `ModelFormComponent` that draws its own modal: a header titled "New Task" or "Edit Task" from the model's `verbose_name`, and a body that includes the fields partial. `FormOptions(form_class=..., template=...)` builds one.
-
-```python
-from django_spire.core.components import ModalModelFormComponent
-```
-
-| Member | Description |
-|---|---|
-| `form_template` | A parameter. The partial with the form's fields |
-| `modal_title` | "New" or "Edit", then the model's `verbose_name` |
-
-A list that needs its own modal passes its own component as `FormOptions(component=...)`. To change the modal for every list, override `django_spire/modal/content/model_form_modal_content.html` in the project's templates.
+The default template is not a modal: like a confirmation's, it is a title and a body, and whoever shows it decides where. A modal puts it in its body, and the component closes nothing itself. A component with its own `template` ignores `title` and `form_template`.
 
 ### `FormComponent`
 
@@ -149,8 +139,8 @@ Tell a CRUD scroll how its rows are created and edited. Both are class attribute
 
 | Options | Arguments | Description |
 |---|---|---|
-| `ModelCrudScrollComponent.FormOptions` | `component` | The application's own form component class, in a modal its template draws |
-| `ModelCrudScrollComponent.FormOptions` | `form_class`, `template` | A form class and the partial with its fields, shown in spire's modal by `ModalModelFormComponent` |
+| `ModelCrudScrollComponent.FormOptions` | `component` | The application's own form component class, in a modal |
+| `ModelCrudScrollComponent.FormOptions` | `form_class`, `template` | A form class and the partial with its fields, shown in a modal under its title by `ModelFormComponent` |
 | `ModelCrudScrollComponent.PageFormOptions` | `url_name`, `create_url_name`, `return_url_name` | A form page. `url_name` takes the row's key as `pk` |
 
 `FormOptions` takes a component, or a form class together with a template, and refuses any other combination when it is created.

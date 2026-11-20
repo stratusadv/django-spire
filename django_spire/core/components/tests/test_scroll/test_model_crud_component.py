@@ -11,7 +11,7 @@ from django.urls import reverse
 from django_glue import Glue
 from django_glue.exceptions import GlueModelInstanceNotFoundError
 
-from django_spire.core.components import ModalModelFormComponent
+from django_spire.core.components import ModelFormComponent
 from django_spire.core.components.confirmation import ModelSetDeletedConfirmationComponent
 from django_spire.core.components.scroll import ModelCrudScrollComponent
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -137,7 +137,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
         create_form = component.load_item_form()
         edit_form = component.load_item_form(pk=comment.pk)
 
-        assert type(create_form) is ModalModelFormComponent
+        assert type(create_form) is ModelFormComponent
         assert create_form.form_class is CommentForm
         assert create_form.model.instance.pk is None
         assert edit_form.model.instance == comment

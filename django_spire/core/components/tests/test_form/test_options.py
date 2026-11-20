@@ -3,15 +3,9 @@ from __future__ import annotations
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.forms import ModelForm
-from django.template.loader import render_to_string
 from django_glue import Glue
 
-from django_spire.core.components.form import (
-    FormOptions,
-    ModalModelFormComponent,
-    ModelFormComponent,
-    PageFormOptions,
-)
+from django_spire.core.components.form import FormOptions, ModelFormComponent, PageFormOptions
 from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.comment.models import CommentExample
 from test_project.app.comment.tests.factories import create_test_comment_example
@@ -32,37 +26,17 @@ class CommentFormComponent(ModelFormComponent):
 
 
 class FormOptionsTestCase(BaseTestCase):
-    def test_a_form_class_and_template_build_the_modal_form_component(self) -> None:
+    def test_a_form_class_and_template_build_the_generic_form_component(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
         options = FormOptions(form_class=CommentForm, template=FIELDS_TEMPLATE)
 
         form = options.build_component(model_pk=comment.pk, access=Glue.Access.CHANGE)
 
-        assert type(form) is ModalModelFormComponent
+        assert type(form) is ModelFormComponent
         assert form.form_class is CommentForm
         assert form.form_template == FIELDS_TEMPLATE
         assert form.model.instance == comment
         assert form.access == Glue.Access.CHANGE
-
-    def test_the_modal_is_titled_from_the_model_and_whether_the_row_exists(self) -> None:
-        comment = create_test_comment_example(name='Budget Review')
-        options = FormOptions(form_class=CommentForm, template=FIELDS_TEMPLATE)
-
-        create_form = options.build_component(model_pk=None, access=Glue.Access.CHANGE)
-        edit_form = options.build_component(model_pk=comment.pk, access=Glue.Access.CHANGE)
-
-        assert create_form.modal_title == 'New Comment'
-        assert edit_form.modal_title == 'Edit Comment'
-
-    def test_the_modal_draws_its_title_around_the_fields_template(self) -> None:
-        options = FormOptions(form_class=CommentForm, template=FIELDS_TEMPLATE)
-        form = options.build_component(model_pk=None, access=Glue.Access.CHANGE)
-
-        html = render_to_string(form.template, {'component': form})
-
-        assert 'class="modal-header"' in html
-        assert 'New Comment' in html
-        assert "glue_form.name" in html
 
     def test_a_component_is_built_with_its_own_form_and_template(self) -> None:
         options = FormOptions(component=CommentFormComponent)

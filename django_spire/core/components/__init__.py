@@ -9,7 +9,6 @@ from django_spire.core.components.confirmation import (
 from django_spire.core.components.form import (
     BaseFormComponent,
     FormComponent,
-    ModalModelFormComponent,
     ModelFormComponent,
 )
 from django_spire.core.components.scroll import (
@@ -26,7 +25,6 @@ __all__ = [
     'BaseScrollComponent',
     'ConfirmationRefusedError',
     'FormComponent',
-    'ModalModelFormComponent',
     'ModelCrudScrollComponent',
     'ModelDeleteConfirmationComponent',
     'ModelFormComponent',
