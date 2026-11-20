@@ -2,6 +2,15 @@
 
 ## v1.7.0
 
+### Changed
+
+- **`ModelFormComponent.get_choices()` is removed.** It fed only the Glue
+  model's own fields; the form a form component shows, at
+  `component.model.form`, takes a relation's choices from its own field
+  querysets, built with the row as `self.instance`. Narrow a field in the
+  form's `__init__` instead, wrapped in `Glue.choices(..., search_fields=[...])`
+  for a searchable field.
+
 ### Added
 
 - `ModelFormComponent.get_required_access()` is `ADD` while the form creates
