@@ -863,15 +863,15 @@ wheels = [
 
 [[package]]
 name = "django-glue"
-version = "1.4.0"
+version = "1.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/db/f1/778f87edaf4910ec2d1315067cc1c54021f71b417434831a86f92a1712d6/django_glue-1.4.0.tar.gz", hash = "sha256:4d933aa9cfb3dc13a09d3569e04a899d5777e0e3ec7033b5e18d56b74dd17204", size = 328571, upload-time = "2026-11-13T21:25:56.502Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/63/5537210f71c45b29f3dcc7c02759601f36e07e36657c9323db3b71848ad5/django_glue-1.5.0.tar.gz", hash = "sha256:f787e51d6062cac64d5ae958a48bbba9e9af4edf25b3009f7818c6fd501e527c", size = 347196, upload-time = "2026-11-20T17:44:31.553Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/95/21c75b20419a73ffd2b293f110ba2da0a3445b073a781ffab1ce1855fd7d/django_glue-1.4.0-py3-none-any.whl", hash = "sha256:ce5cde73143b2d82b5fe008c5a7c38827c3a45aceda93ff3c82be6a40f568557", size = 387942, upload-time = "2026-11-13T21:25:55.136Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/f4/7277bd6dd234f01d054c4164fbb90c86ca88ec63d0b53e9de2e6318b1dd8/django_glue-1.5.0-py3-none-any.whl", hash = "sha256:8930c86015877567b0a598975709f51c662cb205eeeffb56aa2eba550d5abb47", size = 413213, upload-time = "2026-11-20T17:44:30.447Z" },
 ]
 
 [[package]]
@@ -990,7 +990,7 @@ requires-dist = [
     { name = "celery-types", specifier = "==0.26.0" },
     { name = "dandy", specifier = "==2.2.0" },
     { name = "django", specifier = "==6.0.9" },
-    { name = "django-glue", specifier = "==1.4.0" },
+    { name = "django-glue", specifier = "==1.5.0" },
     { name = "django-ninja", specifier = "==1.7.0" },
     { name = "django-sendgrid-v5", specifier = "==1.3.1" },
     { name = "django-storages", specifier = "==1.14.6" },
