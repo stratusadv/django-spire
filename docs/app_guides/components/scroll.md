@@ -304,7 +304,16 @@ class TaskListComponent(ModelCrudScrollComponent):
 
 The list template extends `crud.html`, which adds `createItem()`, `editItem(item)` and `deleteItem(item)`. With these options the form opens in a modal and the new or changed row appears in the list when it is saved. Deleting asks for confirmation and soft-deletes the row.
 
-Creating and editing need `CHANGE` access and deleting needs `DELETE`. A component starts with `VIEW`, so set `self.access` from what the user may do. To show the delete button only to a user who can use it, put it under `{% if component.can_delete %}`, as the row above does. It is true when the list deletes through a page, which guards itself, or through a confirmation and its access allows `DELETE`.
+Creating and editing need `CHANGE` access and deleting needs `DELETE`. A component starts with `VIEW`, so set `self.access` from what the user may do. To show a button only to a user who can use it, put it under `{% if component.can_edit %}` or `{% if component.can_delete %}`, as the row above does. Each is true when the list uses a page, which guards itself, or a component and its access allows `CHANGE` or `DELETE`. Read them from the component rather than from `perms`: a row loaded or refreshed after the first render has only `component` in its context.
+
+For a ⋮ menu in place of the buttons, include `crud_actions_dropdown.html` in the row. Its Edit and Delete call `editItem()` and `deleteItem()`, so it works with modals and pages, and it shows each one by `can_edit` and `can_delete`:
+
+```django
+{% url 'task:page:detail' pk=item.pk as task_url %}
+{% include 'django_spire/dropdown/crud_actions_dropdown.html' with view_url=task_url %}
+```
+
+`view_url` adds a View link. `hide_edit=True` leaves Edit out of a list whose form only creates, and `delete_label` renames Delete, such as `delete_label='Remove'`.
 
 To take it from the user's permissions on the listed model, mix in django-glue's `ModelAccessMixin`:
 

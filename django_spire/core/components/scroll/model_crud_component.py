@@ -73,6 +73,19 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             raise ImproperlyConfigured(message)
 
     @property
+    def can_edit(self) -> bool:
+        """
+        Whether ``createItem()`` and ``editItem()`` can open the form: a form
+        page guards itself, and a form component needs ``CHANGE`` access.
+        """
+        if isinstance(self.item_form_options, self.PageFormOptions):
+            return True
+
+        return self.item_form_options is not None and self.access.has_access(
+            Glue.Access.CHANGE
+        )
+
+    @property
     def can_delete(self) -> bool:
         """
         Whether ``deleteItem()`` can delete a row: a delete page guards itself,

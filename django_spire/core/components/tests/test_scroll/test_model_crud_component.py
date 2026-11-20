@@ -210,6 +210,43 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
     def test_a_list_without_a_delete_never_offers_one(self) -> None:
         assert UndeletableCommentCrudScrollComponent(access=Glue.Access.DELETE).can_delete is False
 
+    def test_a_form_component_edit_is_offered_only_with_change_access(self) -> None:
+        assert CommentCrudScrollComponent(access=Glue.Access.CHANGE).can_edit is True
+        assert CommentCrudScrollComponent(access=Glue.Access.ADD).can_edit is False
+
+    def test_a_page_edit_is_offered_whatever_the_access(self) -> None:
+        assert PagedCommentCrudScrollComponent().can_edit is True
+
+    def test_a_list_without_a_form_never_offers_an_edit(self) -> None:
+        assert FormlessCommentCrudScrollComponent(access=Glue.Access.DELETE).can_edit is False
+
+    def test_the_actions_dropdown_offers_what_the_list_allows(self) -> None:
+        def actions(component: ModelCrudScrollComponent, **context: object) -> str:
+            return render_to_string(
+                'django_spire/dropdown/crud_actions_dropdown.html',
+                {'component': component, 'item_key': 7, **context},
+            )
+
+        full = actions(CommentCrudScrollComponent(access=Glue.Access.DELETE), view_url='/comments/7/')
+        viewer = actions(CommentCrudScrollComponent(access=Glue.Access.VIEW))
+        paged = actions(PagedCommentCrudScrollComponent())
+        renamed = actions(
+            CommentCrudScrollComponent(access=Glue.Access.DELETE),
+            hide_edit=True,
+            delete_label='Remove',
+        )
+
+        assert 'href="/comments/7/"' in full
+        assert 'editItem(7)' in full
+        assert 'deleteItem(7)' in full
+        assert 'editItem' not in viewer
+        assert 'deleteItem' not in viewer
+        assert 'View' not in viewer
+        assert 'editItem(7)' in paged
+        assert 'deleteItem' not in paged
+        assert 'editItem' not in renamed
+        assert 'Remove' in renamed
+
     def test_item_delete_options_of_another_kind_are_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='item_delete_options must be'):
 
