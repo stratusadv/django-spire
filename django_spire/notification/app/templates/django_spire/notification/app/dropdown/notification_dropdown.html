@@ -14,7 +14,9 @@
 {% block dropdown_trigger %}
     <div class="position-relative" @click="renderDropdown()">
         {% block notification_dropdown_trigger %}
-            {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-bell-fill' icon_class='mx-2' x_icon_click="await renderDropdown()" %}
+            <span class="position-relative d-inline-flex align-items-center justify-content-center">
+                <i class="bi bi-bell-fill fs-2 text-primary text-primary-hover cursor-pointer mx-2"></i>
+            </span>
             <span
                 x-show="hasNewNotification"
                 x-cloak

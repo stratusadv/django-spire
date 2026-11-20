@@ -51,9 +51,12 @@ class BaseScrollComponent(Glue.Component, ABC):
 
     A callable that changes an item fires ``item_added``, ``item_changed`` or
     ``item_removed`` with ``key=``, and the list updates that one row.
+
+    Served by ``as_view()``, the list fills spire's full page.
     """
 
     template = 'django_spire/component/scroll/scroll.html'
+    view_template = 'django_spire/component/page/full_page.html'
     item_template: ClassVar[str | None] = None
     batch_size: ClassVar[int] = 25
 
