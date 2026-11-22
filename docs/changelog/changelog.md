@@ -38,6 +38,9 @@
 - The password-changed page's Login button and the MFA form's redirect go to
   `LOGIN_REDIRECT_URL`. They named `home:page:home`, so a project without a
   URL of that name raised `NoReverseMatch` after a password change.
+- A comment's ⋮ menu renders again, and opens Edit and Delete in a modal. It
+  loaded a removed tag library and included removed dropdown item templates,
+  so a comment list raised `TemplateSyntaxError`.
 
 ## v1.6.0
 
