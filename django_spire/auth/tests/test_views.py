@@ -4,6 +4,7 @@ import re
 
 from django.contrib.auth import get_user
 from django.core import mail
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -216,6 +217,12 @@ class PasswordChangeViewTestCase(BaseTestCase):
         assert response.status_code == 302
         self.user.refresh_from_db()
         assert self.user.check_password('newpassword456')
+
+    @override_settings(LOGIN_REDIRECT_URL='django_spire:auth:admin:login')
+    def test_password_change_done_links_to_login_redirect_url(self) -> None:
+        response = self.client.get(reverse('django_spire:auth:admin:password_change_done'))
+        assert response.status_code == 200
+        assert f'href="{reverse("django_spire:auth:admin:login")}"' in response.content.decode()
 
     def test_password_change_wrong_old_password(self) -> None:
         response = self.client.post(

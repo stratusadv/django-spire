@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.template.response import TemplateResponse
-from django.urls import reverse
 
 from django_spire.auth.mfa import forms
 from django_spire.auth.mfa.utils import get_or_generate_user_mfa_code
@@ -19,7 +20,7 @@ def mfa_form_view(request):
         if form.is_valid():
             mfa_code.set_expired()
             profile.set_mfa_grace_period()
-            return HttpResponseRedirect(reverse('home:page:home'))
+            return HttpResponseRedirect(resolve_url(settings.LOGIN_REDIRECT_URL))
 
         if 'mfa_code' in form.errors:
             messages.error(request, form.errors['mfa_code'][0])

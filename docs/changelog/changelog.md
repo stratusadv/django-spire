@@ -33,6 +33,12 @@
   it. `ellipsis_dropdown.html` takes only URLs, so lists used to copy their
   own menu to call the list's actions.
 
+### Fixed
+
+- The password-changed page's Login button and the MFA form's redirect go to
+  `LOGIN_REDIRECT_URL`. They named `home:page:home`, so a project without a
+  URL of that name raised `NoReverseMatch` after a password change.
+
 ## v1.6.0
 
 ### Changed

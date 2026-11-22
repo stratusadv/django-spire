@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import login as auth_login
 from django.http import HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.urls import reverse_lazy, reverse
 
 from django_spire.auth.forms import CaseInsensitiveAuthenticationForm
@@ -39,6 +41,11 @@ class PasswordChangeView(auth_views.PasswordChangeView):
 
 class PasswordChangeDone(auth_views.PasswordChangeDoneView):
     template_name = 'django_spire/auth/page/password_change_done_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_redirect_url'] = resolve_url(settings.LOGIN_REDIRECT_URL)
+        return context
 
 
 class PasswordResetView(auth_views.PasswordResetView):
