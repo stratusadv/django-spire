@@ -7,6 +7,7 @@
             {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' %}
         :maxlength="field?.max_length"
         :minlength="field?.min_length"
+            {% if x_placeholder %}:placeholder="{{ x_placeholder }}"{% endif %}
             placeholder="{% block placeholder %}{{ placeholder }}{% endblock %}">
     </textarea>
     {{ block.super }}

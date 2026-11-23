@@ -9,11 +9,10 @@
         <input
                 type="checkbox"
                 class="form-check-input"
-                :id="field.id"
                 {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' with exclude_class=True %}>
         {{ block.super }}
-        <label :for="field.id" class="form-check-label">
-            <span x-text="field.label"></span><span x-show="field.required" class="text-danger" aria-hidden="true"> *</span>
+        <label :for="fieldId" class="form-check-label{% if hide_label %} visually-hidden{% endif %}">
+            <span x-text="{{ x_label|default:'field.label' }}"></span><span x-show="field.required" class="text-danger" aria-hidden="true"> *</span>
         </label>
     </div>
 {% endblock %}

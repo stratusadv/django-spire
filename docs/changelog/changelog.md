@@ -49,6 +49,23 @@
 
 ### Fixed
 
+- **A Glue field's label is tied to its control.** Labels pointed at
+  `field.id`, which Glue's field metadata doesn't have, so no label was tied
+  to its input: clicking a label didn't focus its field or tick its checkbox,
+  a screen reader read the field unnamed, and checkbox-group ids came out as
+  `undefined-<value>`. Each field now gets its own id (`fieldId`, from
+  Alpine's `$id`), unique even for the same field in every row of a formset;
+  its label's `for` and its control's `id` use it, and a checkbox group or
+  radio group is a `role="group"` labelled by it.
+- **`hide_label` keeps the label for screen readers.** It hid the label by
+  leaving it out, so the field had no name; it now renders it
+  `visually-hidden`. `x_label` takes an Alpine expression for the label's
+  text, and `x_placeholder` one for the placeholder, for a field repeated in
+  rows: `x_label="`Apply to ${row.name}`"`.
+- The account menu in the top navigation opens from a button named "Account
+  menu", which the keyboard reaches; it was an icon. It had a fixed
+  `id="dropdownMenuButton1"`, repeated wherever the menu is drawn twice on a
+  page, and has none now.
 - The password-changed page's Login button and the MFA form's redirect go to
   `LOGIN_REDIRECT_URL`. They named `home:page:home`, so a project without a
   URL of that name raised `NoReverseMatch` after a password change.

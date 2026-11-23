@@ -3,13 +3,16 @@
     x-data="glueField({{ glue_field|glue_field_metadata_path }}, () => {{ glue_field|glue_field_value_path }}, (newValue) => {{ glue_field|glue_field_value_path }} = newValue)"
     x-bind="glueFieldEvents"
 >
-    {% if not hide_label %}
-        {% block widget_label %}
-            <label :for="field.id" class="form-label">
-                <span x-text="field.label"></span><span x-show="field.required" class="text-danger" aria-hidden="true"> *</span>
-            </label>
-        {% endblock %}
-    {% endif %}
+    {% comment %}
+    The label is tied to the field's control by fieldId. hide_label hides it from sight but keeps
+    it for screen readers. x_label, an Alpine expression, replaces the field's label, for a
+    field repeated in rows: x_label="`Apply to ${row.name}`".
+    {% endcomment %}
+    {% block widget_label %}
+        <label :for="fieldId" :id="`${fieldId}-label`" class="form-label{% if hide_label %} visually-hidden{% endif %}">
+            <span x-text="{{ x_label|default:'field.label' }}"></span><span x-show="field.required" class="text-danger" aria-hidden="true"> *</span>
+        </label>
+    {% endblock %}
 
     {% block widget_content %}
     {% endblock %}

@@ -8,6 +8,8 @@
 {#   include_empty       Optional. Lists an empty choice first, which clears the value,    #}
 {#                       for a field that isn't required, as the plain select does.        #}
 {#   empty_label         Optional. The empty choice's label. Defaults to 'Select ...'.     #}
+{#   x_control_id        Optional. An Alpine expression for the shown input's id, which    #}
+{#                       a label is tied to: 'fieldId' in a Glue field's widget.           #}
 {#                                                                                         #}
 {# Choosing a value raises input and change on the input, which bubble.                    #}
 <div
@@ -18,6 +20,7 @@
     <div class="position-relative">
         <input
             x-ref="selectedInput"
+            {% if x_control_id %}:id="{{ x_control_id }}"{% endif %}
             type="text"
             class="form-control"
             :class="{'is-invalid': hasErrors}"
