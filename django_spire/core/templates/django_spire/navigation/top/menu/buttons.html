@@ -5,7 +5,8 @@
 {% endif %}
 
 {% if perms.django_spire_help_desk.view_helpdeskticket %}
-    <a class="d-inline-flex align-items-center justify-content-center mx-1" href="{% url 'django_spire:help_desk:page:list' %}">
+    {% url 'django_spire:help_desk:page:list' as help_desk_url %}
+    <a class="d-inline-flex align-items-center justify-content-center mx-1" href="{{ help_desk_url }}">
         <i class="bi bi-headset fs-2 text-primary text-primary-hover cursor-pointer"></i>
     </a>
 {% endif %}

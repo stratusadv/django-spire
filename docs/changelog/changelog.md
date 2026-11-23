@@ -72,6 +72,10 @@
 - A comment's ⋮ menu renders again, and opens Edit and Delete in a modal. It
   loaded a removed tag library and included removed dropdown item templates,
   so a comment list raised `TemplateSyntaxError`.
+- The top navigation renders again for a superuser in a project without
+  `django_spire.help_desk`. 1.6.0 reversed the help desk URL straight into the
+  icon's link, so every page raised `NoReverseMatch`; it is reversed with
+  `as` again, which gives an empty link when the URL is missing.
 
 ## v1.6.0
 
