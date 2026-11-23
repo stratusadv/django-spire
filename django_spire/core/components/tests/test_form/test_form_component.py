@@ -6,7 +6,6 @@ from django.template.loader import render_to_string
 from django_glue import Glue
 from django_glue.exceptions import GlueComponentParameterError
 from django_glue.glue.components import component_registry
-from django_glue.glue.objects.django.form.object import FormGlue
 
 from django_spire.core.components import FormComponent
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -27,11 +26,10 @@ class FormComponentTestCase(BaseTestCase):
 
         assert component_registry.from_identifier(identifier) is TaskFormComponent
 
-    def test_child_is_a_form_glue_holding_the_form(self) -> None:
+    def test_child_reads_as_the_form(self) -> None:
         component = TaskFormComponent()
 
-        assert isinstance(component.form, FormGlue)
-        assert isinstance(component.form.form, TaskModelForm)
+        assert isinstance(component.form, TaskModelForm)
 
     def test_get_form_can_receive_constructor_arguments(self) -> None:
         class InitialFormComponent(FormComponent):
@@ -45,7 +43,7 @@ class FormComponentTestCase(BaseTestCase):
 
         component = InitialFormComponent(seed='Seeded')
 
-        assert component.form.form.initial['name'] == 'Seeded'
+        assert component.form.initial['name'] == 'Seeded'
 
     def test_has_no_pk_parameter(self) -> None:
         with pytest.raises(GlueComponentParameterError):
@@ -99,7 +97,7 @@ class FormComponentTestCase(BaseTestCase):
 
         assert component.template == 'task/form/task_form.html'
         assert component.form_class is TaskModalForm
-        assert isinstance(component.form.form, TaskModalForm)
+        assert isinstance(component.form, TaskModalForm)
 
     def test_a_directly_built_component_is_rebuilt_from_its_signed_identity(self) -> None:
         component = FormComponent(form_class=TaskModalForm, template='task/form/task_form.html')
