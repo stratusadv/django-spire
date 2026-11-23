@@ -8,6 +8,7 @@ from django.shortcuts import resolve_url
 from django.urls import reverse_lazy, reverse
 
 from django_spire.auth.forms import CaseInsensitiveAuthenticationForm
+from django_spire.conf import settings as spire_settings
 from django_spire.contrib.form.tools import show_form_errors
 
 
@@ -23,7 +24,7 @@ class LoginView(auth_views.LoginView):
     def form_valid(self, form):
         form_user = form.get_user()
 
-        if form_user.last_login is None:
+        if spire_settings.DJANGO_SPIRE_AUTH_FIRST_LOGIN_PASSWORD_CHANGE and form_user.last_login is None:
             auth_login(self.request, form_user)
             return HttpResponseRedirect(reverse('django_spire:auth:admin:password_change'))
 

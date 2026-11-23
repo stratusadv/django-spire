@@ -39,6 +39,16 @@ class LoginViewTestCase(BaseTestCase):
         )
         assert response.status_code == 200
 
+    def test_a_failed_login_does_not_put_the_password_in_the_page(self) -> None:
+        response = self.client.post(
+            reverse('django_spire:auth:admin:login'),
+            data={'username': 'testuser', 'password': 'wrong-secret-4821'},
+        )
+
+        content = response.content.decode()
+        assert 'testuser' in content
+        assert 'wrong-secret-4821' not in content
+
     def test_login_with_nonexistent_user(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
@@ -179,6 +189,19 @@ class LoginViewTestCase(BaseTestCase):
 
         assert response.status_code == 302
         assert response.url == reverse('django_spire:auth:admin:password_change')
+
+    @override_settings(DJANGO_SPIRE_AUTH_FIRST_LOGIN_PASSWORD_CHANGE=False)
+    def test_initial_login_goes_on_when_the_first_login_password_change_is_off(self) -> None:
+        self.user.last_login = None
+        self.user.save()
+        response = self.client.post(
+            reverse('django_spire:auth:admin:login'),
+            data={'username': 'testuser', 'password': 'testpassword123'},
+        )
+
+        assert response.status_code == 302
+        assert response.url != reverse('django_spire:auth:admin:password_change')
+        assert get_user(self.client).is_authenticated
 
     def test_user_has_logged_in_before(self) -> None:
         self.user.last_login = timezone.now()

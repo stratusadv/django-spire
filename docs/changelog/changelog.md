@@ -27,11 +27,25 @@
   through a form component and its access allows `ADD` or `CHANGE`. A list
   whose rows are never edited overrides `can_edit` to `False`, and
   `load_item_form()` then refuses a row.
+- The single-select search field takes `include_empty` and `empty_label`, as
+  the plain select does: an empty choice listed first, which clears a field
+  that isn't required, such as a filter's "All accounts":
+  `{% include 'django_spire/glue/form/field/choice/search_field.html' with glue_field='component.filters.account' include_empty=True empty_label='All accounts' %}`.
+- The single-select dropdown moved to
+  `django_spire/widget/search_and_select_widget.html` and takes a `source`, as
+  the multi-select does, with `placeholder` and `search_placeholder`. The Glue
+  field widget includes it and renders as before. `searchAndSelect()` takes
+  the source alone and sets its `value`. A template that overrode the Glue
+  widget's `search_placeholder` block passes `placeholder` instead.
 - `django_spire/dropdown/model_crud_actions_dropdown.html`, the ⋮ menu of a
   CRUD list's row. Its Edit and Delete call `editItem()` and `deleteItem()`,
   shown by `can_edit` and `can_delete`; `view_url` and `delete_label` adjust
   it. `ellipsis_dropdown.html` takes only URLs, so lists used to copy their
   own menu to call the list's actions.
+- `DJANGO_SPIRE_AUTH_FIRST_LOGIN_PASSWORD_CHANGE`, default `True`: whether a
+  user signing in for the first time is sent to change their password. A
+  project's development settings can set it to `False`, so seeded users go
+  straight in.
 
 ### Fixed
 

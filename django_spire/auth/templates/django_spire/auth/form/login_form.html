@@ -22,9 +22,9 @@
         <div class="row mt-2">
             <div class="col">
                 <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                {# Never rendered with a value: a failed sign-in must not put the password in the page. #}
                 <input class="form-control" type="password" name="{{ form.password.name }}"
-                       id="{{ form.password.id_for_label }}"
-                       value="{{ form.password.value|default:'' }}">
+                       id="{{ form.password.id_for_label }}">
                 {% if form.password.errors %}
                     <ul>
                         {% for error in form.password.errors %}

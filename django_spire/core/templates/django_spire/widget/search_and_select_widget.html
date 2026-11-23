@@ -1,0 +1,85 @@
+{# A single-select dropdown over a choice source, searched as it is typed.                  #}
+{#                                                                                         #}
+{#   source              The Alpine expression for the choice source: 'field' for a Glue   #}
+{#                       form field, or any object with the members listed in            #}
+{#                       js/search_and_select.js.                                          #}
+{#   placeholder         Optional. Shown when nothing is chosen. Defaults to 'Search ...'. #}
+{#   search_placeholder  Optional. The search box's. Defaults to 'Search...'.              #}
+{#   include_empty       Optional. Lists an empty choice first, which clears the value,    #}
+{#                       for a field that isn't required, as the plain select does.        #}
+{#   empty_label         Optional. The empty choice's label. Defaults to 'Select ...'.     #}
+{#                                                                                         #}
+{# Choosing a value raises input and change on the input, which bubble.                    #}
+<div
+    class="position-relative"
+    @click.outside="closeDropdown()"
+    x-data="searchAndSelect({{ source }})"
+>
+    <div class="position-relative">
+        <input
+            x-ref="selectedInput"
+            type="text"
+            class="form-control"
+            :class="{'is-invalid': hasErrors}"
+            :value="labelText(selectedChoice)"
+            @focus="openDropdown()"
+            @click="openDropdown()"
+            readonly
+            :disabled="isDisabled"
+            placeholder="{{ placeholder|default:'Search ...' }}"
+        >
+        <div
+            x-cloak
+            x-show="showDropdown"
+            class="shadow border rounded-2 position-absolute w-100 list-group bg-white"
+            :style="dropdownStyle"
+        >
+            <div class="p-2 border-bottom bg-white">
+                <input
+                    x-ref="searchInput"
+                    type="text"
+                    class="form-control form-control-sm"
+                    x-model="searchQuery"
+                    @input.stop.debounce.200ms="searchChoices()"
+                    @change.stop
+                    @keydown.escape="closeDropdown()"
+                    placeholder="{{ search_placeholder|default:'Search...' }}"
+                >
+            </div>
+            <div
+                class="py-3 px-3 text-center text-muted"
+                x-show="isSearchable && isSearching"
+            >
+                Searching...
+            </div>
+            {% if include_empty %}
+                <div
+                    class="py-2 px-3 list-group-item cursor-pointer text-muted"
+                    x-show="searchQuery.length === 0"
+                    @click="selectItem({value: null})"
+                >
+                    {{ empty_label|default:'Select ...' }}
+                </div>
+            {% endif %}
+            <template x-for="choice in filteredChoices" :key="choice.value">
+                <div
+                    class="py-2 px-3 list-group-item cursor-pointer"
+                    @click="selectItem(choice)"
+                >
+                    <div x-html="labelHtml(choice)"></div>
+                </div>
+            </template>
+            <template x-if="!isSearching && filteredChoices.length === 0 && searchQuery.length > 0">
+                <div class="py-3 px-3 text-center text-muted">
+                    No results found
+                </div>
+            </template>
+            <div
+                class="py-3 px-3 text-center text-muted"
+                x-show="isSearchable && !isSearching && searchQuery.length === 0"
+            >
+                Start typing to search
+            </div>
+        </div>
+    </div>
+</div>
