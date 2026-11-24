@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.7.0
+## v1.7.0 - November 24, 2026
 
 ### Changed
 
