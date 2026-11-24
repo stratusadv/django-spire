@@ -14,6 +14,7 @@ globalThis.Alpine = Alpine
 const SCRIPTS = '../django_spire/core/static/django_spire/js'
 
 await import(`${SCRIPTS}/spire.js`)
+await import(`${SCRIPTS}/date.js`)
 await import(`${SCRIPTS}/notify.js`)
 await import(`${SCRIPTS}/components/async_button.js`)
 await import(`${SCRIPTS}/components/scroll.js`)

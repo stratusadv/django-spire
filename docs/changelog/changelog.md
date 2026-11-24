@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.7.1
+
+### Added
+
+- `Spire.date.addDays(isoDate, days)`: a date input's `YYYY-MM-DD` value
+  moved by a number of days, across months and years, and back for a negative
+  number. Counted in UTC, so a daylight saving change never shifts the day:
+  `Spire.date.addDays('2026-12-20', 15)` is `'2027-01-04'`.
+
 ## v1.7.0 - November 24, 2026
 
 ### Changed
