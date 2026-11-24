@@ -1,5 +1,82 @@
 # Changelog
 
+## v1.7.0 - November 24, 2026
+
+### Changed
+
+- **`ModelFormComponent.get_choices()` is removed.** It fed only the Glue
+  model's own fields; the form a form component shows, at
+  `component.model.form`, takes a relation's choices from its own field
+  querysets, built with the row as `self.instance`. Narrow a field in the
+  form's `__init__` instead, wrapped in `Glue.choices(..., search_fields=[...])`
+  for a searchable field.
+- `ModelCrudScrollComponent.load_item_form()` needs `ADD` access, the least
+  that opens any form, and leaves `CHANGE` to the form it returns: its fields
+  and save change a saved row only at `CHANGE`. It needed `CHANGE` for both,
+  so a user who could add but not change could not create a row.
+
+### Added
+
+- `ModelFormComponent.get_required_access()` is `ADD` while the form creates
+  a row and `CHANGE` while it edits one, so a form component that mixes in
+  django-glue's `ModelAccessRequiredMixin` lets in only a user who may do
+  what the form does: `class RoleFormComponent(Glue.ModelAccessRequiredMixin,
+  ModelFormComponent)`. Requires django-glue 1.6.0 for the mixin.
+- `ModelCrudScrollComponent.can_create` and `can_edit`, the counterparts of
+  `can_delete`: true when the list creates or edits through a page, or
+  through a form component and its access allows `ADD` or `CHANGE`. A list
+  whose rows are never edited overrides `can_edit` to `False`, and
+  `load_item_form()` then refuses a row.
+- The single-select search field takes `include_empty` and `empty_label`, as
+  the plain select does: an empty choice listed first, which clears a field
+  that isn't required, such as a filter's "All accounts":
+  `{% include 'django_spire/glue/form/field/choice/search_field.html' with glue_field='component.filters.account' include_empty=True empty_label='All accounts' %}`.
+- The single-select dropdown moved to
+  `django_spire/widget/search_and_select_widget.html` and takes a `source`, as
+  the multi-select does, with `placeholder` and `search_placeholder`. The Glue
+  field widget includes it and renders as before. `searchAndSelect()` takes
+  the source alone and sets its `value`. A template that overrode the Glue
+  widget's `search_placeholder` block passes `placeholder` instead.
+- `django_spire/dropdown/model_crud_actions_dropdown.html`, the ⋮ menu of a
+  CRUD list's row. Its Edit and Delete call `editItem()` and `deleteItem()`,
+  shown by `can_edit` and `can_delete`; `view_url` and `delete_label` adjust
+  it. `ellipsis_dropdown.html` takes only URLs, so lists used to copy their
+  own menu to call the list's actions.
+- `DJANGO_SPIRE_AUTH_FIRST_LOGIN_PASSWORD_CHANGE`, default `True`: whether a
+  user signing in for the first time is sent to change their password. A
+  project's development settings can set it to `False`, so seeded users go
+  straight in.
+
+### Fixed
+
+- **A Glue field's label is tied to its control.** Labels pointed at
+  `field.id`, which Glue's field metadata doesn't have, so no label was tied
+  to its input: clicking a label didn't focus its field or tick its checkbox,
+  a screen reader read the field unnamed, and checkbox-group ids came out as
+  `undefined-<value>`. Each field now gets its own id (`fieldId`, from
+  Alpine's `$id`), unique even for the same field in every row of a formset;
+  its label's `for` and its control's `id` use it, and a checkbox group or
+  radio group is a `role="group"` labelled by it.
+- **`hide_label` keeps the label for screen readers.** It hid the label by
+  leaving it out, so the field had no name; it now renders it
+  `visually-hidden`. `x_label` takes an Alpine expression for the label's
+  text, and `x_placeholder` one for the placeholder, for a field repeated in
+  rows: `x_label="`Apply to ${row.name}`"`.
+- The account menu in the top navigation opens from a button named "Account
+  menu", which the keyboard reaches; it was an icon. It had a fixed
+  `id="dropdownMenuButton1"`, repeated wherever the menu is drawn twice on a
+  page, and has none now.
+- The password-changed page's Login button and the MFA form's redirect go to
+  `LOGIN_REDIRECT_URL`. They named `home:page:home`, so a project without a
+  URL of that name raised `NoReverseMatch` after a password change.
+- A comment's ⋮ menu renders again, and opens Edit and Delete in a modal. It
+  loaded a removed tag library and included removed dropdown item templates,
+  so a comment list raised `TemplateSyntaxError`.
+- The top navigation renders again for a superuser in a project without
+  `django_spire.help_desk`. 1.6.0 reversed the help desk URL straight into the
+  icon's link, so every page raised `NoReverseMatch`; it is reversed with
+  `as` again, which gives an empty link when the URL is missing.
+
 ## v1.6.0 - November 20, 2026
 
 ### Changed

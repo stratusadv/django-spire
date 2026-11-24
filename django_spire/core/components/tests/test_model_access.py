@@ -47,6 +47,10 @@ class PermittedCommentFormComponent(Glue.ModelAccessMixin, CommentFormComponent)
     pass
 
 
+class GuardedCommentFormComponent(Glue.ModelAccessRequiredMixin, CommentFormComponent):
+    pass
+
+
 class TaskPermittedCommentScrollComponent(Glue.ModelAccessMixin, CommentScrollComponent):
     permission_model = Task
 
@@ -118,3 +122,16 @@ class ModelAccessTestCase(BaseTestCase):
         component = Glue.object(request, PermittedCommentDeleteComponent(instance=self.comment))
 
         assert component.access is Glue.Access.DELETE
+
+    def test_a_form_requires_add_to_create_and_change_to_edit(self) -> None:
+        assert CommentFormComponent().get_required_access() is Glue.Access.ADD
+        assert CommentFormComponent(model_pk=self.comment.pk).get_required_access() is Glue.Access.CHANGE
+
+    def test_a_guarded_form_admits_a_creator_only_to_create(self) -> None:
+        request = self._request_for('view', 'add')
+
+        created = GuardedCommentFormComponent.as_view()(request)
+        edited = GuardedCommentFormComponent.as_view()(request, model_pk=self.comment.pk)
+
+        assert created.status_code == 200
+        assert edited.status_code == 302

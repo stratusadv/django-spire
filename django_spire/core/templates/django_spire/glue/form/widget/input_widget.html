@@ -1,6 +1,7 @@
 {% extends "django_spire/glue/form/widget/widget.html" %}
 {% load django_glue %}
 
+{# placeholder is fixed text; x_placeholder, an Alpine expression, replaces it, for a field repeated in rows. #}
 {% block widget_content %}
     <input
         type="{% block input_type %}{{ type|default:'text' }}{% endblock %}"
@@ -8,6 +9,7 @@
         {% block input_attributes %}{% endblock %}
         :maxlength="field?.max_length"
         :minlength="field?.min_length"
+        {% if x_placeholder %}:placeholder="{{ x_placeholder }}"{% endif %}
         placeholder="{% block placeholder %}{{ placeholder }}{% endblock %}">
     {{ block.super }}
 {% endblock %}

@@ -6,6 +6,8 @@
 {#   empty_label         Optional. Shown when nothing is chosen. Defaults to 'Select...'.  #}
 {#   search_placeholder  Optional. Defaults to 'Search...'.                                #}
 {#   max_height          Optional. The menu's maximum height. Defaults to '18rem'.         #}
+{#   x_control_id        Optional. An Alpine expression for the trigger's id, which a      #}
+{#                       label is tied to: 'fieldId' in a Glue field's widget.             #}
 {#                                                                                         #}
 {# Choosing or removing a value raises input and change on the trigger, which bubble.     #}
 <div
@@ -16,6 +18,7 @@
 >
     <button
         x-ref="trigger"
+        {% if x_control_id %}:id="{{ x_control_id }}"{% endif %}
         class="form-control text-start d-flex align-items-center justify-content-between gap-2"
         :class="{'is-invalid': hasErrors}"
         type="button"

@@ -44,6 +44,12 @@ class CommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
     )
 
 
+class CreateOnlyCommentCrudScrollComponent(CommentCrudScrollComponent):
+    @property
+    def can_edit(self) -> bool:
+        return False
+
+
 class PagedCommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
     item_form_options = ModelCrudScrollComponent.PageFormOptions(
         'order:update',
@@ -132,7 +138,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
 
     def test_the_item_form_is_built_from_the_component_options(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
-        component = CommentCrudScrollComponent()
+        component = CommentCrudScrollComponent(access=Glue.Access.CHANGE)
 
         create_form = component.load_item_form()
         edit_form = component.load_item_form(pk=comment.pk)
@@ -158,7 +164,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
     def test_a_row_outside_the_queryset_cannot_be_edited_or_deleted(self) -> None:
         kept = create_test_comment_example(name='Kept Notes')
         dropped = create_test_comment_example(name='Dropped Notes')
-        component = KeptCommentCrudScrollComponent()
+        component = KeptCommentCrudScrollComponent(access=Glue.Access.CHANGE)
 
         assert component.load_item_delete_confirmation(pk=kept.pk).instance == kept
         assert component.load_item_form(pk=kept.pk).model.instance == kept
@@ -175,7 +181,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
 
     def test_checking_that_a_row_can_be_edited_costs_one_query(self) -> None:
         comment = create_test_comment_example(name='Budget Review')
-        component = CommentCrudScrollComponent()
+        component = CommentCrudScrollComponent(access=Glue.Access.CHANGE)
 
         with self.assertNumQueries(1):
             component.load_item_form(pk=comment.pk)
@@ -195,7 +201,7 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
 
         assert required_access == {
             'load_item_delete_confirmation': Glue.Access.DELETE,
-            'load_item_form': Glue.Access.CHANGE,
+            'load_item_form': Glue.Access.ADD,
         }
         assert component.load_item_delete_confirmation(pk=comment.pk).access == Glue.Access.DELETE
         assert component.load_item_form(pk=comment.pk).access == Glue.Access.DELETE
@@ -209,6 +215,70 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
 
     def test_a_list_without_a_delete_never_offers_one(self) -> None:
         assert UndeletableCommentCrudScrollComponent(access=Glue.Access.DELETE).can_delete is False
+
+    def test_a_form_component_create_is_offered_only_with_add_access(self) -> None:
+        assert CommentCrudScrollComponent(access=Glue.Access.ADD).can_create is True
+        assert CommentCrudScrollComponent(access=Glue.Access.VIEW).can_create is False
+
+    def test_a_form_component_edit_is_offered_only_with_change_access(self) -> None:
+        assert CommentCrudScrollComponent(access=Glue.Access.CHANGE).can_edit is True
+        assert CommentCrudScrollComponent(access=Glue.Access.ADD).can_edit is False
+
+    def test_a_page_create_and_edit_are_offered_whatever_the_access(self) -> None:
+        assert PagedCommentCrudScrollComponent().can_create is True
+        assert PagedCommentCrudScrollComponent().can_edit is True
+
+    def test_a_list_without_a_form_never_offers_a_create_or_an_edit(self) -> None:
+        component = FormlessCommentCrudScrollComponent(access=Glue.Access.DELETE)
+
+        assert component.can_create is False
+        assert component.can_edit is False
+
+    def test_a_user_who_may_add_but_not_change_creates_but_does_not_edit(self) -> None:
+        comment = create_test_comment_example(name='Budget Review')
+        component = CommentCrudScrollComponent(access=Glue.Access.ADD)
+
+        assert component.load_item_form().model.instance.pk is None
+
+        with pytest.raises(PermissionDenied, match='CommentCrudScrollComponent'):
+            component.load_item_form(pk=comment.pk)
+
+    def test_a_create_only_list_creates_but_refuses_to_edit_a_row(self) -> None:
+        comment = create_test_comment_example(name='Budget Review')
+        component = CreateOnlyCommentCrudScrollComponent(access=Glue.Access.DELETE)
+
+        assert component.can_create is True
+        assert component.load_item_form().model.instance.pk is None
+
+        with pytest.raises(PermissionDenied, match='CreateOnlyCommentCrudScrollComponent'):
+            component.load_item_form(pk=comment.pk)
+
+    def test_the_actions_dropdown_offers_what_the_list_allows(self) -> None:
+        def actions(component: ModelCrudScrollComponent, **context: object) -> str:
+            return render_to_string(
+                'django_spire/dropdown/model_crud_actions_dropdown.html',
+                {'component': component, 'item_key': 7, **context},
+            )
+
+        full = actions(CommentCrudScrollComponent(access=Glue.Access.DELETE), view_url='/comments/7/')
+        viewer = actions(CommentCrudScrollComponent(access=Glue.Access.VIEW))
+        paged = actions(PagedCommentCrudScrollComponent())
+        create_only = actions(
+            CreateOnlyCommentCrudScrollComponent(access=Glue.Access.DELETE),
+            delete_label='Remove',
+        )
+
+        assert 'href="/comments/7/"' in full
+        assert 'editItem(7)' in full
+        assert 'deleteItem(7)' in full
+        assert 'editItem' not in viewer
+        assert 'deleteItem' not in viewer
+        assert 'View' not in viewer
+        assert 'editItem(7)' in paged
+        assert 'deleteItem' not in paged
+        assert 'editItem' not in create_only
+        assert 'deleteItem(7)' in create_only
+        assert 'Remove' in create_only
 
     def test_item_delete_options_of_another_kind_are_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='item_delete_options must be'):

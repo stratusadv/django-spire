@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied, ValidationError
@@ -58,6 +59,22 @@ class QuerySetScrollComponent(BaseScrollComponent, ABC):
     def get_permission_model(self) -> type[Model]:
         """Return the listed model, whose permissions ``Glue.ModelAccessMixin`` reads."""
         return self.get_queryset().model
+
+    # The listed model's names: ``model_name`` to build its URLs and keys, and the verbose names
+    # for the list and its rows to say what they hold, such as "Add customer" or "No invoices
+    # yet". The rows read them from the component: a batch loaded after the first render is
+    # drawn with the component, not the page's context.
+    @cached_property
+    def model_name(self) -> str:
+        return self.get_permission_model()._meta.model_name
+
+    @cached_property
+    def verbose_name(self) -> str:
+        return str(self.get_permission_model()._meta.verbose_name)
+
+    @cached_property
+    def verbose_name_plural(self) -> str:
+        return str(self.get_permission_model()._meta.verbose_name_plural)
 
     @property
     def renders_items_on_server(self) -> bool:

@@ -4,6 +4,7 @@ import re
 
 from django.contrib.auth import get_user
 from django.core import mail
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -37,6 +38,16 @@ class LoginViewTestCase(BaseTestCase):
             data={'username': 'testuser', 'password': 'wrongpassword'},
         )
         assert response.status_code == 200
+
+    def test_a_failed_login_does_not_put_the_password_in_the_page(self) -> None:
+        response = self.client.post(
+            reverse('django_spire:auth:admin:login'),
+            data={'username': 'testuser', 'password': 'wrong-secret-4821'},
+        )
+
+        content = response.content.decode()
+        assert 'testuser' in content
+        assert 'wrong-secret-4821' not in content
 
     def test_login_with_nonexistent_user(self) -> None:
         response = self.client.post(
@@ -179,6 +190,19 @@ class LoginViewTestCase(BaseTestCase):
         assert response.status_code == 302
         assert response.url == reverse('django_spire:auth:admin:password_change')
 
+    @override_settings(DJANGO_SPIRE_AUTH_FIRST_LOGIN_PASSWORD_CHANGE=False)
+    def test_initial_login_goes_on_when_the_first_login_password_change_is_off(self) -> None:
+        self.user.last_login = None
+        self.user.save()
+        response = self.client.post(
+            reverse('django_spire:auth:admin:login'),
+            data={'username': 'testuser', 'password': 'testpassword123'},
+        )
+
+        assert response.status_code == 302
+        assert response.url != reverse('django_spire:auth:admin:password_change')
+        assert get_user(self.client).is_authenticated
+
     def test_user_has_logged_in_before(self) -> None:
         self.user.last_login = timezone.now()
         self.user.save()
@@ -216,6 +240,12 @@ class PasswordChangeViewTestCase(BaseTestCase):
         assert response.status_code == 302
         self.user.refresh_from_db()
         assert self.user.check_password('newpassword456')
+
+    @override_settings(LOGIN_REDIRECT_URL='django_spire:auth:admin:login')
+    def test_password_change_done_links_to_login_redirect_url(self) -> None:
+        response = self.client.get(reverse('django_spire:auth:admin:password_change_done'))
+        assert response.status_code == 200
+        assert f'href="{reverse("django_spire:auth:admin:login")}"' in response.content.decode()
 
     def test_password_change_wrong_old_password(self) -> None:
         response = self.client.post(

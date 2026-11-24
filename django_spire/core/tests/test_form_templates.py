@@ -28,6 +28,37 @@ class GlueFieldWidgetTemplateTestCase(SimpleTestCase):
         assert '@focusin' not in html
         assert ':required' not in html
 
+    def test_a_label_is_tied_to_its_control_and_kept_when_hidden(self) -> None:
+        shown = render_to_string(
+            'django_spire/glue/form/widget/input_widget.html',
+            {'glue_field': 'task_form.name'},
+        )
+        hidden = render_to_string(
+            'django_spire/glue/form/widget/input_widget.html',
+            {'glue_field': 'form.amount', 'hide_label': True, 'x_label': '`Apply to ${row.name}`'},
+        )
+
+        assert ':for="fieldId"' in shown
+        assert 'x-text="field.label"' in shown
+        assert 'visually-hidden' not in shown
+        # Hidden from sight, but still read out, with the row's own text.
+        assert 'class="form-label visually-hidden"' in hidden
+        assert 'x-text="`Apply to ${row.name}`"' in hidden
+
+    def test_a_placeholder_can_follow_its_row(self) -> None:
+        fixed = render_to_string(
+            'django_spire/glue/form/widget/input_widget.html',
+            {'glue_field': 'form.amount', 'placeholder': '0.00'},
+        )
+        per_row = render_to_string(
+            'django_spire/glue/form/widget/input_widget.html',
+            {'glue_field': 'form.amount', 'x_placeholder': 'row.currency'},
+        )
+
+        assert 'placeholder="0.00"' in fixed
+        assert ':placeholder' not in fixed
+        assert ':placeholder="row.currency"' in per_row
+
     def test_the_file_fields_are_components(self) -> None:
         single = render_to_string(
             'django_spire/file/form/field/single_file_field.html',

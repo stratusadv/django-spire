@@ -42,6 +42,28 @@ class TopNavigationButtonsTemplateTestCase(SimpleTestCase):
 
         assert html.strip().startswith('<span data-company-switcher>Northwind</span>')
 
+    def test_the_account_menu_opens_from_a_named_button(self) -> None:
+        class SignedInUser:
+            is_authenticated = True
+            is_superuser = False
+
+            def get_full_name(self) -> str:
+                return 'Lee Okafor'
+
+        request = RequestFactory().get('/')
+        request.user = SignedInUser()
+
+        html = render_to_string(
+            'django_spire/navigation/top/menu/buttons.html',
+            {'request': request, 'user': request.user, 'hide_notification_dropdown': True},
+        )
+
+        # A button the keyboard reaches and a screen reader names, with no fixed id: the
+        # template is drawn more than once on a page.
+        assert 'aria-label="Account menu"' in html
+        assert 'data-bs-toggle="dropdown"' in html.split('aria-label="Account menu"')[0].rsplit('<button', 1)[1]
+        assert ' id="' not in html
+
 
 class AsyncIconButtonTemplateTestCase(SimpleTestCase):
     def test_the_icon_is_a_button_that_awaits_its_call(self) -> None:

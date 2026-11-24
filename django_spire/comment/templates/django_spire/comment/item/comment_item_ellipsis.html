@@ -1,26 +1,21 @@
 {% extends 'django_spire/dropdown/ellipsis_dropdown.html' %}
-{% load django_spire_core %}
-{% load django_spire_model_tags %}
+{% load django_spire_model %}
 
 {% block dropdown_content %}
-{#    {% include 'django_spire/comment/element/comment_edit_link.html' %}#}
-{#    {% if not is_child %}#}
-{#        {% include 'django_spire/comment/element/comment_reply_link.html' %}#}
-{#    {% endif %}#}
-
-    {#    {% url 'comment:delete_form' pk=comment.pk as delete_url %}#}
-
-    {% with app_label=obj|model_app_label model_name=obj|model_name %}
-        {% if comment.user_id == user.id %}
+    {% if comment.user_id == user.id %}
+        {% with app_label=obj|model_app_label model_name=obj|model_name %}
             {% url 'django_spire:comment:form_content' comment_pk=comment.pk obj_pk=obj.pk app_label=app_label model_name=model_name as edit_url %}
-            {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with link_text='Edit' view_url=edit_url %}
-        {% endif %}
-        {% if comment.user_id == user.id %}
             {% url 'django_spire:comment:delete_form' comment_pk=comment.pk obj_pk=obj.pk app_label=app_label model_name=model_name as delete_url %}
-            {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with link_text='Delete' link_css='text-danger' view_url=delete_url %}
-        {% endif %}
-    {% endwith %}
-{#    {% if comment.user_id == user.id %}#}
-{#        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Delete' link_css='text-danger' link_href=delete_url %}#}
-{#    {% endif %}#}
+            <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="#" @click.prevent="Spire.modal.dispatchView('{{ edit_url }}')">
+                    <i class="bi bi-pencil"></i>Edit
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="#" @click.prevent="Spire.modal.dispatchView('{{ delete_url }}')">
+                    <i class="bi bi-trash"></i>Delete
+                </a>
+            </li>
+        {% endwith %}
+    {% endif %}
 {% endblock %}

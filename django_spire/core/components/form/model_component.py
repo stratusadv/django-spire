@@ -19,12 +19,13 @@ class ModelFormComponent(BaseFormComponent):
     edit flow. The row is exposed as the ``model`` child, a ``Glue.model``, so
     the form lives at ``component.model.form``.
 
-    The data for the child comes from three overridable hooks: ``get_model()``
-    picks the instance (blank or fetched by ``model_pk`` by default),
+    The data for the child comes from two overridable hooks: ``get_model()``
+    picks the instance (blank or fetched by ``model_pk`` by default), and
     ``get_fields()`` names the exposed fields (the form's own fields unless
-    ``fields`` is set), and ``get_choices(instance)`` supplies choice
-    querysets (none by default), so scoping, create defaults, and
-    instance-dependent configuration stay subclass logic.
+    ``fields`` is set), so scoping and create defaults stay subclass logic.
+    A relation field's choices are the form's own: its ``__init__`` narrows a
+    field's queryset, which the form child reads, with the row as
+    ``self.instance``.
 
     ``pk`` is the deprecated name of ``model_pk``, both as a parameter and as
     an attribute.
@@ -62,17 +63,12 @@ class ModelFormComponent(BaseFormComponent):
 
     @Glue.child
     def model(self) -> Glue.Model:
-        instance = self.get_model()
-        options: dict[str, Any] = {
-            'target': instance,
-            'access': self.access,
-            'fields': self.get_fields(),
-            'form': self.form_class,
-        }
-        choices = self.get_choices(instance)
-        if choices is not None:
-            options['choices'] = choices
-        return Glue.model(**options)
+        return Glue.model(
+            target=self.get_model(),
+            access=self.access,
+            fields=self.get_fields(),
+            form=self.form_class,
+        )
 
     def get_fields(self) -> Sequence[str]:
         if self.fields is None:
@@ -89,12 +85,13 @@ class ModelFormComponent(BaseFormComponent):
         except model_class.DoesNotExist as error:
             raise GlueModelInstanceNotFoundError(model_class._meta.label, self.model_pk) from error
 
-    def get_choices(self, _instance: Model) -> dict | None:
-        return None
-
     def get_permission_model(self) -> type[Model]:
         """Return the form's model, whose permissions ``Glue.ModelAccessMixin`` reads."""
         return self.form_class._meta.model
+
+    def get_required_access(self) -> Glue.Access:
+        """``ADD`` to create a row and ``CHANGE`` to edit one, for ``Glue.ModelAccessRequiredMixin``."""
+        return Glue.Access.ADD if self.model_pk is None else Glue.Access.CHANGE
 
     def glue_form_path(self) -> str:
         return 'component.model.form'

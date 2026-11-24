@@ -5,7 +5,8 @@
 {% endif %}
 
 {% if perms.django_spire_help_desk.view_helpdeskticket %}
-    <a class="d-inline-flex align-items-center justify-content-center mx-1" href="{% url 'django_spire:help_desk:page:list' %}">
+    {% url 'django_spire:help_desk:page:list' as help_desk_url %}
+    <a class="d-inline-flex align-items-center justify-content-center mx-1" href="{{ help_desk_url }}">
         <i class="bi bi-headset fs-2 text-primary text-primary-hover cursor-pointer"></i>
     </a>
 {% endif %}
@@ -15,14 +16,18 @@
 {% endif %}
 
 {% if request.user.is_authenticated %}
+    {# A button, so the keyboard reaches it and a screen reader names it; Bootstrap needs no id for it. #}
     <div class="dropdown">
-        <i
-            class="bi bi-person-circle fs-2 mx-1 cursor-pointer text-primary"
-            id="dropdownMenuButton1"
+        <button
+            class="d-inline-flex p-0 border-0 bg-transparent mx-1 text-primary"
+            type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-        ></i>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            aria-label="Account menu"
+        >
+            <i class="bi bi-person-circle fs-2" aria-hidden="true"></i>
+        </button>
+        <ul class="dropdown-menu">
             <li>
                 <div class="dropdown-item-text text-center">
                     {{ user.get_full_name }}
