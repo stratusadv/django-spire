@@ -23,9 +23,9 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         assert 'adaptiveChoiceField?.choices_searchable' in html
         assert "'ModelMultipleChoiceField'" in html
         assert "'CheckboxSelectMultiple'" in html
-        assert 'x-data="searchAndSelect(field' in html
+        assert 'x-data="searchAndSelect(field)"' in html
         assert 'x-data="multiSearchAndSelect(field)"' in html
-        assert 'glueField.searchChoices(this.searchQuery.trim())' in search_js
+        assert 'source.searchChoices(this.searchQuery.trim())' in search_js
         assert 'source.searchChoices(this.search.trim())' in multi_js
         assert 'source?.selectedChoices || []' in multi_js
         assert '<select' in html
@@ -53,12 +53,12 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         )
         search_js = _core_js('search_and_select.js')
 
-        assert 'x-data="searchAndSelect(field' in html
-        assert 'field.choices_searchable' in html
-        assert 'field.isSearchingChoices' in html
-        assert 'glueField.searchChoices(this.searchQuery.trim())' in search_js
-        assert 'glueField.clearSearch?.()' in search_js
-        assert 'glueField?.choices_searchable' in search_js
+        assert 'x-data="searchAndSelect(field)"' in html
+        assert 'x-show="isSearchable && isSearching"' in html
+        assert 'source.searchChoices(this.searchQuery.trim())' in search_js
+        assert 'source.clearSearch?.()' in search_js
+        assert 'source?.choices_searchable' in search_js
+        assert 'source?.isSearchingChoices' in search_js
         assert 'String(choice.label).toLowerCase().includes(query)' in search_js
 
     def test_multiple_search_widget_supports_server_and_local_choice_sources(self) -> None:
@@ -92,6 +92,51 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         assert 'glueField(' not in generic_html
         assert 'field.' not in generic_html
         assert 'All types' in generic_html
+
+    def test_the_search_widget_is_the_generic_widget_over_the_glue_field(self) -> None:
+        glue_html = render_to_string(
+            'django_spire/glue/form/widget/search_and_select_widget.html',
+            {'glue_field': 'form.company'},
+        )
+        generic_html = render_to_string(
+            'django_spire/widget/search_and_select_widget.html',
+            {'source': 'accountSource', 'placeholder': 'All accounts'},
+        )
+        search_js = _core_js('search_and_select.js')
+
+        assert 'x-data="glueField(' in glue_html
+        assert 'x-data="searchAndSelect(field)"' in glue_html
+        assert 'x-data="searchAndSelect(accountSource)"' in generic_html
+        assert 'glueField(' not in generic_html
+        assert 'field.' not in generic_html
+        assert 'All accounts' in generic_html
+        assert 'source.value = choice.value' in search_js
+        assert 'escapeHtml(choice?.label' in search_js
+
+    def test_a_glue_search_field_is_its_own_source(self) -> None:
+        html = render_to_string(
+            'django_spire/glue/form/field/choice/search_field.html',
+            {'glue_field': 'form.company'},
+        )
+
+        assert 'x-data="searchAndSelect(field)"' in html
+
+    def test_a_search_field_lists_an_empty_choice_that_clears_it(self) -> None:
+        html = render_to_string(
+            'django_spire/glue/form/field/choice/search_field.html',
+            {'glue_field': 'component.filters.account', 'include_empty': True, 'empty_label': 'All accounts'},
+        )
+
+        assert '@click="selectItem({value: null})"' in html
+        assert 'All accounts' in html
+
+    def test_a_search_field_lists_no_empty_choice_unless_asked(self) -> None:
+        html = render_to_string(
+            'django_spire/glue/form/field/choice/search_field.html',
+            {'glue_field': 'form.company'},
+        )
+
+        assert 'selectItem({value: null})' not in html
 
     def test_a_choice_source_can_be_built_over_any_values(self) -> None:
         source_js = _core_js('choice_source.js')

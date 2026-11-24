@@ -1,8 +1,54 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.data('searchAndSelect', (glueField, setValue) => ({
+    const escapeHtml = (text) => String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+
+    /**
+     * A single-select dropdown over a choice source, rendered by
+     * django_spire/widget/search_and_select_widget.html.
+     *
+     * A source has `choices` ([{value, label}]), `selectedChoice` and a `value`
+     * that is read and set. It may also have `disabled`, `hasErrors`,
+     * `choiceLabelHtml(choice)` and `choiceLabelText(choice)`, and, for choices
+     * searched on the server, `choices_searchable`, `isSearchingChoices`,
+     * `searchChoices(text)` and `clearSearch()`. A Glue form field is a source.
+     */
+    Alpine.data('searchAndSelect', (source) => ({
         showDropdown: false,
         searchQuery: '',
         openUp: false,
+
+        get selectedChoice() {
+            return source?.selectedChoice;
+        },
+
+        get hasErrors() {
+            return Boolean(source?.hasErrors);
+        },
+
+        get isDisabled() {
+            return Boolean(source?.disabled);
+        },
+
+        get isSearchable() {
+            return Boolean(source?.choices_searchable);
+        },
+
+        get isSearching() {
+            return Boolean(source?.isSearchingChoices);
+        },
+
+        labelHtml(choice) {
+            return source?.choiceLabelHtml ? source.choiceLabelHtml(choice) : escapeHtml(choice?.label ?? '');
+        },
+
+        labelText(choice) {
+            if (!choice) return '';
+            return source?.choiceLabelText ? source.choiceLabelText(choice) : String(choice.label ?? '');
+        },
 
         getClippingRect() {
             let element = this.$refs.selectedInput.parentElement;
@@ -25,8 +71,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         openDropdown() {
+            if (this.isDisabled) return;
             this.searchQuery = '';
-            glueField.clearSearch?.();
+            source.clearSearch?.();
             const rect = this.$refs.selectedInput.getBoundingClientRect();
             const clippingRect = this.getClippingRect();
             const spaceBelow = clippingRect.bottom - rect.bottom;
@@ -43,13 +90,13 @@ document.addEventListener('alpine:init', () => {
         },
 
         get filteredChoices() {
-            if (glueField?.choices_searchable) {
-                return glueField.isSearchingChoices ? [] : glueField?.choices || [];
+            if (this.isSearchable) {
+                return this.isSearching ? [] : source?.choices || [];
             }
 
             const query = this.searchQuery.toLowerCase();
 
-            return (glueField?.choices || []).filter(
+            return (source?.choices || []).filter(
                 choice => String(choice.label).toLowerCase().includes(query)
                     || String(choice.value).toLowerCase().includes(query)
             );
@@ -58,17 +105,17 @@ document.addEventListener('alpine:init', () => {
         closeDropdown() {
             this.showDropdown = false;
             this.searchQuery = '';
-            glueField.clearSearch?.();
+            source.clearSearch?.();
         },
 
         async searchChoices() {
-            if (!glueField?.choices_searchable) return;
-            await glueField.searchChoices(this.searchQuery.trim());
+            if (!this.isSearchable) return;
+            await source.searchChoices(this.searchQuery.trim());
         },
 
         selectItem(choice) {
-            if (glueField.disabled) return;
-            setValue(choice.value);
+            if (this.isDisabled) return;
+            source.value = choice.value;
             this.closeDropdown();
             this.$nextTick(() => {
                 this.$refs.selectedInput?.dispatchEvent(new Event('input', {bubbles: true}));

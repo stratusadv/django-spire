@@ -81,6 +81,13 @@ class QuerySetScrollComponentTestCase(BaseTestCase):
         assert isinstance(items[0], CommentExample)
         assert component.get_item_key(items[0]) == comment.pk
 
+    def test_a_list_names_what_it_lists_after_its_model(self) -> None:
+        component = CommentScrollComponent()
+
+        assert component.model_name == 'commentexample'
+        assert component.verbose_name == str(CommentExample._meta.verbose_name)
+        assert component.verbose_name_plural == str(CommentExample._meta.verbose_name_plural)
+
     def test_the_glue_loads_return_glue_objects_and_the_html_loads_do_not(self) -> None:
         callables = self._introduce(CommentScrollComponent()).get_static_data()['callables']
 

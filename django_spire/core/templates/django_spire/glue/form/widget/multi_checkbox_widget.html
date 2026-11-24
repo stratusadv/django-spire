@@ -4,6 +4,8 @@
 {% block widget_content %}
     <div
         class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}"
+        role="group"
+        :aria-labelledby="`${fieldId}-label`"
         {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}
     >
         <template x-for="choice in field?.choices || []" :key="choice.value">
@@ -12,7 +14,7 @@
                     type="checkbox"
                     class="form-check-input"
                     :class="{'is-invalid': field.hasErrors}"
-                    :id="field.id + '_' + choice.value"
+                    :id="`${fieldId}-${choice.value}`"
                     :name="field.name"
                     :value="choice.value"
                     :checked="field.hasChoiceSelected(choice.value)"
@@ -27,7 +29,7 @@
                 >
                 <label
                     class="form-check-label"
-                    :for="field.id + '_' + choice.value"
+                    :for="`${fieldId}-${choice.value}`"
                     x-html="field.choiceLabelHtml(choice)"
                 ></label>
             </div>

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import login as auth_login
 from django.http import HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.urls import reverse_lazy, reverse
 
 from django_spire.auth.forms import CaseInsensitiveAuthenticationForm
+from django_spire.conf import settings as spire_settings
 from django_spire.contrib.form.tools import show_form_errors
 
 
@@ -21,7 +24,7 @@ class LoginView(auth_views.LoginView):
     def form_valid(self, form):
         form_user = form.get_user()
 
-        if form_user.last_login is None:
+        if spire_settings.DJANGO_SPIRE_AUTH_FIRST_LOGIN_PASSWORD_CHANGE and form_user.last_login is None:
             auth_login(self.request, form_user)
             return HttpResponseRedirect(reverse('django_spire:auth:admin:password_change'))
 
@@ -39,6 +42,11 @@ class PasswordChangeView(auth_views.PasswordChangeView):
 
 class PasswordChangeDone(auth_views.PasswordChangeDoneView):
     template_name = 'django_spire/auth/page/password_change_done_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_redirect_url'] = resolve_url(settings.LOGIN_REDIRECT_URL)
+        return context
 
 
 class PasswordResetView(auth_views.PasswordResetView):

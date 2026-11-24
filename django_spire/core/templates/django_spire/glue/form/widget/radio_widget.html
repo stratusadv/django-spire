@@ -2,7 +2,7 @@
 {% load django_glue %}
 
 {% block widget_content %}
-    <div class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}" {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}>
+    <div class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}" role="radiogroup" :aria-labelledby="`${fieldId}-label`" {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}>
         <div class="row">
             <template x-for="choice in field?.choices || []" :key="choice.value">
                 <div class="col-md-{{ columns|default:'12' }} col-lg-{% firstof columns_lg columns '6' %}">
@@ -11,13 +11,13 @@
                             type="radio"
                             class="form-check-input"
                             :class="{'is-invalid': field.hasErrors}"
-                            :id="`${field.name}-${choice.value}`"
+                            :id="`${fieldId}-${choice.value}`"
                             :name="field.name"
                             :value="choice.value"
                             :checked="value === choice.value"
                             @change="value = choice.value"
                             :disabled="Boolean(field.disabled) || (field.disabled_choices || []).includes(choice.value)">
-                        <label class="form-check-label" :for="`${field.name}-${choice.value}`" x-html="field.choiceLabelHtml(choice)"></label>
+                        <label class="form-check-label" :for="`${fieldId}-${choice.value}`" x-html="field.choiceLabelHtml(choice)"></label>
                     </div>
                 </div>
             </template>

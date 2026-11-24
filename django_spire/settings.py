@@ -31,6 +31,11 @@ DJANGO_SPIRE_CELERY_SWEEP_INTERVAL_SECONDS = 20
 DJANGO_SPIRE_CELERY_SWEEP_TASK_LIMIT = 20
 DJANGO_SPIRE_CELERY_SWEEP_REAPER_INTERVAL_SECONDS = 600
 
+# Auth Settings
+# Send a user signing in for the first time (no last_login yet) to change their password. A
+# development settings file can turn it off for seeded users.
+DJANGO_SPIRE_AUTH_FIRST_LOGIN_PASSWORD_CHANGE = True
+
 # Auth SMS Settings
 DJANGO_SPIRE_AUTH_SMS_CODE_ATTEMPT_COUNT_MAX = 5
 DJANGO_SPIRE_AUTH_SMS_CODE_EXPIRY_MINUTES = 10

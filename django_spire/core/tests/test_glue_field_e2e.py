@@ -47,6 +47,41 @@ def test_an_input_takes_its_name_and_state_from_its_field(
     expect(char).to_have_class('form-control ')
 
 
+def test_each_label_names_its_control(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    open_showcase(page, demo_start)
+    for label, selector in (
+        ('Char field', 'input[name="char_field"]'),
+        ('Decimal field', 'input[name="decimal_field"]'),
+        ('Text field', 'textarea[name="text_field"]'),
+        ('Boolean field', 'input[name="boolean_field"]'),
+    ):
+        expect(page.get_by_label(label)).to_have_count(1)
+        assert page.get_by_label(label).evaluate('(control, selector) => control.matches(selector)', selector)
+
+    # Clicking a checkbox's label ticks it.
+    boolean = page.locator('input[name="boolean_field"]')
+    checked = boolean.is_checked()
+    page.locator(f'label[for="{boolean.get_attribute("id")}"]').click()
+    expect(boolean).to_be_checked(checked=not checked)
+
+
+def test_no_two_elements_share_an_id(
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
+) -> None:
+    del transactional_db
+
+    open_showcase(page, demo_start)
+
+    ids = page.evaluate("() => [...document.querySelectorAll('[id]')].map((element) => element.id)")
+    assert len([element_id for element_id in ids if element_id.startswith('glue-field-')]) > 10
+    assert [element_id for element_id in set(ids) if ids.count(element_id) > 1] == []
+    assert not page.locator('[id^="undefined"]').count()
+
+
 def test_a_field_reports_its_focus_input_change_and_blur(
     page: Page, demo_start: Callable[..., Demo], transactional_db: None
 ) -> None:

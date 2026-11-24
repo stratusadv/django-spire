@@ -12,7 +12,12 @@ document.addEventListener('alpine:init', () => {
 
         committedValue: undefined,
 
+        // The id of the field's control, which its label is tied to. Unique on the page, so
+        // the same field in each row of a formset gets its own.
+        fieldId: '',
+
         init() {
+            this.fieldId = this.$id('glue-field');
             this.committedValue = this.value;
         },
 
@@ -55,6 +60,10 @@ document.addEventListener('alpine:init', () => {
 
     // An input takes its name, state and validity from its field.
     Alpine.bind('glueFieldInput', () => ({
+        ':id'() {
+            return this.fieldId;
+        },
+
         ':name'() {
             return this.field.name;
         },

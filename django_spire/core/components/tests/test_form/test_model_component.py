@@ -114,23 +114,6 @@ class ModelFormComponentTestCase(BaseTestCase):
     def test_has_no_choices_by_default(self) -> None:
         assert DefaultModelFormComponent().model.choices == {}
 
-    def test_get_choices_receives_the_resolved_instance(self) -> None:
-        seen: list[Task] = []
-
-        class ChoosingModelFormComponent(ModelFormComponent):
-            template = 'task/modal/task_form_modal.html'
-            form_class = TaskModelForm
-            fields = ('id', 'name', 'parent')
-
-            def get_choices(self, instance: Task) -> dict:
-                seen.append(instance)
-                return {'parent': Task.objects.all()}
-
-        model = ChoosingModelFormComponent().model
-
-        assert seen[0] is model.instance
-        assert model.choices.keys() == {'parent'}
-
     def test_glue_form_path_names_the_models_form(self) -> None:
         assert TaskModelFormComponent().glue_form_path() == 'component.model.form'
 

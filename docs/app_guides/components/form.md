@@ -102,9 +102,17 @@ from django_spire.core.components import ModelFormComponent
 | `fields` | The fields the Glue model exposes. Defaults to the form's fields |
 | `get_model()` | Return the row. A blank one, or the row with `model_pk`, by default |
 | `get_fields()` | Return the exposed fields |
-| `get_choices(instance)` | Return a dict of choice querysets for relation fields. `None` by default |
+| `get_required_access()` | `ADD` while `model_pk` is `None`, `CHANGE` otherwise. Read by django-glue's `ModelAccessRequiredMixin` |
 
 A row that no longer exists is reported as Glue's `model_instance_not_found`, a 404.
+
+To let in only a user who may do what the form does, mix in django-glue's `ModelAccessRequiredMixin`. It sets the access from the user's permissions on the form's model, and turns away a user without `add_*` for a new row or `change_*` for an existing one, on the page load and on every call, so the same component guards itself on a page and in a list's modal:
+
+```python
+class TaskFormComponent(Glue.ModelAccessRequiredMixin, ModelFormComponent):
+    template = 'task/component/task_form_modal.html'
+    form_class = TaskForm
+```
 
 ### `FormComponent`
 
@@ -225,18 +233,19 @@ class TaskFormComponent(ModelFormComponent):
 
 `fields` narrows what the Glue model exposes to the browser. Override `get_fields()` when it depends on the request.
 
-### Supplying Choices for a Relation Field
+### Narrowing a Relation Field's Choices
 
 ```python
-class TaskFormComponent(ModelFormComponent):
-    template = 'task/component/task_form_modal.html'
-    form_class = TaskForm
-
-    def get_choices(self, instance: Task) -> dict:
-        return {'project': Project.objects.active().filter(team=instance.team)}
+class TaskForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['project'].queryset = Glue.choices(
+            Project.objects.active().filter(team=self.instance.team),
+            search_fields=['name'],
+        )
 ```
 
-`get_choices()` receives the row and returns the querysets a relation field may choose from.
+The form says which rows a relation field may choose from, as any Django form does: narrow the field's queryset in `__init__`. The component builds the form with the row as `self.instance`, so the choices can depend on it. The form's dropdown offers that queryset, and the form refuses a value outside it when it validates. Wrap it in `Glue.choices(..., search_fields=[...])` to make a large table searchable.
 
 ---
 
