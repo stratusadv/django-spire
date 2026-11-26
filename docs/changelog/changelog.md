@@ -10,7 +10,7 @@
   `Spire.date.addDays('2026-12-20', 15)` is `'2027-01-04'`.
 - Keyboard navigation for Spire's single- and multi-select search dropdowns
   (`search_and_select_widget.html` and `multi_search_and_select_widget.html`),
-  backed by a shared `Spire.widget.dropdownNavigation` helper: `ArrowDown` and
+  backed by a shared `Spire.widget.dropdown` helper: `ArrowDown` and
   `ArrowUp` move and scroll the highlighted option (wrapping and skipping
   disabled choices), `Enter` selects or toggles it, and `Space` in multi-select
   toggles the highlighted choice on or off while still allowing spaces when

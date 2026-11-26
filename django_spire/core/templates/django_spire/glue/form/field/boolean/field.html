@@ -1,3 +1,4 @@
 {% extends "django_spire/glue/form/widget/checkbox_widget.html" %}
 
-{% block input_class %}form-switch{% endblock %}
+{# check_class defaults to 'form-switch'; pass check_class='' for a plain checkbox. #}
+{% block input_class %}{% if check_class == None %}form-switch{% else %}{{ check_class }}{% endif %}{% endblock %}

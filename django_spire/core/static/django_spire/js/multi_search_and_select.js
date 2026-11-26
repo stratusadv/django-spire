@@ -1,11 +1,4 @@
 document.addEventListener('alpine:init', () => {
-    const escapeHtml = (text) => String(text)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-
     /**
      * A multi-select dropdown over a choice source, rendered by
      * django_spire/widget/multi_search_and_select_widget.html.
@@ -18,7 +11,7 @@ document.addEventListener('alpine:init', () => {
      * form field is a source; `Spire.widget.choiceSource()` builds one over any value.
      */
     Alpine.data('multiSearchAndSelect', (source) => ({
-        ...Spire.widget.dropdownNavigation,
+        ...Spire.widget.dropdown,
 
         isOpen: false,
         search: '',
@@ -75,7 +68,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         labelHtml(choice) {
-            return source?.choiceLabelHtml ? source.choiceLabelHtml(choice) : escapeHtml(choice.label);
+            return source?.choiceLabelHtml
+                ? source.choiceLabelHtml(choice)
+                : Spire.widget.escapeHtml(choice.label);
         },
 
         syncActiveIndex() {
@@ -118,7 +113,7 @@ document.addEventListener('alpine:init', () => {
             source.addChoice(choice.value);
             this.search = '';
             source.clearSearch?.();
-            this.dispatchValueEvents();
+            this.dispatchValueEvents(this.$refs.trigger);
             this.$nextTick(() => this.$refs.searchInput?.focus());
         },
 
@@ -133,7 +128,7 @@ document.addEventListener('alpine:init', () => {
         removeChoice(choice) {
             if (this.isChoiceDisabled(choice)) return;
             source.removeChoice(choice.value);
-            this.dispatchValueEvents();
+            this.dispatchValueEvents(this.$refs.trigger);
         },
 
         moveActive(delta) {
@@ -183,11 +178,6 @@ document.addEventListener('alpine:init', () => {
             if (!this.hasNavigated && this.search.length > 0) return;
             event.preventDefault();
             this.toggleActive();
-        },
-
-        dispatchValueEvents() {
-            this.$refs.trigger?.dispatchEvent(new Event('input', {bubbles: true}));
-            this.$refs.trigger?.dispatchEvent(new Event('change', {bubbles: true}));
         },
 
         async searchChoices() {

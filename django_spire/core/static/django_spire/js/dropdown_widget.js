@@ -1,13 +1,22 @@
 Spire.widget = Spire.widget || {};
 
+Spire.widget.escapeHtml = (text) => String(text)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
 /**
- * Shared active-option navigation for searchable dropdown widgets.
+ * Shared active-option navigation and popover positioning for searchable
+ * dropdown and combobox widgets.
  *
  * Mixed into Alpine components that expose a `$refs.dropdown` container whose
  * navigable options carry `[data-choice-item]`.
  */
-Spire.widget.dropdownNavigation = {
+Spire.widget.dropdown = {
     activeIndex: -1,
+    openUp: false,
 
     init() {
         this.$watch(() => this.navigableChoices.length, () => {
@@ -15,6 +24,42 @@ Spire.widget.dropdownNavigation = {
                 this.syncActiveIndex();
             }
         });
+    },
+
+    get dropdownStyle() {
+        const verticalPosition = this.openUp
+            ? 'bottom: 100%; margin-bottom: 0.25rem;'
+            : 'top: 100%; margin-top: 0.25rem;';
+        return `max-height: 250px; overflow-y: auto; z-index: 1070; ${verticalPosition}`;
+    },
+
+    getClippingRect(anchor) {
+        let element = anchor?.parentElement;
+
+        while (element) {
+            const overflowY = window.getComputedStyle(element).overflowY;
+            if (['auto', 'scroll', 'hidden'].includes(overflowY)) {
+                return element.getBoundingClientRect();
+            }
+            element = element.parentElement;
+        }
+
+        return {top: 0, bottom: window.innerHeight};
+    },
+
+    positionDropdown(anchor) {
+        if (!anchor) return;
+        const rect = anchor.getBoundingClientRect();
+        const clippingRect = this.getClippingRect(anchor);
+        const spaceBelow = clippingRect.bottom - rect.bottom;
+        const spaceAbove = rect.top - clippingRect.top;
+
+        this.openUp = spaceBelow < 260 && spaceAbove > spaceBelow;
+    },
+
+    dispatchValueEvents(element) {
+        element?.dispatchEvent(new Event('input', {bubbles: true}));
+        element?.dispatchEvent(new Event('change', {bubbles: true}));
     },
 
     firstEnabledIndex(count, startIndex = 0, isDisabledAt = () => false) {
@@ -85,6 +130,13 @@ document.addEventListener('alpine:init', () => {
                 this.moveActive(-1);
             } else {
                 this.openDropdown();
+            }
+        },
+
+        '@keydown.enter'(event) {
+            if (this.isDropdownOpen) {
+                event.preventDefault();
+                this.activateActive();
             }
         },
     }));

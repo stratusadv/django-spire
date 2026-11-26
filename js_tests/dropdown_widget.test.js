@@ -5,6 +5,9 @@ import {mount, settle} from './utils.js'
 afterEach(() => {
     document.body.innerHTML = ''
     delete window.__testSource
+    delete window.__testActionChoices
+    delete window.__testComboboxOptions
+    delete window.__testComboboxSelect
 })
 
 function makeSingleSource(choices, {value = null, searchable = false} = {}) {
@@ -53,12 +56,12 @@ function makeMultiSource(choices, {selected = [], disabled = [], searchable = fa
     }
 }
 
-function singleSelectHtml({includeEmpty = false} = {}) {
+function singleSelectHtml({includeEmpty = false, withActionChoices = false} = {}) {
     return `
         <div
             id="root"
             ${includeEmpty ? 'data-include-empty="true"' : ''}
-            x-data="searchAndSelect(window.__testSource)"
+            x-data="searchAndSelect(window.__testSource${withActionChoices ? ', () => (window.__testActionChoices || [])' : ''})"
         >
             <input
                 x-ref="selectedInput"
@@ -89,6 +92,16 @@ function singleSelectHtml({includeEmpty = false} = {}) {
                         x-text="choice.label"
                     ></div>
                 </template>
+                ${withActionChoices ? `
+                    <template x-for="(actionChoice, actionIndex) in actionChoices" :key="actionChoice.label">
+                        <button
+                            type="button"
+                            x-bind="dropdownOption(() => choiceCount + actionIndex)"
+                            @click="runActionChoice(actionChoice)"
+                            x-text="actionChoice.label"
+                        ></button>
+                    </template>
+                ` : ''}
             </div>
         </div>
     `
@@ -246,6 +259,48 @@ describe('searchAndSelect keyboard navigation', () => {
         await settle()
         expect(data.activeIndex).toBe(1)
     })
+
+    test('arrows reach action choices and Enter invokes onClick with the search query without changing value', async () => {
+        const invoked = []
+        window.__testSource = makeSingleSource([
+            {value: 'a', label: 'Alpha'},
+            {value: 'b', label: 'Beta'},
+        ])
+        window.__testActionChoices = [
+            {label: 'Add a new customer', onClick: query => invoked.push(query)},
+        ]
+        await mount(singleSelectHtml({withActionChoices: true}))
+
+        const data = Alpine.$data(document.getElementById('root'))
+        const searchInput = document.querySelector('[x-ref="searchInput"]')
+
+        data.openDropdown()
+        await settle()
+        expect(data.activeIndex).toBe(0)
+
+        pressKey(searchInput, 'ArrowDown')
+        pressKey(searchInput, 'ArrowDown')
+        expect(data.activeIndex).toBe(2)
+
+        pressKey(searchInput, 'Enter')
+        await settle()
+        expect(invoked).toEqual([''])
+        expect(window.__testSource.value).toBeNull()
+        expect(data.showDropdown).toBe(false)
+
+        // When no choice matches the search query, the action choice is highlighted and gets the query.
+        data.openDropdown()
+        await settle()
+        searchInput.value = 'New Co'
+        searchInput.dispatchEvent(new Event('input', {bubbles: true}))
+        await settle()
+        expect(data.activeIndex).toBe(0)
+
+        pressKey(searchInput, 'Enter')
+        await settle()
+        expect(invoked).toEqual(['', 'New Co'])
+        expect(window.__testSource.value).toBeNull()
+    })
 })
 
 describe('multiSearchAndSelect keyboard navigation', () => {
@@ -360,5 +415,87 @@ describe('multiSearchAndSelect keyboard navigation', () => {
         ]
         await settle()
         expect(data.activeIndex).toBe(1)
+    })
+})
+
+function comboboxHtml() {
+    return `
+        <div
+            id="root"
+            x-data="combobox(window.__testSource, () => (window.__testComboboxOptions || []), option => window.__testComboboxSelect?.(option))"
+        >
+            <input
+                x-ref="input"
+                type="text"
+                role="combobox"
+                :value="inputValue"
+                @focus="openDropdown()"
+                @click="openDropdown()"
+                @input="onInput($event.target.value)"
+                @keydown.arrow-down.prevent="moveActive(1)"
+                @keydown.arrow-up.prevent="moveActive(-1)"
+                @keydown.enter="if (showDropdown && activeIndex >= 0) { $event.preventDefault(); activateActive() }"
+                @keydown.escape.stop="closeDropdown()"
+            >
+            <div x-ref="dropdown" role="listbox" x-show="showDropdown && filteredOptions.length > 0">
+                <template x-for="(option, index) in filteredOptions" :key="option.value + '-' + index">
+                    <div
+                        x-bind="dropdownOption(() => index)"
+                        @click="selectOption(option)"
+                        x-text="option.label"
+                    ></div>
+                </template>
+            </div>
+        </div>
+    `
+}
+
+describe('combobox keyboard navigation and freeform entry', () => {
+    test('opens on click, filters as typed, preserves freeform text, and selects on ArrowDown + Enter', async () => {
+        const selected = []
+        window.__testSource = {value: ''}
+        window.__testComboboxOptions = [
+            {value: 'Brand strategy', label: 'Brand strategy', unit_price: '750.00'},
+            {value: 'Lawn mowing', label: 'Lawn mowing', unit_price: '45.00'},
+        ]
+        window.__testComboboxSelect = option => selected.push(option)
+        await mount(comboboxHtml())
+
+        const data = Alpine.$data(document.getElementById('root'))
+        const input = document.querySelector('[x-ref="input"]')
+
+        data.openDropdown()
+        await settle()
+        expect(data.showDropdown).toBe(true)
+        expect(data.activeIndex).toBe(-1)
+        expect(data.filteredOptions).toHaveLength(2)
+
+        // Pressing Enter without arrowing does not hijack freeform input.
+        input.value = 'Custom work'
+        input.dispatchEvent(new Event('input', {bubbles: true}))
+        await settle()
+        expect(window.__testSource.value).toBe('Custom work')
+        expect(data.showDropdown).toBe(false)
+        const freeformEnter = pressKey(input, 'Enter')
+        expect(freeformEnter.defaultPrevented).toBe(false)
+        expect(selected).toEqual([])
+
+        // Typing a matching prefix filters suggestions; ArrowDown + Enter picks it and fires onSelect.
+        input.value = 'lawn'
+        input.dispatchEvent(new Event('input', {bubbles: true}))
+        await settle()
+        expect(data.showDropdown).toBe(true)
+        expect(data.filteredOptions.map(o => o.label)).toEqual(['Lawn mowing'])
+
+        pressKey(input, 'ArrowDown')
+        expect(data.activeIndex).toBe(0)
+
+        const pickEnter = pressKey(input, 'Enter')
+        await settle()
+        expect(pickEnter.defaultPrevented).toBe(true)
+        expect(window.__testSource.value).toBe('Lawn mowing')
+        expect(data.showDropdown).toBe(false)
+        expect(selected).toHaveLength(1)
+        expect(selected[0].unit_price).toBe('45.00')
     })
 })

@@ -64,7 +64,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         update_value() {
-            this.value = this.files.map(f => f.file).filter(f => f);
+            const uploaded = this.files.map(f => f.file).filter(f => f);
+            this.value = uploaded.length ? uploaded : null;
         },
     }));
 });
