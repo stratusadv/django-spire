@@ -1,3 +1,4 @@
+{% load django_spire_glue %}
 {% firstof glue_form_object_name component.glue_form_object_name 'glue_form' as glue_form_object_name %}
 <div x-data="{
     {% block glue_form_binding %}{{ glue_form_object_name }}: {% block glue_form %}Glue.form.{% block glue_form_unique_name %}{% endblock %}{% endblock %},{% endblock %}
@@ -16,6 +17,7 @@
     }
 }">
 
+    {% glue_form_path glue_form_object_name %}
     {% block glue_form_content %}
     {% endblock %}
 
