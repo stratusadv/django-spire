@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.32.12
+### Changes
+- updated dependency to use new django glue to v 0.8.18
+
+### Fixes
+- On mobile taking a photo using the camera button in the multi_file_field.html widget could replace a photo that had already been added to the file list. This issue did not affect photos added through the standard file picker. The camera upload behavior has been
+corrected so that newly captured photos are appended to the existing file list rather than replacing previously added photos. Additionally, duplicate photos can no longer be added through the camera button.
+
 ## v0.32.11
 
 ### Fixes
