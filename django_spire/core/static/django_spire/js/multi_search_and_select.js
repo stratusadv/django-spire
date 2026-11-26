@@ -18,11 +18,25 @@ document.addEventListener('alpine:init', () => {
      * form field is a source; `Spire.widget.choiceSource()` builds one over any value.
      */
     Alpine.data('multiSearchAndSelect', (source) => ({
+        ...Spire.widget.dropdownNavigation,
+
         isOpen: false,
         search: '',
+        hasNavigated: false,
+
+        onSearchInput() {
+            this.hasNavigated = false;
+            if (!this.isSearchable) {
+                this.resetForSearch();
+            }
+        },
 
         get selectedChoices() {
             return source?.selectedChoices || [];
+        },
+
+        get navigableChoices() {
+            return [...this.selectedChoices, ...this.filteredChoices];
         },
 
         get hasErrors() {
@@ -62,8 +76,10 @@ document.addEventListener('alpine:init', () => {
         open() {
             if (this.isDisabled) return;
             this.search = '';
+            this.hasNavigated = false;
             source.clearSearch?.();
             this.isOpen = true;
+            this.resetActiveIndex(this.navigableChoices.length, -1, (index) => this.isChoiceDisabledAt(index));
             this.$nextTick(() => this.$refs.searchInput?.focus());
         },
 
@@ -71,6 +87,21 @@ document.addEventListener('alpine:init', () => {
             return this.isDisabled || Boolean(source.disabled_choices?.some(
                 value => String(value) === String(choice.value)
             ));
+        },
+
+        isChoiceDisabledAt(index) {
+            const choice = this.navigableChoices[index];
+            return !choice || this.isChoiceDisabled(choice);
+        },
+
+        resetForSearch() {
+            const start = this.search.length > 0 ? this.selectedChoices.length : 0;
+            const preferred = this.firstEnabledIndex(
+                this.navigableChoices.length,
+                start,
+                (index) => this.isChoiceDisabledAt(index)
+            );
+            this.resetActiveIndex(this.navigableChoices.length, preferred, (index) => this.isChoiceDisabledAt(index));
         },
 
         addChoice(choice) {
@@ -85,6 +116,8 @@ document.addEventListener('alpine:init', () => {
         close() {
             this.isOpen = false;
             this.search = '';
+            this.activeIndex = -1;
+            this.hasNavigated = false;
             source.clearSearch?.();
         },
 
@@ -92,6 +125,43 @@ document.addEventListener('alpine:init', () => {
             if (this.isChoiceDisabled(choice)) return;
             source.removeChoice(choice.value);
             this.dispatchValueEvents();
+        },
+
+        moveActive(delta) {
+            this.hasNavigated = true;
+            this.moveHighlight(delta, this.navigableChoices.length, (index) => this.isChoiceDisabledAt(index));
+        },
+
+        toggleActive() {
+            const choice = this.navigableChoices[this.activeIndex];
+            if (!choice || this.isChoiceDisabled(choice)) return;
+
+            const isSelected = this.activeIndex < this.selectedChoices.length;
+            const toggledValue = String(choice.value);
+
+            if (isSelected) {
+                this.removeChoice(choice);
+            } else {
+                this.addChoice(choice);
+            }
+
+            this.hasNavigated = true;
+            const updatedIndex = this.navigableChoices.findIndex(
+                item => String(item.value) === toggledValue
+            );
+            const fallbackIndex = Math.min(this.activeIndex, this.navigableChoices.length - 1);
+            this.resetActiveIndex(
+                this.navigableChoices.length,
+                updatedIndex >= 0 ? updatedIndex : fallbackIndex,
+                (index) => this.isChoiceDisabledAt(index)
+            );
+            this.scrollActiveIntoView();
+        },
+
+        handleSpaceKey(event) {
+            if (!this.hasNavigated && this.search.length > 0) return;
+            event.preventDefault();
+            this.toggleActive();
         },
 
         dispatchValueEvents() {
@@ -102,6 +172,7 @@ document.addEventListener('alpine:init', () => {
         async searchChoices() {
             if (!this.isSearchable) return;
             await source.searchChoices(this.search.trim());
+            this.resetForSearch();
         }
     }));
 });

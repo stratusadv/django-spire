@@ -17,9 +17,27 @@ document.addEventListener('alpine:init', () => {
      * `searchChoices(text)` and `clearSearch()`. A Glue form field is a source.
      */
     Alpine.data('searchAndSelect', (source) => ({
+        ...Spire.widget.dropdownNavigation,
+
         showDropdown: false,
         searchQuery: '',
         openUp: false,
+
+        onSearchInput() {
+            if (!this.isSearchable) {
+                this.resetActiveIndex(this.navigableChoices.length);
+            }
+        },
+
+        get hasEmptyChoice() {
+            return this.$root?.dataset?.includeEmpty === 'true' && this.searchQuery.length === 0;
+        },
+
+        get navigableChoices() {
+            return this.hasEmptyChoice
+                ? [{value: null}, ...this.filteredChoices]
+                : this.filteredChoices;
+        },
 
         get selectedChoice() {
             return source?.selectedChoice;
@@ -81,6 +99,11 @@ document.addEventListener('alpine:init', () => {
 
             this.openUp = spaceBelow < 260 && spaceAbove > spaceBelow;
             this.showDropdown = true;
+            const selectedValue = this.selectedChoice?.value;
+            const selectedIndex = selectedValue === undefined
+                ? -1
+                : this.navigableChoices.findIndex(choice => String(choice.value) === String(selectedValue));
+            this.resetActiveIndex(this.navigableChoices.length, selectedIndex);
             this.$nextTick(() => this.$refs.searchInput?.focus());
         },
 
@@ -105,12 +128,25 @@ document.addEventListener('alpine:init', () => {
         closeDropdown() {
             this.showDropdown = false;
             this.searchQuery = '';
+            this.activeIndex = -1;
             source.clearSearch?.();
         },
 
         async searchChoices() {
             if (!this.isSearchable) return;
             await source.searchChoices(this.searchQuery.trim());
+            this.resetActiveIndex(this.navigableChoices.length);
+        },
+
+        moveActive(delta) {
+            this.moveHighlight(delta, this.navigableChoices.length);
+        },
+
+        selectActive() {
+            const choice = this.navigableChoices[this.activeIndex];
+            if (choice) {
+                this.selectItem(choice);
+            }
         },
 
         selectItem(choice) {

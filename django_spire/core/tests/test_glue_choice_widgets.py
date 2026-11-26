@@ -147,3 +147,32 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         assert 'addChoice(value)' in source_js
         assert 'removeChoice(value)' in source_js
         assert 'escapeHtml(choice.label)' in multi_js
+
+    def test_dropdown_choice_widgets_wire_keyboard_navigation(self) -> None:
+        single_html = render_to_string(
+            'django_spire/widget/search_and_select_widget.html',
+            {'source': 'field', 'include_empty': True},
+        )
+        multi_html = render_to_string(
+            'django_spire/widget/multi_search_and_select_widget.html',
+            {'source': 'field'},
+        )
+        nav_js = _core_js('dropdown_navigation.js')
+        search_js = _core_js('search_and_select.js')
+        multi_js = _core_js('multi_search_and_select.js')
+
+        assert 'Spire.widget.dropdownNavigation' in nav_js
+        assert '...Spire.widget.dropdownNavigation' in search_js
+        assert '...Spire.widget.dropdownNavigation' in multi_js
+
+        assert 'data-include-empty="true"' in single_html
+        assert '@keydown.arrow-down.prevent="moveActive(1)"' in single_html
+        assert '@keydown.arrow-up.prevent="moveActive(-1)"' in single_html
+        assert '@keydown.enter.prevent="selectActive()"' in single_html
+        assert 'data-choice-item' in single_html
+
+        assert '@keydown.arrow-down.prevent="moveActive(1)"' in multi_html
+        assert '@keydown.arrow-up.prevent="moveActive(-1)"' in multi_html
+        assert '@keydown.space="handleSpaceKey($event)"' in multi_html
+        assert '@keydown.enter.prevent="toggleActive()"' in multi_html
+        assert 'data-choice-item' in multi_html
