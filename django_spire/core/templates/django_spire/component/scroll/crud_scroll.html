@@ -5,21 +5,23 @@
 {% block scroll_data_name %}crudScrollComponent{% endblock %}
 
 {% block scroll_options %}
-    {% if component.item_form_options.create_url_name %}
-        createUrl: '{% url component.item_form_options.create_url_name %}',
-    {% elif component.item_form_options.url_name %}
-        createUrl: '{% url component.item_form_options.url_name pk=0 %}',
-    {% endif %}
-    {% if component.item_form_options.url_name %}
-        editUrl: key => `{% js_url component.item_form_options.url_name pk='key' template_literal=True %}`,
-    {% endif %}
-    {% if component.item_form_options.return_url_name %}
-        formReturnUrl: '{% url component.item_form_options.return_url_name %}',
-    {% endif %}
-    {% if component.item_delete_options.url_name %}
-        deleteUrl: key => `{% js_url component.item_delete_options.url_name pk='key' template_literal=True %}`,
-    {% endif %}
-    {% if component.item_delete_options.return_url_name %}
-        deleteReturnUrl: '{% url component.item_delete_options.return_url_name %}',
-    {% endif %}
+    {% with item_form_options=component.get_item_form_options item_delete_options=component.get_item_delete_options %}
+        {% if item_form_options.create_url_name %}
+            createUrl: '{% url item_form_options.create_url_name %}',
+        {% elif item_form_options.url_name %}
+            createUrl: '{% url item_form_options.url_name pk=0 %}',
+        {% endif %}
+        {% if item_form_options.url_name %}
+            editUrl: key => `{% js_url item_form_options.url_name pk='key' template_literal=True %}`,
+        {% endif %}
+        {% if item_form_options.return_url_name %}
+            formReturnUrl: '{% url item_form_options.return_url_name %}',
+        {% endif %}
+        {% if item_delete_options.url_name %}
+            deleteUrl: key => `{% js_url item_delete_options.url_name pk='key' template_literal=True %}`,
+        {% endif %}
+        {% if item_delete_options.return_url_name %}
+            deleteReturnUrl: '{% url item_delete_options.return_url_name %}',
+        {% endif %}
+    {% endwith %}
 {% endblock %}

@@ -253,6 +253,40 @@ class ModelCrudScrollComponentTestCase(BaseTestCase):
         with pytest.raises(PermissionDenied, match='CreateOnlyCommentCrudScrollComponent'):
             component.load_item_form(pk=comment.pk)
 
+    def test_get_item_form_options_accepts_a_component_factory(self) -> None:
+        class ScopedCommentFormComponent(ModelFormComponent):
+            template = FORM_TEMPLATE
+            form_class = CommentForm
+            parent_id: int = Glue.ComponentParameter()
+
+        class ScopedCommentCrudScrollComponent(FormlessCommentCrudScrollComponent):
+            parent_id: int = Glue.ComponentParameter()
+
+            def build_comment_form(
+                self,
+                *,
+                model_pk: int | None = None,
+                access: Glue.Access = Glue.Access.VIEW,
+            ) -> ScopedCommentFormComponent:
+                return ScopedCommentFormComponent(
+                    parent_id=self.parent_id,
+                    model_pk=model_pk,
+                    access=access,
+                )
+
+            def get_item_form_options(self) -> ModelCrudScrollComponent.FormOptions:
+                return ModelCrudScrollComponent.FormOptions(
+                    component=self.build_comment_form,
+                )
+
+        component = ScopedCommentCrudScrollComponent(parent_id=42, access=Glue.Access.ADD)
+
+        assert component.can_create is True
+        form_component = component.load_item_form()
+
+        assert isinstance(form_component, ScopedCommentFormComponent)
+        assert form_component.parent_id == 42
+
     def test_the_actions_dropdown_offers_what_the_list_allows(self) -> None:
         def actions(component: ModelCrudScrollComponent, **context: object) -> str:
             return render_to_string(

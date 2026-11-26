@@ -47,6 +47,10 @@ class FormOptionsTestCase(BaseTestCase):
         assert form.template == FORM_TEMPLATE
         assert form.model.instance.pk is None
 
+    def test_a_non_callable_component_is_refused(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='callable factory'):
+            FormOptions(component='not-callable')
+
     def test_a_component_beside_a_form_class_or_template_is_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='not both'):
             FormOptions(component=CommentFormComponent, form_class=CommentForm)

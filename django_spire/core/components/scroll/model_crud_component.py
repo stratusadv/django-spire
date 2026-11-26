@@ -72,16 +72,23 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
             )
             raise ImproperlyConfigured(message)
 
+    def get_item_form_options(self) -> FormOptions | PageFormOptions | None:
+        return self.item_form_options
+
+    def get_item_delete_options(self) -> DeleteOptions | PageDeleteOptions | None:
+        return self.item_delete_options
+
     @property
     def can_create(self) -> bool:
         """
         Whether ``createItem()`` can open the form: a form page guards itself,
         and a form component needs ``ADD`` access.
         """
-        if isinstance(self.item_form_options, self.PageFormOptions):
+        options = self.get_item_form_options()
+        if isinstance(options, self.PageFormOptions):
             return True
 
-        return self.item_form_options is not None and self.access.has_access(
+        return options is not None and self.access.has_access(
             Glue.Access.ADD
         )
 
@@ -93,10 +100,11 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
         rows are only ever created overrides it to ``False``, and
         ``load_item_form()`` then refuses a row.
         """
-        if isinstance(self.item_form_options, self.PageFormOptions):
+        options = self.get_item_form_options()
+        if isinstance(options, self.PageFormOptions):
             return True
 
-        return self.item_form_options is not None and self.access.has_access(
+        return options is not None and self.access.has_access(
             Glue.Access.CHANGE
         )
 
@@ -106,20 +114,22 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
         Whether ``deleteItem()`` can delete a row: a delete page guards itself,
         and a confirmation needs ``DELETE`` access.
         """
-        if isinstance(self.item_delete_options, self.PageDeleteOptions):
+        options = self.get_item_delete_options()
+        if isinstance(options, self.PageDeleteOptions):
             return True
 
-        return self.item_delete_options is not None and self.access.has_access(
+        return options is not None and self.access.has_access(
             Glue.Access.DELETE
         )
 
     @Glue.attr(required_access=Glue.Access.DELETE)
     def load_item_delete_confirmation(self, pk: int | str) -> BaseModelDeleteConfirmationComponent:
-        if not isinstance(self.item_delete_options, self.DeleteOptions):
+        options = self.get_item_delete_options()
+        if not isinstance(options, self.DeleteOptions):
             message = f'{type(self).__name__} has no confirmation component to delete a row with.'
             raise PermissionDenied(message)
 
-        return self.item_delete_options.component(
+        return options.component(
             instance=self.get_instance(pk),
             access=self.access,
         )
@@ -136,7 +146,8 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
         before any form is built: below ``CHANGE``, and in a list whose rows
         are never edited, which no access expresses.
         """
-        if not isinstance(self.item_form_options, self.FormOptions):
+        options = self.get_item_form_options()
+        if not isinstance(options, self.FormOptions):
             message = f'{type(self).__name__} has no form component to create or edit a row with.'
             raise PermissionDenied(message)
 
@@ -147,4 +158,7 @@ class ModelCrudScrollComponent(QuerySetScrollComponent, ABC):
 
             self.get_instance(pk)
 
-        return self.item_form_options.build_component(model_pk=pk, access=self.access)
+        return options.build_component(
+            model_pk=pk,
+            access=self.access,
+        )

@@ -8,6 +8,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django_spire.core.components.form.model_component import ModelFormComponent
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from django.forms import ModelForm
 
 
@@ -15,17 +17,22 @@ if TYPE_CHECKING:
 class FormOptions:
     """
     A row is created and edited in a form component, shown in a modal. Give
-    the application's own ``component``, or a ``form_class`` with the
-    ``template`` that lays out its fields, which the generic
-    :class:`ModelFormComponent` shows. The form fires ``saved`` with the
-    row's ``pk``.
+    the application's own ``component`` (a :class:`ModelFormComponent` class
+    or a callable factory such as ``functools.partial(...)``), or a
+    ``form_class`` with the ``template`` that lays out its fields, which the
+    generic :class:`ModelFormComponent` shows. The form fires ``saved`` with
+    the row's ``pk``.
     """
 
-    component: type[ModelFormComponent] | None = None
+    component: Callable[..., ModelFormComponent] | None = None
     form_class: type[ModelForm] | None = None
     template: str | None = None
 
     def __post_init__(self) -> None:
+        if self.component is not None and not callable(self.component):
+            message = 'FormOptions.component must be a ModelFormComponent class or callable factory.'
+            raise ImproperlyConfigured(message)
+
         if self.component is not None and (
             self.form_class is not None or self.template is not None
         ):
