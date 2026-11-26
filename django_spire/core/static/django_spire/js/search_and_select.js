@@ -93,6 +93,14 @@ document.addEventListener('alpine:init', () => {
             };
         },
 
+        syncActiveIndex() {
+            const selectedValue = this.searchQuery.length === 0 ? this.selectedChoice?.value : undefined;
+            const selectedIndex = selectedValue === undefined
+                ? -1
+                : this.navigableChoices.findIndex(choice => String(choice.value) === String(selectedValue));
+            this.resetActiveIndex(this.navigableChoices.length, selectedIndex);
+        },
+
         openDropdown() {
             if (this.isDisabled) return;
             this.searchQuery = '';
@@ -104,11 +112,7 @@ document.addEventListener('alpine:init', () => {
 
             this.openUp = spaceBelow < 260 && spaceAbove > spaceBelow;
             this.showDropdown = true;
-            const selectedValue = this.selectedChoice?.value;
-            const selectedIndex = selectedValue === undefined
-                ? -1
-                : this.navigableChoices.findIndex(choice => String(choice.value) === String(selectedValue));
-            this.resetActiveIndex(this.navigableChoices.length, selectedIndex);
+            this.syncActiveIndex();
             this.$nextTick(() => this.$refs.searchInput?.focus());
         },
 
@@ -139,8 +143,11 @@ document.addEventListener('alpine:init', () => {
 
         async searchChoices() {
             if (!this.isSearchable) return;
+            this.activeIndex = -1;
             await source.searchChoices(this.searchQuery.trim());
-            this.resetActiveIndex(this.navigableChoices.length);
+            if (this.activeIndex < 0) {
+                this.syncActiveIndex();
+            }
         },
 
         moveActive(delta) {

@@ -228,6 +228,24 @@ describe('searchAndSelect keyboard navigation', () => {
         pressKey(searchInput, 'Enter')
         expect(window.__testSource.value).toBe('b')
     })
+
+    test('highlights the initial or selected choice when choices load asynchronously after open', async () => {
+        window.__testSource = Alpine.reactive(makeSingleSource([], {value: 'b', searchable: true}))
+        await mount(singleSelectHtml())
+
+        const data = Alpine.$data(document.getElementById('root'))
+
+        data.openDropdown()
+        await settle()
+        expect(data.activeIndex).toBe(-1)
+
+        window.__testSource.choices = [
+            {value: 'a', label: 'Alpha'},
+            {value: 'b', label: 'Beta'},
+        ]
+        await settle()
+        expect(data.activeIndex).toBe(1)
+    })
 })
 
 describe('multiSearchAndSelect keyboard navigation', () => {
@@ -324,5 +342,23 @@ describe('multiSearchAndSelect keyboard navigation', () => {
         pressKey(searchInput, 'Enter')
         await settle()
         expect(window.__testSource.selectedChoices.map(choice => choice.value)).toEqual(['1', '2'])
+    })
+
+    test('highlights the first enabled choice when choices load asynchronously after open', async () => {
+        window.__testSource = Alpine.reactive(makeMultiSource([], {disabled: ['1'], searchable: true}))
+        await mount(multiSelectHtml())
+
+        const data = Alpine.$data(document.getElementById('root'))
+
+        data.open()
+        await settle()
+        expect(data.activeIndex).toBe(-1)
+
+        window.__testSource.choices = [
+            {value: '1', label: 'Blocked'},
+            {value: '2', label: 'Beta'},
+        ]
+        await settle()
+        expect(data.activeIndex).toBe(1)
     })
 })

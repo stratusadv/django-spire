@@ -78,13 +78,17 @@ document.addEventListener('alpine:init', () => {
             return source?.choiceLabelHtml ? source.choiceLabelHtml(choice) : escapeHtml(choice.label);
         },
 
+        syncActiveIndex() {
+            this.resetForSearch();
+        },
+
         open() {
             if (this.isDisabled) return;
             this.search = '';
             this.hasNavigated = false;
             source.clearSearch?.();
             this.isOpen = true;
-            this.resetActiveIndex(this.navigableChoices.length, -1, (index) => this.isChoiceDisabledAt(index));
+            this.syncActiveIndex();
             this.$nextTick(() => this.$refs.searchInput?.focus());
         },
 
@@ -188,8 +192,11 @@ document.addEventListener('alpine:init', () => {
 
         async searchChoices() {
             if (!this.isSearchable) return;
+            this.activeIndex = -1;
             await source.searchChoices(this.search.trim());
-            this.resetForSearch();
+            if (this.activeIndex < 0) {
+                this.syncActiveIndex();
+            }
         }
     }));
 });

@@ -9,6 +9,14 @@ Spire.widget = Spire.widget || {};
 Spire.widget.dropdownNavigation = {
     activeIndex: -1,
 
+    init() {
+        this.$watch(() => this.navigableChoices.length, () => {
+            if (this.isDropdownOpen && this.activeIndex < 0) {
+                this.syncActiveIndex();
+            }
+        });
+    },
+
     firstEnabledIndex(count, startIndex = 0, isDisabledAt = () => false) {
         for (let index = startIndex; index < count; index += 1) {
             if (!isDisabledAt(index)) return index;
