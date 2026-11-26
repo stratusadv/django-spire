@@ -63,10 +63,9 @@ function singleSelectHtml({includeEmpty = false} = {}) {
             <input
                 x-ref="selectedInput"
                 type="text"
+                x-bind="dropdownTrigger"
                 @focus="openDropdown()"
                 @click="openDropdown()"
-                @keydown.arrow-down.prevent="showDropdown ? moveActive(1) : openDropdown()"
-                @keydown.arrow-up.prevent="showDropdown ? moveActive(-1) : openDropdown()"
                 readonly
             >
             <div x-ref="dropdown" role="listbox" x-show="showDropdown">
@@ -74,23 +73,18 @@ function singleSelectHtml({includeEmpty = false} = {}) {
                     x-ref="searchInput"
                     type="text"
                     x-model="searchQuery"
-                    @input.stop="onSearchInput()"
-                    @keydown.arrow-down.prevent="moveActive(1)"
-                    @keydown.arrow-up.prevent="moveActive(-1)"
-                    @keydown.enter.prevent="selectActive()"
-                    @keydown.escape="closeDropdown()"
+                    x-bind="dropdownSearchInput"
                 >
                 ${includeEmpty ? `
                     <template x-if="hasEmptyChoice">
-                        <div data-choice-item :class="{'active': activeIndex === 0}" @click="selectItem({value: null})">
+                        <div x-bind="dropdownOption(() => 0)" @click="selectItem({value: null})">
                             Select ...
                         </div>
                     </template>
                 ` : ''}
                 <template x-for="(choice, index) in filteredChoices" :key="choice.value">
                     <div
-                        data-choice-item
-                        :class="{'active': activeIndex === (hasEmptyChoice ? index + 1 : index)}"
+                        x-bind="dropdownOption(() => hasEmptyChoice ? index + 1 : index)"
                         @click="selectItem(choice)"
                         x-text="choice.label"
                     ></div>
@@ -106,28 +100,22 @@ function multiSelectHtml() {
             <button
                 x-ref="trigger"
                 type="button"
+                x-bind="dropdownTrigger"
                 @click="isOpen ? close() : open()"
-                @keydown.arrow-down.prevent="isOpen ? moveActive(1) : open()"
-                @keydown.arrow-up.prevent="isOpen ? moveActive(-1) : open()"
             ></button>
             <div x-show="isOpen">
                 <input
                     x-ref="searchInput"
                     type="search"
                     x-model="search"
-                    @input.stop="onSearchInput()"
-                    @keydown.arrow-down.prevent="moveActive(1)"
-                    @keydown.arrow-up.prevent="moveActive(-1)"
+                    x-bind="dropdownSearchInput"
                     @keydown.space="handleSpaceKey($event)"
-                    @keydown.enter.prevent="toggleActive()"
-                    @keydown.escape.stop="close()"
                 >
                 <div x-ref="dropdown" role="listbox">
                     <template x-for="(choice, index) in selectedChoices" :key="'selected-' + choice.value">
                         <button
-                            data-choice-item
+                            x-bind="dropdownOption(() => index)"
                             type="button"
-                            :class="{'active': activeIndex === index}"
                             :disabled="isChoiceDisabled(choice)"
                             @click="removeChoice(choice)"
                             x-text="choice.label"
@@ -135,9 +123,8 @@ function multiSelectHtml() {
                     </template>
                     <template x-for="(choice, index) in filteredChoices" :key="choice.value">
                         <button
-                            data-choice-item
+                            x-bind="dropdownOption(() => selectedChoices.length + index)"
                             type="button"
-                            :class="{'active': activeIndex === selectedChoices.length + index}"
                             :disabled="isChoiceDisabled(choice)"
                             @click="addChoice(choice)"
                             x-text="choice.label"

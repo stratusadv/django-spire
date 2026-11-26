@@ -53,3 +53,72 @@ Spire.widget.dropdownNavigation = {
         });
     },
 };
+
+document.addEventListener('alpine:init', () => {
+    Alpine.bind('dropdownTrigger', () => ({
+        ':class'() {
+            return {'is-invalid': this.hasErrors};
+        },
+
+        ':disabled'() {
+            return this.isDisabled;
+        },
+
+        '@keydown.arrow-down.prevent'() {
+            if (this.isDropdownOpen) {
+                this.moveActive(1);
+            } else {
+                this.openDropdown();
+            }
+        },
+
+        '@keydown.arrow-up.prevent'() {
+            if (this.isDropdownOpen) {
+                this.moveActive(-1);
+            } else {
+                this.openDropdown();
+            }
+        },
+    }));
+
+    Alpine.bind('dropdownSearchInput', () => ({
+        '@input.stop'() {
+            queueMicrotask(() => this.onSearchInput());
+        },
+
+        '@input.stop.debounce.200ms'() {
+            this.searchChoices();
+        },
+
+        '@change.stop'() {},
+
+        '@keydown.arrow-down.prevent'() {
+            this.moveActive(1);
+        },
+
+        '@keydown.arrow-up.prevent'() {
+            this.moveActive(-1);
+        },
+
+        '@keydown.enter.prevent'() {
+            this.activateActive();
+        },
+
+        '@keydown.escape.stop'() {
+            this.closeDropdown();
+        },
+    }));
+
+    Alpine.bind('dropdownOption', (getIndex) => ({
+        'data-choice-item': '',
+        role: 'option',
+
+        ':class'() {
+            return {[this.activeOptionClass]: this.activeIndex === getIndex()};
+        },
+
+        '@mouseenter'() {
+            this.activeIndex = getIndex();
+        },
+    }));
+});

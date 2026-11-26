@@ -162,17 +162,18 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         multi_js = _core_js('multi_search_and_select.js')
 
         assert 'Spire.widget.dropdownNavigation' in nav_js
+        assert "Alpine.bind('dropdownTrigger'" in nav_js
+        assert "Alpine.bind('dropdownSearchInput'" in nav_js
+        assert "Alpine.bind('dropdownOption'" in nav_js
         assert '...Spire.widget.dropdownNavigation' in search_js
         assert '...Spire.widget.dropdownNavigation' in multi_js
 
         assert 'data-include-empty="true"' in single_html
-        assert '@keydown.arrow-down.prevent="moveActive(1)"' in single_html
-        assert '@keydown.arrow-up.prevent="moveActive(-1)"' in single_html
-        assert '@keydown.enter.prevent="selectActive()"' in single_html
-        assert 'data-choice-item' in single_html
+        assert 'x-bind="dropdownTrigger"' in single_html
+        assert 'x-bind="dropdownSearchInput"' in single_html
+        assert 'x-bind="dropdownOption(' in single_html
 
-        assert '@keydown.arrow-down.prevent="moveActive(1)"' in multi_html
-        assert '@keydown.arrow-up.prevent="moveActive(-1)"' in multi_html
+        assert 'x-bind="dropdownTrigger"' in multi_html
+        assert 'x-bind="dropdownSearchInput"' in multi_html
+        assert 'x-bind="dropdownOption(' in multi_html
         assert '@keydown.space="handleSpaceKey($event)"' in multi_html
-        assert '@keydown.enter.prevent="toggleActive()"' in multi_html
-        assert 'data-choice-item' in multi_html

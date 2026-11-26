@@ -22,6 +22,11 @@ document.addEventListener('alpine:init', () => {
         showDropdown: false,
         searchQuery: '',
         openUp: false,
+        activeOptionClass: 'active',
+
+        get isDropdownOpen() {
+            return this.showDropdown;
+        },
 
         onSearchInput() {
             if (!this.isSearchable) {
@@ -147,6 +152,10 @@ document.addEventListener('alpine:init', () => {
             if (choice) {
                 this.selectItem(choice);
             }
+        },
+
+        activateActive() {
+            this.selectActive();
         },
 
         selectItem(choice) {

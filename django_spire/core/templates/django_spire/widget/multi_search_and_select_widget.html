@@ -20,12 +20,9 @@
         x-ref="trigger"
         {% if x_control_id %}:id="{{ x_control_id }}"{% endif %}
         class="form-control text-start d-flex align-items-center justify-content-between gap-2"
-        :class="{'is-invalid': hasErrors}"
         type="button"
-        :disabled="isDisabled"
+        x-bind="dropdownTrigger"
         @click="isOpen ? close() : open()"
-        @keydown.arrow-down.prevent="isOpen ? moveActive(1) : open()"
-        @keydown.arrow-up.prevent="isOpen ? moveActive(-1) : open()"
     >
         <span class="d-flex flex-wrap align-items-center gap-1 overflow-hidden">
             <template x-for="choice in selectedChoices" :key="choice.value">
@@ -57,14 +54,8 @@
                 type="search"
                 x-ref="searchInput"
                 x-model="search"
-                @input.stop="onSearchInput()"
-                @input.stop.debounce.200ms="searchChoices()"
-                @change.stop
-                @keydown.arrow-down.prevent="moveActive(1)"
-                @keydown.arrow-up.prevent="moveActive(-1)"
+                x-bind="dropdownSearchInput"
                 @keydown.space="handleSpaceKey($event)"
-                @keydown.enter.prevent="toggleActive()"
-                @keydown.escape.stop="close()"
                 placeholder="{{ search_placeholder|default:'Search...' }}"
             >
         </div>
@@ -83,14 +74,11 @@
             </div>
             <template x-for="(choice, index) in selectedChoices" :key="`selected-${choice.value}`">
                 <button
-                    data-choice-item
-                    role="option"
+                    x-bind="dropdownOption(() => index)"
                     aria-selected="true"
                     class="btn btn-sm d-flex w-100 align-items-center rounded-0 border-0 px-2 py-1 text-start"
-                    :class="{'active text-bg-primary': activeIndex === index}"
                     type="button"
                     :disabled="isChoiceDisabled(choice)"
-                    @mouseenter="activeIndex = index"
                     @click="removeChoice(choice)"
                 >
                     {% include 'django_spire/widget/item/multi_search_and_select_choice_item.html' with is_selected=True %}
@@ -104,14 +92,11 @@
             </div>
             <template x-for="(choice, index) in filteredChoices" :key="choice.value">
                 <button
-                    data-choice-item
-                    role="option"
+                    x-bind="dropdownOption(() => selectedChoices.length + index)"
                     aria-selected="false"
                     class="btn btn-sm d-flex w-100 align-items-center rounded-0 border-0 px-2 py-1 text-start"
-                    :class="{'active text-bg-primary': activeIndex === selectedChoices.length + index}"
                     type="button"
                     :disabled="isChoiceDisabled(choice)"
-                    @mouseenter="activeIndex = selectedChoices.length + index"
                     @click="addChoice(choice)"
                 >
                     {% include 'django_spire/widget/item/multi_search_and_select_choice_item.html' %}

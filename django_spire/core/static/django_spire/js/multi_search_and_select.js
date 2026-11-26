@@ -23,6 +23,11 @@ document.addEventListener('alpine:init', () => {
         isOpen: false,
         search: '',
         hasNavigated: false,
+        activeOptionClass: 'active text-bg-primary',
+
+        get isDropdownOpen() {
+            return this.isOpen;
+        },
 
         onSearchInput() {
             this.hasNavigated = false;
@@ -156,6 +161,18 @@ document.addEventListener('alpine:init', () => {
                 (index) => this.isChoiceDisabledAt(index)
             );
             this.scrollActiveIntoView();
+        },
+
+        openDropdown() {
+            this.open();
+        },
+
+        closeDropdown() {
+            this.close();
+        },
+
+        activateActive() {
+            this.toggleActive();
         },
 
         handleSpaceKey(event) {
