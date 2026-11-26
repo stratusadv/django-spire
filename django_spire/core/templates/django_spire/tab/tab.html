@@ -5,6 +5,7 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link {% if tab_active %}active{% endif %}"
                 id="{{ tab_camel_case_id }}Tab"
+                data-tab-id="{{ tab_id }}"
                 data-bs-toggle="tab"
                 data-bs-target="#{{ tab_camel_case_id }}TabPane"
                 type="button"

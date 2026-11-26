@@ -23,6 +23,7 @@ await import(`${SCRIPTS}/multi_search_and_select.js`)
 await import(`${SCRIPTS}/combobox.js`)
 await import(`${SCRIPTS}/components/async_button.js`)
 await import(`${SCRIPTS}/components/scroll.js`)
+await import(`${SCRIPTS}/components/tabs.js`)
 await import(`${SCRIPTS}/chart.js`)
 
 Alpine.start()

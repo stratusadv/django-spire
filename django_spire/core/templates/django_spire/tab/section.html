@@ -1,6 +1,9 @@
 {% load django_spire_string_formatting %}
 
-<ul class="nav nav-tabs" id="{% if tab_section_id %}{{ tab_section_id|to_camel_case_javascript_safe }}Tabs{% else %}tabs{% endif %}" role="tablist">
+<ul class="nav nav-tabs"
+    id="{% if tab_section_id %}{{ tab_section_id|to_camel_case_javascript_safe }}Tabs{% else %}tabs{% endif %}"
+    role="tablist"
+    x-data="spireTabs({urlParam: '{% block tab_url_param %}{{ tab_url_param|default:''|escapejs }}{% endblock %}'})">
     {% block tab_section_tabs %}
     {% endblock %}
 </ul>

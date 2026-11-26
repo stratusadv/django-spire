@@ -1,0 +1,63 @@
+<div
+    x-data="tabsComponent()"
+    data-tabs-config="{{ component.tabs_config_json }}"
+    class="{% block tabs_container_class %}{% endblock %}"
+>
+    <ul class="nav nav-tabs {% block tabs_nav_class %}{% endblock %}" role="tablist">
+        {% for tab in component.tabs %}
+            <li class="nav-item" role="presentation">
+                {% if tab.is_link %}
+                    <a class="nav-link" href="{{ tab.href }}">
+                        {% if tab.icon %}<i class="{{ tab.icon }} me-1"></i>{% endif %}
+                        {{ tab.label }}
+                    </a>
+                {% else %}
+                    <button
+                        class="nav-link{% if tab.id == component.active_tab %} active{% endif %}"
+                        :class="{ 'active': activeTab === '{{ tab.id|escapejs }}' }"
+                        id="{{ tab.id }}Tab"
+                        data-tab-id="{{ tab.id }}"
+                        type="button"
+                        role="tab"
+                        aria-controls="{{ tab.id }}TabPane"
+                        :aria-selected="activeTab === '{{ tab.id|escapejs }}' ? 'true' : 'false'"
+                        @click="selectTab('{{ tab.id|escapejs }}')"
+                    >
+                        {% if tab.icon %}<i class="{{ tab.icon }} me-1"></i>{% endif %}
+                        {{ tab.label }}
+                    </button>
+                {% endif %}
+            </li>
+        {% endfor %}
+        {% block tabs_nav_extra %}{% endblock %}
+    </ul>
+
+    <div class="tab-content {% block tabs_content_class %}{% endblock %}">
+        {% for tab in component.tabs %}
+            {% if not tab.is_link %}
+                <div
+                    id="{{ tab.id }}TabPane"
+                    role="tabpanel"
+                    aria-labelledby="{{ tab.id }}Tab"
+                    x-show="activeTab === '{{ tab.id|escapejs }}'"
+                    {% if tab.id != component.active_tab %}x-cloak{% endif %}
+                >
+                    <div x-show="isLoading('{{ tab.id|escapejs }}')" x-cloak class="card card-body text-center py-4">
+                        {% block tabs_loading %}
+                            <div>
+                                <span class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </span>
+                                Loading...
+                            </div>
+                        {% endblock %}
+                    </div>
+                    <div
+                        data-tab-pane="{{ tab.id }}"
+                        x-show="!isLoading('{{ tab.id|escapejs }}')"
+                    >{% if tab.id == component.active_tab %}{{ component.active_tab_html }}{% endif %}</div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
