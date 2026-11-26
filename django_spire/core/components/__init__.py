@@ -15,6 +15,7 @@ from django_spire.core.components.scroll import (
     BaseScrollComponent,
     ModelCrudScrollComponent,
     QuerySetScrollComponent,
+    SearchAndSortMixin,
 )
 
 __all__ = [
@@ -30,4 +31,5 @@ __all__ = [
     'ModelFormComponent',
     'ModelSetDeletedConfirmationComponent',
     'QuerySetScrollComponent',
+    'SearchAndSortMixin',
 ]
