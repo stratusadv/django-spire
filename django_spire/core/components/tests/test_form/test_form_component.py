@@ -78,8 +78,9 @@ class FormComponentTestCase(BaseTestCase):
         )
 
         assert 'task_form: component.form,' in html
-        assert 'this.task_form.validate()' in html
-        assert 'this.task_form.save_model_obj(' in html
+        assert 'const form = this.task_form' in html
+        assert "typeof form.submit === 'function' ? 'submit' : 'save_model_obj'" in html
+        assert 'await form[action](' in html
         assert 'this.task_form.$pk' in html
         assert 'glue_form' not in html
 
@@ -90,7 +91,7 @@ class FormComponentTestCase(BaseTestCase):
         )
 
         assert 'taskForm: component.form,' in html
-        assert 'this.taskForm.validate()' in html
+        assert 'const form = this.taskForm' in html
 
     def test_built_directly_from_a_form_class_and_a_template(self) -> None:
         component = FormComponent(form_class=TaskModalForm, template='task/form/task_form.html')
