@@ -18,7 +18,7 @@ from django_spire import Spire
 from django_spire.core.forms import SpireForm, SpireModelForm
 
 
-class ContactForm(Spire.Form.Form):
+class ContactForm(Spire.Form):
     email = forms.EmailField()
     note = forms.CharField(required=False)
 
@@ -26,7 +26,7 @@ class ContactForm(Spire.Form.Form):
         return {'email': self.cleaned_data['email'], 'submitted_by': request.user.username}
 
 
-class CustomResponseForm(Spire.Form.Form):
+class CustomResponseForm(Spire.Form):
     title = forms.CharField()
 
     def on_submit(self, request) -> GlueResponse:
@@ -42,13 +42,13 @@ class FakeModel(models.Model):
         managed = False
 
 
-class FakeModelForm(Spire.Form.ModelForm):
+class FakeModelForm(Spire.ModelForm):
     class Meta:
         model = FakeModel
         fields: ClassVar = ['name']
 
 
-class ExtraResultModelForm(Spire.Form.ModelForm):
+class ExtraResultModelForm(Spire.ModelForm):
     class Meta:
         model = FakeModel
         fields: ClassVar = ['name']
@@ -63,14 +63,14 @@ class SpireFormTestCase(SimpleTestCase):
         self.request.user = SimpleNamespace(username='alice')
         self.request.session = SimpleNamespace(session_key='test-session')
 
-    def test_spire_form_namespace_aliases_form_classes(self) -> None:
-        assert Spire.Form.Form is SpireForm
-        assert Spire.Form.ModelForm is SpireModelForm
-        assert issubclass(Spire.Form.ModelForm, Spire.Form.Form)
-        assert issubclass(Spire.Form.ModelForm, forms.ModelForm)
+    def test_spire_namespace_aliases_form_classes(self) -> None:
+        assert Spire.Form is SpireForm
+        assert Spire.ModelForm is SpireModelForm
+        assert issubclass(Spire.ModelForm, Spire.Form)
+        assert issubclass(Spire.ModelForm, forms.ModelForm)
 
         with pytest.raises(AttributeError):
-            _ = Spire.Form.NotAForm
+            _ = Spire.NotAForm
 
     def test_each_subclass_gets_its_own_submitted_event_identity(self) -> None:
         assert ContactForm.submitted is not CustomResponseForm.submitted

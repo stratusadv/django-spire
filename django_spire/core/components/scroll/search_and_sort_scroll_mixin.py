@@ -8,7 +8,7 @@ from django.db import models
 from django_glue import Glue
 
 
-class SearchAndSortMixin:
+class SearchAndSortScrollMixin:
     """
     Adds ``search`` and optional ``sort`` :class:`Glue.ComponentField`
     attributes to a scroll component without writing a boilerplate

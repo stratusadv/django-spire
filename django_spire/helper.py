@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 # All helper functions need to be loaded as lazily as possible to prevent Django startup errors.
 
 
-class _LazyFormNamespace(type):
+class _SpireMeta(type):
     def __getattr__(cls, name: str) -> Any:
         if name in ('Form', 'ModelForm'):
             from django_spire.core import forms as spire_forms
@@ -23,11 +23,10 @@ class _LazyFormNamespace(type):
         raise AttributeError(message)
 
 
-class Spire:
-    class Form(metaclass=_LazyFormNamespace):
-        if TYPE_CHECKING:
-            from django_spire.core.forms import SpireForm as Form
-            from django_spire.core.forms import SpireModelForm as ModelForm
+class Spire(metaclass=_SpireMeta):
+    if TYPE_CHECKING:
+        from django_spire.core.forms import SpireForm as Form
+        from django_spire.core.forms import SpireModelForm as ModelForm
 
     class Metric:
         class Statistic:
