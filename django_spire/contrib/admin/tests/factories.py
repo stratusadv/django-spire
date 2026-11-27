@@ -13,6 +13,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models, transaction
 from django.utils import timezone
 
+from django_spire.notification.email.validators import EmailListValidator
+
 if TYPE_CHECKING:
     from django.db.models import Field, Model
 
@@ -32,6 +34,17 @@ def _text_value(field: Field, index: int) -> str:
     return str(index)[-field.max_length :]
 
 
+def _json_value(field: Field, index: int) -> Any:
+    for validator in field.validators:
+        if isinstance(validator, EmailListValidator):
+            return [] if validator.allow_empty else [f'seed{index}@example.com']
+
+    if field.default is list:
+        return []
+
+    return {}
+
+
 _VALUE_BUILDERS = (
     (models.EmailField, lambda _field, index: f'seed{index}@example.com'),
     (models.URLField, lambda _field, index: f'https://example.com/{index}'),
@@ -49,7 +62,7 @@ _VALUE_BUILDERS = (
     (models.DateField, lambda _field, _index: timezone.now().date()),
     (models.TimeField, lambda _field, _index: timezone.now().time()),
     (models.DurationField, lambda _field, index: timedelta(seconds=index)),
-    (models.JSONField, lambda _field, _index: {}),
+    (models.JSONField, _json_value),
     (models.BinaryField, lambda _field, _index: b''),
 )
 

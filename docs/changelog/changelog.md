@@ -2,7 +2,31 @@
 
 ## v1.7.1
 
+### Deprecated
+
+- **`EmailNotification.to_email_address` is deprecated in favor of `EmailNotification.to` (`JSONField(default=list)`).**
+  `to_email_address` remains on the model as a backwards-compatible field that stays automatically
+  synced with `to` (`to=[to_email_address]` when legacy callers write `to_email_address`, emitting
+  `DeprecationWarning`, and mirroring `to[0]` back to `to_email_address` on writes to `to`), and
+  will be removed in a future release. Existing callers, queryset filters, and templates continue
+  to work without breaking while you migrate:
+  1. Replace `to_email_address=...` with `to=[...]` in `EmailNotification` creation and update calls.
+  2. Replace `.filter(to_email_address=...)` with `EmailNotification.objects.by_to_email(email)`.
+  3. Replace `{{ notification.email.to_email_address }}` in templates with `{{ notification.email.to|join:', ' }}`.
+
 ### Added
+
+- **`EmailNotification.to` (`JSONField(default=list)`)** for multi-recipient primary delivery
+  matching `cc` and `bcc`, validated via `EmailListValidator` (`django_spire.notification.email.validators`)
+  on `full_clean()`, `save()`, `bulk_create()`, `bulk_update()`, and queryset `update()` —
+  non-lists, malformed emails, empty `to`, and case-insensitive duplicate recipients within or
+  across `to`/`cc`/`bcc` raise `ValidationError`. `SendGridEmailHelper` formats
+  `template_data['to']` as `', '.join(self.to)` to stay compatible with existing SendGrid
+  templates. Migration `0004_emailnotification_to_and_more` safely backfills existing `v0` and
+  `v1` `to_email_address` rows into `to` (and normalizes legacy `cc`/`bcc` rows) in 1,000-row
+  chunks without dropping `to_email_address`.
+- `EmailNotification.objects.by_to_email(email)` queryset lookup and `EmailListValidator` in
+  `django_spire.notification.email.validators`.
 
 - `Spire.date.addDays(isoDate, days)`: a date input's `YYYY-MM-DD` value
   moved by a number of days, across months and years, and back for a negative

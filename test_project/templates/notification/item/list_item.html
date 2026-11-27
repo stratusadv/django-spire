@@ -14,7 +14,7 @@
             </div>
             <div class="col">
                 {% if notification.type == 'email' %}
-                    {{ notification.email.to_email_address }}
+                    {{ notification.email.to|join:', ' }}
                 {% elif notification.type == 'sms' %}
                     {{ notification.sms.to_phone_number }}
                 {% else %}

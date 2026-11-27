@@ -14,7 +14,7 @@ from django_spire.notification.sms.models import SmsNotification
 
 
 class NotificationForm(forms.ModelForm):
-    def save(self, commit: bool = True):
+    def save(self, commit: bool = True) -> None:
         if self.instance.type == NotificationTypeChoices.APP:
             try:
                 _ = self.instance.app
@@ -22,12 +22,23 @@ class NotificationForm(forms.ModelForm):
                 AppNotification.objects.create(notification=self.instance)
 
         elif self.instance.type == NotificationTypeChoices.EMAIL:
+            raw_emails = self.data.get('email', '') or ''
+            recipients = [
+                email.strip()
+                for email in raw_emails.split(',')
+                if email.strip()
+            ]
+
             try:
-                _ = self.instance.email
+                email_notification = self.instance.email
             except EmailNotification.DoesNotExist:
                 EmailNotification.objects.create(
-                    notification=self.instance, to_email_address=self.data.get('email')
+                    notification=self.instance,
+                    to=recipients,
                 )
+            else:
+                email_notification.to = recipients
+                email_notification.save()
         elif self.instance.type == NotificationTypeChoices.SMS:
             try:
                 sms_notification = self.instance.sms
