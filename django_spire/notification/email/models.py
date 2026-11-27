@@ -25,7 +25,7 @@ class EmailNotification(models.Model):
     It is important to note size limits for email content contained in this model. E.g., Sendgrid has a hard total email
     limit of 30mb (and a recommended limit of 10mb for attachments): https://www.twilio.com/docs/sendgrid/ui/sending-email/attachments-with-digioh#-Limitations
 
-    .. deprecated:: 1.7.1
+    .. deprecated:: 1.8.0
        ``to_email_address`` is deprecated; use ``to`` (a list of recipient email addresses) instead.
     """
 
