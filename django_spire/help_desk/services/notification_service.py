@@ -10,7 +10,10 @@ from django.db.models import Q
 from django.urls import reverse
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
-from django_spire.help_desk.exceptions import TicketEventNotificationTypeNotSupportedError
+from django_spire.help_desk.exceptions import (
+    HelpDeskNotificationRecipientMissingEmailError,
+    TicketEventNotificationTypeNotSupportedError,
+)
 from django_spire.help_desk.enums import TicketEventType
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.choices import NotificationTypeChoices
@@ -25,7 +28,7 @@ if TYPE_CHECKING:
 class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']):
     obj: HelpDeskTicket
 
-    def create_new_ticket_notifications(self):
+    def create_new_ticket_notifications(self) -> None:
         event_type = TicketEventType.NEW
 
         developers = User.objects.filter(email__in=[admin[1] for admin in settings.ADMINS])
@@ -101,9 +104,14 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         )
 
         if notification_type == NotificationTypeChoices.EMAIL:
+            recipient_email = settings.DEVELOPMENT_EMAIL if settings.DEBUG else user.email
+
+            if not recipient_email:
+                raise HelpDeskNotificationRecipientMissingEmailError(str(user))
+
             return EmailNotification(
                 notification=base_notification,
-                to_email_address=(settings.DEVELOPMENT_EMAIL if settings.DEBUG else user.email),
+                to=[recipient_email],
             )
 
         if notification_type == NotificationTypeChoices.APP:
@@ -116,7 +124,7 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         users: list[User],
         notification_type: NotificationTypeChoices,
         event_type: TicketEventType,
-    ):
+    ) -> None:
         title = self._get_ticket_event_notification_title(event_type)
 
         body = self._get_ticket_event_notification_body(

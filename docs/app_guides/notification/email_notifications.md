@@ -56,7 +56,7 @@ from django_spire.notification.email.models import EmailNotification
 
 EmailNotification.objects.create(
     notification=notification,
-    to_email_address='user@example.com',
+    to=['user@example.com'],
 )
 ```
 
@@ -103,12 +103,15 @@ Key fields:
 | Field | Description |
 |---|---|
 | `notification` | OneToOne link to the base `Notification` |
-| `to_email_address` | Recipient email address |
+| `to` | JSON list of primary recipient email addresses (at least one required) |
+| `to_email_address` | *(Deprecated)* Single primary recipient email mirrored with `to[0]`; use `to` instead |
 | `template_id` | SendGrid template ID — overrides the default `SENDGRID_TEMPLATE_ID` |
 | `context_data` | JSON dict of variables passed to the SendGrid template |
 | `cc` | JSON list of CC email addresses |
 | `bcc` | JSON list of BCC email addresses |
 | `attachments` | M2M to `File` records included as email attachments |
+
+> **Validation:** `to`, `cc`, and `bcc` must be lists of valid email addresses. `to` must contain at least one recipient, and duplicate email addresses (case-insensitive) within a field or across `to`, `cc`, and `bcc` raise `ValidationError` on `full_clean()`, `save()`, `bulk_create()`, and `bulk_update()`.
 
 > **Note:** SendGrid has a hard total email size limit of 30MB. Keep attachments under 10MB each where possible.
 
@@ -150,7 +153,7 @@ notification = Notification.objects.create(
 
 EmailNotification.objects.create(
     notification=notification,
-    to_email_address=order.user.email,
+    to=[order.user.email],
     context_data={
         'order_id': order.id,
         'tracking_number': 'ABC123',
@@ -158,7 +161,7 @@ EmailNotification.objects.create(
 )
 ```
 
-### Adding CC, BCC, and Attachments
+### Adding Multiple Recipients, CC, BCC, and Attachments
 
 ```python
 from django_spire.file.models import File
@@ -167,7 +170,7 @@ invoice = File.objects.get(pk=1)
 
 email_notification = EmailNotification.objects.create(
     notification=notification,
-    to_email_address=order.user.email,
+    to=[order.user.email, 'billing@example.com'],
     cc=['manager@example.com'],
     bcc=['audit@example.com'],
 )
@@ -182,7 +185,7 @@ Pass a `template_id` to override the default SendGrid template for this notifica
 ```python
 EmailNotification.objects.create(
     notification=notification,
-    to_email_address=order.user.email,
+    to=[order.user.email],
     template_id='d-abc123customtemplateid',
     context_data={
         'first_name': order.user.first_name,

@@ -155,3 +155,31 @@ class ModelFormComponentTestCase(BaseTestCase):
             class PlainFormModelFormComponent(ModelFormComponent):
                 template = 'task/modal/task_form_modal.html'
                 form_class = PlainForm
+
+    def test_get_initial_applies_on_create_and_does_not_clobber_saved_fields_on_edit(self) -> None:
+        class ExtraFieldTaskForm(TaskModelForm):
+            notify_owner = forms.BooleanField(required=False)
+
+        class InitialTaskFormComponent(ModelFormComponent):
+            template = 'task/modal/task_form_modal.html'
+            form_class = ExtraFieldTaskForm
+
+            def get_initial(self) -> dict[str, object]:
+                initial: dict[str, object] = {'notify_owner': True}
+                if self.model_pk is None:
+                    initial['name'] = 'Default Task'
+                return initial
+
+        created_component = InitialTaskFormComponent()
+        created_form = created_component.model.forms['default']
+        assert created_form.initial == {'notify_owner': True, 'name': 'Default Task'}
+
+        saved_task = Task.objects.create(name='Persisted Name', description='Persisted Description')
+        edit_component = InitialTaskFormComponent(model_pk=saved_task.pk)
+        edit_form = edit_component.model.forms['default']
+        assert edit_form.initial == {'notify_owner': True}
+
+        rebuilt_edit_form = ExtraFieldTaskForm(instance=edit_component.model.instance, initial=edit_form.initial)
+        assert rebuilt_edit_form['name'].value() == 'Persisted Name'
+        assert rebuilt_edit_form['description'].value() == 'Persisted Description'
+        assert rebuilt_edit_form['notify_owner'].value() is True

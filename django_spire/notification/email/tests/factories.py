@@ -21,12 +21,6 @@ def create_test_email_notification(**kwargs) -> EmailNotification:
         )
         kwargs['notification'] = notification
 
-    data = {
-        'to_email_address': 'test@example.com',
-        'template_id': '',
-        'context_data': {},
-        'cc': [],
-        'bcc': [],
-    }
+    data = {'to': ['test@example.com'], 'template_id': '', 'context_data': {}, 'cc': [], 'bcc': []}
     data.update(kwargs)
     return EmailNotification.objects.create(**data)

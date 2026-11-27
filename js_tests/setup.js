@@ -14,9 +14,16 @@ globalThis.Alpine = Alpine
 const SCRIPTS = '../django_spire/core/static/django_spire/js'
 
 await import(`${SCRIPTS}/spire.js`)
+await import(`${SCRIPTS}/date.js`)
 await import(`${SCRIPTS}/notify.js`)
+await import(`${SCRIPTS}/dropdown_widget.js`)
+await import(`${SCRIPTS}/choice_source.js`)
+await import(`${SCRIPTS}/search_and_select.js`)
+await import(`${SCRIPTS}/multi_search_and_select.js`)
+await import(`${SCRIPTS}/combobox.js`)
 await import(`${SCRIPTS}/components/async_button.js`)
 await import(`${SCRIPTS}/components/scroll.js`)
+await import(`${SCRIPTS}/components/tabs.js`)
 await import(`${SCRIPTS}/chart.js`)
 
 Alpine.start()

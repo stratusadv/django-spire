@@ -138,6 +138,22 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
 
         assert 'selectItem({value: null})' not in html
 
+    def test_a_search_field_renders_action_choices_only_when_given(self) -> None:
+        plain_html = render_to_string(
+            'django_spire/glue/form/field/choice/search_field.html',
+            {'glue_field': 'form.customer'},
+        )
+        action_html = render_to_string(
+            'django_spire/glue/form/field/choice/search_field.html',
+            {'glue_field': 'form.customer', 'x_action_choices': 'actionChoices'},
+        )
+
+        assert 'data-action-choices' not in plain_html
+        assert 'data-action-choices' in action_html
+        assert 'searchAndSelect(field, () => (actionChoices))' in action_html
+        assert 'x-for="(actionChoice, actionIndex) in actionChoices"' in action_html
+        assert 'runActionChoice(actionChoice)' in action_html
+
     def test_a_choice_source_can_be_built_over_any_values(self) -> None:
         source_js = _core_js('choice_source.js')
         multi_js = _core_js('multi_search_and_select.js')
@@ -147,3 +163,68 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         assert 'addChoice(value)' in source_js
         assert 'removeChoice(value)' in source_js
         assert 'escapeHtml(choice.label)' in multi_js
+
+    def test_dropdown_choice_widgets_wire_keyboard_navigation(self) -> None:
+        single_html = render_to_string(
+            'django_spire/widget/search_and_select_widget.html',
+            {'source': 'field', 'include_empty': True},
+        )
+        multi_html = render_to_string(
+            'django_spire/widget/multi_search_and_select_widget.html',
+            {'source': 'field'},
+        )
+        dropdown_js = _core_js('dropdown_widget.js')
+        search_js = _core_js('search_and_select.js')
+        multi_js = _core_js('multi_search_and_select.js')
+
+        assert 'Spire.widget.dropdown = {' in dropdown_js
+        assert "Alpine.bind('dropdownTrigger'" in dropdown_js
+        assert "Alpine.bind('dropdownSearchInput'" in dropdown_js
+        assert "Alpine.bind('dropdownOption'" in dropdown_js
+        assert '...Spire.widget.dropdown,' in search_js
+        assert '...Spire.widget.dropdown,' in multi_js
+
+        assert 'data-include-empty="true"' in single_html
+        assert 'x-bind="dropdownTrigger"' in single_html
+        assert 'x-bind="dropdownSearchInput"' in single_html
+        assert 'x-bind="dropdownOption(' in single_html
+
+        assert 'x-bind="dropdownTrigger"' in multi_html
+        assert 'x-bind="dropdownSearchInput"' in multi_html
+        assert 'x-bind="dropdownOption(' in multi_html
+        assert '@keydown.space="handleSpaceKey($event)"' in multi_html
+
+    def test_combobox_field_renders_freeform_input_with_dropdown_options(self) -> None:
+        html = render_to_string(
+            'django_spire/glue/form/field/char/combobox_field.html',
+            {
+                'glue_field': 'form.title',
+                'placeholder': 'Product or service',
+                'x_options': 'component.sold_product_choices',
+                'x_on_select': 'applyProduct(form, option)',
+            },
+        )
+        combobox_js = _core_js('combobox.js')
+
+        assert 'x-data="glueField(' in html
+        expected_combobox = (
+            'x-data="combobox(field, () => (component.sold_product_choices), '
+            '(option) => { applyProduct(form, option) })"'
+        )
+        assert expected_combobox in html
+        assert 'role="combobox"' in html
+        assert 'x-bind="dropdownOption(() => index)"' in html
+        assert 'bg-body' in html
+        assert 'bg-white' not in html
+        assert '@keydown.escape="if (showDropdown) { $event.stopPropagation(); closeDropdown() }"' in html
+        assert 'Product or service' in html
+        assert '...Spire.widget.dropdown,' in combobox_js
+
+    def test_search_and_select_widget_uses_theme_aware_background(self) -> None:
+        html = render_to_string(
+            'django_spire/widget/search_and_select_widget.html',
+            {'source': 'field', 'x_action_choices': 'actions'},
+        )
+
+        assert 'bg-body' in html
+        assert 'bg-white' not in html

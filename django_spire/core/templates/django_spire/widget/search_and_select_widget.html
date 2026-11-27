@@ -10,12 +10,17 @@
 {#   empty_label         Optional. The empty choice's label. Defaults to 'Select ...'.     #}
 {#   x_control_id        Optional. An Alpine expression for the shown input's id, which    #}
 {#                       a label is tied to: 'fieldId' in a Glue field's widget.           #}
+{#   x_action_choices    Optional. An Alpine expression for an array of                    #}
+{#                       {label, onClick, icon?} items pinned to the bottom of the         #}
+{#                       dropdown. Clicking one closes the dropdown and calls              #}
+{#                       onClick(searchQuery) without changing the source value.           #}
 {#                                                                                         #}
 {# Choosing a value raises input and change on the input, which bubble.                    #}
 <div
     class="position-relative"
+    {% if include_empty %}data-include-empty="true"{% endif %}
     @click.outside="closeDropdown()"
-    x-data="searchAndSelect({{ source }})"
+    x-data="searchAndSelect({{ source }}{% if x_action_choices %}, () => ({{ x_action_choices }}){% endif %})"
 >
     <div class="position-relative">
         <input
@@ -23,29 +28,28 @@
             {% if x_control_id %}:id="{{ x_control_id }}"{% endif %}
             type="text"
             class="form-control"
-            :class="{'is-invalid': hasErrors}"
             :value="labelText(selectedChoice)"
+            x-bind="dropdownTrigger"
             @focus="openDropdown()"
             @click="openDropdown()"
             readonly
-            :disabled="isDisabled"
             placeholder="{{ placeholder|default:'Search ...' }}"
         >
         <div
+            x-ref="dropdown"
+            role="listbox"
             x-cloak
             x-show="showDropdown"
-            class="shadow border rounded-2 position-absolute w-100 list-group bg-white"
+            class="shadow border rounded-2 position-absolute w-100 list-group bg-body"
             :style="dropdownStyle"
         >
-            <div class="p-2 border-bottom bg-white">
+            <div class="p-2 border-bottom bg-body">
                 <input
                     x-ref="searchInput"
                     type="text"
                     class="form-control form-control-sm"
                     x-model="searchQuery"
-                    @input.stop.debounce.200ms="searchChoices()"
-                    @change.stop
-                    @keydown.escape="closeDropdown()"
+                    x-bind="dropdownSearchInput"
                     placeholder="{{ search_placeholder|default:'Search...' }}"
                 >
             </div>
@@ -56,16 +60,21 @@
                 Searching...
             </div>
             {% if include_empty %}
-                <div
-                    class="py-2 px-3 list-group-item cursor-pointer text-muted"
-                    x-show="searchQuery.length === 0"
-                    @click="selectItem({value: null})"
-                >
-                    {{ empty_label|default:'Select ...' }}
-                </div>
+                <template x-if="hasEmptyChoice">
+                    <div
+                        x-bind="dropdownOption(() => 0)"
+                        :aria-selected="activeIndex === 0"
+                        class="py-2 px-3 list-group-item cursor-pointer"
+                        @click="selectItem({value: null})"
+                    >
+                        <span :class="{'text-muted': activeIndex !== 0}">{{ empty_label|default:'Select ...' }}</span>
+                    </div>
+                </template>
             {% endif %}
-            <template x-for="choice in filteredChoices" :key="choice.value">
+            <template x-for="(choice, index) in filteredChoices" :key="choice.value">
                 <div
+                    x-bind="dropdownOption(() => hasEmptyChoice ? index + 1 : index)"
+                    :aria-selected="activeIndex === (hasEmptyChoice ? index + 1 : index)"
                     class="py-2 px-3 list-group-item cursor-pointer"
                     @click="selectItem(choice)"
                 >
@@ -79,10 +88,31 @@
             </template>
             <div
                 class="py-3 px-3 text-center text-muted"
-                x-show="isSearchable && !isSearching && searchQuery.length === 0"
+                x-show="isSearchable && !isSearching && filteredChoices.length === 0 && searchQuery.length === 0"
             >
                 Start typing to search
             </div>
+            {% if x_action_choices %}
+                <div class="position-sticky bottom-0 bg-body" data-action-choices>
+                    <template x-for="(actionChoice, actionIndex) in actionChoices" :key="actionChoice.label">
+                        <button
+                            type="button"
+                            x-bind="dropdownOption(() => choiceCount + actionIndex)"
+                            :aria-selected="activeIndex === choiceCount + actionIndex"
+                            class="list-group-item list-group-item-action border-0 border-top fw-medium text-start py-2 px-3"
+                            data-action-choice
+                            @click="runActionChoice(actionChoice)"
+                        >
+                            <span :class="{'text-primary': activeIndex !== choiceCount + actionIndex}">
+                                <template x-if="actionChoice.icon">
+                                    <i :class="actionChoice.icon" class="me-1"></i>
+                                </template>
+                                <span x-text="actionChoice.label"></span>
+                            </span>
+                        </button>
+                    </template>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

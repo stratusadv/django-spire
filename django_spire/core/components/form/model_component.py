@@ -63,16 +63,31 @@ class ModelFormComponent(BaseFormComponent):
 
     @Glue.child
     def model(self) -> Glue.Model:
+        target = self.get_model()
+        initial = self.get_initial()
+
+        if initial:
+            form = self.form_class(instance=target, initial=initial)
+            form.initial = dict(initial)
+        else:
+            form = self.form_class
+
         return Glue.model(
-            target=self.get_model(),
+            target=target,
             access=self.access,
             fields=self.get_fields(),
-            form=self.form_class,
+            form=form,
         )
+
+    def get_initial(self) -> dict[str, Any]:
+        return {}
 
     def get_fields(self) -> Sequence[str]:
         if self.fields is None:
-            return tuple(self.form_class.base_fields)
+            model_field_names = {
+                field.name for field in self.form_class._meta.model._meta.get_fields()
+            }
+            return tuple(name for name in self.form_class.base_fields if name in model_field_names)
         return self.fields
 
     def get_model(self) -> Model:

@@ -292,7 +292,7 @@ document.addEventListener('alpine:init', () => {
 
             const form = await this.component.load_item_form();
 
-            form.model.form.$on('saved', ({detail}) => {
+            this.onFormSubmitted(form.model.form, ({detail}) => {
                 this.addItem(detail.pk);
                 Spire.modal.close();
             });
@@ -339,11 +339,19 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            form.model.form.$on('saved', ({detail}) => {
+            this.onFormSubmitted(form.model.form, ({detail}) => {
                 this.refreshItem(detail.pk);
                 Spire.modal.close();
             });
             await Spire.modal.dispatchGlueComponent(form);
+        },
+        onFormSubmitted(form, callback) {
+            const declaredEvents = form?._record?.staticData?.events || [];
+            const eventName = declaredEvents.includes('submitted') || !declaredEvents.includes('saved')
+                ? 'submitted'
+                : 'saved';
+
+            form.$on(eventName, callback);
         },
         async loadOrRemoveItem(key, load) {
             try {

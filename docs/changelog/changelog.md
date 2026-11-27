@@ -1,5 +1,68 @@
 # Changelog
 
+## v1.8.0 - November 27, 2026
+
+### Added
+
+- **`TabsComponent` & `Tab` (`django_spire.core.components`) and `spireTabs` URL syncing.**
+  - `TabsComponent` hosts lazy `component`, `view_url` (`GET`/`POST` via `Glue.view`),
+    `template`, and `href` tabs with `?tab=...` URL query syncing (`history.replaceState`),
+    per-tab caching (`cache_tabs = True`, overridable via `Tab(..., cache=False)`),
+    `invalidateTab()`, `reloadTab()`, and the `tab_invalidated` Glue event.
+  - Static Bootstrap tabs (`django_spire/tab/section.html` + `tab.html`) gain optional
+    `spireTabs({urlParam})` URL syncing and initial tab restoration via `tab_url_param`.
+- **`Spire.Form` and `Spire.ModelForm` (`django_spire.core.forms`).**
+  Base form classes with single-round-trip `submit()` and a per-subclass `submitted` Glue
+  event (`Spire.ModelForm` saves through `services.save_model_obj` with fallback to
+  `form.save()`). `django_spire/glue/form/form.html` drops the redundant `.validate()`
+  round-trip, and `crudScrollComponent` listens for `submitted` (falling back to `saved`).
+- **`SearchAndSortScrollMixin` (`django_spire.core.components`).**
+  Reusable mixin adding `search` and `sort` (`TextChoices` validation and auto-inferred
+  `sort_choices`) to scroll components.
+- **`GlueFormPath` & `glue_form_path` template tag (`django_spire_glue`).**
+  Supports unquoted field path references in Glue form templates.
+- **Flexible `ModelCrudScrollComponent` and `ModelFormComponent` hooks.**
+  Added `ModelCrudScrollComponent.get_item_form_options()`, callable
+  `FormOptions.component`, and `ModelFormComponent.get_initial()`.
+- **Combobox widget, action choices, and `check_class` override.**
+  - Added `django_spire/widget/combobox_widget.html` and
+    `django_spire/glue/form/field/char/combobox_field.html` backed by `combobox.js`.
+  - Added sticky `x_action_choices` items and pre-loaded/async choice support on
+    `search_and_select_widget.html`.
+  - Added optional `check_class` override on `django_spire/glue/form/field/boolean/field.html`
+    (defaults to `'form-switch'`; pass `check_class=''` for a plain checkbox).
+- **Keyboard navigation for Spire dropdown widgets.**
+  `search_and_select_widget.html`, `multi_search_and_select_widget.html`, and
+  `combobox_widget.html` share `Spire.widget.dropdown` (`dropdown_widget.js`) with
+  `Alpine.bind('dropdownOption')`: `ArrowDown` and `ArrowUp` move and scroll the highlighted
+  option (wrapping and skipping disabled choices), `Enter` selects or toggles it, and `Space`
+  in multi-select toggles the highlighted choice while still allowing spaces in search text.
+  *(Note: dropdown items inside `role="listbox"` now carry `role="option"`; browser tests
+  that previously matched dropdown items with `get_by_role('button', ...)` should use
+  `get_by_role('option', ...)`.)*
+- **`EmailNotification.to` (`JSONField(default=list)`), `by_to_email()`, and `EmailListValidator`.**
+  Adds validated multi-recipient primary delivery matching `cc` and `bcc` on `full_clean()`,
+  `save()`, `bulk_create()`, `bulk_update()`, and queryset `update()` — non-lists, malformed
+  emails, empty `to`, and case-insensitive duplicate recipients within or across
+  `to`/`cc`/`bcc` raise `ValidationError`. `SendGridEmailHelper` formats `template_data['to']`
+  as `', '.join(self.to)`. Migration `0004_emailnotification_to_and_more` backfills existing
+  `v0` and `v1` rows in 1,000-row chunks without dropping `to_email_address`.
+- **`Spire.date.addDays(isoDate, days)`:** a date input's `YYYY-MM-DD` value moved by a number
+  of days, across months and years, and back for a negative number, counted in UTC so daylight
+  saving changes never shift the day (`Spire.date.addDays('2026-12-20', 15)` is `'2027-01-04'`).
+
+### Deprecated
+
+- **`EmailNotification.to_email_address` is deprecated in favor of `EmailNotification.to` (`JSONField(default=list)`).**
+  `to_email_address` remains on the model as a backwards-compatible field that stays automatically
+  synced with `to` (`to=[to_email_address]` when legacy callers write `to_email_address`, emitting
+  `DeprecationWarning`, and mirroring `to[0]` back to `to_email_address` on writes to `to`), and
+  will be removed in a future release. Existing callers, queryset filters, and templates continue
+  to work without breaking while you migrate:
+  1. Replace `to_email_address=...` with `to=[...]` in `EmailNotification` creation and update calls.
+  2. Replace `.filter(to_email_address=...)` with `EmailNotification.objects.by_to_email(email)`.
+  3. Replace `{{ notification.email.to_email_address }}` in templates with `{{ notification.email.to|join:', ' }}`.
+
 ## v1.7.0 - November 24, 2026
 
 ### Changed

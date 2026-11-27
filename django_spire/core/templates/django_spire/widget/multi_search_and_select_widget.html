@@ -20,9 +20,8 @@
         x-ref="trigger"
         {% if x_control_id %}:id="{{ x_control_id }}"{% endif %}
         class="form-control text-start d-flex align-items-center justify-content-between gap-2"
-        :class="{'is-invalid': hasErrors}"
         type="button"
-        :disabled="isDisabled"
+        x-bind="dropdownTrigger"
         @click="isOpen ? close() : open()"
     >
         <span class="d-flex flex-wrap align-items-center gap-1 overflow-hidden">
@@ -55,22 +54,28 @@
                 type="search"
                 x-ref="searchInput"
                 x-model="search"
-                @input.stop.debounce.200ms="searchChoices()"
-                @change.stop
-                @keydown.enter.prevent="addChoice(filteredChoices[0])"
-                @keydown.escape.stop="close()"
+                x-bind="dropdownSearchInput"
+                @keydown.space="handleSpaceKey($event)"
                 placeholder="{{ search_placeholder|default:'Search...' }}"
             >
         </div>
-        <div class="overflow-auto" style="max-height: {{ max_height|default:'18rem' }};">
+        <div
+            x-ref="dropdown"
+            role="listbox"
+            aria-multiselectable="true"
+            class="overflow-auto"
+            style="max-height: {{ max_height|default:'18rem' }};"
+        >
             <div
                 class="p-3 text-center text-body-secondary"
                 x-show="isSearchable && isSearching"
             >
                 Searching...
             </div>
-            <template x-for="choice in selectedChoices" :key="`selected-${choice.value}`">
+            <template x-for="(choice, index) in selectedChoices" :key="`selected-${choice.value}`">
                 <button
+                    x-bind="dropdownOption(() => index)"
+                    aria-selected="true"
                     class="btn btn-sm d-flex w-100 align-items-center rounded-0 border-0 px-2 py-1 text-start"
                     type="button"
                     :disabled="isChoiceDisabled(choice)"
@@ -85,8 +90,10 @@
             >
                 Choices
             </div>
-            <template x-for="choice in filteredChoices" :key="choice.value">
+            <template x-for="(choice, index) in filteredChoices" :key="choice.value">
                 <button
+                    x-bind="dropdownOption(() => selectedChoices.length + index)"
+                    aria-selected="false"
                     class="btn btn-sm d-flex w-100 align-items-center rounded-0 border-0 px-2 py-1 text-start"
                     type="button"
                     :disabled="isChoiceDisabled(choice)"
@@ -103,7 +110,7 @@
             </div>
             <div
                 class="p-3 text-center text-body-secondary"
-                x-show="isSearchable && !isSearching && search.length === 0"
+                x-show="isSearchable && !isSearching && filteredChoices.length === 0 && search.length === 0"
             >
                 Start typing to search
             </div>

@@ -6,13 +6,15 @@
         x-data="glueMultiFileField({ max_files: {{ max_files|default:'null' }}, accept: '{{ accept|default:''|escapejs }}', maximum_filesize: {{ maximum_filesize|default:'10' }} })"
     >
         <button
+            :id="fieldId"
             class="form-control text-start d-flex justify-content-between"
+            :class="{ 'is-invalid': field.hasErrors }"
             type="button"
             @click="show_dropdown = !show_dropdown"
         >
             <span class="d-flex flex-wrap align-items-center">
                 <template x-if="files.length === 0">
-                    <span class="text-muted">No files selected</span>
+                    <span class="text-muted">{{ placeholder|default:'No files selected' }}</span>
                 </template>
                 <template x-for="(file, index) in files" :key="file.id">
                     <span class="badge bg-secondary me-1" x-text="truncate_name(file.name)"></span>
@@ -27,6 +29,7 @@
 
         <input
             type="file"
+            multiple
             x-ref="file_input"
             class="d-none"
             @change="handle_files_change"

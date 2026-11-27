@@ -1,0 +1,5 @@
+{% extends 'django_spire/glue/form/widget/widget.html' %}
+
+{% block widget_content %}
+    {% include 'django_spire/widget/combobox_widget.html' with x_source='field' x_control_id='fieldId' %}
+{% endblock %}

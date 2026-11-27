@@ -47,6 +47,18 @@ class FormOptionsTestCase(BaseTestCase):
         assert form.template == FORM_TEMPLATE
         assert form.model.instance.pk is None
 
+    def test_a_non_callable_component_is_refused(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='callable factory'):
+            FormOptions(component='not-callable')
+
+    def test_a_non_model_form_component_class_or_factory_result_is_refused(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='ModelFormComponent'):
+            FormOptions(component=dict)  # type: ignore[arg-type]
+
+        bad_factory_options = FormOptions(component=lambda **_kwargs: object())  # type: ignore[arg-type]
+        with pytest.raises(ImproperlyConfigured, match='must return a ModelFormComponent'):
+            bad_factory_options.build_component()
+
     def test_a_component_beside_a_form_class_or_template_is_refused(self) -> None:
         with pytest.raises(ImproperlyConfigured, match='not both'):
             FormOptions(component=CommentFormComponent, form_class=CommentForm)

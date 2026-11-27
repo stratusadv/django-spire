@@ -1,0 +1,71 @@
+{# A freeform text input with a dropdown of suggestions when clicked or typed into.        #}
+{#                                                                                         #}
+{#   x_source        An Alpine expression for the field/source: 'field' for a Glue form    #}
+{#                   field, or any object with `value` (see js/combobox.js).               #}
+{#   x_options       Optional. An Alpine expression evaluating to an array of strings or   #}
+{#                   {value, label?, detail?, ...} suggestion objects.                     #}
+{#   x_on_select     Optional. An Alpine expression run when a suggestion is picked;       #}
+{#                   `option` is in scope.                                                 #}
+{#   placeholder     Optional. Fixed placeholder text.                                     #}
+{#   x_placeholder   Optional. An Alpine expression replacing placeholder.                 #}
+{#   input_class     Optional. Extra classes for the input element.                        #}
+{#   x_control_id    Optional. An Alpine expression for the input's id: 'fieldId' in a     #}
+{#                   Glue field's widget.                                                  #}
+<div
+    class="position-relative"
+    @click.outside="closeDropdown()"
+    x-data="combobox({{ x_source }}{% if x_options %}, () => ({{ x_options }}){% else %}, () => []{% endif %}{% if x_on_select %}, (option) => { {{ x_on_select }} }{% endif %})"
+>
+    <input
+        x-ref="input"
+        type="text"
+        role="combobox"
+        autocomplete="off"
+        aria-autocomplete="list"
+        :aria-expanded="showDropdown.toString()"
+        {% if x_control_id %}:id="{{ x_control_id }}"{% endif %}
+        :name="{{ x_source }}?.name"
+        :required="Boolean({{ x_source }}?.required)"
+        :disabled="isDisabled"
+        :maxlength="{{ x_source }}?.max_length"
+        :minlength="{{ x_source }}?.min_length"
+        class="form-control {{ input_class }}"
+        :class="{'is-invalid': hasErrors}"
+        :value="inputValue"
+        {% if x_placeholder %}:placeholder="{{ x_placeholder }}"{% endif %}
+        placeholder="{{ placeholder }}"
+        @focus="openDropdown()"
+        @click="openDropdown()"
+        @input="onInput($event.target.value)"
+        @keydown.arrow-down.prevent="moveActive(1)"
+        @keydown.arrow-up.prevent="moveActive(-1)"
+        @keydown.enter="if (showDropdown && activeIndex >= 0) { $event.preventDefault(); activateActive() }"
+        @keydown.escape="if (showDropdown) { $event.stopPropagation(); closeDropdown() }"
+        @keydown.tab="closeDropdown()"
+    >
+    <div
+        x-ref="dropdown"
+        role="listbox"
+        x-cloak
+        x-show="showDropdown && filteredOptions.length > 0"
+        class="shadow border rounded-2 position-absolute w-100 list-group bg-body"
+        :style="dropdownStyle"
+    >
+        <template x-for="(option, index) in filteredOptions" :key="`${option.value}-${index}`">
+            <div
+                x-bind="dropdownOption(() => index)"
+                :aria-selected="activeIndex === index"
+                class="py-2 px-3 list-group-item cursor-pointer"
+                @mousedown.prevent
+                @click="selectOption(option)"
+            >
+                <div class="row g-2 align-items-center">
+                    <div class="col" x-text="option.label"></div>
+                    <template x-if="option.detail">
+                        <div class="col-auto fs--1" :class="{'text-muted': activeIndex !== index}" x-text="option.detail"></div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>

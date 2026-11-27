@@ -302,4 +302,22 @@ describe('crudScrollComponent', () => {
         expect(await scroll.loadOrRemoveItem(1, async () => 'the form')).toBe('the form')
         expect(scroll.keys).toEqual([1])
     })
+
+    test('listens for submitted on forms that declare it and falls back to saved on legacy forms', async () => {
+        const scroll = await mountScroll(glueComponent([row(1)]), {name: 'crudScrollComponent'})
+        const received = []
+        const newForm = {
+            _record: {staticData: {events: ['submitted']}},
+            $on(name) { received.push(name) },
+        }
+        const legacyForm = {
+            _record: {staticData: {events: ['saved']}},
+            $on(name) { received.push(name) },
+        }
+
+        scroll.onFormSubmitted(newForm, () => {})
+        scroll.onFormSubmitted(legacyForm, () => {})
+
+        expect(received).toEqual(['submitted', 'saved'])
+    })
 })

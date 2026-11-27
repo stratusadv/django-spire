@@ -475,3 +475,74 @@ class TestWidgetShowcaseRoundTrip:
         expect(live_value('Char field')).to_have_text('After Edit')
         expect(live_value('Integer field')).to_have_text('99')
         demo.spotlight(live_panel, label='Updated without a reload')
+
+
+class TestDropdownKeyboardNavigation:
+    def test_single_select_dropdown_navigates_with_arrows_and_selects_with_enter(
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
+    ) -> None:
+        del transactional_db
+
+        create_test_showcase_category(name='Alpha Cat')
+        create_test_showcase_category(name='Beta Cat')
+        create_test_showcase_category(name='Gamma Cat')
+
+        demo = demo_start()
+        open_showcase_form(demo, page)
+
+        widget = field_widget(page, 'Category')
+        widget.locator('input[type="text"]').first.click()
+        search_input = widget.locator('input.form-control-sm')
+        expect(search_input).to_be_focused()
+        search_input.fill('Cat')
+
+        options = widget.locator('[data-choice-item]')
+        expect(options).to_have_count(3)
+        expect(options.nth(0)).to_have_class('py-2 px-3 list-group-item cursor-pointer active')
+
+        search_input.press('ArrowDown')
+        expect(options.nth(1)).to_have_class('py-2 px-3 list-group-item cursor-pointer active')
+
+        search_input.press('ArrowDown')
+        expect(options.nth(2)).to_have_class('py-2 px-3 list-group-item cursor-pointer active')
+
+        search_input.press('ArrowUp')
+        expect(options.nth(1)).to_have_class('py-2 px-3 list-group-item cursor-pointer active')
+
+        search_input.press('Enter')
+        expect(single_select_trigger(page, 'Category')).to_have_value('Beta Cat')
+        expect(widget.locator('[role="listbox"]')).to_be_hidden()
+
+    def test_multi_select_dropdown_navigates_with_arrows_and_toggles_with_space(
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
+    ) -> None:
+        del transactional_db
+
+        create_test_showcase_tag(name='Alpha Tag')
+        create_test_showcase_tag(name='Beta Tag')
+        create_test_showcase_tag(name='Gamma Tag')
+
+        demo = demo_start()
+        open_showcase_form(demo, page)
+
+        widget = field_widget(page, 'Checkbox tags')
+        open_multi_picker(widget)
+        search_input = widget.locator('input[type="search"]')
+        options = widget.locator('[data-choice-item]')
+
+        expect(search_input).to_be_focused()
+        expect(options).to_have_count(3)
+
+        search_input.press('ArrowDown')
+        search_input.press('Space')
+        expect(widget.locator('button.form-control .badge')).to_have_text(['Beta Tag'])
+
+        search_input.press('Space')
+        expect(widget.locator('button.form-control .badge')).to_have_count(0)
+
+        search_input.press('ArrowDown')
+        search_input.press('Space')
+        expect(widget.locator('button.form-control .badge')).to_have_text(['Gamma Tag'])
+
+        search_input.press('Escape')
+        expect(search_input).to_be_hidden()
