@@ -1,7 +1,7 @@
 {# A freeform text input with a dropdown of suggestions when clicked or typed into.        #}
 {#                                                                                         #}
-{#   source          The Alpine expression for the field/source: 'field' for a Glue        #}
-{#                   form field, or any object with `value` (see js/combobox.js).          #}
+{#   x_source        An Alpine expression for the field/source: 'field' for a Glue form    #}
+{#                   field, or any object with `value` (see js/combobox.js).               #}
 {#   x_options       Optional. An Alpine expression evaluating to an array of strings or   #}
 {#                   {value, label?, detail?, ...} suggestion objects.                     #}
 {#   x_on_select     Optional. An Alpine expression run when a suggestion is picked;       #}
@@ -14,7 +14,7 @@
 <div
     class="position-relative"
     @click.outside="closeDropdown()"
-    x-data="combobox({{ source }}{% if x_options %}, () => ({{ x_options }}){% else %}, () => []{% endif %}{% if x_on_select %}, (option) => { {{ x_on_select }} }{% endif %})"
+    x-data="combobox({{ x_source }}{% if x_options %}, () => ({{ x_options }}){% else %}, () => []{% endif %}{% if x_on_select %}, (option) => { {{ x_on_select }} }{% endif %})"
 >
     <input
         x-ref="input"
@@ -24,11 +24,11 @@
         aria-autocomplete="list"
         :aria-expanded="showDropdown.toString()"
         {% if x_control_id %}:id="{{ x_control_id }}"{% endif %}
-        :name="{{ source }}?.name"
-        :required="Boolean({{ source }}?.required)"
+        :name="{{ x_source }}?.name"
+        :required="Boolean({{ x_source }}?.required)"
         :disabled="isDisabled"
-        :maxlength="{{ source }}?.max_length"
-        :minlength="{{ source }}?.min_length"
+        :maxlength="{{ x_source }}?.max_length"
+        :minlength="{{ x_source }}?.min_length"
         class="form-control {{ input_class }}"
         :class="{'is-invalid': hasErrors}"
         :value="inputValue"
@@ -40,7 +40,7 @@
         @keydown.arrow-down.prevent="moveActive(1)"
         @keydown.arrow-up.prevent="moveActive(-1)"
         @keydown.enter="if (showDropdown && activeIndex >= 0) { $event.preventDefault(); activateActive() }"
-        @keydown.escape.stop="closeDropdown()"
+        @keydown.escape="if (showDropdown) { $event.stopPropagation(); closeDropdown() }"
         @keydown.tab="closeDropdown()"
     >
     <div
@@ -48,7 +48,7 @@
         role="listbox"
         x-cloak
         x-show="showDropdown && filteredOptions.length > 0"
-        class="shadow border rounded-2 position-absolute w-100 list-group bg-white"
+        class="shadow border rounded-2 position-absolute w-100 list-group bg-body"
         :style="dropdownStyle"
     >
         <template x-for="(option, index) in filteredOptions" :key="`${option.value}-${index}`">

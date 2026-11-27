@@ -6,7 +6,7 @@
 
 ## End State
 
-`EmailNotification` replaces `to_email_address` with a validated `to = models.JSONField(default=list)` field matching `cc` and `bcc`, rejects non-list inputs, invalid email addresses, empty `to`, and case-insensitive duplicate recipients within or across `to`/`cc`/`bcc` on `full_clean()`, `save()`, `bulk_create()`, and `bulk_update()`, formats `SendGridEmailHelper.template_data['to']` as `', '.join(self.to)`, safely migrates existing `v0`/`v1` database rows via chunked reversible migration `0004` before dropping `to_email_address`, and passes notification, help desk, admin smoke, migration, and `ruff` checks.
+`EmailNotification` introduces a validated `to = models.JSONField(default=list)` field matching `cc` and `bcc` while retaining `to_email_address` as a deprecated, two-way synced backwards-compatible DB column (with `DeprecationWarning` and PEP 702 `@deprecated` typing stub), rejects non-list inputs, invalid email addresses, empty `to`, and case-insensitive duplicate recipients within or across `to`/`cc`/`bcc` on `full_clean()`, `save()`, `bulk_create()`, `bulk_update()`, and `update()`, formats `SendGridEmailHelper.template_data['to']` as `', '.join(self.to)`, safely migrates existing `v0`/`v1` database rows via non-destructive chunked reversible migration `0004`, and passes notification, help desk, admin smoke, migration, and `ruff` checks.
 
 ## Observable Concern
 
@@ -131,3 +131,6 @@ Observed 2026-11-27:
 3. Booted local test PostgreSQL container and avoided reformatting unrelated lines outside `django_spire/notification/email/`
    - What: Started `docker compose -f test_project/docker-compose.test.yml up -d --wait` for PostgreSQL tests, and ran `ruff format` only on `django_spire/notification/email/` files while keeping all touched files clean under `ruff check`.
    - Why: Test Postgres on port 5439 was not running initially, and pre-existing files outside `notification/email` (`factories.py`, `notification_service.py`, `forms.py`) have unrelated formatting diffs under `ruff 0.17.6`.
+4. Restored `to_email_address` as a deprecated backwards-compatible column (superseding Deviation 1)
+   - What: Kept `to_email_address = models.EmailField(blank=True, default='', help_text='Deprecated: use `to` instead.')` in migration `0004` and `EmailNotification`, added two-way sync across `clean_fields()`, `clean()`, `save()`, `refresh_from_db()`, `bulk_create()`, `bulk_update()`, and `update()`, emitted `DeprecationWarning` on legacy writes, and exposed a `TYPE_CHECKING` `@deprecated` stub.
+   - Why: Ensures zero-downtime backwards compatibility for downstream apps upgrading to `v1.8.0` while surfacing loud deprecation warnings and static-checker hints for migration to `to`.

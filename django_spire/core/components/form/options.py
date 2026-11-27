@@ -29,9 +29,14 @@ class FormOptions:
     template: str | None = None
 
     def __post_init__(self) -> None:
-        if self.component is not None and not callable(self.component):
-            message = 'FormOptions.component must be a ModelFormComponent class or callable factory.'
-            raise ImproperlyConfigured(message)
+        if self.component is not None:
+            if isinstance(self.component, type):
+                if not issubclass(self.component, ModelFormComponent):
+                    message = 'FormOptions.component must be a ModelFormComponent subclass or callable factory.'
+                    raise ImproperlyConfigured(message)
+            elif not callable(self.component):
+                message = 'FormOptions.component must be a ModelFormComponent subclass or callable factory.'
+                raise ImproperlyConfigured(message)
 
         if self.component is not None and (
             self.form_class is not None or self.template is not None
@@ -51,7 +56,16 @@ class FormOptions:
 
     def build_component(self, **parameters: Any) -> ModelFormComponent:
         if self.component is not None:
-            return self.component(**parameters)
+            built_component = self.component(**parameters)
+
+            if not isinstance(built_component, ModelFormComponent):
+                message = (
+                    f'FormOptions.component factory must return a ModelFormComponent, '
+                    f'got {type(built_component).__name__}.'
+                )
+                raise ImproperlyConfigured(message)
+
+            return built_component
 
         return ModelFormComponent(
             form_class=self.form_class,

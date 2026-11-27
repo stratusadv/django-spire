@@ -13,4 +13,11 @@ describe('Spire.date.addDays', () => {
     ])('moves a date by %s', (_case, isoDate, days, expected) => {
         expect(Spire.date.addDays(isoDate, days)).toBe(expected)
     })
+
+    test('coerces numeric string days and returns empty string for empty or invalid input', () => {
+        expect(Spire.date.addDays('2026-12-20', '15')).toBe('2027-01-04')
+        expect(Spire.date.addDays('', 15)).toBe('')
+        expect(Spire.date.addDays(null, 15)).toBe('')
+        expect(Spire.date.addDays('2026-12-20', Number.NaN)).toBe('')
+    })
 })

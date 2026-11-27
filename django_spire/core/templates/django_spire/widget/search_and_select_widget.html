@@ -40,10 +40,10 @@
             role="listbox"
             x-cloak
             x-show="showDropdown"
-            class="shadow border rounded-2 position-absolute w-100 list-group bg-white"
+            class="shadow border rounded-2 position-absolute w-100 list-group bg-body"
             :style="dropdownStyle"
         >
-            <div class="p-2 border-bottom bg-white">
+            <div class="p-2 border-bottom bg-body">
                 <input
                     x-ref="searchInput"
                     type="text"
@@ -93,7 +93,7 @@
                 Start typing to search
             </div>
             {% if x_action_choices %}
-                <div class="position-sticky bottom-0 bg-white" data-action-choices>
+                <div class="position-sticky bottom-0 bg-body" data-action-choices>
                     <template x-for="(actionChoice, actionIndex) in actionChoices" :key="actionChoice.label">
                         <button
                             type="button"

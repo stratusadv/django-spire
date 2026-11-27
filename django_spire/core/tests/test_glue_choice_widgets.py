@@ -207,8 +207,24 @@ class GlueChoiceWidgetTemplateTestCase(SimpleTestCase):
         combobox_js = _core_js('combobox.js')
 
         assert 'x-data="glueField(' in html
-        assert 'x-data="combobox(field, () => (component.sold_product_choices), (option) => { applyProduct(form, option) })"' in html
+        expected_combobox = (
+            'x-data="combobox(field, () => (component.sold_product_choices), '
+            '(option) => { applyProduct(form, option) })"'
+        )
+        assert expected_combobox in html
         assert 'role="combobox"' in html
         assert 'x-bind="dropdownOption(() => index)"' in html
+        assert 'bg-body' in html
+        assert 'bg-white' not in html
+        assert '@keydown.escape="if (showDropdown) { $event.stopPropagation(); closeDropdown() }"' in html
         assert 'Product or service' in html
         assert '...Spire.widget.dropdown,' in combobox_js
+
+    def test_search_and_select_widget_uses_theme_aware_background(self) -> None:
+        html = render_to_string(
+            'django_spire/widget/search_and_select_widget.html',
+            {'source': 'field', 'x_action_choices': 'actions'},
+        )
+
+        assert 'bg-body' in html
+        assert 'bg-white' not in html

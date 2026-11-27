@@ -99,9 +99,10 @@ class GlueFormPathTestCase(SimpleTestCase):
     def test_form_template_exposes_form_path_under_object_name(self) -> None:
         template = Template(
             "{% extends 'django_spire/glue/form/modal_form.html' %}"
-            "{% block glue_form_content %}"
-            "{% include 'django_spire/glue/form/widget/input_widget.html' with glue_field=time_entry_form.description %}"
-            "{% endblock %}"
+            '{% block glue_form_content %}'
+            "{% include 'django_spire/glue/form/widget/input_widget.html' "
+            'with glue_field=time_entry_form.description %}'
+            '{% endblock %}'
         )
 
         rendered = template.render(

@@ -182,3 +182,25 @@ class EmailNotificationModelTests(BaseTestCase):
         self.email_notification.refresh_from_db()
         assert self.email_notification.to == ['new@example.com', 'second@example.com']
         assert self.email_notification.to_email_address == 'new@example.com'
+
+    def test_refresh_from_db_updates_recipient_snapshots(self):
+        EmailNotification.objects.filter(pk=self.email_notification.pk).update(to=['refreshed@example.com'])
+        self.email_notification.refresh_from_db()
+        assert self.email_notification.to == ['refreshed@example.com']
+
+        self.email_notification.to_email_address = 'after-refresh@example.com'
+        with pytest.warns(DeprecationWarning, match='to_email_address is deprecated'):
+            self.email_notification.save()
+
+        self.email_notification.refresh_from_db()
+        assert self.email_notification.to == ['after-refresh@example.com']
+        assert self.email_notification.to_email_address == 'after-refresh@example.com'
+
+    def test_save_update_fields_with_deferred_to_email_address_syncs_new_to(self):
+        deferred_notification = EmailNotification.objects.only('id', 'to').get(pk=self.email_notification.pk)
+        deferred_notification.to = ['deferred-new@example.com', 'second@example.com']
+        deferred_notification.save(update_fields=['to'])
+
+        reloaded = EmailNotification.objects.get(pk=self.email_notification.pk)
+        assert reloaded.to == ['deferred-new@example.com', 'second@example.com']
+        assert reloaded.to_email_address == 'deferred-new@example.com'

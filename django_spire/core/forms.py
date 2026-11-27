@@ -40,6 +40,14 @@ class SpireForm(forms.Form):
 
     def on_invalid(self, request: HttpRequest) -> GlueResponse:
         _ = request
+        glue_owner = getattr(self, '_glue_event_owner', None)
+
+        if glue_owner is not None:
+            derived_paths = getattr(glue_owner, '_derived_paths', None)
+
+            if isinstance(derived_paths, set):
+                derived_paths.update(self.fields)
+
         return GlueResponse(messages=[GlueMessage.error(self.invalid_message)])
 
     def on_submit(self, request: HttpRequest) -> GlueResponse | dict[str, Any] | None:
@@ -57,8 +65,8 @@ class SpireModelForm(SpireForm, forms.ModelForm):
         services = getattr(self.instance, 'services', None)
 
         if services is not None and hasattr(services, 'save_model_obj'):
-            saved = services.save_model_obj(**self.cleaned_data)
-            return saved[0] if isinstance(saved, tuple) else saved
+            saved_instance = services.save_model_obj(**self.cleaned_data)
+            return saved_instance[0] if isinstance(saved_instance, tuple) else saved_instance
 
         return self.save()
 

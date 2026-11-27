@@ -32,7 +32,16 @@ Spire.date = {
      * @returns {string} Format: 'YYYY-MM-DD'
      */
     addDays(isoDate, days) {
+        if (typeof isoDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+            return '';
+        }
+
+        const dayDelta = Number(days);
+        if (!Number.isFinite(dayDelta)) {
+            return '';
+        }
+
         const [year, month, day] = isoDate.split('-').map(Number);
-        return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
+        return new Date(Date.UTC(year, month - 1, day + dayDelta)).toISOString().slice(0, 10);
     }
 };

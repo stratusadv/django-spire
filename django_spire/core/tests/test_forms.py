@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
@@ -17,19 +17,22 @@ from django_glue.resolver.attribute_call.context import AttributeCallRequestCont
 from django_spire import Spire
 from django_spire.core.forms import SpireForm, SpireModelForm
 
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+
 
 class ContactForm(Spire.Form):
     email = forms.EmailField()
     note = forms.CharField(required=False)
 
-    def on_submit(self, request) -> dict[str, Any]:
+    def on_submit(self, request: HttpRequest) -> dict[str, Any]:
         return {'email': self.cleaned_data['email'], 'submitted_by': request.user.username}
 
 
 class CustomResponseForm(Spire.Form):
     title = forms.CharField()
 
-    def on_submit(self, request) -> GlueResponse:
+    def on_submit(self, request: HttpRequest) -> GlueResponse:
         _ = request
         return GlueResponse(result={'title': self.cleaned_data['title']})
 
@@ -40,6 +43,19 @@ class FakeModel(models.Model):
     class Meta:
         app_label = 'django_spire_core'
         managed = False
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class WriteOnlyAndDisabledForm(Spire.Form):
+    email = forms.EmailField()
+    secret = forms.CharField(widget=forms.PasswordInput())
+    locked = forms.CharField(disabled=True, required=False, initial='fixed')
+
+    def on_submit(self, request: HttpRequest) -> dict[str, Any]:
+        _ = request
+        return {'email': self.cleaned_data['email']}
 
 
 class FakeModelForm(Spire.ModelForm):
@@ -117,6 +133,26 @@ class SpireFormTestCase(SimpleTestCase):
         assert payload['effects'].get('events', []) == []
         assert payload['computed_data']['value_attributes']['email']['errors'] == [
             'Enter a valid email address.',
+        ]
+
+    def test_invalid_form_submit_syncs_errors_for_untouched_write_only_and_disabled_fields(self) -> None:
+        glue_form = FormGlue(WriteOnlyAndDisabledForm(), name='secret_form', access=Glue.Access.ADD)
+        glue_form.request = self.request
+
+        payload, _introduced = glue_form.process_attribute_call(
+            AttributeCallRequestContext.model_construct(
+                request=self.request,
+                target_glue_policy=glue_form.policy,
+                target_glue_updates={'email': 'not-an-email'},
+                target_attribute_name='submit',
+                target_attribute_call_kwargs={},
+            )
+        )
+
+        assert 'secret' in glue_form._derived_paths
+        assert 'locked' in glue_form._derived_paths
+        assert payload['computed_data']['value_attributes']['secret']['errors'] == [
+            'This field is required.',
         ]
 
     def test_on_submit_returning_glue_response_emits_result_metadata(self) -> None:

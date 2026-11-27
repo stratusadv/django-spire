@@ -48,16 +48,25 @@ class SearchAndSortScrollMixin:
                 )
                 raise ImproperlyConfigured(message)
 
+        has_inherited_sort = any('sort' in base.__dict__ for base in cls.__mro__)
+
         if issubclass(cls, Glue.Component) and cls.sort_choices is not None and (
             'sort' not in cls.__dict__
-            and (own_sort_choices is not None or own_default_sort is not None)
+            and (not has_inherited_sort or own_sort_choices is not None or own_default_sort is not None)
         ):
             if not (isinstance(cls.sort_choices, type) and issubclass(cls.sort_choices, models.Choices)):
                 message = f'{cls.__name__}.sort_choices must be a Django Choices subclass.'
                 raise ImproperlyConfigured(message)
 
             if cls.default_sort is not None:
-                initial = cls.default_sort
+                try:
+                    initial = cls.sort_choices(cls.default_sort)
+                except ValueError as error:
+                    message = (
+                        f'{cls.__name__}.default_sort ({cls.default_sort!r}) is not a valid '
+                        f'{cls.sort_choices.__name__} choice.'
+                    )
+                    raise ImproperlyConfigured(message) from error
             else:
                 initial = cls.sort_choices(cls.sort_choices.choices[0][0])
 

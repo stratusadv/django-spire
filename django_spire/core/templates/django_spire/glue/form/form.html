@@ -8,7 +8,7 @@
         try {
             const form = this.{{ glue_form_object_name }}
             const action = typeof form.submit === 'function' ? 'submit' : 'save_model_obj'
-            let result = await form[action]({% block glue_form_save_kwargs %}{}{% endblock %})
+            const result = await form[action]({% block glue_form_save_kwargs %}{}{% endblock %})
             {# TODO: Dispatch onsaved and onerror events with the Glue form in event.detail for ergonomic JavaScript hooks. #}
             {% block glue_form_on_saved %}
             if(result?.redirect) {

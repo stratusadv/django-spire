@@ -15,6 +15,8 @@ from django_spire.notification.email.validators import (
     ALL_RECIPIENT_FIELDS,
     EmailListValidator,
     MAX_EMAIL_FIELD_LENGTH,
+    find_cross_field_duplicate_errors,
+    run_email_list_validator,
 )
 from django_spire.notification.querysets import NotificationContentObjectQuerySet
 
@@ -27,7 +29,7 @@ if TYPE_CHECKING:
 
 
 class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQuerySet):
-    def annotate_is_viewed_by_user(self, user: User) -> QuerySet:
+    def annotate_is_viewed_by_user(self, user: User) -> QuerySet[EmailNotification]:
         return self.by_user(user=user).annotate(
             viewed=Case(
                 When(views__user=user, then=Value(value=True)), default=Value(value=False), output_field=BooleanField()
@@ -41,12 +43,12 @@ class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQueryS
             obj.sync_deprecated_to_email_address()
             obj.validate_recipients()
 
-        created = super().bulk_create(obj_list, *args, **kwargs)
+        created_notifications = super().bulk_create(obj_list, *args, **kwargs)
 
-        for obj in created:
+        for obj in created_notifications:
             obj._snapshot_recipient_fields()
 
-        return created
+        return created_notifications
 
     def bulk_update(self, objs: Iterable[EmailNotification], fields: Iterable[str], *args, **kwargs) -> int:
         obj_list = list(objs)
@@ -69,22 +71,22 @@ class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQueryS
 
         return updated_count
 
-    def by_to_email(self, email: str) -> QuerySet:
+    def by_to_email(self, email: str) -> QuerySet[EmailNotification]:
         if connections[self.db].features.supports_json_field_contains:
             return self.filter(to__contains=[email])
 
         return self.filter(to__icontains=json.dumps(email))
 
-    def by_user(self, user: User) -> QuerySet:
+    def by_user(self, user: User) -> QuerySet[EmailNotification]:
         return self.filter(notification__user=user)
 
-    def by_users(self, users: list[User]) -> QuerySet:
+    def by_users(self, users: list[User]) -> QuerySet[EmailNotification]:
         return self.filter(notification__user__in=users)
 
-    def exclude_viewed_by_user(self, user: User) -> QuerySet:
+    def exclude_viewed_by_user(self, user: User) -> QuerySet[EmailNotification]:
         return self.by_user(user=user).exclude(views__user=user)
 
-    def is_sent(self) -> QuerySet:
+    def is_sent(self) -> QuerySet[EmailNotification]:
         return self.filter(notification__status=NotificationStatusChoices.SENT)
 
     def update(self, **kwargs) -> int:
@@ -111,7 +113,8 @@ class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQueryS
 
     @staticmethod
     def _validate_recipient_update_kwargs(kwargs: dict) -> None:
-        errors: dict[str, list[ValidationError]] = {}
+        fields_errors: dict[str, list[ValidationError]] = {}
+        provided_fields_recipients: dict[str, list[str]] = {}
 
         validators = (
             ('to', EmailListValidator(allow_empty=False)),
@@ -123,19 +126,15 @@ class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQueryS
             if field_name not in kwargs or hasattr(kwargs[field_name], 'resolve_expression'):
                 continue
 
-            field_errors = EmailNotificationQuerySet._run_validator(kwargs[field_name], validator)
+            field_errors = run_email_list_validator(kwargs[field_name], validator)
 
             if field_errors:
-                errors[field_name] = field_errors
+                fields_errors[field_name] = field_errors
+            else:
+                provided_fields_recipients[field_name] = kwargs[field_name]
 
-        if errors:
-            raise ValidationError(errors)
+        if not fields_errors and len(provided_fields_recipients) > 1:
+            fields_errors.update(find_cross_field_duplicate_errors(provided_fields_recipients))
 
-    @staticmethod
-    def _run_validator(value: object, validator: EmailListValidator) -> list[ValidationError]:
-        try:
-            validator(value)
-        except ValidationError as exc:
-            return exc.error_list
-
-        return []
+        if fields_errors:
+            raise ValidationError(fields_errors)

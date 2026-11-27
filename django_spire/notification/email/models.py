@@ -13,6 +13,8 @@ from django_spire.notification.email.validators import (
     ALL_RECIPIENT_FIELDS,
     EmailListValidator,
     MAX_EMAIL_FIELD_LENGTH,
+    find_cross_field_duplicate_errors,
+    run_email_list_validator,
 )
 from django_spire.notification.models import Notification
 
@@ -83,13 +85,21 @@ class EmailNotification(models.Model):
         elif ALL_RECIPIENT_FIELDS.intersection(update_fields):
             self.sync_deprecated_to_email_address()
             self.validate_recipients()
-            updated = set(update_fields)
+            updated_field_names = set(update_fields)
+            deferred_fields = self.get_deferred_fields()
 
-            if 'to' in updated or 'to_email_address' in updated:
-                updated.update(('to', 'to_email_address'))
-                kwargs['update_fields'] = list(updated)
+            if 'to' in updated_field_names and 'to_email_address' not in deferred_fields:
+                updated_field_names.add('to_email_address')
+            if 'to_email_address' in updated_field_names and 'to' not in deferred_fields:
+                updated_field_names.add('to')
+
+            kwargs['update_fields'] = list(updated_field_names)
 
         super().save(*args, **kwargs)
+        self._snapshot_recipient_fields()
+
+    def refresh_from_db(self, *args, **kwargs) -> None:
+        super().refresh_from_db(*args, **kwargs)
         self._snapshot_recipient_fields()
 
     def clean_fields(self, exclude: set[str] | None = None) -> None:
@@ -101,17 +111,43 @@ class EmailNotification(models.Model):
         self.sync_deprecated_to_email_address()
 
         if self._has_valid_recipient_lists():
-            errors: dict[str, list[ValidationError]] = {}
-            self._validate_unique_across_recipient_fields(errors)
+            fields_errors = find_cross_field_duplicate_errors({'to': self.to, 'cc': self.cc, 'bcc': self.bcc})
 
-            if errors:
-                raise ValidationError(errors)
+            if fields_errors:
+                raise ValidationError(fields_errors)
 
     def sync_deprecated_to_email_address(self) -> None:
         """Keep deprecated ``to_email_address`` and canonical ``to`` in sync."""
-        deferred = self.get_deferred_fields()
+        deferred_fields = self.get_deferred_fields()
+        to_deferred = 'to' in deferred_fields
+        legacy_deferred = 'to_email_address' in deferred_fields
 
-        if 'to' in deferred or 'to_email_address' in deferred:
+        if to_deferred and legacy_deferred:
+            return
+
+        if to_deferred:
+            legacy_value = self.to_email_address or ''
+            legacy_changed = (
+                self._initial_to_email_address is not None and legacy_value != self._initial_to_email_address
+            )
+
+            if legacy_changed:
+                warnings.warn(
+                    'EmailNotification.to_email_address is deprecated; use EmailNotification.to=[...] instead.',
+                    DeprecationWarning,
+                    stacklevel=3,
+                )
+                self.to = [legacy_value] if legacy_value else []
+                self._snapshot_recipient_fields()
+
+            return
+
+        if legacy_deferred:
+            if isinstance(self.to, list) and self.to and isinstance(self.to[0], str):
+                self.to_email_address = self.to[0][:MAX_EMAIL_FIELD_LENGTH]
+            elif not self.to:
+                self.to_email_address = ''
+
             return
 
         to_value = self.to
@@ -146,12 +182,12 @@ class EmailNotification(models.Model):
             self.to_email_address = ''
 
     def _snapshot_recipient_fields(self) -> None:
-        deferred = self.get_deferred_fields()
-        self._initial_to = list(self.to) if 'to' not in deferred and isinstance(self.to, list) else None
-        self._initial_to_email_address = self.to_email_address if 'to_email_address' not in deferred else None
+        deferred_fields = self.get_deferred_fields()
+        self._initial_to = list(self.to) if 'to' not in deferred_fields and isinstance(self.to, list) else None
+        self._initial_to_email_address = self.to_email_address if 'to_email_address' not in deferred_fields else None
 
     def validate_recipients(self) -> None:
-        errors: dict[str, list[ValidationError]] = {}
+        fields_errors: dict[str, list[ValidationError]] = {}
 
         field_validators = (
             ('to', self.to, EmailListValidator(allow_empty=False)),
@@ -160,43 +196,21 @@ class EmailNotification(models.Model):
         )
 
         for field_name, value, validator in field_validators:
-            field_errors = self._run_recipient_validator(value, validator)
+            field_errors = run_email_list_validator(value, validator)
 
             if field_errors:
-                errors[field_name] = field_errors
+                fields_errors[field_name] = field_errors
 
-        if not errors:
-            self._validate_unique_across_recipient_fields(errors)
+        if not fields_errors:
+            fields_errors.update(
+                find_cross_field_duplicate_errors({'to': self.to, 'cc': self.cc, 'bcc': self.bcc})
+            )
 
-        if errors:
-            raise ValidationError(errors)
+        if fields_errors:
+            raise ValidationError(fields_errors)
 
     def _has_valid_recipient_lists(self) -> bool:
         return all(
             isinstance(value, list) and all(isinstance(item, str) for item in value)
             for value in (self.to, self.cc, self.bcc)
         )
-
-    @staticmethod
-    def _run_recipient_validator(value: object, validator: EmailListValidator) -> list[ValidationError]:
-        try:
-            validator(value)
-        except ValidationError as exc:
-            return exc.error_list
-
-        return []
-
-    def _validate_unique_across_recipient_fields(self, errors: dict[str, list[ValidationError]]) -> None:
-        seen_emails: set[str] = {email.lower() for email in self.to}
-        duplicate_message = 'Duplicate recipient across to, cc, and bcc: %(value)s.'
-
-        for field_name, recipients in (('cc', self.cc), ('bcc', self.bcc)):
-            duplicates = [email for email in recipients if email.lower() in seen_emails]
-
-            if duplicates:
-                errors[field_name] = [
-                    ValidationError(duplicate_message, code='duplicate_recipient', params={'value': email})
-                    for email in duplicates
-                ]
-
-            seen_emails.update(email.lower() for email in recipients)

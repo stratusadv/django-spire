@@ -5,9 +5,15 @@ import json
 import logging
 import re
 
+from typing import TYPE_CHECKING
+
 from django.db import migrations, models
 
 import django_spire.notification.email.validators
+
+if TYPE_CHECKING:
+    from django.db.backends.base.schema import BaseDatabaseSchemaEditor
+    from django.db.migrations.state import StateApps
 
 
 logger = logging.getLogger(__name__)
@@ -78,7 +84,8 @@ def _dedupe_recipients(emails: list[str], seen: set[str]) -> list[str]:
     return unique
 
 
-def migrate_email_recipients(apps, schema_editor) -> None:
+def migrate_email_recipients(apps: StateApps, schema_editor: BaseDatabaseSchemaEditor) -> None:
+    _ = schema_editor
     EmailNotification = apps.get_model('django_spire_notification_email', 'EmailNotification')
     batch = []
 
@@ -115,7 +122,8 @@ def migrate_email_recipients(apps, schema_editor) -> None:
         EmailNotification.objects.bulk_update(batch, ['to', 'to_email_address', 'cc', 'bcc'])
 
 
-def revert_email_recipients(apps, schema_editor) -> None:
+def revert_email_recipients(apps: StateApps, schema_editor: BaseDatabaseSchemaEditor) -> None:
+    _ = schema_editor
     EmailNotification = apps.get_model('django_spire_notification_email', 'EmailNotification')
     batch = []
 

@@ -65,10 +65,10 @@ class TabsComponent(Glue.Component, ABC):
             return
 
         if self.active_tab not in valid_pane_ids:
-            requested = request.GET.get(self.url_param) if self.url_param else None
+            requested_tab_id = request.GET.get(self.url_param) if self.url_param else None
 
-            if requested in valid_pane_ids:
-                self.active_tab = requested
+            if requested_tab_id in valid_pane_ids:
+                self.active_tab = requested_tab_id
             elif self.default_tab in valid_pane_ids:
                 self.active_tab = self.default_tab
             else:
@@ -80,10 +80,10 @@ class TabsComponent(Glue.Component, ABC):
 
     @cached_property
     def tabs(self) -> tuple[Tab, ...]:
-        resolved = tuple(self.get_tabs())
+        resolved_tabs = tuple(self.get_tabs())
         seen_ids: set[str] = set()
 
-        for tab in resolved:
+        for tab in resolved_tabs:
             if not isinstance(tab, Tab):
                 message = f'{type(self).__name__}.get_tabs() must return Tab instances, got {type(tab).__name__}.'
                 raise ImproperlyConfigured(message)
@@ -94,7 +94,7 @@ class TabsComponent(Glue.Component, ABC):
 
             seen_ids.add(tab.id)
 
-        return resolved
+        return resolved_tabs
 
     def get_tab(self, tab_id: str | None) -> Tab | None:
         if tab_id is None:
@@ -132,11 +132,10 @@ class TabsComponent(Glue.Component, ABC):
     @property
     def tabs_config_json(self) -> str:
         active = self.active_tab_obj
-        initial_loaded = (
-            [active.id]
-            if active is not None and (active.is_component or active.is_template)
-            else []
+        is_initially_loaded = active is not None and (
+            active.is_template or (active.is_component and bool(self.active_tab_html))
         )
+        initial_loaded = [active.id] if is_initially_loaded else []
 
         config: dict[str, Any] = {
             'activeTab': self.active_tab,

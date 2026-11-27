@@ -22,6 +22,8 @@ class GlueFormPath(str):
     ``format``, ``count``, ``index``, or ``split``.
     """
 
+    __slots__ = ()
+
     @overload
     def __getitem__(self, key: str) -> GlueFormPath: ...
 

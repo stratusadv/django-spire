@@ -58,3 +58,21 @@ class SearchAndSortScrollMixinTestCase(SimpleTestCase):
         with pytest.raises(ImproperlyConfigured, match='sort_choices must be a Django Choices subclass'):
             class BadSortChoicesComponent(SearchAndSortScrollMixin, _BaseDummyComponent):
                 sort_choices = [('name', 'Name')]  # type: ignore[assignment]
+
+    def test_inherits_sort_from_intermediate_non_component_mixin(self) -> None:
+        class IntermediateSortableMixin(SearchAndSortScrollMixin):
+            default_sort = _SampleSortChoices.CREATED
+
+        class ConcreteSortableComponent(IntermediateSortableMixin, _BaseDummyComponent):
+            pass
+
+        component = ConcreteSortableComponent()
+
+        assert component.search == ''
+        assert component.sort is _SampleSortChoices.CREATED
+
+    def test_refuses_invalid_default_sort_for_sort_choices(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match='is not a valid _SampleSortChoices choice'):
+            class InvalidDefaultSortComponent(SearchAndSortScrollMixin, _BaseDummyComponent):
+                sort_choices = _SampleSortChoices
+                default_sort = 'nonexistent'

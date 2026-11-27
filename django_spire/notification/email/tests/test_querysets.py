@@ -131,3 +131,20 @@ class EmailNotificationQuerySetTests(BaseTestCase):
     def test_legacy_filter_by_to_email_address_matches_first_recipient(self):
         result = EmailNotification.objects.filter(to_email_address='primary@example.com')
         assert self.email_notification in result
+
+    def test_update_rejects_cross_field_duplicate_recipients(self):
+        with pytest.raises(ValidationError) as exc_info:
+            EmailNotification.objects.filter(pk=self.email_notification.pk).update(
+                to=['dup@example.com'],
+                cc=['DUP@example.com'],
+            )
+        assert 'cc' in exc_info.value.message_dict
+
+        with pytest.warns(DeprecationWarning, match='to_email_address is deprecated'), pytest.raises(
+            ValidationError
+        ) as exc_info:
+            EmailNotification.objects.filter(pk=self.email_notification.pk).update(
+                to_email_address='dup@example.com',
+                bcc=['dup@example.com'],
+            )
+        assert 'bcc' in exc_info.value.message_dict

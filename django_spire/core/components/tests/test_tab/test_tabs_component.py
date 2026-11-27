@@ -189,3 +189,33 @@ class TabsComponentTestCase(SimpleTestCase):
             '{% block tab_url_param %}status{% endblock %}'
         ).render(Context({}))
         assert "spireTabs({urlParam: 'status'})" in section_html
+
+    def test_unauthorized_active_component_tab_is_not_marked_initially_loaded(self) -> None:
+        import json  # noqa: PLC0415
+        from types import SimpleNamespace  # noqa: PLC0415
+
+        from django.test import RequestFactory  # noqa: PLC0415
+
+        from django_spire.core.components.tab import Tab, TabsComponent  # noqa: PLC0415
+
+        class DeniedComponent(Glue.Component):
+            template = 'django_spire/component/tab/tabs.html'
+
+            def is_authorized(self, request: object, operation: object) -> bool:
+                _ = request, operation
+                return False
+
+        class RestrictedTabsComponent(TabsComponent):
+            def get_tabs(self) -> tuple[Tab, ...]:
+                return (Tab(id='secret', label='Secret', component=DeniedComponent),)
+
+        request = RequestFactory().get('/tabs/')
+        request.session = SimpleNamespace(session_key='test-session')
+        request.user = SimpleNamespace(is_authenticated=False)
+        component = RestrictedTabsComponent()
+        component.request = request
+        component.__post_init__(request)
+        config = json.loads(component.tabs_config_json)
+
+        assert component.active_tab_html == ''
+        assert config['initialLoaded'] == []

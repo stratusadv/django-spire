@@ -28,18 +28,16 @@ document.addEventListener('alpine:init', () => {
     };
 
     Alpine.data('spireTabs', ({urlParam = ''} = {}) => ({
-        urlParam,
-
         init() {
             if (!this.urlParam) {
                 return;
             }
 
-            const requested = new URLSearchParams(window.location.search).get(this.urlParam);
+            const requestedTabId = new URLSearchParams(window.location.search).get(this.urlParam);
 
-            if (requested) {
+            if (requestedTabId) {
                 const button = this.$el.querySelector(
-                    `[data-bs-toggle="tab"][data-tab-id="${CSS.escape(requested)}"]`,
+                    `[data-bs-toggle="tab"][data-tab-id="${CSS.escape(requestedTabId)}"]`,
                 );
 
                 if (button && !button.classList.contains('active')) {
@@ -58,16 +56,11 @@ document.addEventListener('alpine:init', () => {
                 }
             });
         },
+
+        urlParam,
     }));
 
     Alpine.data('tabsComponent', () => ({
-        activeTab: null,
-        loadGeneration: 0,
-        loadedTabs: {},
-        loadingTab: null,
-        tabs: {},
-        urlParam: null,
-
         async init() {
             const root = this.$root || this.$el;
             const rawConfig = root?.dataset?.tabsConfig;
@@ -91,13 +84,24 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        activeTab: null,
+        loadGeneration: 0,
+        loadedTabs: {},
+        loadingTab: null,
+        tabs: {},
+        urlParam: null,
+
         disposePane(pane) {
             if (!pane) {
                 return;
             }
 
             for (const node of pane.querySelectorAll('[data-glue-address]')) {
-                window.Glue?.from?.(node)?.$dispose?.();
+                const proxy = window.Glue?.from?.(node);
+
+                if (proxy && proxy._record?.owner?.path == null) {
+                    proxy.$dispose?.();
+                }
             }
 
             pane.innerHTML = '';
@@ -106,6 +110,11 @@ document.addEventListener('alpine:init', () => {
         async invalidateTab(tabId = null) {
             if (tabId === null || tabId === undefined) {
                 const currentTab = this.activeTab;
+
+                if (this.loadingTab !== null) {
+                    ++this.loadGeneration;
+                    this.loadingTab = null;
+                }
 
                 for (const id of Object.keys(this.tabs)) {
                     delete this.loadedTabs[id];
@@ -123,6 +132,11 @@ document.addEventListener('alpine:init', () => {
             }
 
             delete this.loadedTabs[tabId];
+
+            if (this.loadingTab === tabId) {
+                ++this.loadGeneration;
+                this.loadingTab = null;
+            }
 
             if (this.activeTab === tabId) {
                 await this.loadTab(tabId);
@@ -149,23 +163,17 @@ document.addEventListener('alpine:init', () => {
             try {
                 if (tab.kind === 'view') {
                     const view = window.Glue.view(tab.viewUrl);
+                    const html = tab.viewMethod === 'POST' ? await view.post() : await view.get();
 
-                    if (tab.viewMethod === 'POST') {
-                        this.disposePane(pane);
-                        await view.renderInnerHtml(pane);
-                    } else {
-                        const html = await view.get();
+                    if (generation !== this.loadGeneration) {
+                        return;
+                    }
 
-                        if (generation !== this.loadGeneration) {
-                            return;
-                        }
+                    this.disposePane(pane);
 
-                        this.disposePane(pane);
-
-                        if (typeof html === 'string') {
-                            pane.innerHTML = html;
-                            window.Glue?.registerComponentsFromDom?.(pane);
-                        }
+                    if (typeof html === 'string') {
+                        pane.innerHTML = html;
+                        window.Glue?.registerComponentsFromDom?.(pane);
                     }
                 } else {
                     const result = await this.component.load_tab({tab_id: tabId});
@@ -174,10 +182,10 @@ document.addEventListener('alpine:init', () => {
                         return;
                     }
 
-                    this.disposePane(pane);
-
                     if (result) {
                         await result.renderInnerHtml(pane);
+                    } else {
+                        this.disposePane(pane);
                     }
                 }
 
@@ -218,6 +226,12 @@ document.addEventListener('alpine:init', () => {
             }
 
             const previousTab = this.activeTab;
+
+            if (previousTab !== tabId && this.loadingTab !== null) {
+                ++this.loadGeneration;
+                this.loadingTab = null;
+            }
+
             this.activeTab = tabId;
             syncUrlParam(this.urlParam, tabId);
 

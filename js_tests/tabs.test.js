@@ -205,19 +205,22 @@ describe('tabsComponent', () => {
         expect(pane('first').textContent).toBe('Loaded first #1')
     })
 
-    test('loads view tabs via Glue.view on init or switch', async () => {
+    test('loads view tabs via Glue.view on init or switch and registers components on POST', async () => {
         const fetched = []
+        const registeredPanes = []
         window.Glue = {
-            registerComponentsFromDom() {},
+            registerComponentsFromDom(target) {
+                registeredPanes.push(target.getAttribute('data-tab-pane'))
+            },
             view(url) {
                 return {
                     async get() {
                         fetched.push(`GET ${url}`)
                         return `<p>From GET ${url}</p>`
                     },
-                    async renderInnerHtml(target) {
+                    async post() {
                         fetched.push(`POST ${url}`)
-                        target.innerHTML = `<p>From POST ${url}</p>`
+                        return `<p>From POST ${url}</p>`
                     },
                 }
             },
@@ -239,5 +242,93 @@ describe('tabsComponent', () => {
         await data().selectTab('post_view')
         expect(fetched).toEqual(['GET /tabs/a/', 'POST /tabs/b/'])
         expect(pane('post_view').innerHTML).toBe('<p>From POST /tabs/b/</p>')
+        expect(registeredPanes).toEqual(['get_view', 'post_view'])
+    })
+
+    test('switching to a cached tab or invalidating cancels an in-flight tab load', async () => {
+        let resolveSlow
+        const {data, pane} = mountTabs({
+            activeTab: 'first',
+            initialLoaded: ['first'],
+            tabs: {
+                first: {cache: true, kind: 'component', viewMethod: 'GET', viewUrl: null},
+                second: {cache: false, kind: 'component', viewMethod: 'GET', viewUrl: null},
+            },
+            loadTabImpl: () => new Promise(resolve => {
+                resolveSlow = resolve
+            }),
+        })
+        await settle()
+
+        const pendingLoad = data().selectTab('second')
+        expect(data().loadingTab).toBe('second')
+
+        // Immediately switch back to already-cached first tab.
+        await data().selectTab('first')
+        expect(data().loadingTab).toBeNull()
+
+        resolveSlow({
+            async renderInnerHtml(target) {
+                target.innerHTML = '<div>Stale second</div>'
+            },
+        })
+        await pendingLoad
+
+        expect(pane('second').innerHTML).toBe('')
+        expect(data().loadedTabs.second).toBeUndefined()
+
+        // Start loading second again, then invalidate while in flight.
+        const secondPending = data().selectTab('second')
+        data().activeTab = 'first'
+        await data().invalidateTab('second')
+        expect(data().loadingTab).toBeNull()
+
+        resolveSlow({
+            async renderInnerHtml(target) {
+                target.innerHTML = '<div>Invalidated second</div>'
+            },
+        })
+        await secondPending
+        expect(pane('second').innerHTML).toBe('')
+    })
+
+    test('disposePane skips owner-bound child slots while disposing standalone objects', async () => {
+        const disposed = []
+        window.Glue = {
+            from(node) {
+                const address = node.getAttribute('data-glue-address')
+                if (address === 'child#slot') {
+                    return {
+                        _record: {owner: {address: 'parent#1', path: 'form'}},
+                        $dispose() {
+                            throw new Error('Cannot dispose owner-bound child directly')
+                        },
+                    }
+                }
+                return {
+                    _record: {owner: null},
+                    $dispose: () => disposed.push(address),
+                }
+            },
+        }
+
+        const {data, pane} = mountTabs({
+            activeTab: 'first',
+            initialLoaded: ['first'],
+            tabs: {
+                first: {cache: true, kind: 'component', viewMethod: 'GET', viewUrl: null},
+            },
+        })
+        await settle()
+
+        pane('first').innerHTML = `
+            <div data-glue-address="parent#1">
+                <div data-glue-address="child#slot"></div>
+            </div>
+        `
+        data().disposePane(pane('first'))
+
+        expect(disposed).toEqual(['parent#1'])
+        expect(pane('first').innerHTML).toBe('')
     })
 })
